@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service — ScentWise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #111118;
+            --border: #1e1e2a;
+            --text: #c8c8d4;
+            --text-muted: #7a7a8e;
+            --heading: #e8e6f0;
+            --accent: #b8965a;
+            --accent-glow: rgba(184, 150, 90, 0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        /* Subtle grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            margin-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        main {
+            max-width: 740px;
+            margin: 0 auto;
+            padding: 3.5rem 2rem 5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .effective-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .highlight-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a { color: var(--accent); margin: 0 1rem; }
+
+        @media (max-width: 600px) {
+            main { padding: 2rem 1.25rem 3rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="https://www.scent-wise.com" class="logo">◈ ScentWise <span>Terms of Service</span></a>
+    <a href="https://www.scent-wise.com" class="back-link">← Back to ScentWise</a>
+</header>
+
+<main>
+    <h1>Terms of Service</h1>
+    <p class="effective-date">Effective Date: February 17, 2026 · Last Updated: February 17, 2026</p>
+
+    <p>Welcome to ScentWise ("we," "our," or "us"). By accessing or using our website at <a href="https://www.scent-wise.com">scent-wise.com</a> and any related services (collectively, the "Service"), you agree to be bound by these Terms of Service ("Terms"). Please read them carefully.</p>
+
+    <h2>1. Overview of the Service</h2>
+    <p>ScentWise is an AI-powered fragrance recommendation platform that provides personalized fragrance suggestions through various discovery modes, including AI Chat, Photo Style Scan, Zodiac Match, Music Match, Style Match, and Fragrance Explorer. The Service is provided for informational and entertainment purposes only.</p>
+
+    <h2>2. Eligibility</h2>
+    <p>You must be at least 16 years of age to use this Service. By using ScentWise, you represent and warrant that you meet this requirement and have the legal capacity to enter into these Terms.</p>
+
+    <h2>3. Account & Subscriptions</h2>
+    <p>Certain features of ScentWise require a paid subscription ("Premium"). By subscribing, you agree to pay the applicable fees as displayed at the time of purchase. Subscriptions are billed on a recurring monthly basis at $7.00 USD per month unless cancelled.</p>
+
+    <div class="highlight-box">
+        <strong>Free Tier:</strong> Access to basic fragrance search and celebrity fragrance features.<br>
+        <strong>Premium ($7/month):</strong> Full access to all AI-powered features including AI Chat, Photo Style Scan, Zodiac Match, Music Match, and Style Match.
+    </div>
+
+    <p>Subscription payments are processed through our payment partner, Lemon Squeezy. By subscribing, you also agree to Lemon Squeezy's terms of service. Premium access is activated instantly upon successful payment.</p>
+
+    <h2>4. Cancellation</h2>
+    <p>You may cancel your subscription at any time through your account dashboard or by contacting us. Upon cancellation, you will retain access to Premium features until the end of your current billing period. No further charges will be made after cancellation takes effect.</p>
+
+    <h2>5. AI-Generated Recommendations Disclaimer</h2>
+    <p>ScentWise uses artificial intelligence to generate fragrance recommendations. These recommendations are provided for informational and entertainment purposes only and should not be treated as professional advice. We do not guarantee the accuracy, completeness, or suitability of any recommendation.</p>
+    <p>Fragrance preferences are highly personal. We encourage you to sample any fragrance before purchasing, as individual reactions to scents vary. ScentWise is not affiliated with any fragrance brand or retailer unless explicitly stated.</p>
+
+    <h2>6. Acceptable Use</h2>
+    <p>You agree not to misuse the Service. This includes, but is not limited to: attempting to reverse-engineer the Service or its AI models, using automated tools to scrape or extract data, circumventing access controls or payment mechanisms, sharing your Premium account credentials with others, or using the Service for any unlawful purpose.</p>
+
+    <h2>7. Intellectual Property</h2>
+    <p>All content, design, code, and branding on ScentWise are owned by or licensed to us and are protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works from any part of the Service without our prior written consent.</p>
+    <p>Fragrance names, brand names, and associated trademarks referenced on the platform are the property of their respective owners and are used for identification purposes only.</p>
+
+    <h2>8. Privacy</h2>
+    <p>Your use of the Service is also governed by our approach to data handling. We do not sell your personal data. Any information submitted through AI features (such as photos for Style Scan) is processed solely for the purpose of generating recommendations and is not stored beyond your session unless otherwise disclosed.</p>
+
+    <h2>9. Limitation of Liability</h2>
+    <p>To the maximum extent permitted by applicable law, ScentWise and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or relating to your use of the Service. Our total liability shall not exceed the amount you have paid to us in the 12 months preceding the event giving rise to the claim.</p>
+
+    <h2>10. Service Availability</h2>
+    <p>We strive to keep ScentWise available at all times but do not guarantee uninterrupted access. We may modify, suspend, or discontinue any part of the Service at any time, with or without notice. We will make reasonable efforts to notify subscribers of significant changes that affect their subscription.</p>
+
+    <h2>11. Changes to These Terms</h2>
+    <p>We reserve the right to update these Terms at any time. Material changes will be communicated through the Service or via email. Your continued use of the Service after changes take effect constitutes acceptance of the updated Terms.</p>
+
+    <h2>12. Governing Law & Dispute Resolution</h2>
+    <p>These Terms are intended to be enforceable worldwide to the fullest extent permitted by applicable local law. Any disputes arising from or relating to these Terms or the Service shall be resolved through good-faith negotiation between the parties. If a dispute cannot be resolved through negotiation within 30 days, either party may pursue resolution through binding arbitration or the competent courts of the country in which the user resides, as permitted by local consumer protection laws. Nothing in these Terms limits any rights you may have under mandatory consumer protection legislation in your jurisdiction.</p>
+
+    <h2>13. Contact</h2>
+    <p>If you have questions about these Terms, please reach out to us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.</p>
+</main>
+
+<footer>
+    <p>© 2026 ScentWise. All rights reserved.</p>
+    <p style="margin-top: 0.75rem;">
+        <a href="https://www.scent-wise.com">Home</a>
+        <a href="/terms.html">Terms of Service</a>
+        <a href="/refund.html">Refund Policy</a>
+    </p>
+</footer>
+
+</body>
+</html>

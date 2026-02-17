@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Policy — ScentWise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #111118;
+            --border: #1e1e2a;
+            --text: #c8c8d4;
+            --text-muted: #7a7a8e;
+            --heading: #e8e6f0;
+            --accent: #b8965a;
+            --accent-glow: rgba(184, 150, 90, 0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            margin-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        main {
+            max-width: 740px;
+            margin: 0 auto;
+            padding: 3.5rem 2rem 5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .effective-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .highlight-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box strong {
+            color: var(--heading);
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(184, 150, 90, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .summary-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .summary-item .icon {
+            color: var(--accent);
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a { color: var(--accent); margin: 0 1rem; }
+
+        @media (max-width: 600px) {
+            main { padding: 2rem 1.25rem 3rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="https://www.scent-wise.com" class="logo">◈ ScentWise <span>Refund Policy</span></a>
+    <a href="https://www.scent-wise.com" class="back-link">← Back to ScentWise</a>
+</header>
+
+<main>
+    <h1>Refund Policy</h1>
+    <p class="effective-date">Effective Date: February 17, 2026 · Last Updated: February 17, 2026</p>
+
+    <p>At ScentWise, we want you to be satisfied with your experience. This Refund Policy outlines how we handle refund requests for our Premium subscription service.</p>
+
+    <div class="summary-card">
+        <h3>Quick Summary</h3>
+        <div class="summary-item">
+            <span class="icon">◈</span>
+            <span>Premium access is delivered instantly — no waiting, no manual setup.</span>
+        </div>
+        <div class="summary-item">
+            <span class="icon">◈</span>
+            <span>You can cancel your subscription at any time and keep access until the end of your billing period.</span>
+        </div>
+        <div class="summary-item">
+            <span class="icon">◈</span>
+            <span>Refunds are considered on a case-by-case basis within 7 days of initial purchase.</span>
+        </div>
+        <div class="summary-item">
+            <span class="icon">◈</span>
+            <span>Contact us at scentwise.com@gmail.com for any billing concerns.</span>
+        </div>
+    </div>
+
+    <h2>1. Digital Product — Instant Delivery</h2>
+    <p>ScentWise Premium is a digital subscription service. Upon successful payment, access to all Premium features is activated immediately and automatically. There is no manual fulfillment or waiting period involved.</p>
+
+    <h2>2. Cancellation Policy</h2>
+    <p>You may cancel your Premium subscription at any time. When you cancel, you will continue to have access to all Premium features until the end of your current billing cycle. After that, your account will revert to the free tier. No further charges will be applied once cancellation is processed.</p>
+    <p>To cancel, you can manage your subscription through the Lemon Squeezy customer portal accessible from your account, or contact us directly.</p>
+
+    <h2>3. Refund Eligibility</h2>
+    <p>Because ScentWise Premium grants instant access to digital content and AI-powered features, refunds are generally not provided once the service has been accessed. However, we understand that circumstances vary, and we evaluate refund requests fairly.</p>
+
+    <div class="highlight-box">
+        <strong>Refunds may be granted if:</strong><br>
+        — You request a refund within 7 days of your initial subscription purchase.<br>
+        — You experienced a technical issue that prevented you from accessing Premium features, and we were unable to resolve it.<br>
+        — You were charged in error (e.g., duplicate payment).
+    </div>
+
+    <div class="highlight-box">
+        <strong>Refunds are generally not available for:</strong><br>
+        — Subscription renewals (please cancel before your renewal date to avoid charges).<br>
+        — Dissatisfaction with AI-generated recommendations (as these are subjective and vary by individual preference).<br>
+        — Partial billing periods after cancellation.
+    </div>
+
+    <h2>4. How to Request a Refund</h2>
+    <p>To request a refund, please email <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a> with the following information: your account email address, the date of the charge in question, and a brief description of the reason for your request. We aim to respond to all refund requests within 3 business days.</p>
+
+    <h2>5. Refund Processing</h2>
+    <p>Approved refunds will be processed through our payment partner, Lemon Squeezy, and returned to your original payment method. Please allow 5–10 business days for the refund to appear on your statement, depending on your bank or payment provider.</p>
+
+    <h2>6. Chargebacks</h2>
+    <p>We kindly ask that you contact us before initiating a chargeback or dispute with your bank. We are committed to resolving any billing issues promptly and fairly. Initiating a chargeback without first contacting us may result in suspension of your account.</p>
+
+    <h2>7. Changes to This Policy</h2>
+    <p>We may update this Refund Policy from time to time. Any changes will be posted on this page with an updated effective date. Continued use of the Service after changes are posted constitutes acceptance of the revised policy.</p>
+
+    <h2>8. Contact Us</h2>
+    <p>If you have questions about billing, cancellations, or refunds, we're here to help. Please reach out to <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a> and we'll get back to you as soon as possible.</p>
+</main>
+
+<footer>
+    <p>© 2026 ScentWise. All rights reserved.</p>
+    <p style="margin-top: 0.75rem;">
+        <a href="https://www.scent-wise.com">Home</a>
+        <a href="/terms.html">Terms of Service</a>
+        <a href="/refund.html">Refund Policy</a>
+    </p>
+</footer>
+
+</body>
+</html>
