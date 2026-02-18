@@ -69,10 +69,10 @@ module.exports = async function handler(req, res) {
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
           contents: [{ parts }],
           generationConfig: { maxOutputTokens: 1500, temperature: 0.8 }
@@ -83,7 +83,7 @@ module.exports = async function handler(req, res) {
     if (!response.ok) {
       const errText = await response.text();
       console.error(`Gemini API error: ${response.status}`, errText);
-      return res.status(500).json({ error: `AI service error: ${response.status}` });
+      return res.status(500).json({ error: 'AI service temporarily unavailable' });
     }
 
     const data = await response.json();
@@ -92,6 +92,6 @@ module.exports = async function handler(req, res) {
 
   } catch (err) {
     console.error('Recommend error:', err);
-    return res.status(500).json({ error: 'Server error: ' + err.message });
+    return res.status(500).json({ error: 'An internal error occurred. Please try again.' });
   }
 };

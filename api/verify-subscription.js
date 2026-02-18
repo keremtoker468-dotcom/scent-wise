@@ -9,6 +9,9 @@ module.exports = async function handler(req, res) {
 
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
+  if (typeof orderId !== 'string' || !/^\d{1,20}$/.test(orderId)) {
+    return res.status(400).json({ error: 'Invalid order ID format' });
+  }
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const subSecret = process.env.SUBSCRIPTION_SECRET;
@@ -51,7 +54,7 @@ module.exports = async function handler(req, res) {
       token, subId: subscriptionId, custId: customerId, email: customerEmail
     })).toString('base64');
 
-    const isProduction = req.headers.host && !req.headers.host.includes('localhost');
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     const maxAge = 30 * 24 * 60 * 60;
 
     res.setHeader('Set-Cookie', [

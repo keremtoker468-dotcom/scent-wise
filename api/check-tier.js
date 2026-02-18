@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
   if (subSecret && cookies.sw_sub) {
     const sub = verifySubToken(cookies.sw_sub, subSecret);
     if (sub) return res.status(200).json({ tier: 'premium', email: sub.email });
-    const isProduction = req.headers.host && !req.headers.host.includes('localhost');
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
   }
 
