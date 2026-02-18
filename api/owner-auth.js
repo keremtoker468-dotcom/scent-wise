@@ -34,6 +34,7 @@ module.exports = async function handler(req, res) {
 
   // --- Logout ---
   if (req.method === 'DELETE') {
+    if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', [
       `sw_owner=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`,

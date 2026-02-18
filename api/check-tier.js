@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, MAX_MONTHLY_QUERIES } = require('./_lib/usage');
+const { readUsage, MAX_MONTHLY_QUERIES, parseCookies } = require('./_lib/usage');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -9,7 +9,8 @@ function verifySubToken(cookieValue, secret) {
     const { token, subId, custId } = decoded;
     if (!token || !subId || !custId) return null;
     const expected = crypto.createHmac('sha256', secret).update(subId + ':' + custId).digest('hex');
-    if (crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
+    if (Buffer.byteLength(token) === Buffer.byteLength(expected) &&
+        crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
       return { subId, custId, email: decoded.email };
     }
     return null;
@@ -50,12 +51,3 @@ module.exports = async function handler(req, res) {
 
   return res.status(200).json({ tier: 'free' });
 };
-
-function parseCookies(cookieHeader) {
-  const cookies = {};
-  cookieHeader.split(';').forEach(part => {
-    const [key, ...val] = part.trim().split('=');
-    if (key) cookies[key] = val.join('=');
-  });
-  return cookies;
-}

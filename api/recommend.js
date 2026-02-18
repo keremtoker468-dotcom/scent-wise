@@ -19,7 +19,8 @@ function verifyAccess(req) {
       const { token, subId, custId } = decoded;
       if (token && subId && custId) {
         const expected = crypto.createHmac('sha256', subSecret).update(subId + ':' + custId).digest('hex');
-        if (crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
+        if (Buffer.byteLength(token) === Buffer.byteLength(expected) &&
+            crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
           return { authorized: true, tier: 'premium', userId: `${custId}` };
         }
       }
@@ -64,6 +65,18 @@ module.exports = async function handler(req, res) {
 
   try {
     const { mode, messages, imageBase64, imageMime } = req.body;
+
+    // Input validation
+    if (mode === 'photo' && imageBase64 && imageBase64.length > 10 * 1024 * 1024) {
+      return res.status(413).json({ error: 'Image too large (max 10MB)' });
+    }
+    if (messages && (!Array.isArray(messages) || messages.length > 50)) {
+      return res.status(400).json({ error: 'Invalid messages' });
+    }
+    if (imageMime && !/^image\/(jpeg|png|gif|webp|heic|heif)$/.test(imageMime)) {
+      return res.status(400).json({ error: 'Invalid image type' });
+    }
+
     let parts = [];
     let systemText = '';
 

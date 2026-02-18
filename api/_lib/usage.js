@@ -9,9 +9,13 @@ function getCurrentMonth() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function deriveUsageKey(secret) {
+  return crypto.createHmac('sha256', secret).update('sw-usage-key-v1').digest();
+}
+
 function makeSig(secret, userId, count, month) {
-  return crypto.createHmac('sha256', secret)
-    .update(`usage:${userId}:${count}:${month}`).digest('hex');
+  return crypto.createHmac('sha256', deriveUsageKey(secret))
+    .update(`${userId}:${count}:${month}`).digest('hex');
 }
 
 function parseCookies(cookieHeader) {

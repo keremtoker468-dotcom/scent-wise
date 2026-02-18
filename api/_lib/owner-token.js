@@ -31,15 +31,18 @@ function verifyOwnerToken(cookieValue, ownerKey) {
     } catch {}
   }
 
-  // Accept legacy v1 token for backward compatibility with existing sessions
-  try {
-    const legacy = crypto.createHmac('sha256', ownerKey)
-      .update('scentwise-owner-v1').digest('hex');
-    if (Buffer.byteLength(cookieValue) === Buffer.byteLength(legacy) &&
-        crypto.timingSafeEqual(Buffer.from(cookieValue), Buffer.from(legacy))) {
-      return true;
-    }
-  } catch {}
+  // Accept legacy v1 token until 2026-04-01, then remove this block
+  const V1_SUNSET = new Date('2026-04-01T00:00:00Z').getTime();
+  if (Date.now() < V1_SUNSET) {
+    try {
+      const legacy = crypto.createHmac('sha256', ownerKey)
+        .update('scentwise-owner-v1').digest('hex');
+      if (Buffer.byteLength(cookieValue) === Buffer.byteLength(legacy) &&
+          crypto.timingSafeEqual(Buffer.from(cookieValue), Buffer.from(legacy))) {
+        return true;
+      }
+    } catch {}
+  }
 
   return false;
 }
