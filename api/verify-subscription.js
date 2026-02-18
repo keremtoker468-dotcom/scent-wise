@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const { rateLimit, getClientIp } = require('./_lib/rate-limit');
+const { validateOrigin } = require('./_lib/csrf');
 
 function makeToken(subscriptionId, customerId, secret) {
   return crypto.createHmac('sha256', secret).update(subscriptionId + ':' + customerId).digest('hex');
@@ -7,8 +9,17 @@ function makeToken(subscriptionId, customerId, secret) {
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+
+  const ip = getClientIp(req);
+  const rl = rateLimit(`verify-sub:${ip}`, 10, 60000); // 10 attempts/min
+  if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
+
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
+  if (typeof orderId !== 'string' || !/^\d{1,20}$/.test(orderId)) {
+    return res.status(400).json({ error: 'Invalid order ID format' });
+  }
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const subSecret = process.env.SUBSCRIPTION_SECRET;
@@ -51,7 +62,7 @@ module.exports = async function handler(req, res) {
       token, subId: subscriptionId, custId: customerId, email: customerEmail
     })).toString('base64');
 
-    const isProduction = req.headers.host && !req.headers.host.includes('localhost');
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     const maxAge = 30 * 24 * 60 * 60;
 
     res.setHeader('Set-Cookie', [
