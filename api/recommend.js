@@ -1,128 +1,97 @@
-export default async function handler(req, res) {
-  // CORS
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+const crypto = require('crypto');
+
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  (cookieHeader || '').split(';').forEach(part => {
+    const [key, ...val] = part.trim().split('=');
+    if (key) cookies[key] = val.join('=');
+  });
+  return cookies;
+}
+
+function verifyAccess(req) {
+  const cookies = parseCookies(req.headers.cookie || '');
+  const ownerKey = process.env.OWNER_KEY;
+  if (ownerKey && cookies.sw_owner) {
+    try {
+      const expected = crypto.createHmac('sha256', ownerKey).update('scentwise-owner-v1').digest('hex');
+      if (crypto.timingSafeEqual(Buffer.from(cookies.sw_owner), Buffer.from(expected))) {
+        return { authorized: true, tier: 'owner' };
+      }
+    } catch {}
+  }
+  const subSecret = process.env.SUBSCRIPTION_SECRET;
+  if (subSecret && cookies.sw_sub) {
+    try {
+      const decoded = JSON.parse(Buffer.from(cookies.sw_sub, 'base64').toString());
+      const { token, subId, custId } = decoded;
+      if (token && subId && custId) {
+        const expected = crypto.createHmac('sha256', subSecret).update(subId + ':' + custId).digest('hex');
+        if (crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
+          return { authorized: true, tier: 'premium' };
+        }
+      }
+    } catch {}
+  }
+  return { authorized: false, tier: 'free' };
+}
+
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // 🔒 AUTH CHECK — rejects unauthorized requests
+  const access = verifyAccess(req);
+  if (!access.authorized) {
+    return res.status(403).json({ error: 'Premium subscription required', tier: 'free' });
+  }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
-    const { mode, messages, imageBase64, imageMime, prompt } = req.body;
+    const { mode, messages, imageBase64, imageMime } = req.body;
+    let parts = [];
+    let systemText = '';
 
-    // Try models in order - if one hits rate limit, fall back to next
-    const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
-
-    let body;
-    if (mode === 'photo' && imageBase64) {
-      body = {
-        contents: [{
-          parts: [
-            { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
-            { text: prompt || 'Analyze this photo and recommend fragrances based on the style, clothing, and aesthetic.' }
-          ]
-        }],
-        systemInstruction: { parts: [{ text: PHOTO_SYSTEM }] },
-        generationConfig: { maxOutputTokens: 1200, temperature: 0.8 }
-      };
+    if (mode === 'photo') {
+      systemText = 'You are ScentWise — an expert fragrance consultant who matches scents to personal style. Analyze the uploaded photo focusing on clothing style, color palette, accessories and overall aesthetic. Recommend exactly 5 fragrances that match. For each include: **Fragrance Name** by Brand, key notes (top/heart/base), price range ($, $$, $$$), and why it matches. End with 2 budget alternatives.';
+      parts = [
+        { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
+        { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
+      ];
     } else {
-      const contents = (messages || []).map(m => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }]
-      }));
-      body = {
-        contents,
-        systemInstruction: { parts: [{ text: CHAT_SYSTEM }] },
-        generationConfig: { maxOutputTokens: 1200, temperature: 0.7 }
-      };
+      systemText = 'You are ScentWise AI — a world-class fragrance advisor with encyclopedic knowledge of perfumery including designer, niche, and artisanal fragrances. Provide specific, confident recommendations with fragrance names, brands, key notes, price ranges, and reasons. Format with **bold** for fragrance names. Be conversational and knowledgeable.';
+      const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
+      const history = messages && messages.length > 1 
+        ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n') 
+        : '';
+      parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
     }
 
-    let lastError = null;
-
-    for (const model of models) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-      // Retry up to 2 times per model
-      for (let attempt = 0; attempt < 2; attempt++) {
-        if (attempt > 0) await new Promise(r => setTimeout(r, 2000));
-
-        try {
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
-            return res.status(200).json({ result: text });
-          }
-
-          if (response.status === 429) {
-            lastError = `Rate limited on ${model}`;
-            console.log(`429 on ${model}, attempt ${attempt + 1}`);
-            break; // Try next model
-          }
-
-          const errText = await response.text();
-          lastError = errText;
-          console.error(`Error on ${model}:`, errText);
-          break;
-
-        } catch (fetchErr) {
-          lastError = fetchErr.message;
-          console.error(`Fetch error on ${model}:`, fetchErr.message);
-        }
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: { maxOutputTokens: 1500, temperature: 0.8 }
+        })
       }
+    );
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Gemini API error: ${response.status}`, errText);
+      return res.status(500).json({ error: `AI service error: ${response.status}` });
     }
 
-    return res.status(429).json({
-      error: 'AI service temporarily busy. Please wait a moment and try again.',
-      details: lastError
-    });
+    const data = await response.json();
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+    return res.status(200).json({ result });
 
   } catch (err) {
-    console.error('Handler error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Recommend error:', err);
+    return res.status(500).json({ error: 'Server error: ' + err.message });
   }
-}
-
-const CHAT_SYSTEM = `You are ScentWise AI — the world's most knowledgeable fragrance advisor. You help people discover their perfect scent through deep expertise in perfumery.
-
-Your knowledge spans:
-- Thousands of fragrances across all price ranges, from niche (Maison Francis Kurkdjian, Tom Ford, Amouage, Xerjoff) to designer (Dior, Chanel, Versace, YSL) to affordable (Zara, Al Rehab, Lattafa)
-- Notes, accords, longevity, sillage, projection for major fragrances
-- Seasonal recommendations, occasion-based picks, layering advice
-- Dupe/clone alternatives (e.g., Aventus to Club De Nuit Intense Man, BR540 to Cloud)
-- Zodiac-based recommendations tied to personality traits
-- Music taste to fragrance connections
-- Celebrity fragrance associations
-- Budget-conscious alternatives
-
-Response style:
-- Always recommend specific fragrances by name with brand
-- Include price range when possible
-- Mention key notes and accords
-- Be conversational, passionate, and knowledgeable
-- Format with clear structure using line breaks
-- Keep responses concise but informative (3-5 fragrance recommendations per question)
-- Never reference Fragrantica — use general fragrance community knowledge`;
-
-const PHOTO_SYSTEM = `You are a style-to-fragrance expert at ScentWise. Analyze the uploaded photo and recommend fragrances based on:
-
-1. Overall Style — clothing, accessories, aesthetic vibe
-2. Color Palette — dominant colors in their look
-3. Energy/Mood — the overall impression and personality
-
-Based on your analysis, recommend 5 specific fragrances with:
-- Fragrance name and brand
-- WHY it matches their style
-- Key notes
-- Approximate price range
-
-Focus entirely on style, clothing, accessories, and overall aesthetic energy. Never comment on physical features or body. Be specific and creative in your connections between fashion and fragrance.
-
-Never reference Fragrantica — use general fragrance expertise.`;
+};
