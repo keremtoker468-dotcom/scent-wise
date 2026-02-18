@@ -1,4 +1,7 @@
 const crypto = require('crypto');
+const { rateLimit, getClientIp } = require('./_lib/rate-limit');
+const { verifyOwnerToken } = require('./_lib/owner-token');
+const { readUsage, MAX_MONTHLY_QUERIES } = require('./_lib/usage');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -13,15 +16,12 @@ function verifySubToken(cookieValue, secret) {
   } catch { return null; }
 }
 
-function verifyOwnerToken(cookieValue, ownerKey) {
-  try {
-    const expected = crypto.createHmac('sha256', ownerKey).update('scentwise-owner-v1').digest('hex');
-    return crypto.timingSafeEqual(Buffer.from(cookieValue), Buffer.from(expected));
-  } catch { return false; }
-}
-
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const ip = getClientIp(req);
+  const rl = rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
+  if (!rl.allowed) return res.status(429).json({ error: 'Too many requests' });
 
   const cookies = parseCookies(req.headers.cookie || '');
   const subSecret = process.env.SUBSCRIPTION_SECRET;
@@ -35,7 +35,15 @@ module.exports = async function handler(req, res) {
 
   if (subSecret && cookies.sw_sub) {
     const sub = verifySubToken(cookies.sw_sub, subSecret);
-    if (sub) return res.status(200).json({ tier: 'premium', email: sub.email });
+    if (sub) {
+      const usage = readUsage(req, sub.custId, subSecret);
+      return res.status(200).json({
+        tier: 'premium',
+        email: sub.email,
+        usage: usage.count,
+        limit: MAX_MONTHLY_QUERIES
+      });
+    }
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
   }

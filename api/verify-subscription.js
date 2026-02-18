@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const { rateLimit, getClientIp } = require('./_lib/rate-limit');
+const { validateOrigin } = require('./_lib/csrf');
 
 function makeToken(subscriptionId, customerId, secret) {
   return crypto.createHmac('sha256', secret).update(subscriptionId + ':' + customerId).digest('hex');
@@ -6,6 +8,12 @@ function makeToken(subscriptionId, customerId, secret) {
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+
+  const ip = getClientIp(req);
+  const rl = rateLimit(`verify-sub:${ip}`, 10, 60000); // 10 attempts/min
+  if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
 
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
