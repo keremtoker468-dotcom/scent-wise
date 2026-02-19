@@ -58,8 +58,8 @@ module.exports = async function handler(req, res) {
               res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
               return res.status(200).json({ tier: 'free' });
             }
-            if (status === 'refunded') {
-              // Subscription no longer valid — clear cookie
+            if (status === 'refunded' || status === 'paused' || status === 'expired') {
+              // Subscription no longer active — clear cookie
               res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
               return res.status(200).json({ tier: 'free' });
             }
