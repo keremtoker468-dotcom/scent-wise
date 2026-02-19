@@ -2,7 +2,7 @@ const RD=[{"n":"Spiderman Air-Val","b":"Air Val International","c":"Fresh","g":"
 
 // ═══════════════ CONFIG ═══════════════
 const API_URL = '/api/recommend';
-const LEMON_URL = 'https://scent-wise.lemonsqueezy.com/checkout/buy/36ba41fc-d349-41f6-897e-623ddb01cd5b';
+const LEMON_URL = 'https://scent-wise.lemonsqueezy.com/checkout/buy/2c977ddf-bd60-430a-a923-97643485e005';
 
 // ═══════════════ DATABASE ENGINE ═══════════════
 const RL = {};

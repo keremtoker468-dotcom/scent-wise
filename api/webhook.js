@@ -65,9 +65,11 @@ module.exports = async function handler(req, res) {
   // Handle relevant events
   switch (eventName) {
     case 'order_created':
-      // Order completed — user should be redirected back with ?order_id automatically
-      // This log helps verify the flow is working
       console.log(`[LS Webhook] New order: #${payload.data?.id} by ${attrs.user_email}`);
+      break;
+
+    case 'subscription_updated':
+      console.log(`[LS Webhook] Subscription updated: customer ${attrs.customer_id}, status=${attrs.status}`);
       break;
 
     case 'subscription_cancelled':
@@ -76,6 +78,18 @@ module.exports = async function handler(req, res) {
 
     case 'subscription_expired':
       console.log(`[LS Webhook] Subscription expired: customer ${attrs.customer_id}`);
+      break;
+
+    case 'subscription_paused':
+      console.log(`[LS Webhook] Subscription paused: customer ${attrs.customer_id}`);
+      break;
+
+    case 'subscription_unpaused':
+      console.log(`[LS Webhook] Subscription unpaused: customer ${attrs.customer_id}`);
+      break;
+
+    case 'subscription_resumed':
+      console.log(`[LS Webhook] Subscription resumed: customer ${attrs.customer_id}`);
       break;
 
     case 'order_refunded':
