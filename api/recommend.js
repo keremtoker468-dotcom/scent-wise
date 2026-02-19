@@ -35,7 +35,7 @@ module.exports = async function handler(req, res) {
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
 
   const ip = getClientIp(req);
-  const rl = rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
+  const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
   if (!rl.allowed) return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' });
 
   const access = verifyAccess(req);

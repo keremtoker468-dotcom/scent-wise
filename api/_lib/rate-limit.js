@@ -1,6 +1,6 @@
-// In-memory rate limiter for Vercel serverless functions.
-// Provides protection within a container's warm lifecycle (~5-15 min).
-// For production-grade rate limiting, consider Vercel KV or Upstash Redis.
+// Persistent rate limiter with Upstash Redis fallback to in-memory.
+// Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN env vars to enable Redis.
+
 const store = new Map();
 let lastCleanup = Date.now();
 
@@ -13,7 +13,7 @@ function cleanup() {
   }
 }
 
-function rateLimit(key, max, windowMs) {
+function memoryRateLimit(key, max, windowMs) {
   cleanup();
   const now = Date.now();
   const entry = store.get(key);
@@ -29,6 +29,54 @@ function rateLimit(key, max, windowMs) {
   }
 
   return { allowed: true, remaining: max - entry.count };
+}
+
+// Upstash Redis REST API rate limiter (sliding window)
+async function redisRateLimit(key, max, windowMs) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  try {
+    const now = Date.now();
+    const windowKey = `rl:${key}:${Math.floor(now / windowMs)}`;
+
+    // INCR + EXPIRE in a pipeline
+    const resp = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([
+        ['INCR', windowKey],
+        ['PEXPIRE', windowKey, windowMs]
+      ])
+    });
+
+    if (!resp.ok) throw new Error('Redis error');
+
+    const results = await resp.json();
+    const count = results[0]?.result || 0;
+
+    if (count > max) {
+      return { allowed: false, remaining: 0 };
+    }
+    return { allowed: true, remaining: max - count };
+  } catch (e) {
+    // Fall back to in-memory on Redis failure
+    console.warn('Redis rate limit failed, using in-memory:', e.message);
+    return memoryRateLimit(key, max, windowMs);
+  }
+}
+
+function rateLimit(key, max, windowMs) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (url && token) {
+    return redisRateLimit(key, max, windowMs);
+  }
+  return memoryRateLimit(key, max, windowMs);
 }
 
 function getClientIp(req) {

@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = getClientIp(req);
-  const rl = rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
+  const rl = await rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
   if (!rl.allowed) return res.status(429).json({ error: 'Too many requests' });
 
   const cookies = parseCookies(req.headers.cookie || '');
