@@ -114,7 +114,11 @@ function trackUsage(serverUsage) {
 }
 
 function unlockPaid() {
-  window.open(LEMON_URL, '_blank');
+  if (window.LemonSqueezy) {
+    window.LemonSqueezy.Url.Open(LEMON_URL);
+  } else {
+    window.open(LEMON_URL, '_blank');
+  }
 }
 
 async function loginOwner(key) {
@@ -148,7 +152,11 @@ async function activateSubscription(orderId) {
     });
     const d = await r.json();
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; go(CP); return true; }
-  } catch {}
+    alert(d.error || 'Could not verify your subscription. Please check your order ID and try again.');
+  } catch (err) {
+    console.error('Subscription activation error:', err);
+    alert('Network error while verifying subscription. Please check your connection and try again.');
+  }
   return false;
 }
 
@@ -161,7 +169,7 @@ function showPaywall() {
     </p>
     <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
-    <a href="${LEMON_URL}" target="_blank" class="btn" style="display:inline-block;text-decoration:none">Subscribe Now</a>
+    <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Subscribe Now</a>
     <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="promptActivate()" style="color:var(--g);cursor:pointer;text-decoration:underline">Activate here</a></p>
   </div>`;
 }
@@ -472,7 +480,7 @@ function r_home(el) {
       <p style="color:var(--td);font-size:16px;max-width:500px;margin:0 auto;line-height:1.6">AI-powered fragrance advisor with ${SI.length.toLocaleString()} perfumes — discover your perfect scent through style, personality, and taste.</p>
       ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
       <div style="margin-top:20px">
-        <a href="${LEMON_URL}" target="_blank" class="btn" style="display:inline-block;text-decoration:none">Get Full Access — $7/month</a>
+        <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Get Full Access — $7/month</a>
         <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free · AI features require subscription</p>
       </div>`}
     </div>

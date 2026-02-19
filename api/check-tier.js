@@ -37,6 +37,37 @@ module.exports = async function handler(req, res) {
   if (subSecret && cookies.sw_sub) {
     const sub = verifySubToken(cookies.sw_sub, subSecret);
     if (sub) {
+      // Periodically re-validate subscription with LS API
+      // Use sw_revalidated cookie to throttle (once per 24h)
+      const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
+      const needsRevalidation = lsApiKey && !cookies.sw_revalidated;
+      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+
+      if (needsRevalidation) {
+        try {
+          const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${sub.subId}`, {
+            headers: { 'Authorization': `Bearer ${lsApiKey}`, 'Accept': 'application/vnd.api+json' }
+          });
+          if (orderRes.ok) {
+            const orderData = await orderRes.json();
+            const status = orderData.data?.attributes?.status;
+            if (status === 'refunded') {
+              // Subscription no longer valid — clear cookie
+              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+              return res.status(200).json({ tier: 'free' });
+            }
+          }
+          // Set revalidation throttle cookie (24h)
+          const existing = res.getHeader('Set-Cookie') || [];
+          const setCookies = Array.isArray(existing) ? [...existing] : [existing];
+          setCookies.push(`sw_revalidated=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400${isProduction ? '; Secure' : ''}`);
+          res.setHeader('Set-Cookie', setCookies);
+        } catch (err) {
+          // LS API unreachable — trust the local cookie, don't block the user
+          console.error('LS revalidation error:', err.message);
+        }
+      }
+
       const usage = readUsage(req, sub.custId, subSecret);
       return res.status(200).json({
         tier: 'premium',

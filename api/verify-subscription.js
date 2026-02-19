@@ -23,6 +23,8 @@ module.exports = async function handler(req, res) {
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const subSecret = process.env.SUBSCRIPTION_SECRET;
+  const expectedStoreId = process.env.LEMONSQUEEZY_STORE_ID;
+  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
 
   if (!lsApiKey || !subSecret) {
     console.error('Missing LEMONSQUEEZY_API_KEY or SUBSCRIPTION_SECRET');
@@ -46,6 +48,18 @@ module.exports = async function handler(req, res) {
     const order = orderData.data?.attributes;
 
     if (!order || order.status === 'refunded') {
+      return res.status(400).json({ error: 'Order not valid' });
+    }
+
+    // Validate order belongs to our store
+    if (expectedStoreId && String(order.store_id) !== expectedStoreId) {
+      console.error(`Order store_id mismatch: ${order.store_id}`);
+      return res.status(400).json({ error: 'Order not valid' });
+    }
+
+    // Validate order is for our product
+    if (expectedProductId && String(order.first_order_item?.product_id) !== expectedProductId) {
+      console.error(`Order product_id mismatch: ${order.first_order_item?.product_id}`);
       return res.status(400).json({ error: 'Order not valid' });
     }
 
