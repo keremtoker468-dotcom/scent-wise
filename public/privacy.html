@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — ScentWise</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #111118;
+            --border: #1e1e2a;
+            --text: #c8c8d4;
+            --text-muted: #7a7a8e;
+            --heading: #e8e6f0;
+            --accent: #b8965a;
+            --accent-glow: rgba(184, 150, 90, 0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            margin-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        main {
+            max-width: 740px;
+            margin: 0 auto;
+            padding: 3.5rem 2rem 5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.6rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+        }
+
+        .effective-date {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-top: 2.5rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .highlight-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 1.25rem 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        .highlight-box strong {
+            color: var(--heading);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--heading);
+            font-weight: 500;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        td { color: var(--text); }
+
+        code {
+            background: var(--bg-card);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a { color: var(--accent); margin: 0 1rem; }
+
+        @media (max-width: 600px) {
+            main { padding: 2rem 1.25rem 3rem; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.3rem; }
+            table { font-size: 0.8rem; }
+            th, td { padding: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="https://www.scent-wise.com" class="logo">◈ ScentWise <span>Privacy Policy</span></a>
+    <a href="https://www.scent-wise.com" class="back-link">&larr; Back to ScentWise</a>
+</header>
+
+<main>
+    <h1>Privacy Policy</h1>
+    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: February 19, 2026</p>
+
+    <p>At ScentWise ("we," "our," or "us"), we respect your privacy. This Privacy Policy explains what information we collect, how we use it, and the choices you have. By using our website at <a href="https://www.scent-wise.com">scent-wise.com</a> (the "Service"), you agree to the practices described here.</p>
+
+    <h2>1. Information We Collect</h2>
+    <p>We collect minimal information needed to provide the Service:</p>
+
+    <div class="highlight-box">
+        <strong>What we collect:</strong><br>
+        &mdash; <strong>IP address:</strong> Used for rate limiting, free trial tracking, and abuse prevention.<br>
+        &mdash; <strong>Subscription details:</strong> Order ID, customer ID, and email from Lemon Squeezy when you subscribe.<br>
+        &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features, processed in real-time and not stored beyond your session.<br>
+        &mdash; <strong>Analytics:</strong> Anonymous page-view data via Plausible.io (no cookies, no personal identifiers).
+    </div>
+
+    <p>We do <strong>not</strong> collect names, physical addresses, phone numbers, or any information beyond what is listed above. We do not use browser fingerprinting or third-party tracking pixels.</p>
+
+    <h2>2. Cookies We Use</h2>
+    <p>ScentWise uses a small number of strictly functional cookies. We do not use advertising or tracking cookies.</p>
+
+    <table>
+        <tr><th>Cookie</th><th>Purpose</th><th>Duration</th></tr>
+        <tr><td><code>sw_free</code></td><td>Tracks free trial query count for anonymous users</td><td>32 days</td></tr>
+        <tr><td><code>sw_sub</code></td><td>Authenticates premium subscribers</td><td>30 days</td></tr>
+        <tr><td><code>sw_usage</code></td><td>Tracks monthly query count for premium users</td><td>32 days</td></tr>
+        <tr><td><code>sw_owner</code></td><td>Authenticates site administrators</td><td>30 days</td></tr>
+        <tr><td><code>sw_revalidated</code></td><td>Throttles subscription re-verification checks</td><td>24 hours</td></tr>
+    </table>
+
+    <p>All cookies are <strong>HttpOnly</strong> (inaccessible to JavaScript), <strong>SameSite=Strict</strong> (not sent in cross-site requests), and <strong>Secure</strong> (HTTPS-only in production). Each cookie is cryptographically signed with HMAC-SHA256 to prevent tampering.</p>
+
+    <h2>3. How We Use Your Information</h2>
+    <p>We use the information we collect to:</p>
+    <p>&mdash; Provide and improve the Service, including AI-powered fragrance recommendations.<br>
+    &mdash; Enforce usage limits and prevent abuse (rate limiting, free trial enforcement).<br>
+    &mdash; Process and verify subscription payments through Lemon Squeezy.<br>
+    &mdash; Respond to your support inquiries.</p>
+
+    <h2>4. Data Sharing</h2>
+    <p>We do not sell, rent, or trade your personal information. We share data only with the following service providers, strictly as needed to operate the Service:</p>
+
+    <div class="highlight-box">
+        <strong>Service providers:</strong><br>
+        &mdash; <strong>Google (Gemini API):</strong> Processes AI queries. Subject to Google's privacy policy.<br>
+        &mdash; <strong>Lemon Squeezy:</strong> Processes subscription payments. Subject to Lemon Squeezy's privacy policy.<br>
+        &mdash; <strong>Vercel:</strong> Hosts the Service. Subject to Vercel's privacy policy.<br>
+        &mdash; <strong>Plausible.io:</strong> Privacy-respecting analytics. No personal data is collected or shared.
+    </div>
+
+    <h2>5. Data Retention</h2>
+    <p>We retain data only as long as necessary:</p>
+    <p>&mdash; <strong>AI inputs (text and photos):</strong> Processed in real-time and not stored beyond your browser session.<br>
+    &mdash; <strong>Cookies:</strong> Expire automatically as listed in Section 2 above.<br>
+    &mdash; <strong>Subscription data:</strong> Retained while your subscription is active and for a reasonable period afterward for billing purposes.<br>
+    &mdash; <strong>Rate-limit data:</strong> Automatically purged after 10 minutes (in-memory) or at end of the rate-limit window (Redis).</p>
+
+    <h2>6. Your Rights</h2>
+    <p>Depending on your jurisdiction, you may have the right to:</p>
+    <p>&mdash; Access the personal data we hold about you.<br>
+    &mdash; Request deletion of your data.<br>
+    &mdash; Withdraw consent for cookie use at any time (by clearing cookies in your browser or declining the consent banner).<br>
+    &mdash; Object to processing of your data.</p>
+    <p>To exercise any of these rights, contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. We will respond within 30 days.</p>
+
+    <h2>7. Security</h2>
+    <p>We implement industry-standard security measures to protect your data, including HMAC-SHA256 signed cookies, HTTPS enforcement, Content Security Policy headers, CSRF protection, and rate limiting. However, no method of transmission or storage is 100% secure, and we cannot guarantee absolute security.</p>
+
+    <h2>8. Children's Privacy</h2>
+    <p>ScentWise is not intended for users under 16 years of age. We do not knowingly collect information from children. If you believe a child has provided us with personal data, please contact us and we will promptly delete it.</p>
+
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Material changes will be communicated through the Service. Your continued use of the Service after changes are posted constitutes acceptance of the updated policy.</p>
+
+    <h2>10. Contact</h2>
+    <p>If you have questions about this Privacy Policy or how we handle your data, please contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.</p>
+</main>
+
+<footer>
+    <p>&copy; 2026 ScentWise. All rights reserved.</p>
+    <p style="margin-top: 0.75rem;">
+        <a href="https://www.scent-wise.com">Home</a>
+        <a href="/terms.html">Terms of Service</a>
+        <a href="/privacy.html">Privacy Policy</a>
+        <a href="/refund.html">Refund Policy</a>
+    </p>
+</footer>
+
+</body>
+</html>

@@ -140,6 +140,13 @@ input:focus{border-color:var(--g)}
 <!-- Analytics (privacy-respecting, no cookies) -->
 <script defer data-domain="scent-wise.vercel.app" src="https://plausible.io/js/script.js"></script>
 <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+<!-- Cookie consent -->
+<script>
+function getCookieConsent(){try{return localStorage.getItem('sw_cookie_consent')}catch(e){return null}}
+function acceptCookies(){try{localStorage.setItem('sw_cookie_consent','accepted')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
+function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
+document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
+</script>
 <!-- App scripts: perfumes DB loaded first (cached by browser), then app logic -->
 <script src="/perfumes.js" defer></script>
 <script src="/app.js" defer></script>
@@ -158,9 +165,19 @@ input:focus{border-color:var(--g)}
 <div id="page-style" class="hidden"></div>
 <div id="page-celeb" class="hidden"></div>
 <div id="page-admin" class="hidden"></div>
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111;border-top:1px solid #2a2a2a;padding:16px 20px;font-size:13px;color:#8a8278">
+  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <p style="flex:1;min-width:200px;line-height:1.5;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:#c9a96e">Privacy Policy</a></p>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button onclick="acceptCookies()" style="background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:600;border:none;border-radius:10px;padding:8px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Accept</button>
+      <button onclick="declineCookies()" style="background:transparent;color:#8a8278;border:1px solid #333;border-radius:10px;padding:8px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Decline</button>
+    </div>
+  </div>
+</div>
 <div style="border-top:1px solid #2a2a2a;margin-top:40px;padding:20px;text-align:center;font-size:12px;color:#8a8278">
   <p style="margin-bottom:8px">&copy; 2026 ScentWise. All rights reserved.</p>
   <a href="/terms.html" style="color:#c9a96e;margin:0 10px">Terms of Service</a>
+  <a href="/privacy.html" style="color:#c9a96e;margin:0 10px">Privacy Policy</a>
   <a href="/refund.html" style="color:#c9a96e;margin:0 10px">Refund Policy</a>
   <a href="mailto:scentwise.com@gmail.com" style="color:#c9a96e;margin:0 10px">Contact</a>
 </div>
