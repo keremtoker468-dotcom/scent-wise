@@ -2,7 +2,7 @@ const RD=[{"n":"Spiderman Air-Val","b":"Air Val International","c":"Fresh","g":"
 
 // ═══════════════ CONFIG ═══════════════
 const API_URL = '/api/recommend';
-const LEMON_URL = 'https://scent-wise.lemonsqueezy.com/checkout/buy/2c977ddf-bd60-430a-a923-97643485e005';
+let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
 // ═══════════════ DATABASE ENGINE ═══════════════
 const RL = {};
@@ -125,11 +125,24 @@ function trackFreeUsage(used) {
   else freeUsed++;
 }
 
-function unlockPaid() {
-  if (window.LemonSqueezy) {
-    window.LemonSqueezy.Url.Open(LEMON_URL);
-  } else {
-    window.open(LEMON_URL, '_blank');
+async function unlockPaid() {
+  if (LEMON_URL) {
+    if (window.LemonSqueezy) { window.LemonSqueezy.Url.Open(LEMON_URL); }
+    else { window.open(LEMON_URL, '_blank'); }
+    return;
+  }
+  try {
+    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin' });
+    const d = await r.json();
+    if (d.url) {
+      LEMON_URL = d.url;
+      if (window.LemonSqueezy) { window.LemonSqueezy.Url.Open(d.url); }
+      else { window.open(d.url, '_blank'); }
+    } else {
+      alert(d.error || 'Could not start checkout. Please try again.');
+    }
+  } catch {
+    alert('Could not start checkout. Please try again.');
   }
 }
 
@@ -186,7 +199,7 @@ function showPaywall() {
     ${trialBanner}
     <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
-    <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Subscribe Now</a>
+    <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;cursor:pointer">Subscribe Now</a>
     <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="promptActivate()" style="color:var(--g);cursor:pointer;text-decoration:underline">Activate here</a></p>
   </div>`;
 }
@@ -516,7 +529,7 @@ function r_home(el) {
       ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
       <div style="margin-top:20px">
         ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:12px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
-        <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Get Full Access — $7/month</a>
+        <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;cursor:pointer">Get Full Access — $7/month</a>
         <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
       </div>`}
     </div>
