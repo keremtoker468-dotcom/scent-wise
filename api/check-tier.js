@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, MAX_MONTHLY_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -87,5 +87,16 @@ module.exports = async function handler(req, res) {
     res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
   }
 
-  return res.status(200).json({ tier: 'free' });
+  // Return free trial usage for anonymous users
+  const trialSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
+  if (trialSecret) {
+    const freeUsage = readFreeUsage(req, ip, trialSecret);
+    return res.status(200).json({
+      tier: 'free',
+      freeUsed: freeUsage.count,
+      freeLimit: FREE_TRIAL_QUERIES
+    });
+  }
+
+  return res.status(200).json({ tier: 'free', freeUsed: 0, freeLimit: FREE_TRIAL_QUERIES });
 };

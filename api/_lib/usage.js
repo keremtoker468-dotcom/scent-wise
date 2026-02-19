@@ -3,6 +3,7 @@
 const crypto = require('crypto');
 
 const MAX_MONTHLY_QUERIES = 500;
+const FREE_TRIAL_QUERIES = 3;
 
 function getCurrentMonth() {
   const d = new Date();
@@ -66,4 +67,41 @@ function writeUsage(res, userId, count, secret, isProduction) {
   res.setHeader('Set-Cookie', cookies);
 }
 
-module.exports = { readUsage, writeUsage, MAX_MONTHLY_QUERIES, parseCookies };
+function readFreeUsage(req, ip, secret) {
+  const cookies = parseCookies(req.headers.cookie);
+  const raw = cookies['sw_free'];
+  const month = getCurrentMonth();
+  if (!raw) return { count: 0, month };
+
+  try {
+    const data = JSON.parse(Buffer.from(raw, 'base64').toString());
+    const { c, m, sig } = data;
+
+    if (typeof c !== 'number' || !m || !sig) return { count: 0, month };
+
+    const expected = makeSig(secret, 'free:' + ip, c, m);
+    if (Buffer.byteLength(sig) !== Buffer.byteLength(expected) ||
+        !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+      return { count: 0, month };
+    }
+
+    if (m !== month) return { count: 0, month };
+
+    return { count: c, month: m };
+  } catch {
+    return { count: 0, month };
+  }
+}
+
+function writeFreeUsage(res, ip, count, secret, isProduction) {
+  const month = getCurrentMonth();
+  const sig = makeSig(secret, 'free:' + ip, count, month);
+  const value = Buffer.from(JSON.stringify({ c: count, m: month, sig })).toString('base64');
+
+  const existing = res.getHeader('Set-Cookie') || [];
+  const cookies = Array.isArray(existing) ? [...existing] : [existing];
+  cookies.push(`sw_free=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${32 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+  res.setHeader('Set-Cookie', cookies);
+}
+
+module.exports = { readUsage, writeUsage, readFreeUsage, writeFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies };

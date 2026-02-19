@@ -88,7 +88,9 @@ let isOwner = false;
 let isPaid = false;
 let currentTier = 'free';
 let aiUsage = 0;
+let freeUsed = 0;
 const MAX_PAID = 500;
+const FREE_LIMIT = 3;
 
 async function checkTier() {
   try {
@@ -98,19 +100,29 @@ async function checkTier() {
     isOwner = currentTier === 'owner';
     isPaid = isOwner || currentTier === 'premium';
     if (typeof d.usage === 'number') aiUsage = d.usage;
+    if (typeof d.freeUsed === 'number') freeUsed = d.freeUsed;
   } catch { currentTier = 'free'; isOwner = false; isPaid = false; }
 }
 
 function canUseAI() {
   if (isOwner) return true;
-  if (!isPaid) return false;
-  return aiUsage < MAX_PAID;
+  if (isPaid) return aiUsage < MAX_PAID;
+  return freeUsed < FREE_LIMIT;
+}
+
+function hasFreeTrialLeft() {
+  return !isPaid && !isOwner && freeUsed < FREE_LIMIT;
 }
 
 function trackUsage(serverUsage) {
   if (isOwner) return;
   if (typeof serverUsage === 'number') { aiUsage = serverUsage; return; }
   aiUsage++;
+}
+
+function trackFreeUsage(used) {
+  if (typeof used === 'number') freeUsed = used;
+  else freeUsed++;
 }
 
 function unlockPaid() {
@@ -161,12 +173,17 @@ async function activateSubscription(orderId) {
 }
 
 function showPaywall() {
+  const trialLeft = FREE_LIMIT - freeUsed;
+  const trialBanner = trialLeft > 0
+    ? `<p style="color:var(--g);font-size:13px;margin-bottom:16px;padding:10px 16px;background:rgba(201,169,110,.08);border-radius:10px">✦ You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining — try it now!</p>`
+    : `<p style="color:var(--td);font-size:13px;margin-bottom:16px;padding:10px 16px;background:rgba(255,255,255,.03);border-radius:10px">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</p>`;
   return `<div class="paywall fi">
     <div style="font-size:40px;margin-bottom:16px">✦</div>
     <h3 class="fd">Unlock <span class="gg">ScentWise AI</span></h3>
-    <p style="color:var(--td);margin:12px 0 24px;line-height:1.6;font-size:14px">
-      Get unlimited AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
+    <p style="color:var(--td);margin:12px 0 20px;line-height:1.6;font-size:14px">
+      AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
     </p>
+    ${trialBanner}
     <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
     <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Subscribe Now</a>
@@ -181,7 +198,10 @@ function promptActivate() {
 
 // ═══════════════ AI CALLS ═══════════════
 async function aiCall(mode, payload) {
-  if (!canUseAI()) return 'Please subscribe to use AI features.';
+  if (!canUseAI()) {
+    if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
+    return 'Please subscribe to use AI features.';
+  }
   try {
     const r = await fetch(API_URL, {
       method: 'POST',
@@ -189,12 +209,17 @@ async function aiCall(mode, payload) {
       credentials: 'same-origin',
       body: JSON.stringify({mode, ...payload})
     });
-    if (r.status === 403) { isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.'; }
+    if (r.status === 403) {
+      const d = await r.json().catch(()=>({}));
+      if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
+      isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
+    }
     if (r.status === 429) { const d = await r.json().catch(()=>({})); if (d.usage) trackUsage(d.usage); return d.error || 'Rate limit reached. Please wait.'; }
     if (!r.ok) throw new Error('API error ' + r.status);
     const d = await r.json();
-    if (typeof d.usage === 'number') trackUsage(d.usage);
-    else trackUsage();
+    if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
+    else if (typeof d.usage === 'number') trackUsage(d.usage);
+    else if (isPaid) trackUsage();
     return d.result || 'No response. Try again.';
   } catch (e) { return 'Error: ' + e.message; }
 }
@@ -480,8 +505,9 @@ function r_home(el) {
       <p style="color:var(--td);font-size:16px;max-width:500px;margin:0 auto;line-height:1.6">AI-powered fragrance advisor with ${SI.length.toLocaleString()} perfumes — discover your perfect scent through style, personality, and taste.</p>
       ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
       <div style="margin-top:20px">
+        ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:12px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
         <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Get Full Access — $7/month</a>
-        <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free · AI features require subscription</p>
+        <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
       </div>`}
     </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px">
@@ -545,12 +571,14 @@ function doExp() {
 
 // ═══════════════ CHAT (PAID) ═══════════════
 function r_chat(el) {
-  if (!isPaid && chatMsgs.length === 0) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  if (!isPaid && !hasFreeTrialLeft() && chatMsgs.length === 0) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
+  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.2);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--g)">✦ Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.03);border:1px solid var(--d4);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline">Subscribe for unlimited access</a></div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:16px">
       <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
       <p style="color:var(--td);font-size:13px;margin-top:4px">Powered by ${SI.length.toLocaleString()} perfumes with real notes, accords & ratings</p>
+      ${trialBanner}
     </div>
     <div class="msgs" id="c-msgs">
       ${chatMsgs.length===0?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
@@ -576,7 +604,7 @@ function r_chat(el) {
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:'Please subscribe to ScentWise Premium ($7/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($7/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($7/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
@@ -597,7 +625,7 @@ async function cSend(text) {
 
 // ═══════════════ PHOTO (PAID) ═══════════════
 function r_photo(el) {
-  if (!isPaid) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Style</span> Scan</h2>
     <p style="color:var(--td);font-size:13px;margin-bottom:24px">Upload a photo and get fragrance recommendations matched to your aesthetic.</p>
@@ -683,7 +711,7 @@ async function pFollow() {
 
 // ═══════════════ ZODIAC (PAID) ═══════════════
 function r_zodiac(el) {
-  if (!isPaid) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Zodiac</span> Match</h2>
     <p style="color:var(--td);font-size:13px;margin-bottom:16px">Select your sign or type your birthday to discover your cosmic scent match.</p>
@@ -743,7 +771,7 @@ async function zFollow() {
 
 // ═══════════════ MUSIC (PAID) ═══════════════
 function r_music(el) {
-  if (!isPaid) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Music</span> → Fragrance</h2>
     <p style="color:var(--td);font-size:13px;margin-bottom:24px">Your music taste reveals your scent identity. Pick a genre or describe your taste below.</p>
@@ -806,7 +834,7 @@ async function mFollow() {
 
 // ═══════════════ STYLE (PAID) ═══════════════
 function r_style(el) {
-  if (!isPaid) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Style</span> Match</h2>
     <p style="color:var(--td);font-size:13px;margin-bottom:16px">Your clothing style says everything about your ideal scent. Pick a style or describe yours.</p>
