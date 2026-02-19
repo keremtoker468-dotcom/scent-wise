@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, writeUsage, MAX_MONTHLY_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);
@@ -39,15 +39,31 @@ module.exports = async function handler(req, res) {
   if (!rl.allowed) return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' });
 
   const access = verifyAccess(req);
-  if (!access.authorized) {
-    return res.status(403).json({ error: 'Premium subscription required', tier: 'free' });
-  }
-
-  // Server-side usage enforcement for premium users
   const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
   const subSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
   let usageCount = 0;
+  let isFreeTrialRequest = false;
 
+  if (!access.authorized) {
+    // Free trial: allow a few queries so users can experience the AI
+    if (subSecret) {
+      const freeUsage = readFreeUsage(req, ip, subSecret);
+      if (freeUsage.count >= FREE_TRIAL_QUERIES) {
+        return res.status(403).json({
+          error: 'Free trial queries used. Subscribe for unlimited access!',
+          tier: 'free',
+          freeUsed: freeUsage.count,
+          freeLimit: FREE_TRIAL_QUERIES
+        });
+      }
+      usageCount = freeUsage.count;
+      isFreeTrialRequest = true;
+    } else {
+      return res.status(403).json({ error: 'Premium subscription required', tier: 'free' });
+    }
+  }
+
+  // Server-side usage enforcement for premium users
   if (access.tier === 'premium' && subSecret) {
     const usage = readUsage(req, access.userId, subSecret);
     usageCount = usage.count;
@@ -116,17 +132,24 @@ module.exports = async function handler(req, res) {
     const data = await response.json();
     const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
 
-    // Track usage for premium users after successful AI call
-    if (access.tier === 'premium' && subSecret) {
-      usageCount++;
+    // Track usage after successful AI call
+    usageCount++;
+    if (isFreeTrialRequest && subSecret) {
+      writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
+    } else if (access.tier === 'premium' && subSecret) {
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);
     }
 
-    return res.status(200).json({
-      result,
-      usage: access.tier === 'premium' ? usageCount : undefined,
-      limit: access.tier === 'premium' ? MAX_MONTHLY_QUERIES : undefined
-    });
+    const responseData = { result };
+    if (isFreeTrialRequest) {
+      responseData.freeUsed = usageCount;
+      responseData.freeLimit = FREE_TRIAL_QUERIES;
+      responseData.tier = 'free';
+    } else if (access.tier === 'premium') {
+      responseData.usage = usageCount;
+      responseData.limit = MAX_MONTHLY_QUERIES;
+    }
+    return res.status(200).json(responseData);
 
   } catch (err) {
     console.error('Recommend error:', err);
