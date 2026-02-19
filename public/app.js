@@ -214,22 +214,32 @@ async function aiCall(mode, payload) {
       if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
       isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
     }
-    if (r.status === 429) { const d = await r.json().catch(()=>({})); if (d.usage) trackUsage(d.usage); return d.error || 'Rate limit reached. Please wait.'; }
-    if (!r.ok) throw new Error('API error ' + r.status);
+    if (r.status === 429) { const d = await r.json().catch(()=>({})); if (d.usage) trackUsage(d.usage); return d.error || 'Our AI is a bit busy right now. Please try again in a few seconds.'; }
+    if (!r.ok) throw new Error(r.status >= 500 ? 'ai_unavailable' : 'request_failed');
     const d = await r.json();
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
     else if (typeof d.usage === 'number') trackUsage(d.usage);
     else if (isPaid) trackUsage();
     return d.result || 'No response. Try again.';
-  } catch (e) { return 'Error: ' + e.message; }
+  } catch (e) {
+    if (e.message === 'ai_unavailable') return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
+    if (e.message === 'request_failed') return '**Something went wrong.** Please try again.';
+    if (e.message === 'Failed to fetch' || e.message.includes('network')) return '**Connection issue.** Check your internet and try again.';
+    return '**Something went wrong.** Please try again in a moment.';
+  }
 }
 
 // ═══════════════ HELPERS ═══════════════
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
-  return esc(text)
+  let s = esc(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)">$1</strong>')
     .replace(/\n/g, '<br>');
+  // Add retry button to error messages
+  if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
+    s += '<br><button onclick="retryLast()" class="btn-o btn-sm" style="margin-top:10px">Try Again</button>';
+  }
+  return s;
 }
 
 function perfCard(p) {
@@ -621,6 +631,17 @@ async function cSend(text) {
   _ssw('chatMsgs', chatMsgs);
   chatLoad = false;
   r_chat(document.getElementById('page-chat'));
+}
+
+function retryLast() {
+  // Remove the last error response and resend the last user message
+  if (chatMsgs.length >= 2 && chatMsgs[chatMsgs.length - 1].role === 'assistant') {
+    const lastUser = chatMsgs[chatMsgs.length - 2];
+    chatMsgs.pop(); // remove error assistant msg
+    chatMsgs.pop(); // remove last user msg
+    _ssw('chatMsgs', chatMsgs);
+    cSend(lastUser.content);
+  }
 }
 
 // ═══════════════ PHOTO (PAID) ═══════════════
