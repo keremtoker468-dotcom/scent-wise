@@ -47,6 +47,12 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ received: true }); // ACK but ignore
   }
 
+  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
+  if (expectedProductId && String(attrs.first_order_item?.product_id) !== expectedProductId) {
+    console.error(`Webhook product_id mismatch: ${attrs.first_order_item?.product_id}`);
+    return res.status(200).json({ received: true }); // ACK but ignore
+  }
+
   // Log the event for monitoring
   console.log(`[LS Webhook] ${eventName}`, {
     orderId: payload.data?.id,

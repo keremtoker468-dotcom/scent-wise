@@ -24,7 +24,7 @@ module.exports = async function handler(req, res) {
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const subSecret = process.env.SUBSCRIPTION_SECRET;
   const expectedStoreId = process.env.LEMONSQUEEZY_STORE_ID;
-  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
+  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
 
   if (!lsApiKey || !subSecret) {
     console.error('Missing LEMONSQUEEZY_API_KEY or SUBSCRIPTION_SECRET');

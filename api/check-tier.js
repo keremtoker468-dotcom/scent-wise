@@ -50,7 +50,14 @@ module.exports = async function handler(req, res) {
           });
           if (orderRes.ok) {
             const orderData = await orderRes.json();
-            const status = orderData.data?.attributes?.status;
+            const orderAttrs = orderData.data?.attributes;
+            const status = orderAttrs?.status;
+            const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
+            if (expectedProductId && String(orderAttrs?.first_order_item?.product_id) !== expectedProductId) {
+              // Order doesn't belong to our product — clear cookie
+              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+              return res.status(200).json({ tier: 'free' });
+            }
             if (status === 'refunded') {
               // Subscription no longer valid — clear cookie
               res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
