@@ -9,7 +9,7 @@ module.exports = async function handler(req, res) {
     if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
 
     const ip = getClientIp(req);
-    const rl = rateLimit(`owner-auth:${ip}`, 5, 60000); // 5 attempts/min
+    const rl = await rateLimit(`owner-auth:${ip}`, 5, 60000); // 5 attempts/min
     if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
 
     const { key } = req.body || {};
