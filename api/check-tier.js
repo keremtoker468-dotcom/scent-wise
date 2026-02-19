@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
   // Return free trial usage for anonymous users
   const trialSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
   if (trialSecret) {
-    const freeUsage = readFreeUsage(req, ip, trialSecret);
+    const freeUsage = await readFreeUsage(req, ip, trialSecret);
     return res.status(200).json({
       tier: 'free',
       freeUsed: freeUsage.count,

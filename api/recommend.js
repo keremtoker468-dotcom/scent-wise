@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
   if (!access.authorized) {
     // Free trial: allow a few queries so users can experience the AI
     if (subSecret) {
-      const freeUsage = readFreeUsage(req, ip, subSecret);
+      const freeUsage = await readFreeUsage(req, ip, subSecret);
       if (freeUsage.count >= FREE_TRIAL_QUERIES) {
         return res.status(403).json({
           error: 'Free trial queries used. Subscribe for unlimited access!',
@@ -135,7 +135,7 @@ module.exports = async function handler(req, res) {
     // Track usage after successful AI call
     usageCount++;
     if (isFreeTrialRequest && subSecret) {
-      writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
+      await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
     } else if (access.tier === 'premium' && subSecret) {
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);
     }
