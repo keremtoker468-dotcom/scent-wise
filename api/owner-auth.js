@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
     const maxAge = 30 * 24 * 60 * 60;
 
     res.setHeader('Set-Cookie', [
-      `sw_owner=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${isProduction ? '; Secure' : ''}`
+      `sw_owner=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${isProduction ? '; Secure' : ''}`
     ]);
 
     return res.status(200).json({ success: true, tier: 'owner' });
@@ -37,9 +37,9 @@ module.exports = async function handler(req, res) {
     if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     res.setHeader('Set-Cookie', [
-      `sw_owner=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`,
-      `sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`,
-      `sw_usage=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`
+      `sw_owner=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`,
+      `sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`,
+      `sw_usage=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`
     ]);
     return res.status(200).json({ success: true });
   }

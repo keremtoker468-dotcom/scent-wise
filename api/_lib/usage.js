@@ -79,7 +79,7 @@ function writeUsage(res, userId, count, secret, isProduction) {
 
   const existing = res.getHeader('Set-Cookie') || [];
   const cookies = Array.isArray(existing) ? [...existing] : [existing];
-  cookies.push(`sw_usage=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${32 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+  cookies.push(`sw_usage=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${32 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
   res.setHeader('Set-Cookie', cookies);
 }
 
@@ -203,7 +203,7 @@ async function writeFreeUsage(res, ip, count, secret, isProduction) {
 
   const existing = res.getHeader('Set-Cookie') || [];
   const cookies = Array.isArray(existing) ? [...existing] : [existing];
-  cookies.push(`sw_free=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${32 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+  cookies.push(`sw_free=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${32 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
   res.setHeader('Set-Cookie', cookies);
 }
 

@@ -129,7 +129,7 @@ function trackFreeUsage(used) {
 
 async function unlockPaid() {
   if (LEMON_URL) {
-    window.open(LEMON_URL, '_blank');
+    window.location.href = LEMON_URL;
     return;
   }
   // Show loading state on all subscribe buttons
@@ -140,13 +140,13 @@ async function unlockPaid() {
     const d = await r.json();
     if (d.url) {
       LEMON_URL = d.url;
-      window.open(d.url, '_blank');
+      window.location.href = d.url;
     } else {
       alert(d.error || 'Could not start checkout. Please try again.');
+      btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
     }
   } catch {
     alert('Could not start checkout. Please try again.');
-  } finally {
     btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
   }
 }
@@ -172,7 +172,7 @@ async function logoutOwner() {
   isOwner = false; isPaid = false; currentTier = 'free'; go(CP);
 }
 
-async function activateSubscription(orderId) {
+async function activateSubscription(orderId, silent) {
   try {
     const r = await fetch('/api/verify-subscription', {
       method: 'POST',
@@ -182,14 +182,16 @@ async function activateSubscription(orderId) {
     });
     const d = await r.json();
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; if (d.email) userEmail = d.email; go(CP); return true; }
-    if (r.status === 429) {
-      alert('Too many attempts. Please wait a minute and try again.');
-    } else {
-      alert(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.');
+    if (!silent) {
+      if (r.status === 429) {
+        alert('Too many attempts. Please wait a minute and try again.');
+      } else {
+        alert(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.');
+      }
     }
   } catch (err) {
     console.error('Subscription activation error:', err);
-    alert('Network error — please check your connection and try again.');
+    if (!silent) alert('Network error — please check your connection and try again.');
   }
   return false;
 }
@@ -275,7 +277,14 @@ function setupLemonSqueezy() {
         if (event.event === 'Checkout.Success') {
           const orderId = event.data?.order?.data?.id || event.data?.order?.id || event.data?.id;
           if (orderId) {
-            await activateSubscription(String(orderId));
+            let ok = await activateSubscription(String(orderId), true);
+            if (!ok) {
+              for (let i = 0; i < 3 && !ok; i++) {
+                await new Promise(r => setTimeout(r, 2000 * (i + 1)));
+                ok = await activateSubscription(String(orderId), true);
+              }
+            }
+            if (!ok) { await checkTier(); go(CP); }
           } else {
             // Fallback: re-check tier (webhook may have processed)
             await checkTier();
@@ -1190,11 +1199,22 @@ go(_wantAdmin ? 'admin' : 'home');
 // Initialize auth from server-side cookies
 (async function() {
   await checkTier();
-  // Handle payment return — verify order
+  // Handle payment return — verify order with retry for LS API propagation delay
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get('order_id') || params.get('orderId');
   if (orderId) {
-    await activateSubscription(orderId);
+    let activated = await activateSubscription(orderId, true);
+    if (!activated) {
+      // LemonSqueezy may not have the order ready yet — retry with delays
+      for (let attempt = 0; attempt < 3 && !activated; attempt++) {
+        await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+        activated = await activateSubscription(orderId, true);
+      }
+      if (!activated) {
+        // All retries failed — show a helpful message
+        alert('We couldn\'t verify your order yet. This can take a minute after purchase. Please try logging in with your email on the Account page, or enter your order ID there.');
+      }
+    }
     window.history.replaceState({}, '', window.location.pathname);
   }
   // Re-render with updated auth state (admin page re-renders to reflect owner status)

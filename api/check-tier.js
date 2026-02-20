@@ -52,22 +52,22 @@ module.exports = async function handler(req, res) {
             const orderData = await orderRes.json();
             const orderAttrs = orderData.data?.attributes;
             const status = orderAttrs?.status;
-            const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
+            const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
             if (expectedProductId && String(orderAttrs?.first_order_item?.product_id) !== expectedProductId) {
               // Order doesn't belong to our product — clear cookie
-              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
               return res.status(200).json({ tier: 'free' });
             }
             if (status === 'refunded' || status === 'paused' || status === 'expired') {
               // Subscription no longer active — clear cookie
-              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+              res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
               return res.status(200).json({ tier: 'free' });
             }
           }
           // Set revalidation throttle cookie (24h)
           const existing = res.getHeader('Set-Cookie') || [];
           const setCookies = Array.isArray(existing) ? [...existing] : [existing];
-          setCookies.push(`sw_revalidated=1; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400${isProduction ? '; Secure' : ''}`);
+          setCookies.push(`sw_revalidated=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${isProduction ? '; Secure' : ''}`);
           res.setHeader('Set-Cookie', setCookies);
         } catch (err) {
           // LS API unreachable — trust the local cookie, don't block the user
@@ -84,7 +84,7 @@ module.exports = async function handler(req, res) {
       });
     }
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-    res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+    res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
   }
 
   // Return free trial usage for anonymous users
