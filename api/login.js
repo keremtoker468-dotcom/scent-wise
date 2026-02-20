@@ -41,18 +41,21 @@ module.exports = async function handler(req, res) {
 
   try {
     // Step 1: Find customer by email via the customers endpoint
-    let custUrl = `https://api.lemonsqueezy.com/v1/customers?filter[email]=${encodeURIComponent(emailClean)}`;
-    if (expectedStoreId) custUrl += `&filter[store_id]=${expectedStoreId}`;
+    // Note: store_id filter is applied locally to avoid bad env var values breaking the API call
+    const custUrl = `https://api.lemonsqueezy.com/v1/customers?filter[email]=${encodeURIComponent(emailClean)}`;
 
     const custRes = await fetch(custUrl, { headers: lsHeaders });
 
     if (!custRes.ok) {
       const errBody = await custRes.text().catch(() => '');
       console.error(`LS customers API error: ${custRes.status} — ${errBody}`);
+      // Parse JSON:API error detail if available
+      let detail = '';
+      try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
       if (custRes.status === 401 || custRes.status === 403) {
         return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
       }
-      return res.status(502).json({ error: `Could not look up subscription (upstream HTTP ${custRes.status}). Please try again later.` });
+      return res.status(502).json({ error: `Could not look up subscription (upstream HTTP ${custRes.status}). ${detail || 'Please try again later.'}` });
     }
 
     const custData = await custRes.json();

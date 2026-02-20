@@ -60,8 +60,8 @@ module.exports = async function handler(req, res) {
       const errBody = await orderRes.text().catch(() => '');
       console.error(`LS API order-by-id miss: ${orderRes.status} for ${orderId} — ${errBody}`);
 
-      let searchUrl = `https://api.lemonsqueezy.com/v1/orders?sort=-createdAt&page[size]=25`;
-      if (expectedStoreId) searchUrl += `&filter[store_id]=${expectedStoreId}`;
+      // Don't include store_id filter in URL — validate locally instead
+      const searchUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=25`;
 
       const listRes = await fetch(searchUrl, { headers: lsHeaders });
       if (listRes.ok) {

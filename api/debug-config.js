@@ -16,8 +16,8 @@ module.exports = async function handler(req, res) {
   const config = {
     LEMONSQUEEZY_API_KEY: lsApiKey ? `set (${lsApiKey.length} chars)` : 'MISSING',
     SUBSCRIPTION_SECRET: process.env.SUBSCRIPTION_SECRET ? 'set' : 'MISSING',
-    LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID ? 'set' : 'not set',
-    LEMONSQUEEZY_PRODUCT_ID: process.env.LEMONSQUEEZY_PRODUCT_ID ? 'set' : 'not set',
+    LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID || 'not set',
+    LEMONSQUEEZY_PRODUCT_ID: process.env.LEMONSQUEEZY_PRODUCT_ID || 'not set',
     LEMONSQUEEZY_VARIANT_ID: process.env.LEMONSQUEEZY_VARIANT_ID ? 'set' : 'MISSING',
     OWNER_KEY: 'set',
     NODE_ENV: process.env.NODE_ENV || 'not set',
@@ -72,5 +72,30 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ config, apiKeyTest: apiTest, ordersApiTest: ordersTest });
+  // Test the customers API endpoint (used by email login)
+  let customersTest = 'skipped';
+  if (lsApiKey) {
+    try {
+      const cUrl = `https://api.lemonsqueezy.com/v1/customers?page[size]=1`;
+      const cRes = await fetch(cUrl, {
+        headers: {
+          'Authorization': `Bearer ${lsApiKey}`,
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json'
+        }
+      });
+      if (cRes.ok) {
+        const cData = await cRes.json();
+        const count = cData.meta?.page?.total || 0;
+        customersTest = `OK — ${count} total customers`;
+      } else {
+        const cBody = await cRes.text().catch(() => '');
+        customersTest = `FAILED — HTTP ${cRes.status}: ${cBody.substring(0, 200)}`;
+      }
+    } catch (err) {
+      customersTest = `ERROR — ${err.message}`;
+    }
+  }
+
+  return res.status(200).json({ config, apiKeyTest: apiTest, ordersApiTest: ordersTest, customersApiTest: customersTest });
 };
