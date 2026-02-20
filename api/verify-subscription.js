@@ -15,10 +15,13 @@ module.exports = async function handler(req, res) {
   const rl = await rateLimit(`verify-sub:${ip}`, 10, 60000); // 10 attempts/min
   if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
 
-  const { orderId } = req.body;
+  let { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
-  if (typeof orderId !== 'string' || !/^\d{1,20}$/.test(orderId)) {
-    return res.status(400).json({ error: 'Invalid order ID format' });
+  if (typeof orderId !== 'string') return res.status(400).json({ error: 'Invalid order ID format' });
+  // Sanitize: strip #, spaces, and non-numeric characters
+  orderId = orderId.trim().replace(/^#/, '').replace(/[^\d]/g, '');
+  if (!orderId || orderId.length > 20) {
+    return res.status(400).json({ error: 'Invalid order ID format. Enter the numeric order number (e.g. 2944561).' });
   }
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
@@ -40,8 +43,12 @@ module.exports = async function handler(req, res) {
     });
 
     if (!orderRes.ok) {
-      console.error(`LS API error: ${orderRes.status}`);
-      return res.status(400).json({ error: 'Could not verify order' });
+      const status = orderRes.status;
+      console.error(`LS API error: ${status} for order ${orderId}`);
+      if (status === 404) {
+        return res.status(400).json({ error: 'Order not found. Please check your order number and try again, or log in with your email.' });
+      }
+      return res.status(400).json({ error: 'Could not verify order. Please try again or log in with your email instead.' });
     }
 
     const orderData = await orderRes.json();

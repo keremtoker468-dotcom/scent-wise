@@ -19,6 +19,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Checkout not configured' });
   }
 
+  // Determine redirect URL from request origin
+  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || 'https://scent-wise.vercel.app';
+  const siteUrl = origin.replace(/\/+$/, '');
+
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -33,6 +37,11 @@ module.exports = async function handler(req, res) {
           attributes: {
             checkout_options: {
               embed: true
+            },
+            product_options: {
+              redirect_url: siteUrl + '/',
+              receipt_button_text: 'Go to ScentWise',
+              receipt_link_url: siteUrl + '/'
             },
             checkout_data: {
               custom: {}
