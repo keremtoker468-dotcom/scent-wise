@@ -46,5 +46,29 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  return res.status(200).json({ config, apiKeyTest: apiTest });
+  // Test the orders API endpoint (same one login uses)
+  let ordersTest = 'skipped';
+  if (lsApiKey) {
+    try {
+      const oUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=1`;
+      const oRes = await fetch(oUrl, {
+        headers: {
+          'Authorization': `Bearer ${lsApiKey}`,
+          'Accept': 'application/vnd.api+json'
+        }
+      });
+      if (oRes.ok) {
+        const oData = await oRes.json();
+        const count = oData.meta?.page?.total || 0;
+        ordersTest = `OK — ${count} total orders in store`;
+      } else {
+        const oBody = await oRes.text().catch(() => '');
+        ordersTest = `FAILED — HTTP ${oRes.status}: ${oBody.substring(0, 200)}`;
+      }
+    } catch (err) {
+      ordersTest = `ERROR — ${err.message}`;
+    }
+  }
+
+  return res.status(200).json({ config, apiKeyTest: apiTest, ordersApiTest: ordersTest });
 };
