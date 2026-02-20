@@ -129,22 +129,25 @@ function trackFreeUsage(used) {
 
 async function unlockPaid() {
   if (LEMON_URL) {
-    if (window.LemonSqueezy) { window.LemonSqueezy.Url.Open(LEMON_URL); }
-    else { window.open(LEMON_URL, '_blank'); }
+    window.open(LEMON_URL, '_blank');
     return;
   }
+  // Show loading state on all subscribe buttons
+  const btns = document.querySelectorAll('[data-subscribe-btn]');
+  btns.forEach(b => { b._prev = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; });
   try {
     const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin' });
     const d = await r.json();
     if (d.url) {
       LEMON_URL = d.url;
-      if (window.LemonSqueezy) { window.LemonSqueezy.Url.Open(d.url); }
-      else { window.open(d.url, '_blank'); }
+      window.open(d.url, '_blank');
     } else {
       alert(d.error || 'Could not start checkout. Please try again.');
     }
   } catch {
     alert('Could not start checkout. Please try again.');
+  } finally {
+    btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
   }
 }
 
@@ -201,7 +204,7 @@ function showPaywall() {
     ${trialBanner}
     <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
-    <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;cursor:pointer">Subscribe Now</a>
+    <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Subscribe Now</a>
     <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline">Log in here</a></p>
   </div>`;
 }
@@ -239,8 +242,10 @@ function doEmailLogin() {
   const inp = document.getElementById('login-email');
   if (!inp || !inp.value.trim()) return;
   const btn = document.getElementById('login-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Logging in...'; }
-  loginWithEmail(inp.value).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Log In'; } });
+  const wrap = document.getElementById('login-status');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:6px"></span><span class="dot" style="animation-delay:.2s;margin-right:6px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
+  if (wrap) { wrap.style.display = 'block'; }
+  loginWithEmail(inp.value).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Log In'; } if (wrap) { wrap.style.display = 'none'; } });
 }
 
 function doLogout() {
@@ -590,7 +595,7 @@ function r_home(el) {
       ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
       <div style="margin-top:20px">
         ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:12px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
-        <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;cursor:pointer">Get Full Access — $7/month</a>
+        <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Get Full Access — $7/month</a>
         <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
       </div>`}
     </div>
@@ -1068,6 +1073,7 @@ function r_account(el) {
         <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
         <input type="text" id="login-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:12px">
         <button class="btn" id="login-btn" onclick="doEmailLogin()" style="width:100%">Log In</button>
+        <div id="login-status" style="display:none;text-align:center;margin-top:12px;color:var(--td);font-size:13px"><span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s;margin-right:4px"></span> Checking your subscription...</div>
       </div>
       <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
         <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">HAVE AN ORDER ID?</p>

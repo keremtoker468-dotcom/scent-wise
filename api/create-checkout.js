@@ -35,9 +35,6 @@ module.exports = async function handler(req, res) {
         data: {
           type: 'checkouts',
           attributes: {
-            checkout_options: {
-              embed: true
-            },
             product_options: {
               redirect_url: siteUrl + '/',
               receipt_button_text: 'Go to ScentWise',
