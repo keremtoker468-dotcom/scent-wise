@@ -14,11 +14,11 @@ module.exports = async function handler(req, res) {
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const config = {
-    LEMONSQUEEZY_API_KEY: lsApiKey ? `set (${lsApiKey.length} chars, starts with ${lsApiKey.substring(0, 8)}...)` : 'MISSING',
+    LEMONSQUEEZY_API_KEY: lsApiKey ? `set (${lsApiKey.length} chars)` : 'MISSING',
     SUBSCRIPTION_SECRET: process.env.SUBSCRIPTION_SECRET ? 'set' : 'MISSING',
-    LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID || 'not set (no store filter)',
-    LEMONSQUEEZY_PRODUCT_ID: process.env.LEMONSQUEEZY_PRODUCT_ID || 'not set (accepts any product)',
-    LEMONSQUEEZY_VARIANT_ID: process.env.LEMONSQUEEZY_VARIANT_ID || 'MISSING (needed for checkout)',
+    LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID ? 'set' : 'not set',
+    LEMONSQUEEZY_PRODUCT_ID: process.env.LEMONSQUEEZY_PRODUCT_ID ? 'set' : 'not set',
+    LEMONSQUEEZY_VARIANT_ID: process.env.LEMONSQUEEZY_VARIANT_ID ? 'set' : 'MISSING',
     OWNER_KEY: 'set',
     NODE_ENV: process.env.NODE_ENV || 'not set',
     VERCEL_ENV: process.env.VERCEL_ENV || 'not set',
@@ -36,7 +36,7 @@ module.exports = async function handler(req, res) {
       });
       if (r.ok) {
         const d = await r.json();
-        apiTest = `OK — store name: ${d.data?.attributes?.name || 'unknown'}, email: ${d.data?.attributes?.email || 'unknown'}`;
+        apiTest = 'OK — API key is valid';
       } else {
         const body = await r.text().catch(() => '');
         apiTest = `FAILED — HTTP ${r.status}: ${body.substring(0, 200)}`;
