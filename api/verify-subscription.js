@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const subSecret = process.env.SUBSCRIPTION_SECRET;
   const expectedStoreId = process.env.LEMONSQUEEZY_STORE_ID;
-  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
+  const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
 
   if (!lsApiKey || !subSecret) {
     console.error('Missing LEMONSQUEEZY_API_KEY or SUBSCRIPTION_SECRET');
@@ -44,7 +44,11 @@ module.exports = async function handler(req, res) {
 
     if (!orderRes.ok) {
       const status = orderRes.status;
-      console.error(`LS API error: ${status} for order ${orderId}`);
+      const errBody = await orderRes.text().catch(() => '');
+      console.error(`LS API error: ${status} for order ${orderId} — ${errBody}`);
+      if (status === 401 || status === 403) {
+        return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+      }
       if (status === 404) {
         return res.status(400).json({ error: 'Order not found. Please check your order number and try again, or log in with your email.' });
       }

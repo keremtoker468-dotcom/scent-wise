@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
             const orderData = await orderRes.json();
             const orderAttrs = orderData.data?.attributes;
             const status = orderAttrs?.status;
-            const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID || '840512';
+            const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
             if (expectedProductId && String(orderAttrs?.first_order_item?.product_id) !== expectedProductId) {
               // Order doesn't belong to our product — clear cookie
               res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
