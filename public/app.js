@@ -2,7 +2,7 @@ const RD=[{"n":"Spiderman Air-Val","b":"Air Val International","c":"Fresh","g":"
 
 // ═══════════════ CONFIG ═══════════════
 const API_URL = '/api/recommend';
-const LEMON_URL = 'https://scent-wise.lemonsqueezy.com/checkout/buy/2c977ddf-bd60-430a-a923-97643485e005';
+let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
 // ═══════════════ DATABASE ENGINE ═══════════════
 const RL = {};
@@ -87,6 +87,7 @@ function getContext(query) {
 let isOwner = false;
 let isPaid = false;
 let currentTier = 'free';
+let userEmail = '';
 let aiUsage = 0;
 let freeUsed = 0;
 const MAX_PAID = 500;
@@ -99,9 +100,10 @@ async function checkTier() {
     currentTier = d.tier || 'free';
     isOwner = currentTier === 'owner';
     isPaid = isOwner || currentTier === 'premium';
+    if (d.email) userEmail = d.email;
     if (typeof d.usage === 'number') aiUsage = d.usage;
     if (typeof d.freeUsed === 'number') freeUsed = d.freeUsed;
-  } catch { currentTier = 'free'; isOwner = false; isPaid = false; }
+  } catch { currentTier = 'free'; isOwner = false; isPaid = false; userEmail = ''; }
 }
 
 function canUseAI() {
@@ -125,11 +127,27 @@ function trackFreeUsage(used) {
   else freeUsed++;
 }
 
-function unlockPaid() {
-  if (window.LemonSqueezy) {
-    window.LemonSqueezy.Url.Open(LEMON_URL);
-  } else {
+async function unlockPaid() {
+  if (LEMON_URL) {
     window.open(LEMON_URL, '_blank');
+    return;
+  }
+  // Show loading state on all subscribe buttons
+  const btns = document.querySelectorAll('[data-subscribe-btn]');
+  btns.forEach(b => { b._prev = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; });
+  try {
+    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin' });
+    const d = await r.json();
+    if (d.url) {
+      LEMON_URL = d.url;
+      window.open(d.url, '_blank');
+    } else {
+      alert(d.error || 'Could not start checkout. Please try again.');
+    }
+  } catch {
+    alert('Could not start checkout. Please try again.');
+  } finally {
+    btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
   }
 }
 
@@ -163,11 +181,15 @@ async function activateSubscription(orderId) {
       body: JSON.stringify({ orderId })
     });
     const d = await r.json();
-    if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; go(CP); return true; }
-    alert(d.error || 'Could not verify your subscription. Please check your order ID and try again.');
+    if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; if (d.email) userEmail = d.email; go(CP); return true; }
+    if (r.status === 429) {
+      alert('Too many attempts. Please wait a minute and try again.');
+    } else {
+      alert(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.');
+    }
   } catch (err) {
     console.error('Subscription activation error:', err);
-    alert('Network error while verifying subscription. Please check your connection and try again.');
+    alert('Network error — please check your connection and try again.');
   }
   return false;
 }
@@ -186,15 +208,85 @@ function showPaywall() {
     ${trialBanner}
     <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
-    <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Subscribe Now</a>
-    <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="promptActivate()" style="color:var(--g);cursor:pointer;text-decoration:underline">Activate here</a></p>
+    <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Subscribe Now</a>
+    <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline">Log in here</a></p>
   </div>`;
 }
 
 function promptActivate() {
-  const orderId = prompt('Enter your LemonSqueezy order ID to activate your subscription:');
-  if (orderId && orderId.trim()) activateSubscription(orderId.trim());
+  const raw = prompt('Enter your LemonSqueezy order ID to activate your subscription:');
+  if (raw && raw.trim()) {
+    const orderId = raw.trim().replace(/^#/, '').replace(/[^\d]/g, '');
+    if (orderId) activateSubscription(orderId);
+    else alert('Please enter a valid numeric order ID (e.g. 2944561).');
+  }
 }
+
+// ═══════════════ EMAIL LOGIN ═══════════════
+async function loginWithEmail(email) {
+  if (!email || !email.trim()) return false;
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email: email.trim() })
+    });
+    const d = await r.json();
+    if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; userEmail = d.email || email.trim(); go(CP); return true; }
+    if (r.status === 404) {
+      alert('No subscription found for this email. Make sure you\'re using the same email from your LemonSqueezy purchase. You can also try your order ID instead.');
+    } else if (r.status === 429) {
+      alert('Too many login attempts. Please wait a minute and try again.');
+    } else {
+      alert(d.error || 'Could not verify your subscription. Please try again or use your order ID.');
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    alert('Network error — please check your connection and try again.');
+  }
+  return false;
+}
+
+function doEmailLogin() {
+  const inp = document.getElementById('login-email');
+  if (!inp || !inp.value.trim()) return;
+  const btn = document.getElementById('login-btn');
+  const wrap = document.getElementById('login-status');
+  const bar = document.getElementById('login-progress');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:6px"></span><span class="dot" style="animation-delay:.2s;margin-right:6px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
+  if (wrap) { wrap.style.display = 'block'; }
+  if (bar) { bar.style.display = 'block'; }
+  if (inp) { inp.disabled = true; }
+  loginWithEmail(inp.value).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Log In'; } if (wrap) { wrap.style.display = 'none'; } if (bar) { bar.style.display = 'none'; } if (inp) { inp.disabled = false; } });
+}
+
+function doLogout() {
+  fetch('/api/owner-auth', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+  isOwner = false; isPaid = false; currentTier = 'free'; userEmail = ''; go('home');
+}
+
+// ═══════════════ LEMONSQUEEZY CHECKOUT EVENTS ═══════════════
+function setupLemonSqueezy() {
+  if (typeof window.createLemonSqueezy === 'function') window.createLemonSqueezy();
+  if (window.LemonSqueezy) {
+    window.LemonSqueezy.Setup({
+      eventHandler: async function(event) {
+        if (event.event === 'Checkout.Success') {
+          const orderId = event.data?.order?.data?.id || event.data?.order?.id || event.data?.id;
+          if (orderId) {
+            await activateSubscription(String(orderId));
+          } else {
+            // Fallback: re-check tier (webhook may have processed)
+            await checkTier();
+            if (isPaid) go(CP);
+          }
+        }
+      }
+    });
+  }
+}
+setupLemonSqueezy();
 
 // ═══════════════ AI CALLS ═══════════════
 async function aiCall(mode, payload) {
@@ -482,7 +574,7 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🔍'},{id:'chat',l:'AI Advisor',i:'💬'},
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'✨'},{id:'music',l:'Music',i:'🎵'},
-  {id:'style',l:'Style',i:'👔'},{id:'celeb',l:'Celebs',i:'⭐'}
+  {id:'style',l:'Style',i:'👔'},{id:'celeb',l:'Celebs',i:'⭐'},{id:'account',l:'Account',i:'👤'}
 ];
 
 function rNav() {
@@ -516,7 +608,7 @@ function r_home(el) {
       ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
       <div style="margin-top:20px">
         ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:12px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
-        <a href="${LEMON_URL}" class="lemonsqueezy-button btn" style="display:inline-block;text-decoration:none">Get Full Access — $7/month</a>
+        <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Get Full Access — $7/month</a>
         <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
       </div>`}
     </div>
@@ -950,6 +1042,81 @@ function r_celeb(el) {
     </div>
     ${!f.length?`<p style="text-align:center;color:var(--td);margin-top:40px">No match for "${esc(celebQ)}"</p>`:''}
   </div>`;
+}
+
+// ═══════════════ ACCOUNT PAGE ═══════════════
+function r_account(el) {
+  if (isPaid) {
+    // Show profile for logged-in users
+    el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:40px auto">
+      <div style="text-align:center;padding:32px 0">
+        <div style="width:80px;height:80px;border-radius:50%;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px">${isOwner ? '👑' : '✦'}</div>
+        <h2 class="fd" style="font-size:28px;margin-bottom:4px">Your Account</h2>
+        <p style="color:var(--td);font-size:14px">${isOwner ? 'Owner Access' : 'Premium Member'}</p>
+      </div>
+      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="color:var(--td);font-size:13px">Status</span>
+          <span class="tag">${isOwner ? '👑 Owner' : '✦ Premium'}</span>
+        </div>
+        ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span style="color:var(--td);font-size:13px">Email</span>
+          <span style="font-size:14px">${userEmail}</span>
+        </div>` : ''}
+        ${!isOwner ? `<div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--td);font-size:13px">AI Queries</span>
+          <span style="font-size:14px">${aiUsage} / ${MAX_PAID} this month</span>
+        </div>` : `<div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="color:var(--td);font-size:13px">AI Queries</span>
+          <span style="font-size:14px">Unlimited</span>
+        </div>`}
+      </div>
+      <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center">Log Out</button>
+    </div>`;
+  } else {
+    // Show login form for non-premium users
+    el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:40px auto">
+      <div style="text-align:center;margin-bottom:32px">
+        <div style="font-size:48px;margin-bottom:16px">👤</div>
+        <h2 class="fd" style="font-size:28px;margin-bottom:8px">Log In</h2>
+        <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
+      </div>
+      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
+        <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">LOG IN WITH EMAIL</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:12px">
+        <button class="btn" id="login-btn" onclick="doEmailLogin()" style="width:100%">Log In</button>
+        <div id="login-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
+        <div id="login-status" style="display:none;text-align:center;margin-top:10px;color:var(--td);font-size:13px"><span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s;margin-right:4px"></span> Checking your subscription...</div>
+      </div>
+      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
+        <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">HAVE AN ORDER ID?</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter your LemonSqueezy order number to activate your subscription.</p>
+        <div class="inp-row">
+          <input type="text" id="order-id-input" placeholder="e.g. 2944561" onkeydown="if(event.key==='Enter')doOrderActivate()">
+          <button class="btn btn-sm" id="order-activate-btn" onclick="doOrderActivate()">Activate</button>
+        </div>
+        <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
+      </div>
+      <div style="text-align:center">
+        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline">Subscribe for $7/month</a></p>
+      </div>
+    </div>`;
+    document.getElementById('login-email')?.focus();
+  }
+}
+
+function doOrderActivate() {
+  const inp = document.getElementById('order-id-input');
+  if (!inp || !inp.value.trim()) return;
+  const orderId = inp.value.trim().replace(/^#/, '').replace(/[^\d]/g, '');
+  if (!orderId) { alert('Please enter a valid numeric order ID.'); return; }
+  const btn = document.getElementById('order-activate-btn');
+  const bar = document.getElementById('order-progress');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
+  if (bar) { bar.style.display = 'block'; }
+  if (inp) { inp.disabled = true; }
+  activateSubscription(orderId).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Activate'; } if (bar) { bar.style.display = 'none'; } if (inp) { inp.disabled = false; } });
 }
 
 // ═══════════════ OWNER LOGIN PAGE ═══════════════

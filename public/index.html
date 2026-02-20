@@ -124,6 +124,7 @@ input:focus{border-color:var(--g)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 .dot{width:6px;height:6px;background:var(--g);border-radius:50%;display:inline-block;animation:pulse 1.2s infinite}
+@keyframes progressSlide{0%{transform:translateX(-100%)}50%{transform:translateX(150%)}100%{transform:translateX(250%)}}
 
 .paywall{background:linear-gradient(135deg,#1a1714,#141210);border:1px solid rgba(201,169,110,.2);border-radius:20px;padding:40px;text-align:center;max-width:500px;margin:40px auto}
 .paywall h3{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px}
@@ -164,6 +165,7 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <div id="page-music" class="hidden"></div>
 <div id="page-style" class="hidden"></div>
 <div id="page-celeb" class="hidden"></div>
+<div id="page-account" class="hidden"></div>
 <div id="page-admin" class="hidden"></div>
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111;border-top:1px solid #2a2a2a;padding:16px 20px;font-size:13px;color:#8a8278">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
