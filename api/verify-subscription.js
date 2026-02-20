@@ -38,7 +38,8 @@ module.exports = async function handler(req, res) {
     const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${orderId}`, {
       headers: {
         'Authorization': `Bearer ${lsApiKey}`,
-        'Accept': 'application/vnd.api+json'
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json'
       }
     });
 
