@@ -78,7 +78,7 @@ module.exports = async function handler(req, res) {
     const maxAge = 30 * 24 * 60 * 60;
 
     res.setHeader('Set-Cookie', [
-      `sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${isProduction ? '; Secure' : ''}`
+      `sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${isProduction ? '; Secure' : ''}`
     ]);
 
     return res.status(200).json({ success: true, tier: 'premium', email: customerEmail });
