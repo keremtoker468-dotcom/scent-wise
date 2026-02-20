@@ -36,12 +36,13 @@ module.exports = async function handler(req, res) {
   try {
     let url = `https://api.lemonsqueezy.com/v1/orders?filter[user_email]=${encodeURIComponent(emailClean)}`;
     if (expectedStoreId) url += `&filter[store_id]=${expectedStoreId}`;
-    url += '&sort=-created_at&page[size]=10';
+    url += '&sort=-createdAt&page[size]=10';
 
     const ordersRes = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${lsApiKey}`,
-        'Accept': 'application/vnd.api+json'
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json'
       }
     });
 

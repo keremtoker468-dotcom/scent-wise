@@ -31,7 +31,8 @@ module.exports = async function handler(req, res) {
       const r = await fetch('https://api.lemonsqueezy.com/v1/users/me', {
         headers: {
           'Authorization': `Bearer ${lsApiKey}`,
-          'Accept': 'application/vnd.api+json'
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json'
         }
       });
       if (r.ok) {
@@ -54,7 +55,8 @@ module.exports = async function handler(req, res) {
       const oRes = await fetch(oUrl, {
         headers: {
           'Authorization': `Bearer ${lsApiKey}`,
-          'Accept': 'application/vnd.api+json'
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json'
         }
       });
       if (oRes.ok) {

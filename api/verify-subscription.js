@@ -37,7 +37,8 @@ module.exports = async function handler(req, res) {
   try {
     const lsHeaders = {
       'Authorization': `Bearer ${lsApiKey}`,
-      'Accept': 'application/vnd.api+json'
+      'Accept': 'application/vnd.api+json',
+      'Content-Type': 'application/vnd.api+json'
     };
 
     let orderData = null;
@@ -59,7 +60,7 @@ module.exports = async function handler(req, res) {
       const errBody = await orderRes.text().catch(() => '');
       console.error(`LS API order-by-id miss: ${orderRes.status} for ${orderId} — ${errBody}`);
 
-      let searchUrl = `https://api.lemonsqueezy.com/v1/orders?sort=-created_at&page[size]=25`;
+      let searchUrl = `https://api.lemonsqueezy.com/v1/orders?sort=-createdAt&page[size]=25`;
       if (expectedStoreId) searchUrl += `&filter[store_id]=${expectedStoreId}`;
 
       const listRes = await fetch(searchUrl, { headers: lsHeaders });
