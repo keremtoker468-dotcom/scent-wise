@@ -62,7 +62,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (!validOrder) {
-      return res.status(404).json({ error: 'No active subscription found for this email.' });
+      return res.status(404).json({ error: 'No active subscription found for this email. Please make sure you\'re using the same email address from your LemonSqueezy purchase.' });
     }
 
     const subscriptionId = String(validOrder.id);

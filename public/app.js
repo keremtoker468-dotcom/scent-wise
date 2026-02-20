@@ -182,10 +182,14 @@ async function activateSubscription(orderId) {
     });
     const d = await r.json();
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; if (d.email) userEmail = d.email; go(CP); return true; }
-    alert(d.error || 'Could not verify your subscription. Please check your order ID or try logging in with your email.');
+    if (r.status === 429) {
+      alert('Too many attempts. Please wait a minute and try again.');
+    } else {
+      alert(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.');
+    }
   } catch (err) {
     console.error('Subscription activation error:', err);
-    alert('Network error while verifying subscription. Please check your connection and try again.');
+    alert('Network error — please check your connection and try again.');
   }
   return false;
 }
@@ -230,10 +234,16 @@ async function loginWithEmail(email) {
     });
     const d = await r.json();
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; userEmail = d.email || email.trim(); go(CP); return true; }
-    alert(d.error || 'No subscription found for this email.');
+    if (r.status === 404) {
+      alert('No subscription found for this email. Make sure you\'re using the same email from your LemonSqueezy purchase. You can also try your order ID instead.');
+    } else if (r.status === 429) {
+      alert('Too many login attempts. Please wait a minute and try again.');
+    } else {
+      alert(d.error || 'Could not verify your subscription. Please try again or use your order ID.');
+    }
   } catch (err) {
     console.error('Login error:', err);
-    alert('Network error. Please try again.');
+    alert('Network error — please check your connection and try again.');
   }
   return false;
 }
@@ -243,9 +253,12 @@ function doEmailLogin() {
   if (!inp || !inp.value.trim()) return;
   const btn = document.getElementById('login-btn');
   const wrap = document.getElementById('login-status');
+  const bar = document.getElementById('login-progress');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:6px"></span><span class="dot" style="animation-delay:.2s;margin-right:6px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
   if (wrap) { wrap.style.display = 'block'; }
-  loginWithEmail(inp.value).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Log In'; } if (wrap) { wrap.style.display = 'none'; } });
+  if (bar) { bar.style.display = 'block'; }
+  if (inp) { inp.disabled = true; }
+  loginWithEmail(inp.value).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Log In'; } if (wrap) { wrap.style.display = 'none'; } if (bar) { bar.style.display = 'none'; } if (inp) { inp.disabled = false; } });
 }
 
 function doLogout() {
@@ -1071,17 +1084,19 @@ function r_account(el) {
       <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
         <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">LOG IN WITH EMAIL</p>
         <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
-        <input type="text" id="login-email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:12px">
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:12px">
         <button class="btn" id="login-btn" onclick="doEmailLogin()" style="width:100%">Log In</button>
-        <div id="login-status" style="display:none;text-align:center;margin-top:12px;color:var(--td);font-size:13px"><span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s;margin-right:4px"></span> Checking your subscription...</div>
+        <div id="login-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
+        <div id="login-status" style="display:none;text-align:center;margin-top:10px;color:var(--td);font-size:13px"><span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s;margin-right:4px"></span> Checking your subscription...</div>
       </div>
       <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
         <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">HAVE AN ORDER ID?</p>
         <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter your LemonSqueezy order number to activate your subscription.</p>
         <div class="inp-row">
           <input type="text" id="order-id-input" placeholder="e.g. 2944561" onkeydown="if(event.key==='Enter')doOrderActivate()">
-          <button class="btn btn-sm" onclick="doOrderActivate()">Activate</button>
+          <button class="btn btn-sm" id="order-activate-btn" onclick="doOrderActivate()">Activate</button>
         </div>
+        <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
       </div>
       <div style="text-align:center">
         <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline">Subscribe for $7/month</a></p>
@@ -1095,8 +1110,13 @@ function doOrderActivate() {
   const inp = document.getElementById('order-id-input');
   if (!inp || !inp.value.trim()) return;
   const orderId = inp.value.trim().replace(/^#/, '').replace(/[^\d]/g, '');
-  if (orderId) activateSubscription(orderId);
-  else alert('Please enter a valid numeric order ID.');
+  if (!orderId) { alert('Please enter a valid numeric order ID.'); return; }
+  const btn = document.getElementById('order-activate-btn');
+  const bar = document.getElementById('order-progress');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
+  if (bar) { bar.style.display = 'block'; }
+  if (inp) { inp.disabled = true; }
+  activateSubscription(orderId).finally(() => { if (btn) { btn.disabled = false; btn.textContent = 'Activate'; } if (bar) { bar.style.display = 'none'; } if (inp) { inp.disabled = false; } });
 }
 
 // ═══════════════ OWNER LOGIN PAGE ═══════════════

@@ -55,19 +55,19 @@ module.exports = async function handler(req, res) {
     const order = orderData.data?.attributes;
 
     if (!order || order.status === 'refunded') {
-      return res.status(400).json({ error: 'Order not valid' });
+      return res.status(400).json({ error: 'This order is not valid or has been refunded. Please contact support if you believe this is an error.' });
     }
 
     // Validate order belongs to our store
     if (expectedStoreId && String(order.store_id) !== expectedStoreId) {
       console.error(`Order store_id mismatch: ${order.store_id}`);
-      return res.status(400).json({ error: 'Order not valid' });
+      return res.status(400).json({ error: 'This order ID does not belong to ScentWise. Please check your order number and try again.' });
     }
 
     // Validate order is for our product
     if (expectedProductId && String(order.first_order_item?.product_id) !== expectedProductId) {
       console.error(`Order product_id mismatch: ${order.first_order_item?.product_id}`);
-      return res.status(400).json({ error: 'Order not valid' });
+      return res.status(400).json({ error: 'This order is for a different product. Please use your ScentWise order number.' });
     }
 
     const subscriptionId = String(orderData.data?.id || '');
