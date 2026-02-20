@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
       if (needsRevalidation) {
         try {
           const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${sub.subId}`, {
-            headers: { 'Authorization': `Bearer ${lsApiKey}`, 'Accept': 'application/vnd.api+json', 'Content-Type': 'application/vnd.api+json' }
+            headers: { 'Authorization': `Bearer ${lsApiKey}`, 'Accept': 'application/vnd.api+json' }
           });
           if (orderRes.ok) {
             const orderData = await orderRes.json();

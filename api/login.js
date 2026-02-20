@@ -41,8 +41,7 @@ module.exports = async function handler(req, res) {
     const ordersRes = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${lsApiKey}`,
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
+        'Accept': 'application/vnd.api+json'
       }
     });
 

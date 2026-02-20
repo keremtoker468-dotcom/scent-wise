@@ -35,28 +35,47 @@ module.exports = async function handler(req, res) {
   }
 
   try {
+    const lsHeaders = {
+      'Authorization': `Bearer ${lsApiKey}`,
+      'Accept': 'application/vnd.api+json'
+    };
+
+    let orderData = null;
+
+    // First, try direct lookup by API id
     const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${orderId}`, {
-      headers: {
-        'Authorization': `Bearer ${lsApiKey}`,
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
-      }
+      headers: lsHeaders
     });
 
-    if (!orderRes.ok) {
-      const status = orderRes.status;
+    if (orderRes.ok) {
+      orderData = await orderRes.json();
+    } else if (orderRes.status === 401 || orderRes.status === 403) {
       const errBody = await orderRes.text().catch(() => '');
-      console.error(`LS API error: ${status} for order ${orderId} — ${errBody}`);
-      if (status === 401 || status === 403) {
-        return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+      console.error(`LS API auth error: ${orderRes.status} — ${errBody}`);
+      return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+    } else {
+      // ID lookup failed — try searching by order_number as fallback
+      // (customers often enter their order_number from confirmation emails)
+      const errBody = await orderRes.text().catch(() => '');
+      console.error(`LS API order-by-id miss: ${orderRes.status} for ${orderId} — ${errBody}`);
+
+      let searchUrl = `https://api.lemonsqueezy.com/v1/orders?sort=-created_at&page[size]=25`;
+      if (expectedStoreId) searchUrl += `&filter[store_id]=${expectedStoreId}`;
+
+      const listRes = await fetch(searchUrl, { headers: lsHeaders });
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const match = (listData.data || []).find(o =>
+          String(o.attributes.order_number) === orderId
+        );
+        if (match) orderData = { data: match };
       }
-      if (status === 404) {
-        return res.status(400).json({ error: 'Order not found. Please check your order number and try again, or log in with your email.' });
-      }
-      return res.status(400).json({ error: 'Could not verify order. Please try again or log in with your email instead.' });
     }
 
-    const orderData = await orderRes.json();
+    if (!orderData) {
+      return res.status(400).json({ error: 'Order not found. Please check your order number and try again, or log in with your email.' });
+    }
+
     const order = orderData.data?.attributes;
 
     if (!order || order.status === 'refunded') {
