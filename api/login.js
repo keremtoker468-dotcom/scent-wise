@@ -40,9 +40,11 @@ module.exports = async function handler(req, res) {
   };
 
   try {
-    // Step 1: Find customer by email via the customers endpoint
-    // Note: store_id filter is applied locally to avoid bad env var values breaking the API call
-    const custUrl = `https://api.lemonsqueezy.com/v1/customers?filter[email]=${encodeURIComponent(emailClean)}`;
+    // Step 1: Find customer by email
+    // We fetch customers by store_id (reliable) and match email locally,
+    // because filter[email] returns HTTP 400 on the LemonSqueezy API.
+    let custUrl = 'https://api.lemonsqueezy.com/v1/customers?page[size]=100';
+    if (expectedStoreId) custUrl += `&filter[store_id]=${expectedStoreId}`;
 
     const custRes = await fetch(custUrl, { headers: lsHeaders });
 
@@ -59,7 +61,10 @@ module.exports = async function handler(req, res) {
     }
 
     const custData = await custRes.json();
-    const customers = custData.data || [];
+    // Filter by email locally since the API filter[email] param is unreliable
+    const customers = (custData.data || []).filter(c =>
+      c.attributes.email && c.attributes.email.toLowerCase() === emailClean
+    );
 
     if (customers.length === 0) {
       return res.status(404).json({ error: 'No active subscription found for this email. Please make sure you\'re using the same email address from your LemonSqueezy purchase.' });

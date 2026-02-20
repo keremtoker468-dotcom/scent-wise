@@ -72,11 +72,13 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // Test the customers API endpoint (used by email login)
+  // Test the customers API endpoint (same query as email login uses)
   let customersTest = 'skipped';
   if (lsApiKey) {
     try {
-      const cUrl = `https://api.lemonsqueezy.com/v1/customers?page[size]=1`;
+      const storeId = process.env.LEMONSQUEEZY_STORE_ID;
+      let cUrl = `https://api.lemonsqueezy.com/v1/customers?page[size]=1`;
+      if (storeId) cUrl += `&filter[store_id]=${storeId}`;
       const cRes = await fetch(cUrl, {
         headers: {
           'Authorization': `Bearer ${lsApiKey}`,
@@ -87,7 +89,7 @@ module.exports = async function handler(req, res) {
       if (cRes.ok) {
         const cData = await cRes.json();
         const count = cData.meta?.page?.total || 0;
-        customersTest = `OK — ${count} total customers`;
+        customersTest = `OK — ${count} total customers (store_id filter: ${storeId || 'none'})`;
       } else {
         const cBody = await cRes.text().catch(() => '');
         customersTest = `FAILED — HTTP ${cRes.status}: ${cBody.substring(0, 200)}`;
