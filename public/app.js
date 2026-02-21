@@ -334,7 +334,7 @@ async function aiCall(mode, payload) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
   let s = esc(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--accent)">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)">$1</strong>')
     .replace(/\n/g, '<br>');
   // Add retry button to error messages
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
@@ -469,17 +469,17 @@ const CELEBS = [
 // ═══════════════ ZODIAC DATA ═══════════════
 const ZODIAC = [
   {sign:'Aries',symbol:'♈',dates:'Mar 21 – Apr 19',emoji:'🔥'},
-  {sign:'Taurus',symbol:'♉',dates:'Apr 20 – May 20',emoji:'🌿'},
+  {sign:'Taurus',symbol:'♉',dates:'Apr 20 – May 20',emoji:'🌹'},
   {sign:'Gemini',symbol:'♊',dates:'May 21 – Jun 20',emoji:'🌬️'},
   {sign:'Cancer',symbol:'♋',dates:'Jun 21 – Jul 22',emoji:'🌊'},
-  {sign:'Leo',symbol:'♌',dates:'Jul 23 – Aug 22',emoji:'☀️'},
-  {sign:'Virgo',symbol:'♍',dates:'Aug 23 – Sep 22',emoji:'🌾'},
+  {sign:'Leo',symbol:'♌',dates:'Jul 23 – Aug 22',emoji:'👑'},
+  {sign:'Virgo',symbol:'♍',dates:'Aug 23 – Sep 22',emoji:'🌿'},
   {sign:'Libra',symbol:'♎',dates:'Sep 23 – Oct 22',emoji:'⚖️'},
   {sign:'Scorpio',symbol:'♏',dates:'Oct 23 – Nov 21',emoji:'🦂'},
   {sign:'Sagittarius',symbol:'♐',dates:'Nov 22 – Dec 21',emoji:'🏹'},
-  {sign:'Capricorn',symbol:'♑',dates:'Dec 22 – Jan 19',emoji:'🐐'},
-  {sign:'Aquarius',symbol:'♒',dates:'Jan 20 – Feb 18',emoji:'💧'},
-  {sign:'Pisces',symbol:'♓',dates:'Feb 19 – Mar 20',emoji:'🐟'}
+  {sign:'Capricorn',symbol:'♑',dates:'Dec 22 – Jan 19',emoji:'⛰️'},
+  {sign:'Aquarius',symbol:'♒',dates:'Jan 20 – Feb 18',emoji:'🌌'},
+  {sign:'Pisces',symbol:'♓',dates:'Feb 19 – Mar 20',emoji:'🧜‍♀️'}
 ];
 
 const GENRES = [
@@ -491,24 +491,24 @@ const GENRES = [
   {name:'Jazz / Blues',emoji:'🎷',desc:'Sophisticated, deep, timeless'},
   {name:'Classical',emoji:'🎻',desc:'Elegant, refined, complex'},
   {name:'Country',emoji:'🤠',desc:'Earthy, authentic, warm'},
-  {name:'Indie / Folk',emoji:'🍃',desc:'Natural, artistic, unique'},
+  {name:'Indie / Folk',emoji:'🍂',desc:'Natural, artistic, unique'},
   {name:'Latin / Reggaeton',emoji:'💃',desc:'Passionate, vibrant, warm'},
-  {name:'K-Pop',emoji:'💖',desc:'Trendy, sweet, playful'},
+  {name:'K-Pop',emoji:'💜',desc:'Trendy, sweet, playful'},
   {name:'Metal / Punk',emoji:'🤘',desc:'Intense, dark, powerful'}
 ];
 
 const STYLES = [
   {name:'Streetwear',emoji:'🧢',desc:'Urban, bold, hype culture'},
-  {name:'Minimalist',emoji:'◽',desc:'Clean, simple, refined'},
+  {name:'Minimalist',emoji:'🤍',desc:'Clean, simple, refined'},
   {name:'Preppy / Classic',emoji:'👔',desc:'Polished, traditional, smart'},
   {name:'Bohemian',emoji:'🌻',desc:'Free-spirited, earthy, artistic'},
   {name:'Sporty / Athleisure',emoji:'🏃',desc:'Active, fresh, dynamic'},
   {name:'Goth / Dark',emoji:'🖤',desc:'Mysterious, dark, dramatic'},
-  {name:'Luxury / High Fashion',emoji:'💎',desc:'Opulent, statement, exclusive'},
+  {name:'Luxury / High Fashion',emoji:'👑',desc:'Opulent, statement, exclusive'},
   {name:'Casual / Everyday',emoji:'👕',desc:'Relaxed, comfortable, easygoing'},
-  {name:'Vintage / Retro',emoji:'📻',desc:'Nostalgic, unique, timeless'},
+  {name:'Vintage / Retro',emoji:'🎞️',desc:'Nostalgic, unique, timeless'},
   {name:'Edgy / Punk',emoji:'⚡',desc:'Rebellious, raw, bold'},
-  {name:'Romantic / Feminine',emoji:'🌸',desc:'Soft, elegant, graceful'},
+  {name:'Romantic / Feminine',emoji:'🌹',desc:'Soft, elegant, graceful'},
   {name:'Techwear / Futuristic',emoji:'🤖',desc:'Modern, functional, sci-fi'}
 ];
 
@@ -581,14 +581,14 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 
 // ═══════════════ NAV ═══════════════
 const NI = [
-  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🔍'},{id:'chat',l:'AI Advisor',i:'💬'},
-  {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'✨'},{id:'music',l:'Music',i:'🎵'},
-  {id:'style',l:'Style',i:'👔'},{id:'celeb',l:'Celebs',i:'⭐'},{id:'account',l:'Account',i:'👤'}
+  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI Advisor',i:'💬'},
+  {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
+  {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
 // Mobile nav shows condensed items
 const MNI = [
-  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🔍'},{id:'chat',l:'AI',i:'💬'},
-  {id:'celeb',l:'Celebs',i:'⭐'},{id:'account',l:'Account',i:'👤'}
+  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
+  {id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
 
 function rNav() {
@@ -614,20 +614,20 @@ function go(p) {
 // ═══════════════ HOME ═══════════════
 function r_home(el) {
   const F = [
-    {id:'explore',i:'🔍',t:'Explore Database',d:`Search ${SI.length.toLocaleString()} perfumes — filter by brand, category, gender`,c:'free'},
+    {id:'explore',i:'🧪',t:'Explore Database',d:`Search ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes — filter by brand, category, gender`,c:'free'},
     {id:'chat',i:'💬',t:'AI Fragrance Advisor',d:'Ask about dupes, seasonal picks, budget rotations, blind buys',c:'paid'},
     {id:'photo',i:'📸',t:'Style Scan',d:'Upload a photo — get fragrances matched to your aesthetic',c:'paid'},
-    {id:'zodiac',i:'✨',t:'Zodiac Match',d:'Discover your signature scent based on your birth sign',c:'paid'},
-    {id:'music',i:'🎵',t:'Music → Fragrance',d:'Your playlist reveals your scent identity',c:'paid'},
-    {id:'style',i:'👔',t:'Clothing Style Match',d:'Streetwear? Minimalist? Gothic? Get matched scents',c:'paid'},
-    {id:'celeb',i:'⭐',t:'Celebrity Fragrances',d:`Discover what ${CELEBS.length} stars actually wear`,c:'free'}
+    {id:'zodiac',i:'🔮',t:'Zodiac Match',d:'Discover your signature scent based on your birth sign',c:'paid'},
+    {id:'music',i:'🎶',t:'Music → Fragrance',d:'Your playlist reveals your scent identity',c:'paid'},
+    {id:'style',i:'🪞',t:'Clothing Style Match',d:'Streetwear? Minimalist? Gothic? Get matched scents',c:'paid'},
+    {id:'celeb',i:'💫',t:'Celebrity Fragrances',d:`Discover what ${CELEBS.length} stars actually wear`,c:'free'}
   ];
   el.innerHTML = `<div class="sec fi">
     <!-- Hero -->
     <div class="hero-glow" style="text-align:center;padding:56px 0 40px">
       <div class="hero-content">
         <h1 class="fd" style="font-size:48px;font-weight:400;margin-bottom:14px;letter-spacing:-0.5px"><span class="gg" style="font-weight:600">Scent</span>Wise</h1>
-        <p style="color:var(--td);font-size:17px;max-width:480px;margin:0 auto;line-height:1.7">AI-powered fragrance advisor with ${SI.length.toLocaleString()} perfumes — discover your perfect scent through style, personality, and taste.</p>
+        <p style="color:var(--td);font-size:17px;max-width:480px;margin:0 auto;line-height:1.7">AI-powered fragrance advisor with ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes — discover your perfect scent through style, personality, and taste.</p>
         ${isPaid ? `<div style="margin-top:20px"><span class="tag" style="font-size:13px;padding:6px 18px">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
         <div style="margin-top:28px">
           ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:14px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
@@ -638,9 +638,9 @@ function r_home(el) {
     </div>
     <!-- Stats -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px">
-      <div class="stat fi stagger-1"><div class="stat-n">${SI.length.toLocaleString()}</div><div class="stat-l">Fragrances</div></div>
-      <div class="stat fi stagger-2"><div class="stat-n">${new Set(SI.map(s=>s.split('|')[1])).size.toLocaleString()}</div><div class="stat-l">Brands</div></div>
-      <div class="stat fi stagger-3"><div class="stat-n">${CELEBS.length}</div><div class="stat-l">Celebrities</div></div>
+      <div class="stat fi stagger-1"><div class="stat-n">${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+</div><div class="stat-l">Fragrances</div></div>
+      <div class="stat fi stagger-2"><div class="stat-n">${(Math.ceil(new Set(SI.map(s=>s.split('|')[1])).size/100)*100).toLocaleString()}+</div><div class="stat-l">Brands</div></div>
+      <div class="stat fi stagger-3"><div class="stat-n">${Math.ceil(CELEBS.length/10)*10}+</div><div class="stat-l">Celebrities</div></div>
       <div class="stat fi stagger-4"><div class="stat-n">6</div><div class="stat-l">AI Modes</div></div>
     </div>
     <!-- Features -->
@@ -665,7 +665,7 @@ function r_explore(el) {
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Explore</span> Database</h2>
-      <p>Search ${SI.length.toLocaleString()} fragrances — works offline, no subscription needed.</p>
+      <p>Search ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ fragrances — works offline, no subscription needed.</p>
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div class="inp-row" style="margin-bottom:14px">
@@ -710,7 +710,7 @@ function r_chat(el) {
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:18px">
       <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length.toLocaleString()} perfumes with real notes, accords & ratings</p>
+      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
       ${trialBanner}
     </div>
     <div class="msgs" id="c-msgs">
@@ -746,7 +746,7 @@ async function cSend(text) {
 
   // Build context from local DB
   const ctx = getContext(text);
-  const sysWithCtx = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 70,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ' + (ctx || '');
+  const sysWithCtx = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 75,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ' + (ctx || '');
   const apiMsgs = chatMsgs.map(m => ({role:m.role, content: m.role==='user' && m.content===text ? sysWithCtx + '\n\nUser question: ' + m.content : m.content}));
   
   const reply = await aiCall('chat', {messages: apiMsgs});
