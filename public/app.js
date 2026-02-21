@@ -334,7 +334,7 @@ async function aiCall(mode, payload) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
   let s = esc(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--accent)">$1</strong>')
     .replace(/\n/g, '<br>');
   // Add retry button to error messages
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
