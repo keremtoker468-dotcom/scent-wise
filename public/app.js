@@ -199,19 +199,19 @@ async function activateSubscription(orderId, silent) {
 function showPaywall() {
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
-    ? `<p style="color:var(--g);font-size:13px;margin-bottom:16px;padding:10px 16px;background:rgba(201,169,110,.08);border-radius:10px">✦ You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining — try it now!</p>`
-    : `<p style="color:var(--td);font-size:13px;margin-bottom:16px;padding:10px 16px;background:rgba(255,255,255,.03);border-radius:10px">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</p>`;
+    ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(201,169,110,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
+    : `<div style="color:var(--td);font-size:13px;margin-bottom:20px;padding:12px 18px;background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm)">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</div>`;
   return `<div class="paywall fi">
-    <div style="font-size:40px;margin-bottom:16px">✦</div>
-    <h3 class="fd">Unlock <span class="gg">ScentWise AI</span></h3>
-    <p style="color:var(--td);margin:12px 0 20px;line-height:1.6;font-size:14px">
+    <div style="font-size:48px;margin-bottom:20px;position:relative">✦</div>
+    <h3 class="fd" style="font-size:28px">Unlock <span class="gg">ScentWise AI</span></h3>
+    <p style="color:var(--td);margin:14px 0 24px;line-height:1.7;font-size:14px;position:relative">
       AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
     </p>
     ${trialBanner}
-    <div style="font-size:32px;font-weight:700;margin-bottom:4px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-    <p style="color:var(--td);font-size:12px;margin-bottom:24px">500 AI queries/month · Cancel anytime</p>
-    <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Subscribe Now</a>
-    <p style="margin-top:16px;font-size:12px;color:var(--td)">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline">Log in here</a></p>
+    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
+    <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
+    <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
+    <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
   </div>`;
 }
 
@@ -346,17 +346,17 @@ function fmt(text) {
 function perfCard(p) {
   if (!p) return '';
   return `<div class="pcard">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
       <span style="font-weight:600;font-size:14px">${esc(p.name||p.n)}</span>
-      <span style="color:var(--td);font-size:12px">${esc(p.brand||p.b)}</span>
+      <span style="color:var(--td);font-size:12px;flex-shrink:0;margin-left:8px">${esc(p.brand||p.b)}</span>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
       ${p.category||p.c ? `<span class="tag" style="font-size:10px;padding:3px 10px">${esc(p.category||p.c)}</span>` : ''}
-      ${p.gender||p.g ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(133,193,233,.12);color:#85c1e9">${esc(p.gender||p.g)}</span>` : ''}
-      ${p.rating||p.r ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(232,168,124,.12);color:#e8a87c">★ ${p.rating||p.r}</span>` : ''}
+      ${p.gender||p.g ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(133,193,233,.06);color:#85c1e9;border-color:rgba(133,193,233,.1)">${esc(p.gender||p.g)}</span>` : ''}
+      ${p.rating||p.r ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(232,168,124,.06);color:#e8a87c;border-color:rgba(232,168,124,.1)">★ ${p.rating||p.r}</span>` : ''}
     </div>
-    ${p.notes||p.t ? `<p class="note">🎯 Notes: ${esc(p.notes||p.t)}</p>` : ''}
-    ${p.accords||p.a ? `<p class="note">🎨 Accords: ${esc(p.accords||p.a)}</p>` : ''}
+    ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
+    ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
   </div>`;
 }
 
@@ -565,14 +565,14 @@ function bdayToZodiac(input) {
 
 // Reusable follow-up chat UI
 function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
-  return `<div style="margin-top:20px;border-top:1px solid var(--d4);padding-top:16px">
-    <p style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:12px">ASK A FOLLOW-UP</p>
-    ${chatArr.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}" style="margin-bottom:8px">
-      ${m.role==='assistant'?'<div style="color:var(--g);font-size:11px;font-weight:600;margin-bottom:6px;letter-spacing:1px">SCENTWISE AI</div>':''}
+  return `<div style="margin-top:24px;border-top:1px solid rgba(255,255,255,.04);padding-top:20px">
+    <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Ask a follow-up</p>
+    ${chatArr.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}" style="margin-bottom:10px">
+      ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
       ${fmt(m.content)}
     </div>`).join('')}
-    ${loadingFlag?'<div class="cb cb-a fi" style="display:flex;gap:6px;padding:14px 18px;margin-bottom:8px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
-    <div class="inp-row" style="margin-top:8px">
+    ${loadingFlag?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:16px 20px;margin-bottom:10px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
+    <div class="inp-row" style="margin-top:10px">
       <input type="text" id="${inputId}" placeholder="${placeholder}" onkeydown="if(event.key==='Enter')${sendFn}()">
       <button class="btn btn-sm" onclick="${sendFn}()" ${loadingFlag?'disabled':''}>Send</button>
     </div>
@@ -585,11 +585,22 @@ const NI = [
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'✨'},{id:'music',l:'Music',i:'🎵'},
   {id:'style',l:'Style',i:'👔'},{id:'celeb',l:'Celebs',i:'⭐'},{id:'account',l:'Account',i:'👤'}
 ];
+// Mobile nav shows condensed items
+const MNI = [
+  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🔍'},{id:'chat',l:'AI',i:'💬'},
+  {id:'celeb',l:'Celebs',i:'⭐'},{id:'account',l:'Account',i:'👤'}
+];
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
     `<a class="ni ${CP===n.id?'na':''}" onclick="go('${n.id}')">${n.i} ${n.l}</a>`
   ).join('');
+  const mobEl = document.getElementById('mob-nav');
+  if (mobEl) {
+    mobEl.innerHTML = MNI.map(n =>
+      `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
+    ).join('');
+  }
 }
 
 function go(p) {
@@ -597,6 +608,7 @@ function go(p) {
   CP = p; rNav();
   const e = document.getElementById('page-' + p);
   if (e) { e.classList.remove('hidden'); e.innerHTML = ''; window['r_' + p](e); }
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // ═══════════════ HOME ═══════════════
@@ -611,32 +623,37 @@ function r_home(el) {
     {id:'celeb',i:'⭐',t:'Celebrity Fragrances',d:`Discover what ${CELEBS.length} stars actually wear`,c:'free'}
   ];
   el.innerHTML = `<div class="sec fi">
-    <div style="text-align:center;padding:40px 0 32px">
-      <h1 class="fd" style="font-size:42px;font-weight:400;margin-bottom:12px"><span class="gg" style="font-weight:600">Scent</span>Wise</h1>
-      <p style="color:var(--td);font-size:16px;max-width:500px;margin:0 auto;line-height:1.6">AI-powered fragrance advisor with ${SI.length.toLocaleString()} perfumes — discover your perfect scent through style, personality, and taste.</p>
-      ${isPaid ? `<div style="margin-top:16px"><span class="tag">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
-      <div style="margin-top:20px">
-        ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:12px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
-        <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer">Get Full Access — $7/month</a>
-        <p style="color:var(--td);font-size:12px;margin-top:8px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
-      </div>`}
+    <!-- Hero -->
+    <div class="hero-glow" style="text-align:center;padding:56px 0 40px">
+      <div class="hero-content">
+        <h1 class="fd" style="font-size:48px;font-weight:400;margin-bottom:14px;letter-spacing:-0.5px"><span class="gg" style="font-weight:600">Scent</span>Wise</h1>
+        <p style="color:var(--td);font-size:17px;max-width:480px;margin:0 auto;line-height:1.7">AI-powered fragrance advisor with ${SI.length.toLocaleString()} perfumes — discover your perfect scent through style, personality, and taste.</p>
+        ${isPaid ? `<div style="margin-top:20px"><span class="tag" style="font-size:13px;padding:6px 18px">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
+        <div style="margin-top:28px">
+          ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:14px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
+          <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px">Get Full Access — $7/month</a>
+          <p style="color:var(--td);font-size:12px;margin-top:12px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
+        </div>`}
+      </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px">
-      <div class="stat"><div class="stat-n">${SI.length.toLocaleString()}</div><div class="stat-l">Fragrances</div></div>
-      <div class="stat"><div class="stat-n">${new Set(SI.map(s=>s.split('|')[1])).size.toLocaleString()}</div><div class="stat-l">Brands</div></div>
-      <div class="stat"><div class="stat-n">${CELEBS.length}</div><div class="stat-l">Celebrities</div></div>
-      <div class="stat"><div class="stat-n">6</div><div class="stat-l">AI Modes</div></div>
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px">
+      <div class="stat fi stagger-1"><div class="stat-n">${SI.length.toLocaleString()}</div><div class="stat-l">Fragrances</div></div>
+      <div class="stat fi stagger-2"><div class="stat-n">${new Set(SI.map(s=>s.split('|')[1])).size.toLocaleString()}</div><div class="stat-l">Brands</div></div>
+      <div class="stat fi stagger-3"><div class="stat-n">${CELEBS.length}</div><div class="stat-l">Celebrities</div></div>
+      <div class="stat fi stagger-4"><div class="stat-n">6</div><div class="stat-l">AI Modes</div></div>
     </div>
+    <!-- Features -->
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">
-      ${F.map(f => `<div class="card" onclick="go('${f.id}')">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-          <span style="font-size:28px">${f.i}</span>
+      ${F.map((f,i) => `<div class="card fi stagger-${i+1}" onclick="go('${f.id}')">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+          <div style="width:44px;height:44px;border-radius:12px;background:${f.c==='free'?'rgba(133,193,233,.08)':'var(--gl)'};display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${f.i}</div>
           <div>
-            <div style="font-weight:600;font-size:15px">${f.t}</div>
-            ${f.c==='free'?'<span style="font-size:10px;color:#85c1e9;text-transform:uppercase;letter-spacing:1px">Free</span>':'<span style="font-size:10px;color:var(--g);text-transform:uppercase;letter-spacing:1px">Premium</span>'}
+            <div style="font-weight:600;font-size:15px;margin-bottom:2px">${f.t}</div>
+            ${f.c==='free'?'<span style="font-size:10px;color:#85c1e9;text-transform:uppercase;letter-spacing:1px;font-weight:600">Free</span>':'<span style="font-size:10px;color:var(--g);text-transform:uppercase;letter-spacing:1px;font-weight:600">Premium</span>'}
           </div>
         </div>
-        <p style="color:var(--td);font-size:13px;line-height:1.5">${f.d}</p>
+        <p style="color:var(--td);font-size:13px;line-height:1.6">${f.d}</p>
       </div>`).join('')}
     </div>
   </div>`;
@@ -646,20 +663,25 @@ function r_home(el) {
 function r_explore(el) {
   const filters = ['all','Male','Female','Unisex'];
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Explore</span> Database</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:20px">Search ${SI.length.toLocaleString()} fragrances — works offline, no subscription needed.</p>
-    <div class="inp-row" style="margin-bottom:12px">
-      <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter')doExp()">
-      <button class="btn btn-sm" onclick="doExp()">Search</button>
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Explore</span> Database</h2>
+      <p>Search ${SI.length.toLocaleString()} fragrances — works offline, no subscription needed.</p>
     </div>
-    <div style="display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap">
-      ${filters.map(f => `<button class="fbtn ${expFilter===f?'ac':''}" onclick="expFilter='${f}';doExp()">${f==='all'?'All':f}</button>`).join('')}
+    <div class="glass-panel" style="margin-bottom:24px">
+      <div class="inp-row" style="margin-bottom:14px">
+        <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter')doExp()">
+        <button class="btn btn-sm" onclick="doExp()">Search</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${filters.map(f => `<button class="fbtn ${expFilter===f?'ac':''}" onclick="expFilter='${f}';doExp()">${f==='all'?'All':f}</button>`).join('')}
+      </div>
     </div>
     <div id="exp-res">
-      ${expResults.length ? `<p style="color:var(--td);font-size:12px;margin-bottom:12px">${expResults.length} results${expResults.length>=100?' (showing first 100)':''}</p>
+      ${expResults.length ? `<p style="color:var(--td);font-size:12px;margin-bottom:14px;font-weight:500">${expResults.length} results${expResults.length>=100?' (showing first 100)':''}</p>
         <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
           ${expResults.slice(0,100).map(p => perfCard(p)).join('')}
-        </div>` : expQ ? '<p style="color:var(--td);text-align:center;margin-top:40px">No results found.</p>' : `
+        </div>` : expQ ? '<p style="color:var(--td);text-align:center;margin-top:48px;font-size:14px">No results found. Try a different search term.</p>' : `
+        <p style="color:var(--td);font-size:13px;margin-bottom:14px;font-weight:500">Popular searches</p>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
           ${['Dior Sauvage','Tom Ford','Creed Aventus','Baccarat Rouge','Lattafa','Chanel','Versace Eros','Amouage','Le Labo','Mugler'].map(s =>
             `<div class="fbtn" onclick="document.getElementById('exp-inp').value='${s}';doExp()">${s}</div>`
@@ -684,26 +706,26 @@ function doExp() {
 function r_chat(el) {
   if (!isPaid && !hasFreeTrialLeft() && chatMsgs.length === 0) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
-  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.2);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--g)">✦ Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.03);border:1px solid var(--d4);border-radius:10px;padding:8px 14px;margin-bottom:12px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline">Subscribe for unlimited access</a></div>` : '';
+  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
-    <div style="margin-bottom:16px">
+    <div style="margin-bottom:18px">
       <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-      <p style="color:var(--td);font-size:13px;margin-top:4px">Powered by ${SI.length.toLocaleString()} perfumes with real notes, accords & ratings</p>
+      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length.toLocaleString()} perfumes with real notes, accords & ratings</p>
       ${trialBanner}
     </div>
     <div class="msgs" id="c-msgs">
-      ${chatMsgs.length===0?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:20px">
-        <p style="color:var(--td);font-size:13px;margin-bottom:4px">Try asking:</p>
-        ${sugg.map(s=>`<div class="card" onclick="cSend('${s}')" style="padding:12px 16px;cursor:pointer;font-size:14px;border-radius:12px">${s}</div>`).join('')}
+      ${chatMsgs.length===0?`<div style="display:flex;flex-direction:column;gap:10px;margin-top:24px">
+        <p style="color:var(--td);font-size:13px;margin-bottom:4px;font-weight:500">Try asking:</p>
+        ${sugg.map((s,i)=>`<div class="card fi stagger-${i+1}" onclick="cSend('${s}')" style="padding:14px 18px;cursor:pointer;font-size:14px">${s}</div>`).join('')}
       </div>`:''}
       ${chatMsgs.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
-        ${m.role==='assistant'?'<div style="color:var(--g);font-size:11px;font-weight:600;margin-bottom:6px;letter-spacing:1px">SCENTWISE AI</div>':''}
+        ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
         ${fmt(m.content)}
       </div>`).join('')}
-      ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:6px;padding:18px 22px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
+      ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
       <div id="c-end"></div>
     </div>
-    <div class="inp-row">
+    <div class="inp-row" style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
       <input type="text" id="c-inp" placeholder="Ask about any fragrance..." onkeydown="if(event.key==='Enter')cSend()">
       <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''}>Send</button>
     </div>
@@ -749,34 +771,36 @@ function retryLast() {
 function r_photo(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Style</span> Scan</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:24px">Upload a photo and get fragrance recommendations matched to your aesthetic.</p>
-    ${!photoPrev?`<div class="pdrop" onclick="document.getElementById('pf').click()" ondragover="event.preventDefault()" ondrop="event.preventDefault();phFile(event.dataTransfer.files[0])">
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Scan</h2>
+      <p>Upload a photo and get fragrance recommendations matched to your aesthetic.</p>
+    </div>
+    ${!photoPrev?`<div class="pdrop" onclick="document.getElementById('pf').click()" ondragover="event.preventDefault();this.style.borderColor='var(--g)'" ondragleave="this.style.borderColor='var(--d4)'" ondrop="event.preventDefault();phFile(event.dataTransfer.files[0])">
       <input type="file" id="pf" accept="image/*" hidden onchange="phFile(this.files[0])">
-      <div style="font-size:48px;margin-bottom:16px;opacity:.5">📸</div>
-      <p style="font-size:16px;margin-bottom:8px">Drop a photo here or click to upload</p>
+      <div style="font-size:56px;margin-bottom:20px;opacity:.4">📸</div>
+      <p style="font-size:17px;margin-bottom:8px;font-weight:500">Drop a photo here or click to upload</p>
       <p style="color:var(--td);font-size:13px">We'll analyze your style and match fragrances to your vibe</p>
-    </div>`:`<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
-      <img src="${photoPrev}" style="width:200px;height:260px;object-fit:cover;border-radius:16px;border:1px solid var(--d4)">
+    </div>`:`<div class="glass-panel" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+      <img src="${photoPrev}" style="width:200px;height:260px;object-fit:cover;border-radius:var(--r);border:1px solid var(--d4);box-shadow:var(--shadow)">
       <div style="flex:1;min-width:250px">
         ${!photoRes&&!photoLoad?`
-          <p style="margin-bottom:16px;color:var(--td);font-size:14px">Photo uploaded. Ready to analyze your style.</p>
+          <p style="margin-bottom:18px;color:var(--td);font-size:14px">Photo uploaded. Ready to analyze your style.</p>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn" onclick="doPhoto()">✨ Find My Fragrances</button>
+            <button class="btn" onclick="doPhoto()">Find My Fragrances</button>
             <button class="btn-o btn-sm" onclick="photoReset()">Change Photo</button>
           </div>
         `:photoLoad?`
-          <div style="display:flex;align-items:center;gap:10px;padding:20px 0">
+          <div style="display:flex;align-items:center;gap:10px;padding:24px 0">
             <span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span>
-            <span style="color:var(--td);font-size:14px">Analyzing your style...</span>
+            <span style="color:var(--td);font-size:14px;margin-left:4px">Analyzing your style...</span>
           </div>
         `:`
           <div class="rbox" style="flex-direction:column;align-items:stretch">
-            <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:10px">YOUR STYLE MATCHES</div>
+            <div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">Your Style Matches</div>
             <div style="line-height:1.8;font-size:14px">${fmt(photoRes)}</div>
             ${followUpHTML(photoChat, photoChatLoad, 'pfu-inp', 'pFollow', 'Ask more about your style matches...')}
           </div>
-          <div style="margin-top:16px"><button class="btn-o btn-sm" onclick="photoReset()">Try Another Photo</button></div>
+          <div style="margin-top:18px"><button class="btn-o btn-sm" onclick="photoReset()">Try Another Photo</button></div>
         `}
       </div>
     </div>`}
@@ -835,22 +859,26 @@ async function pFollow() {
 function r_zodiac(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Zodiac</span> Match</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:16px">Select your sign or type your birthday to discover your cosmic scent match.</p>
-    <div style="margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <input type="text" id="bday-inp" placeholder="Type your birthday (e.g. March 15, 15/03)..." style="max-width:320px" onkeydown="if(event.key==='Enter')tryBday()">
-      <button class="btn btn-sm" onclick="tryBday()">Find My Sign</button>
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Zodiac</span> Match</h2>
+      <p>Select your sign or type your birthday to discover your cosmic scent match.</p>
+    </div>
+    <div class="glass-panel" style="margin-bottom:24px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="bday-inp" placeholder="Type your birthday (e.g. March 15, 15/03)..." style="max-width:320px" onkeydown="if(event.key==='Enter')tryBday()">
+        <button class="btn btn-sm" onclick="tryBday()">Find My Sign</button>
+      </div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
-      ${ZODIAC.map(z=>`<div class="card" onclick="pickZ('${z.sign}')" style="text-align:center;padding:16px 12px;${selZ===z.sign?'border-color:var(--g);background:rgba(201,169,110,.06)':''}">
-        <div style="font-size:28px;margin-bottom:6px">${z.emoji}</div>
+      ${ZODIAC.map((z,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickZ('${z.sign}')" style="text-align:center;padding:18px 12px;${selZ===z.sign?'border-color:var(--g);background:var(--gl)':''}">
+        <div style="font-size:30px;margin-bottom:8px">${z.emoji}</div>
         <div style="font-weight:600;font-size:14px">${z.sign}</div>
-        <div style="font-size:11px;color:var(--td)">${z.dates}</div>
+        <div style="font-size:11px;color:var(--td);margin-top:2px">${z.dates}</div>
       </div>`).join('')}
     </div>
-    <div id="z-res" style="margin-top:24px">
-      ${zodiacLoad?'<div style="display:flex;align-items:center;gap:10px;padding:20px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding your cosmic scents...</span></div>':''}
-      ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:10px">${esc((selZ||'').toUpperCase())} FRAGRANCE MATCHES</div><div style="line-height:1.8;font-size:14px">${fmt(zodiacRes)}</div>
+    <div id="z-res" style="margin-top:28px">
+      ${zodiacLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding your cosmic scents...</span></div>':''}
+      ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selZ||'').toUpperCase())} Fragrance Matches</div><div style="line-height:1.8;font-size:14px">${fmt(zodiacRes)}</div>
         ${followUpHTML(zodiacChat, zodiacChatLoad, 'zfu-inp', 'zFollow', 'Ask more about zodiac fragrances...')}
       </div>`:''}
     </div>
@@ -895,20 +923,24 @@ async function zFollow() {
 function r_music(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Music</span> → Fragrance</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:24px">Your music taste reveals your scent identity. Pick a genre or describe your taste below.</p>
-    <div style="margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <input type="text" id="music-inp" placeholder="Or type your music taste (e.g. lo-fi beats, 90s grunge)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customMusic()">
-      <button class="btn btn-sm" onclick="customMusic()">Match</button>
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Music</span> → Fragrance</h2>
+      <p>Your music taste reveals your scent identity. Pick a genre or describe your taste below.</p>
+    </div>
+    <div class="glass-panel" style="margin-bottom:24px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="music-inp" placeholder="Or type your music taste (e.g. lo-fi beats, 90s grunge)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customMusic()">
+        <button class="btn btn-sm" onclick="customMusic()">Match</button>
+      </div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
-      ${GENRES.map(g=>`<div class="card" onclick="pickM('${g.name}')" style="padding:16px;${selM===g.name?'border-color:var(--g);background:rgba(201,169,110,.06)':''}">
-        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">${g.emoji}</span><div><div style="font-weight:600;font-size:14px">${g.name}</div><div style="font-size:11px;color:var(--td)">${g.desc}</div></div></div>
+      ${GENRES.map((g,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickM('${g.name}')" style="padding:18px;${selM===g.name?'border-color:var(--g);background:var(--gl)':''}">
+        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${g.emoji}</span><div><div style="font-weight:600;font-size:14px">${g.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${g.desc}</div></div></div>
       </div>`).join('')}
     </div>
-    <div id="m-res" style="margin-top:24px">
-      ${musicLoad?'<div style="display:flex;align-items:center;gap:10px;padding:20px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Matching your vibe...</span></div>':''}
-      ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:10px">${esc((selM||'').toUpperCase())} SCENT PROFILE</div><div style="line-height:1.8;font-size:14px">${fmt(musicRes)}</div>
+    <div id="m-res" style="margin-top:28px">
+      ${musicLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Matching your vibe...</span></div>':''}
+      ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selM||'').toUpperCase())} Scent Profile</div><div style="line-height:1.8;font-size:14px">${fmt(musicRes)}</div>
         ${followUpHTML(musicChat, musicChatLoad, 'mfu-inp', 'mFollow', 'Ask more about music-inspired fragrances...')}
       </div>`:''}
     </div>
@@ -958,20 +990,24 @@ async function mFollow() {
 function r_style(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Style</span> Match</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:16px">Your clothing style says everything about your ideal scent. Pick a style or describe yours.</p>
-    <div style="margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <input type="text" id="style-inp" placeholder="Describe your style (e.g. dark academia, Y2K, cottagecore)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customStyle()">
-      <button class="btn btn-sm" onclick="customStyle()">Match</button>
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Match</h2>
+      <p>Your clothing style says everything about your ideal scent. Pick a style or describe yours.</p>
+    </div>
+    <div class="glass-panel" style="margin-bottom:24px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="style-inp" placeholder="Describe your style (e.g. dark academia, Y2K, cottagecore)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customStyle()">
+        <button class="btn btn-sm" onclick="customStyle()">Match</button>
+      </div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
-      ${STYLES.map(s=>`<div class="card" onclick="pickSt('${s.name}')" style="padding:16px;${selS===s.name?'border-color:var(--g);background:rgba(201,169,110,.06)':''}">
-        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:24px">${s.emoji}</span><div><div style="font-weight:600;font-size:14px">${s.name}</div><div style="font-size:11px;color:var(--td)">${s.desc}</div></div></div>
+      ${STYLES.map((s,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickSt('${s.name}')" style="padding:18px;${selS===s.name?'border-color:var(--g);background:var(--gl)':''}">
+        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${s.emoji}</span><div><div style="font-weight:600;font-size:14px">${s.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${s.desc}</div></div></div>
       </div>`).join('')}
     </div>
-    <div id="s-res" style="margin-top:24px">
-      ${styleLoad?'<div style="display:flex;align-items:center;gap:10px;padding:20px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Curating your scent wardrobe...</span></div>':''}
-      ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:10px">${esc((selS||'').toUpperCase())} FRAGRANCE PICKS</div><div style="line-height:1.8;font-size:14px">${fmt(styleRes)}</div>
+    <div id="s-res" style="margin-top:28px">
+      ${styleLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Curating your scent wardrobe...</span></div>':''}
+      ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selS||'').toUpperCase())} Fragrance Picks</div><div style="line-height:1.8;font-size:14px">${fmt(styleRes)}</div>
         ${followUpHTML(styleChat, styleChatLoad, 'sfu-inp', 'sFollow', 'Ask more about style-matched fragrances...')}
       </div>`:''}
     </div>
@@ -1022,20 +1058,24 @@ function r_celeb(el) {
   const q = celebQ.toLowerCase();
   const f = q ? CELEBS.filter(c => c.name.toLowerCase().includes(q)) : CELEBS;
   el.innerHTML = `<div class="sec fi">
-    <h2 class="fd" style="font-size:28px;font-weight:400;margin-bottom:4px"><span class="gg" style="font-weight:600">Celebrity</span> Fragrances</h2>
-    <p style="color:var(--td);font-size:13px;margin-bottom:20px">Discover what ${CELEBS.length} celebrities actually wear.</p>
-    <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;r_celeb(document.getElementById('page-celeb'))" style="margin-bottom:20px;max-width:400px">
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Celebrity</span> Fragrances</h2>
+      <p>Discover what ${CELEBS.length} celebrities actually wear.</p>
+    </div>
+    <div class="glass-panel" style="margin-bottom:24px">
+      <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;r_celeb(document.getElementById('page-celeb'))" style="max-width:400px">
+    </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
-      ${f.map(c=>`<div class="pcard" style="padding:20px">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-          <div style="width:44px;height:44px;border-radius:50%;background:var(--d3);border:1px solid var(--d4);display:flex;align-items:center;justify-content:center;font-size:20px">${c.img}</div>
+      ${f.map(c=>`<div class="pcard" style="padding:22px">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+          <div style="width:48px;height:48px;border-radius:14px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;font-size:22px">${c.img}</div>
           <h3 style="font-size:16px;font-weight:600">${esc(c.name)}</h3>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
           ${c.frags.map(k=>{
             const[n,b]=k.split('|');
             const p=find(n,b||'');
-            return`<div style="background:var(--d2);border-radius:10px;padding:10px 14px;font-size:13px">
+            return`<div style="background:var(--d2);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;border:1px solid rgba(255,255,255,.02)">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
                 <span style="color:var(--g);font-size:11px">◈</span>
                 <strong>${esc(n)}</strong>
@@ -1049,7 +1089,7 @@ function r_celeb(el) {
         </div>
       </div>`).join('')}
     </div>
-    ${!f.length?`<p style="text-align:center;color:var(--td);margin-top:40px">No match for "${esc(celebQ)}"</p>`:''}
+    ${!f.length?`<p style="text-align:center;color:var(--td);margin-top:48px;font-size:14px">No match for "${esc(celebQ)}"</p>`:''}
   </div>`;
 }
 
@@ -1057,50 +1097,47 @@ function r_celeb(el) {
 function r_account(el) {
   if (isPaid) {
     // Show profile for logged-in users
-    el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:40px auto">
-      <div style="text-align:center;padding:32px 0">
-        <div style="width:80px;height:80px;border-radius:50%;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:32px">${isOwner ? '👑' : '✦'}</div>
-        <h2 class="fd" style="font-size:28px;margin-bottom:4px">Your Account</h2>
+    el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:48px auto">
+      <div style="text-align:center;padding:36px 0">
+        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">${isOwner ? '👑' : '✦'}</div>
+        <h2 class="fd" style="font-size:30px;margin-bottom:6px">Your Account</h2>
         <p style="color:var(--td);font-size:14px">${isOwner ? 'Owner Access' : 'Premium Member'}</p>
       </div>
-      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div class="glass-panel" style="margin-bottom:18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Status</span>
           <span class="tag">${isOwner ? '👑 Owner' : '✦ Premium'}</span>
         </div>
-        ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Email</span>
           <span style="font-size:14px">${userEmail}</span>
         </div>` : ''}
-        ${!isOwner ? `<div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
           <span style="color:var(--td);font-size:13px">AI Queries</span>
-          <span style="font-size:14px">${aiUsage} / ${MAX_PAID} this month</span>
-        </div>` : `<div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="color:var(--td);font-size:13px">AI Queries</span>
-          <span style="font-size:14px">Unlimited</span>
-        </div>`}
+          <span style="font-size:14px">${isOwner ? 'Unlimited' : aiUsage + ' / ' + MAX_PAID + ' this month'}</span>
+        </div>
       </div>
       <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center">Log Out</button>
     </div>`;
   } else {
     // Show login form for non-premium users
-    el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:40px auto">
-      <div style="text-align:center;margin-bottom:32px">
-        <div style="font-size:48px;margin-bottom:16px">👤</div>
-        <h2 class="fd" style="font-size:28px;margin-bottom:8px">Log In</h2>
+    el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:48px auto">
+      <div style="text-align:center;margin-bottom:36px">
+        <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">👤</div>
+        <h2 class="fd" style="font-size:30px;margin-bottom:8px">Log In</h2>
         <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
       </div>
-      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
-        <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">LOG IN WITH EMAIL</p>
-        <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
-        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:12px">
+      <div class="glass-panel" style="margin-bottom:18px">
+        <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Log in with email</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
+        <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:14px">
         <button class="btn" id="login-btn" onclick="doEmailLogin()" style="width:100%">Log In</button>
         <div id="login-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
         <div id="login-status" style="display:none;text-align:center;margin-top:10px;color:var(--td);font-size:13px"><span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s;margin-right:4px"></span> Checking your subscription...</div>
       </div>
-      <div style="background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:24px;margin-bottom:20px">
-        <p style="color:var(--g);font-size:12px;font-weight:600;letter-spacing:1px;margin-bottom:12px">HAVE AN ORDER ID?</p>
-        <p style="color:var(--td);font-size:13px;margin-bottom:16px;line-height:1.5">Enter your LemonSqueezy order number to activate your subscription.</p>
+      <div class="glass-panel" style="margin-bottom:18px">
+        <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Have an order ID?</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter your LemonSqueezy order number to activate your subscription.</p>
         <div class="inp-row">
           <input type="text" id="order-id-input" placeholder="e.g. 2944561" onkeydown="if(event.key==='Enter')doOrderActivate()">
           <button class="btn btn-sm" id="order-activate-btn" onclick="doOrderActivate()">Activate</button>
@@ -1108,7 +1145,7 @@ function r_account(el) {
         <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
       </div>
       <div style="text-align:center">
-        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline">Subscribe for $7/month</a></p>
+        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $7/month</a></p>
       </div>
     </div>`;
     document.getElementById('login-email')?.focus();
@@ -1131,27 +1168,31 @@ function doOrderActivate() {
 // ═══════════════ OWNER LOGIN PAGE ═══════════════
 function r_admin(el) {
   if (isOwner) {
-    el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:60px auto;text-align:center">
-      <div style="font-size:48px;margin-bottom:16px">👑</div>
+    el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto;text-align:center">
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">👑</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Access Active</h2>
-      <p style="color:var(--td);margin-bottom:24px">You are logged in as the owner with unlimited access.</p>
-      <button class="btn" onclick="go('home')" style="margin-right:10px">Go to Home</button>
-      <button class="btn-o" onclick="logoutOwner();window.history.replaceState({},'','/');go('home')">Logout</button>
+      <p style="color:var(--td);margin-bottom:28px">You are logged in as the owner with unlimited access.</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn" onclick="go('home')">Go to Home</button>
+        <button class="btn-o" onclick="logoutOwner();window.history.replaceState({},'','/');go('home')">Logout</button>
+      </div>
     </div>`;
     return;
   }
-  el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:60px auto">
-    <div style="text-align:center;margin-bottom:32px">
-      <div style="font-size:48px;margin-bottom:16px">🔐</div>
+  el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto">
+    <div style="text-align:center;margin-bottom:36px">
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">🔐</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Login</h2>
-      <p style="color:var(--td)">Enter your owner key to access the admin panel.</p>
+      <p style="color:var(--td);font-size:14px">Enter your owner key to access the admin panel.</p>
     </div>
-    <div style="margin-bottom:16px">
-      <input type="password" id="admin-key" placeholder="Owner key" onkeydown="if(event.key==='Enter')doAdminLogin()" style="background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:12px;padding:14px 16px;font-family:'DM Sans';font-size:15px;outline:none;width:100%">
+    <div class="glass-panel">
+      <div style="margin-bottom:16px">
+        <input type="password" id="admin-key" placeholder="Owner key" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      </div>
+      <div id="admin-err" style="color:#e74c3c;font-size:13px;margin-bottom:12px;display:none"></div>
+      <button class="btn" onclick="doAdminLogin()" id="admin-btn" style="width:100%">Login</button>
     </div>
-    <div id="admin-err" style="color:#e74c3c;font-size:13px;margin-bottom:12px;display:none"></div>
-    <button class="btn" onclick="doAdminLogin()" id="admin-btn" style="width:100%">Login</button>
-    <p style="text-align:center;margin-top:16px"><a onclick="window.history.replaceState({},'','/');go('home')" style="color:var(--td);cursor:pointer;font-size:13px">← Back to home</a></p>
+    <p style="text-align:center;margin-top:20px"><a onclick="window.history.replaceState({},'','/');go('home')" style="color:var(--td);cursor:pointer;font-size:13px;transition:color .2s" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">← Back to home</a></p>
   </div>`;
   document.getElementById('admin-key')?.focus();
 }

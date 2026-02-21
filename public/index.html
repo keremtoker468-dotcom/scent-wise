@@ -65,77 +65,160 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --d:#0a0a0a;--d2:#111;--d3:#1a1a1a;--d4:#2a2a2a;--d5:#333;
-  --t:#f0ece4;--td:#8a8278;--g:#c9a96e;--gd:#b8944f;
+  --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
+  --t:#f0ece4;--t2:#d4cfc6;--td:#8a8278;--g:#c9a96e;--gd:#b8944f;--gl:rgba(201,169,110,.08);
+  --glass:rgba(22,22,26,.72);--glass-b:rgba(201,169,110,.06);
+  --r:16px;--r-lg:24px;--r-sm:10px;
+  --shadow:0 4px 24px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
+  --glow:0 0 60px rgba(201,169,110,.08),0 0 120px rgba(201,169,110,.04);
 }
-body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 .fd{font-family:'Playfair Display',serif}.gg{color:var(--g)}
 
-.nav-w{border-bottom:1px solid var(--d4);background:var(--d2);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
-.nav-i{max-width:1100px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:8px}
-.logo{cursor:pointer;padding:16px 0;margin-right:16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* ═══ NAVIGATION ═══ */
+.nav-w{background:var(--glass);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4)}
+.nav-i{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:8px}
+.logo{cursor:pointer;padding:18px 0;margin-right:20px;display:flex;align-items:center;gap:10px;flex-shrink:0;transition:opacity .2s}
+.logo:hover{opacity:.85}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--gd));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--d);font-weight:700;box-shadow:0 2px 8px rgba(201,169,110,.25)}
 .nav-s{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
 .nav-s::-webkit-scrollbar{display:none}
-.ni{padding:10px 16px;cursor:pointer;border-radius:10px;transition:all .2s;font-size:13px;white-space:nowrap;color:var(--td);display:inline-block}
-.ni:hover{background:var(--d3);color:var(--t)}
-.na{background:rgba(201,169,110,.12)!important;color:var(--g)!important}
+.ni{padding:9px 14px;cursor:pointer;border-radius:var(--r-sm);transition:all .2s;font-size:13px;white-space:nowrap;color:var(--td);display:inline-flex;align-items:center;gap:6px;font-weight:500;position:relative}
+.ni:hover{background:rgba(255,255,255,.04);color:var(--t)}
+.na{color:var(--g)!important;background:var(--gl)!important}
+.na::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--g);border-radius:1px}
 
-.btn{background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border:none;border-radius:14px;padding:14px 32px;cursor:pointer;transition:all .2s;font-family:'DM Sans';font-size:15px}
-.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,169,110,.3)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn-o{background:transparent;color:var(--g);border:1px solid var(--g);border-radius:14px;padding:12px 28px;cursor:pointer;transition:all .2s;font-family:'DM Sans';font-size:14px}
-.btn-o:hover{background:rgba(201,169,110,.1)}
-.btn-sm{padding:8px 20px;font-size:13px;border-radius:10px}
+/* ═══ BUTTONS ═══ */
+.btn{background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border:none;border-radius:var(--r);padding:14px 32px;cursor:pointer;transition:all .25s;font-family:'DM Sans';font-size:15px;position:relative;overflow:hidden;letter-spacing:.3px}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,169,110,.35),0 2px 8px rgba(201,169,110,.2)}
+.btn:hover::before{opacity:1}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-o{background:transparent;color:var(--g);border:1px solid rgba(201,169,110,.3);border-radius:var(--r);padding:12px 28px;cursor:pointer;transition:all .25s;font-family:'DM Sans';font-size:14px;font-weight:500;backdrop-filter:blur(8px)}
+.btn-o:hover{background:var(--gl);border-color:var(--g);transform:translateY(-1px)}
+.btn-sm{padding:8px 20px;font-size:13px;border-radius:var(--r-sm)}
 
-.card{background:var(--d3);border:1px solid var(--d4);border-radius:16px;padding:20px;transition:all .2s;cursor:pointer}
-.card:hover{border-color:rgba(201,169,110,.3);transform:translateY(-2px)}
-.pcard{background:var(--d3);border:1px solid var(--d4);border-radius:14px;padding:16px;transition:border-color .2s}
-.pcard:hover{border-color:rgba(201,169,110,.3)}
+/* ═══ CARDS ═══ */
+.card{background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:22px;transition:all .3s cubic-bezier(.4,0,.2,1);cursor:pointer;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,.04),transparent);opacity:0;transition:opacity .3s}
+.card:hover{border-color:rgba(201,169,110,.2);transform:translateY(-3px);box-shadow:var(--shadow)}
+.card:hover::before{opacity:1}
+.pcard{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:18px;transition:all .25s;position:relative;overflow:hidden}
+.pcard:hover{border-color:rgba(201,169,110,.2);box-shadow:var(--shadow)}
 
-.cb{border-radius:18px;padding:16px 20px;max-width:88%;line-height:1.7;font-size:14px;white-space:pre-wrap}
-.cb-u{background:linear-gradient(135deg,#2a2520,#1e1a16);border:1px solid var(--d4);margin-left:auto}
-.cb-a{background:var(--d3);border:1px solid var(--d4)}
+/* ═══ CHAT BUBBLES ═══ */
+.cb{border-radius:20px;padding:16px 22px;max-width:85%;line-height:1.75;font-size:14px;white-space:pre-wrap;position:relative}
+.cb-u{background:linear-gradient(135deg,#2a2520,#1e1a16);border:1px solid rgba(201,169,110,.1);margin-left:auto;border-bottom-right-radius:6px}
+.cb-a{background:var(--d3);border:1px solid var(--d4);border-bottom-left-radius:6px}
 
-input[type=text],input[type=search]{background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:12px;padding:12px 16px;font-family:'DM Sans';font-size:14px;outline:none;width:100%;transition:border-color .2s}
-input:focus{border-color:var(--g)}
+/* ═══ INPUTS ═══ */
+input[type=text],input[type=search],input[type=email],input[type=password]{background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:var(--r);padding:14px 18px;font-family:'DM Sans';font-size:14px;outline:none;width:100%;transition:all .25s}
+input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(201,169,110,.1);background:rgba(22,22,26,.9)}
+input::placeholder{color:var(--td);opacity:.7}
 
-.sec{max-width:960px;margin:0 auto;padding:24px 20px}
+/* ═══ LAYOUT ═══ */
+.sec{max-width:960px;margin:0 auto;padding:32px 24px}
 .chat-wrap{max-width:800px;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;height:calc(100vh - 65px)}
-.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-bottom:16px}
-.inp-row{display:flex;gap:8px}
+.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:var(--d4) transparent}
+.inp-row{display:flex;gap:10px}
 .inp-row input{flex:1}
-.grid{display:grid;gap:14px}
+.grid{display:grid;gap:16px}
 .hidden{display:none}
 
-.tag{background:rgba(201,169,110,.12);color:var(--g);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;display:inline-block}
-.rbox{background:var(--d3);border:1px solid var(--d4);border-radius:14px;padding:14px 18px;display:flex;align-items:flex-start;gap:12px}
-.rnum{min-width:32px;height:32px;border-radius:10px;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;color:var(--g);font-weight:700;font-size:14px;flex-shrink:0}
-.stat{text-align:center;padding:16px}
-.stat-n{font-size:28px;font-weight:700;color:var(--g)}
-.stat-l{font-size:11px;color:var(--td);margin-top:2px;text-transform:uppercase;letter-spacing:1px}
-.note{font-size:11px;color:var(--td);line-height:1.4;margin-top:3px}
-.pdrop{border:2px dashed var(--d4);border-radius:20px;padding:48px 24px;text-align:center;cursor:pointer;transition:all .3s}
-.pdrop:hover{border-color:var(--g);background:rgba(201,169,110,.03)}
-.fbtn{padding:6px 16px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--d4);background:var(--d2);color:var(--td);font-family:'DM Sans';transition:all .2s}
-.fbtn:hover,.fbtn.ac{border-color:var(--g);color:var(--g);background:rgba(201,169,110,.08)}
+/* ═══ TAGS & BADGES ═══ */
+.tag{background:var(--gl);color:var(--g);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;display:inline-block;border:1px solid rgba(201,169,110,.1)}
+.rbox{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:20px 24px;display:flex;align-items:flex-start;gap:12px}
+.rnum{min-width:32px;height:32px;border-radius:var(--r-sm);background:var(--gl);display:flex;align-items:center;justify-content:center;color:var(--g);font-weight:700;font-size:14px;flex-shrink:0}
 
-.fi{animation:fadeIn .4s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* ═══ STATS ═══ */
+.stat{text-align:center;padding:20px 16px;background:var(--glass);border:1px solid rgba(255,255,255,.04);border-radius:var(--r);backdrop-filter:blur(8px)}
+.stat-n{font-size:32px;font-weight:700;color:var(--g);font-family:'Playfair Display',serif}
+.stat-l{font-size:10px;color:var(--td);margin-top:4px;text-transform:uppercase;letter-spacing:1.5px;font-weight:500}
+
+/* ═══ MISC ═══ */
+.note{font-size:11px;color:var(--td);line-height:1.5;margin-top:4px}
+.pdrop{border:2px dashed var(--d4);border-radius:var(--r-lg);padding:56px 24px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(201,169,110,.01)}
+.pdrop:hover{border-color:var(--g);background:rgba(201,169,110,.04)}
+.fbtn{padding:8px 18px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--d4);background:var(--d2);color:var(--td);font-family:'DM Sans';transition:all .25s;font-weight:500}
+.fbtn:hover,.fbtn.ac{border-color:var(--g);color:var(--g);background:var(--gl)}
+
+/* ═══ HERO GLOW ═══ */
+.hero-glow{position:relative}
+.hero-glow::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(201,169,110,.1) 0%,rgba(201,169,110,.03) 40%,transparent 70%);pointer-events:none;z-index:0}
+.hero-content{position:relative;z-index:1}
+
+/* ═══ SECTION HEADERS ═══ */
+.sec-header{margin-bottom:28px}
+.sec-header h2{font-size:32px;font-weight:400;margin-bottom:6px}
+.sec-header p{color:var(--td);font-size:14px;line-height:1.6}
+
+/* ═══ GLASS PANEL ═══ */
+.glass-panel{background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:var(--r-lg);padding:28px;backdrop-filter:blur(16px)}
+
+/* ═══ ANIMATIONS ═══ */
+.fi{animation:fadeIn .5s cubic-bezier(.4,0,.2,1)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 .dot{width:6px;height:6px;background:var(--g);border-radius:50%;display:inline-block;animation:pulse 1.2s infinite}
 @keyframes progressSlide{0%{transform:translateX(-100%)}50%{transform:translateX(150%)}100%{transform:translateX(250%)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.stagger-1{animation-delay:.05s}.stagger-2{animation-delay:.1s}.stagger-3{animation-delay:.15s}
+.stagger-4{animation-delay:.2s}.stagger-5{animation-delay:.25s}.stagger-6{animation-delay:.3s}.stagger-7{animation-delay:.35s}
 
-.paywall{background:linear-gradient(135deg,#1a1714,#141210);border:1px solid rgba(201,169,110,.2);border-radius:20px;padding:40px;text-align:center;max-width:500px;margin:40px auto}
-.paywall h3{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:8px}
+/* ═══ PAYWALL ═══ */
+.paywall{background:linear-gradient(135deg,rgba(26,23,20,.9),rgba(20,18,16,.9));border:1px solid rgba(201,169,110,.15);border-radius:var(--r-lg);padding:48px 40px;text-align:center;max-width:500px;margin:48px auto;backdrop-filter:blur(16px);position:relative;overflow:hidden}
+.paywall::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 0%,rgba(201,169,110,.06),transparent 60%);pointer-events:none}
+.paywall h3{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:8px;position:relative}
 
-::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--d4);border-radius:3px}
+/* ═══ MOBILE BOTTOM NAV ═══ */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--glass);border-top:1px solid rgba(255,255,255,.06);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-nav-inner{display:flex;justify-content:space-around;align-items:center;max-width:480px;margin:0 auto}
+.mob-ni{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;cursor:pointer;border-radius:12px;transition:all .2s;min-width:52px}
+.mob-ni span:first-child{font-size:20px;line-height:1}
+.mob-ni span:last-child{font-size:9px;color:var(--td);font-weight:500;letter-spacing:.3px}
+.mob-ni:active{transform:scale(.92)}
+.mob-na span:last-child{color:var(--g)}
+.mob-na{background:var(--gl)}
 
-@media(max-width:600px){
-  .sec{padding:16px 12px}
-  .card{padding:16px}
-  .btn{padding:12px 24px;font-size:14px}
-  .nav-i{padding:0 12px}
+/* ═══ SCROLLBAR ═══ */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--d5);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--td)}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .sec{padding:20px 16px}
+  .card{padding:18px}
+  .btn{padding:12px 26px;font-size:14px}
+  .nav-i{padding:0 16px}
+  .sec-header h2{font-size:26px}
+  .stat-n{font-size:26px}
+  .glass-panel{padding:22px;border-radius:var(--r)}
+  .paywall{padding:36px 24px;margin:32px auto;border-radius:var(--r)}
+  .hero-glow::before{width:360px;height:200px}
+  .chat-wrap{height:calc(100vh - 65px - 68px)}
+}
+@media(max-width:640px){
+  .nav-w{display:none}
+  .mob-nav{display:block}
+  body{padding-bottom:68px}
+  .sec{padding:20px 14px}
+  .card{padding:16px;border-radius:14px}
+  .pcard{padding:14px;border-radius:14px}
+  .btn{padding:12px 24px;font-size:14px;border-radius:14px}
+  .btn-o{padding:10px 22px;font-size:13px;border-radius:14px}
+  .cb{max-width:92%;padding:14px 18px;border-radius:16px}
+  .chat-wrap{height:calc(100vh - 68px);padding:16px 14px}
+  .rbox{padding:16px;border-radius:14px}
+  .stat{padding:14px 10px;border-radius:14px}
+  .stat-n{font-size:24px}
+  .stat-l{font-size:9px}
+  input[type=text],input[type=search],input[type=email],input[type=password]{padding:12px 16px;font-size:14px;border-radius:14px}
+  .pdrop{padding:40px 16px;border-radius:var(--r)}
+  .hero-glow::before{width:300px;height:160px;top:-40px}
+  .sec-header h2{font-size:24px}
 }
 </style>
 <!-- Analytics (privacy-respecting, no cookies) -->
@@ -153,10 +236,14 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <script src="/app.js" defer></script>
 </head>
 <body>
+<!-- Desktop Navigation -->
 <div class="nav-w"><div class="nav-i">
-  <div class="logo" onclick="go('home')"><span style="font-size:22px">◈</span><span class="fd gg" style="font-size:22px;font-weight:600;letter-spacing:1px">ScentWise</span></div>
+  <div class="logo" onclick="go('home')"><div class="logo-icon">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
   <div class="nav-s" id="nav"></div>
 </div></div>
+<!-- Mobile Bottom Navigation -->
+<div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
+<!-- Pages -->
 <div id="page-home" class="hidden"></div>
 <div id="page-explore" class="hidden"></div>
 <div id="page-chat" class="hidden"></div>
@@ -167,21 +254,31 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <div id="page-celeb" class="hidden"></div>
 <div id="page-account" class="hidden"></div>
 <div id="page-admin" class="hidden"></div>
-<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#111;border-top:1px solid #2a2a2a;padding:16px 20px;font-size:13px;color:#8a8278">
+<!-- Cookie Banner -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,15,18,.95);border-top:1px solid rgba(255,255,255,.06);padding:16px 20px;font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-    <p style="flex:1;min-width:200px;line-height:1.5;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:#c9a96e">Privacy Policy</a></p>
+    <p style="flex:1;min-width:200px;line-height:1.6;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:var(--g)">Privacy Policy</a></p>
     <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="acceptCookies()" style="background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:600;border:none;border-radius:10px;padding:8px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Accept</button>
-      <button onclick="declineCookies()" style="background:transparent;color:#8a8278;border:1px solid #333;border-radius:10px;padding:8px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px">Decline</button>
+      <button onclick="acceptCookies()" class="btn btn-sm">Accept</button>
+      <button onclick="declineCookies()" class="btn-o btn-sm">Decline</button>
     </div>
   </div>
 </div>
-<div style="border-top:1px solid #2a2a2a;margin-top:40px;padding:20px;text-align:center;font-size:12px;color:#8a8278">
-  <p style="margin-bottom:8px">&copy; 2026 ScentWise. All rights reserved.</p>
-  <a href="/terms.html" style="color:#c9a96e;margin:0 10px">Terms of Service</a>
-  <a href="/privacy.html" style="color:#c9a96e;margin:0 10px">Privacy Policy</a>
-  <a href="/refund.html" style="color:#c9a96e;margin:0 10px">Refund Policy</a>
-  <a href="mailto:scentwise.com@gmail.com" style="color:#c9a96e;margin:0 10px">Contact</a>
-</div>
+<!-- Footer -->
+<footer id="site-footer" style="border-top:1px solid rgba(255,255,255,.04);margin-top:48px;padding:32px 24px;text-align:center">
+  <div style="max-width:960px;margin:0 auto">
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px">
+      <div class="logo-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px">S</div>
+      <span class="fd gg" style="font-size:16px;font-weight:600">ScentWise</span>
+    </div>
+    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:16px">
+      <a href="/terms.html" style="color:var(--td);font-size:13px;transition:color .2s" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Terms</a>
+      <a href="/privacy.html" style="color:var(--td);font-size:13px;transition:color .2s" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Privacy</a>
+      <a href="/refund.html" style="color:var(--td);font-size:13px;transition:color .2s" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Refunds</a>
+      <a href="mailto:scentwise.com@gmail.com" style="color:var(--td);font-size:13px;transition:color .2s" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
+    </div>
+    <p style="font-size:11px;color:var(--d5)">&copy; 2026 ScentWise. All rights reserved.</p>
+  </div>
+</footer>
 </body>
 </html>
