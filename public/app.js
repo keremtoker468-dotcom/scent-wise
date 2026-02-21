@@ -208,7 +208,7 @@ function showPaywall() {
       AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
     </p>
     ${trialBanner}
-    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
+    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
     <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
@@ -631,7 +631,7 @@ function r_home(el) {
         ${isPaid ? `<div style="margin-top:20px"><span class="tag" style="font-size:13px;padding:6px 18px">${isOwner ? '👑 Owner Access' : '✦ Premium Active'}</span> <span style="color:var(--td);font-size:12px;margin-left:8px">${isOwner ? 'Unlimited queries' : aiUsage+'/'+MAX_PAID+' queries this month'}</span></div>` : `
         <div style="margin-top:28px">
           ${hasFreeTrialLeft() ? `<p style="color:var(--g);font-size:14px;margin-bottom:14px;font-weight:500">✦ Try ${FREE_LIMIT - freeUsed} free AI quer${FREE_LIMIT - freeUsed === 1 ? 'y' : 'ies'} — no sign-up needed</p>` : ''}
-          <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px">Get Full Access — $7/month</a>
+          <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px">Get Full Access — $2.99/month</a>
           <p style="color:var(--td);font-size:12px;margin-top:12px">Database explorer & celebrity fragrances are free${hasFreeTrialLeft() ? ' · ' + (FREE_LIMIT - freeUsed) + ' free AI queries included' : ''}</p>
         </div>`}
       </div>
@@ -737,7 +737,7 @@ function r_chat(el) {
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($7/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($7/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
@@ -1145,7 +1145,7 @@ function r_account(el) {
         <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
       </div>
       <div style="text-align:center">
-        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $7/month</a></p>
+        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $2.99/month</a></p>
       </div>
     </div>`;
     document.getElementById('login-email')?.focus();
