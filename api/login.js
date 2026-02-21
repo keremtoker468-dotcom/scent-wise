@@ -33,25 +33,54 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  try {
-    let url = `https://api.lemonsqueezy.com/v1/orders?filter[user_email]=${encodeURIComponent(emailClean)}`;
-    if (expectedStoreId) url += `&filter[store_id]=${expectedStoreId}`;
-    url += '&sort=-created_at&page[size]=10';
+  const lsHeaders = {
+    'Authorization': `Bearer ${lsApiKey}`,
+    'Accept': 'application/vnd.api+json',
+    'Content-Type': 'application/vnd.api+json'
+  };
 
-    const ordersRes = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${lsApiKey}`,
-        'Accept': 'application/vnd.api+json'
+  try {
+    // Step 1: Find customer by email
+    // We fetch customers by store_id (reliable) and match email locally,
+    // because filter[email] returns HTTP 400 on the LemonSqueezy API.
+    let custUrl = 'https://api.lemonsqueezy.com/v1/customers?page[size]=100';
+    if (expectedStoreId) custUrl += `&filter[store_id]=${expectedStoreId}`;
+
+    const custRes = await fetch(custUrl, { headers: lsHeaders });
+
+    if (!custRes.ok) {
+      const errBody = await custRes.text().catch(() => '');
+      console.error(`LS customers API error: ${custRes.status} — ${errBody}`);
+      // Parse JSON:API error detail if available
+      let detail = '';
+      try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
+      if (custRes.status === 401 || custRes.status === 403) {
+        return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
       }
+      return res.status(502).json({ error: `Could not look up subscription (upstream HTTP ${custRes.status}). ${detail || 'Please try again later.'}` });
+    }
+
+    const custData = await custRes.json();
+    // Filter by email locally since the API filter[email] param is unreliable
+    const customers = (custData.data || []).filter(c =>
+      c.attributes.email && c.attributes.email.toLowerCase() === emailClean
+    );
+
+    if (customers.length === 0) {
+      return res.status(404).json({ error: 'No active subscription found for this email. Please make sure you\'re using the same email address from your LemonSqueezy purchase.' });
+    }
+
+    // Step 2: Get orders for this customer via the relationship endpoint
+    const customerId = customers[0].id;
+
+    const ordersRes = await fetch(`https://api.lemonsqueezy.com/v1/customers/${customerId}/orders`, {
+      headers: lsHeaders
     });
 
     if (!ordersRes.ok) {
       const errBody = await ordersRes.text().catch(() => '');
-      console.error(`LS orders API error: ${ordersRes.status} — ${errBody}`);
-      if (ordersRes.status === 401 || ordersRes.status === 403) {
-        return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
-      }
-      return res.status(502).json({ error: `Could not look up subscription (upstream HTTP ${ordersRes.status}). Please try again later.` });
+      console.error(`LS customer orders API error: ${ordersRes.status} — ${errBody}`);
+      return res.status(502).json({ error: `Could not retrieve orders (upstream HTTP ${ordersRes.status}). Please try again later.` });
     }
 
     const ordersData = await ordersRes.json();
@@ -70,12 +99,11 @@ module.exports = async function handler(req, res) {
     }
 
     const subscriptionId = String(validOrder.id);
-    const customerId = String(validOrder.attributes.customer_id);
     const customerEmail = validOrder.attributes.user_email || emailClean;
 
-    const token = makeToken(subscriptionId, customerId, subSecret);
+    const token = makeToken(subscriptionId, String(customerId), subSecret);
     const cookieValue = Buffer.from(JSON.stringify({
-      token, subId: subscriptionId, custId: customerId, email: customerEmail
+      token, subId: subscriptionId, custId: String(customerId), email: customerEmail
     })).toString('base64');
 
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
