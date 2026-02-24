@@ -1,13 +1,43 @@
 # ScentWise — AI Fragrance Advisor
+# https://scent-wise.vercel.app
+
 User-agent: *
 Allow: /
 Allow: /blog/
-
 Disallow: /api/
 Disallow: /_vercel/
 
+# Google (no crawl-delay — Google ignores it anyway)
+User-agent: Googlebot
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# AI Search Retrieval Bots (allow for AI search visibility)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# AI Training Bots (block content scraping for model training)
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
 # Sitemap
 Sitemap: https://scent-wise.vercel.app/sitemap.xml
-
-# Crawl-delay (optional, respected by some bots)
-Crawl-delay: 1
