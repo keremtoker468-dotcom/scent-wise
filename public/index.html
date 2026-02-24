@@ -998,8 +998,9 @@ function acceptCookies(){try{localStorage.setItem('sw_cookie_consent','accepted'
 function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
 document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
 </script>
-<!-- App scripts: perfumes DB loaded first (cached by browser), then app logic -->
+<!-- App scripts: data files loaded first (cached by browser), then app logic -->
 <script src="/perfumes.js" defer></script>
+<script src="/perfumes-rich.js" defer></script>
 <script src="/app.js" defer></script>
 </head>
 <body>
