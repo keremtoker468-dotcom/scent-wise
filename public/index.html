@@ -1042,20 +1042,41 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
 setTimeout(function(){
-  var home = document.getElementById('page-home');
-  if (!home) return;
-  var vis = home.offsetHeight > 0 || !home.classList.contains('hidden');
-  if (vis && home.innerHTML.trim().length < 50) {
-    // Page container is visible but empty = stale cache or render failure
+  // Check if ANY page is visible and has content (app.js ran successfully)
+  var pages = document.querySelectorAll('[id^="page-"]');
+  var anyVisible = false;
+  for (var i = 0; i < pages.length; i++) {
+    if (!pages[i].classList.contains('hidden') && pages[i].innerHTML.trim().length > 50) {
+      anyVisible = true;
+      break;
+    }
+  }
+  if (!anyVisible) {
+    // No page rendered = app.js failed to load/execute, or render crashed
     if (!sessionStorage.getItem('sw_reloaded')) {
       sessionStorage.setItem('sw_reloaded', '1');
-      location.reload();
+      // Clear all SW caches before reload
+      if (window.caches) { caches.keys().then(function(k) { k.forEach(function(n) { caches.delete(n); }); }); }
+      if (navigator.serviceWorker) { navigator.serviceWorker.getRegistrations().then(function(r) { r.forEach(function(w) { w.unregister(); }); }); }
+      setTimeout(function() { location.reload(); }, 200);
     }
   }
 }, 4000);
 </script>
 </head>
 <body>
+<!-- Hide SPA chrome on homepage immediately (before app.js loads) -->
+<script>
+(function(){
+  var p = location.pathname;
+  if (p === '/' || p === '/index.html') {
+    var s = document.createElement('style');
+    s.id = 'hp-hide';
+    s.textContent = '.nav-w,.mob-nav,#mode-bar,#site-footer,nav[aria-label]{display:none!important}body{padding-bottom:0!important}';
+    document.head.appendChild(s);
+  }
+})();
+</script>
 <!-- Desktop Navigation -->
 <div class="nav-w"><div class="nav-i">
   <div class="logo" onclick="go('home')"><div class="logo-icon">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
