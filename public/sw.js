@@ -1,4 +1,4 @@
-const CACHE = 'sw-v1';
+const CACHE = 'sw-v2';
 const SHELL = [
   '/',
   '/app.js',
@@ -25,7 +25,7 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API, cache-first for static assets
+// Fetch: network-first for HTML/navigation, stale-while-revalidate for assets
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
@@ -35,7 +35,21 @@ self.addEventListener('fetch', e => {
   // API calls: network only (don't cache AI responses)
   if (url.pathname.startsWith('/api/')) return;
 
-  // Static assets: stale-while-revalidate
+  // HTML/navigation requests: network-first (prevents stale page shell)
+  if (e.request.mode === 'navigate' || e.request.destination === 'document') {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Static assets (JS, CSS, images): stale-while-revalidate
   e.respondWith(
     caches.match(e.request).then(cached => {
       const fetched = fetch(e.request).then(res => {
