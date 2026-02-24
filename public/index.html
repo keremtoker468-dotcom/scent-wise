@@ -527,8 +527,7 @@ input::placeholder{color:var(--td);opacity:.7}
   text-transform: uppercase;
   color: var(--hp-gold);
   margin-bottom: 2rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.2s forwards;
+  animation: hpFadeUp 0.8s 0.2s both;
 }
 .hp-hero h1 {
   font-family: var(--hp-serif);
@@ -539,8 +538,7 @@ input::placeholder{color:var(--td);opacity:.7}
   color: var(--hp-cream);
   max-width: 700px;
   margin-bottom: 1.75rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.4s forwards;
+  animation: hpFadeUp 0.8s 0.4s both;
 }
 .hp-hero h1 em { font-style: italic; color: var(--hp-gold3); }
 .hp-hero-sub {
@@ -549,15 +547,13 @@ input::placeholder{color:var(--td);opacity:.7}
   max-width: 480px;
   line-height: 1.7;
   margin-bottom: 3rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.6s forwards;
+  animation: hpFadeUp 0.8s 0.6s both;
 }
 .hp-hero-actions {
   display: flex;
   gap: 1rem;
   align-items: center;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.8s forwards;
+  animation: hpFadeUp 0.8s 0.8s both;
 }
 .hp-btn-primary {
   padding: 0.85rem 2.2rem;
@@ -595,8 +591,7 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-top: 5rem;
   padding-top: 3rem;
   border-top: 1px solid var(--hp-border);
-  opacity: 0;
-  animation: hpFadeUp 0.8s 1s forwards;
+  animation: hpFadeUp 0.8s 1s both;
 }
 .hp-hero-stat .num {
   font-family: var(--hp-serif);
@@ -909,12 +904,17 @@ input::placeholder{color:var(--td);opacity:.7}
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Reveal animations: content is visible by default, JS adds .hp-anim to enable transitions */
 .hp-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hp-anim .hp-reveal {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.hp-reveal.visible {
+.hp-anim .hp-reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -966,10 +966,10 @@ input::placeholder{color:var(--td);opacity:.7}
   .hp-footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
   .hp-footer-links a { font-size: 0.85rem; padding: 4px 0; }
   .hp-divider { padding: 0 1.25rem; }
-  /* Ensure reveal animations fire on mobile */
-  .hp-reveal { opacity: 0; transform: translateY(20px); }
+  /* Reveal animations scoped to .hp-anim on mobile too */
+  .hp-anim .hp-reveal { opacity: 0; transform: translateY(20px); }
   .hp-hero-eyebrow, .hp-hero h1, .hp-hero-sub, .hp-hero-actions, .hp-hero-stats {
-    animation-fill-mode: forwards;
+    animation-fill-mode: both;
   }
 }
 /* ═══ MODE SWITCHER BAR ═══ */

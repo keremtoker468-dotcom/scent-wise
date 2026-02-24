@@ -689,29 +689,36 @@ function rModeBar() {
 function go(p) {
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
   CP = p; rNav();
-  const e = document.getElementById('page-' + p);
-  if (e) { e.classList.remove('hidden'); e.innerHTML = ''; window['r_' + p](e); }
-  // Hide SPA nav/footer on homepage, show on other pages
+  // Hide/show SPA nav/footer BEFORE rendering page content
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
   const modeBar = document.getElementById('mode-bar');
   const footer = document.getElementById('site-footer');
+  const blogNav = document.querySelector('nav[aria-label]');
   if (p === 'home') {
     if (navW) navW.style.display = 'none';
     if (mobNav) mobNav.style.display = 'none';
     if (modeBar) modeBar.style.display = 'none';
     if (footer) footer.style.display = 'none';
+    if (blogNav) blogNav.style.display = 'none';
     document.body.style.paddingBottom = '0';
   } else {
     if (navW) navW.style.display = '';
     if (mobNav) mobNav.style.display = '';
     if (footer) footer.style.display = '';
+    if (blogNav) blogNav.style.display = '';
     document.body.style.paddingBottom = '';
-    // Clean up homepage scroll handler
     if (window._hpScrollHandler) {
       window.removeEventListener('scroll', window._hpScrollHandler);
       window._hpScrollHandler = null;
     }
+  }
+  // Render the page
+  const e = document.getElementById('page-' + p);
+  if (e) {
+    e.classList.remove('hidden');
+    e.innerHTML = '';
+    try { window['r_' + p](e); } catch(err) { console.error('Page render error:', p, err); }
   }
   window.scrollTo({top:0,behavior:'smooth'});
   initSwipe();
@@ -909,6 +916,9 @@ function r_home(el) {
   </div>`;
   // Initialize reveal animations for homepage
   setTimeout(() => {
+    // Enable reveal animations (content is visible by default without .hp-anim)
+    const grain = el.querySelector('.hp-grain');
+    if (grain) grain.classList.add('hp-anim');
     const reveals = document.querySelectorAll('.hp-reveal');
     if ('IntersectionObserver' in window) {
       const hpObserver = new IntersectionObserver((entries) => {
