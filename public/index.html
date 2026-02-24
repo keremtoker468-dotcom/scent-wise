@@ -39,9 +39,9 @@
   "operatingSystem": "Web",
   "offers": {
     "@type": "Offer",
-    "price": "2.99",
+    "price": "7",
     "priceCurrency": "USD",
-    "description": "Premium subscription with 500 AI queries per month",
+    "description": "Premium subscription with unlimited AI queries per month",
     "availability": "https://schema.org/InStock"
   },
   "featureList": [
@@ -92,7 +92,7 @@
       "name": "Is ScentWise free to use?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $2.99/month, cancel anytime."
+        "text": "ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $7/month, cancel anytime."
       }
     },
     {
@@ -108,174 +108,932 @@
 </script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#c9a96e">
+<meta name="theme-color" content="#c8a55a">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://plausible.io">
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
-  --t:#f0ece4;--t2:#d4cfc6;--td:#8a8278;--g:#c9a96e;--gd:#b8944f;--gl:rgba(201,169,110,.08);
-  --glass:rgba(22,22,26,.72);--glass-b:rgba(201,169,110,.06);
-  --r:16px;--r-lg:24px;--r-sm:10px;
-  --shadow:0 4px 24px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
-  --shadow-lg:0 12px 48px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
-  --glow:0 0 60px rgba(201,169,110,.08),0 0 120px rgba(201,169,110,.04);
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg: #0c0a09;
+  --bg2: #1c1917;
+  --bg3: #292524;
+  --surface: #1a1714;
+  --surface2: #211e19;
+  --border: #2e2922;
+  --border2: #3d3529;
+  --cream: #f5f0e8;
+  --cream2: #d4cfc5;
+  --cream3: #a8a29e;
+  --cream4: #78716c;
+  --gold: #c8a55a;
+  --gold2: #b8944d;
+  --gold3: #e8d5a0;
+  --goldA08: rgba(200,165,90,0.08);
+  --goldA12: rgba(200,165,90,0.12);
+  --goldA15: rgba(200,165,90,0.15);
+  --amber: #d4763a;
+  --rose: #c4727a;
+  --sage: #7a9e7e;
+  --serif: 'Cormorant Garamond', Georgia, serif;
+  --sans: 'DM Sans', -apple-system, sans-serif;
 }
-body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,.03) 0%,transparent 50%);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-a{color:inherit;text-decoration:none}
-.fd{font-family:'Playfair Display',serif}.gg{color:var(--g)}
-
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--sans);
+  font-weight: 300;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999;
+}
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 /* Navigation */
-.nav-w{background:var(--glass);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 1px 0 rgba(201,169,110,.04)}
-.nav-i{max-width:1100px;margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:8px}
-.logo{cursor:pointer;padding:18px 0;margin-right:20px;display:flex;align-items:center;gap:10px;flex-shrink:0;transition:opacity .2s}
-.logo:hover{opacity:.85}
-.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--gd));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--d);font-weight:700;box-shadow:0 2px 8px rgba(201,169,110,.25)}
-.nav-s{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
-.nav-s::-webkit-scrollbar{display:none}
-.ni{padding:9px 14px;cursor:pointer;border-radius:var(--r-sm);transition:all .2s;font-size:13px;white-space:nowrap;color:var(--td);display:inline-flex;align-items:center;gap:6px;font-weight:500;position:relative}
-.ni:hover{background:rgba(255,255,255,.04);color:var(--t)}
-.na{color:var(--g)!important;background:var(--gl)!important}
-.na::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--g);border-radius:1px}
-
-/* Buttons */
-.btn{background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border:none;border-radius:var(--r);padding:14px 32px;cursor:pointer;transition:all .25s;font-family:'DM Sans';font-size:15px;position:relative;overflow:hidden;letter-spacing:.3px}
-.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .25s}
-.btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(201,169,110,.35),0 2px 8px rgba(201,169,110,.2)}
-.btn:hover::before{opacity:1}
-.btn:active{transform:translateY(0)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-o{background:transparent;color:var(--g);border:1px solid rgba(201,169,110,.3);border-radius:var(--r);padding:12px 28px;cursor:pointer;transition:all .25s;font-family:'DM Sans';font-size:14px;font-weight:500;backdrop-filter:blur(8px)}
-.btn-o:hover{background:var(--gl);border-color:var(--g);transform:translateY(-1px)}
-.btn-sm{padding:8px 20px;font-size:13px;border-radius:var(--r-sm)}
-
-/* Cards */
-.card{background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);padding:22px;transition:all .3s cubic-bezier(.4,0,.2,1);cursor:pointer;backdrop-filter:blur(12px);position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,169,110,.04),transparent);opacity:0;transition:opacity .3s}
-.card:hover{border-color:rgba(201,169,110,.2);transform:translateY(-3px);box-shadow:var(--shadow)}
-.card:hover::before{opacity:1}
-.pcard{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:18px;transition:all .25s;position:relative;overflow:hidden}
-.pcard:hover{border-color:rgba(201,169,110,.2);box-shadow:var(--shadow)}
-
-/* Chat Bubbles */
-.cb{border-radius:20px;padding:16px 22px;max-width:85%;line-height:1.75;font-size:14px;white-space:pre-wrap;position:relative}
-.cb-u{background:linear-gradient(135deg,#2a2520,#1e1a16);border:1px solid rgba(201,169,110,.1);margin-left:auto;border-bottom-right-radius:6px}
-.cb-a{background:var(--d3);border:1px solid var(--d4);border-bottom-left-radius:6px}
-
-/* Inputs */
-input[type=text],input[type=search],input[type=email],input[type=password]{background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:var(--r);padding:14px 18px;font-family:'DM Sans';font-size:14px;outline:none;width:100%;transition:all .25s}
-input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(201,169,110,.1);background:rgba(22,22,26,.9)}
-input::placeholder{color:var(--td);opacity:.7}
-
-/* Layout */
-.sec{max-width:960px;margin:0 auto;padding:32px 24px}
-.chat-wrap{max-width:800px;margin:0 auto;padding:24px 20px;display:flex;flex-direction:column;height:calc(100vh - 65px)}
-.msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:16px;scrollbar-width:thin;scrollbar-color:var(--d4) transparent}
-.inp-row{display:flex;gap:10px}
-.inp-row input{flex:1}
-.grid{display:grid;gap:16px}
-.hidden{display:none}
-
-/* Tags & Badges */
-.tag{background:var(--gl);color:var(--g);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:500;display:inline-block;border:1px solid rgba(201,169,110,.1)}
-.rbox{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:20px 24px;display:flex;align-items:flex-start;gap:12px}
-.rnum{min-width:32px;height:32px;border-radius:var(--r-sm);background:var(--gl);display:flex;align-items:center;justify-content:center;color:var(--g);font-weight:700;font-size:14px;flex-shrink:0}
-
-/* Stats */
-.stat{text-align:center;padding:24px 16px;background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:var(--r);backdrop-filter:blur(8px);position:relative;overflow:hidden}
-.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:.6}
-.stat-n{font-size:32px;font-weight:700;color:var(--g);font-family:'Playfair Display',serif;letter-spacing:-0.02em}
-.stat-l{font-size:10px;color:var(--td);margin-top:6px;text-transform:uppercase;letter-spacing:1.5px;font-weight:500}
-
-/* Misc */
-.note{font-size:11px;color:var(--td);line-height:1.5;margin-top:4px}
-.pdrop{border:2px dashed var(--d4);border-radius:var(--r-lg);padding:56px 24px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(201,169,110,.01)}
-.pdrop:hover{border-color:var(--g);background:rgba(201,169,110,.04)}
-.fbtn{padding:8px 18px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--d4);background:var(--d2);color:var(--td);font-family:'DM Sans';transition:all .25s;font-weight:500}
-.fbtn:hover,.fbtn.ac{border-color:var(--g);color:var(--g);background:var(--gl)}
-
-/* Hero Glow */
-.hero-glow{position:relative}
-.hero-glow::before{content:'';position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:700px;height:350px;background:radial-gradient(ellipse,rgba(201,169,110,.12) 0%,rgba(201,169,110,.04) 35%,transparent 65%);pointer-events:none;z-index:0}
-.hero-glow::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:400px;height:400px;background:radial-gradient(circle,rgba(201,169,110,.03) 0%,transparent 70%);pointer-events:none;z-index:0;animation:float 8s ease-in-out infinite}
-.hero-content{position:relative;z-index:1}
-
-/* Section Headers */
-.sec-header{margin-bottom:28px}
-.sec-header h2{font-size:32px;font-weight:400;margin-bottom:6px}
-.sec-header p{color:var(--td);font-size:14px;line-height:1.6}
-
-/* Glass Panel */
-.glass-panel{background:var(--glass);border:1px solid rgba(255,255,255,.06);border-radius:var(--r-lg);padding:28px;backdrop-filter:blur(16px)}
-
-/* Animations */
-.fi{animation:fadeIn .5s cubic-bezier(.4,0,.2,1)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
-.dot{width:6px;height:6px;background:var(--g);border-radius:50%;display:inline-block;animation:pulse 1.2s infinite}
-@keyframes progressSlide{0%{transform:translateX(-100%)}50%{transform:translateX(150%)}100%{transform:translateX(250%)}}
-@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-@keyframes borderGlow{0%,100%{border-color:rgba(201,169,110,.15)}50%{border-color:rgba(201,169,110,.3)}}
-.stagger-1{animation-delay:.05s}.stagger-2{animation-delay:.1s}.stagger-3{animation-delay:.15s}
-.stagger-4{animation-delay:.2s}.stagger-5{animation-delay:.25s}.stagger-6{animation-delay:.3s}.stagger-7{animation-delay:.35s}
-
-/* Paywall */
-.paywall{background:linear-gradient(135deg,rgba(26,23,20,.9),rgba(20,18,16,.9));border:1px solid rgba(201,169,110,.15);border-radius:var(--r-lg);padding:48px 40px;text-align:center;max-width:500px;margin:48px auto;backdrop-filter:blur(16px);position:relative;overflow:hidden;animation:borderGlow 4s ease-in-out infinite}
-.paywall::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 50% 0%,rgba(201,169,110,.06),transparent 60%);pointer-events:none}
-.paywall h3{font-family:'Playfair Display',serif;font-size:26px;margin-bottom:8px;position:relative}
-
-/* Mobile Bottom Nav */
-.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--glass);border-top:1px solid rgba(255,255,255,.06);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);padding:6px 0 env(safe-area-inset-bottom,6px)}
-.mob-nav-inner{display:flex;justify-content:space-around;align-items:center;max-width:480px;margin:0 auto}
-.mob-ni{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 8px;cursor:pointer;border-radius:12px;transition:all .2s;min-width:52px}
-.mob-ni span:first-child{font-size:20px;line-height:1}
-.mob-ni span:last-child{font-size:9px;color:var(--td);font-weight:500;letter-spacing:.3px}
-.mob-ni:active{transform:scale(.92)}
-.mob-na span:last-child{color:var(--g)}
-.mob-na{background:var(--gl)}
-
-/* Scrollbar */
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--d5);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--td)}
-
-/* Responsive */
-@media(max-width:768px){
-  .sec{padding:20px 16px}
-  .card{padding:18px}
-  .btn{padding:12px 26px;font-size:14px}
-  .nav-i{padding:0 16px}
-  .sec-header h2{font-size:26px}
-  .stat-n{font-size:26px}
-  .glass-panel{padding:22px;border-radius:var(--r)}
-  .paywall{padding:36px 24px;margin:32px auto;border-radius:var(--r)}
-  .hero-glow::before{width:360px;height:200px}
-  .chat-wrap{height:calc(100vh - 65px - 68px)}
+.app-nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(12,10,9,0.94);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
 }
-@media(max-width:640px){
-  .nav-w{display:none}
-  .mob-nav{display:block}
-  body{padding-bottom:68px}
-  .sec{padding:20px 14px}
-  .card{padding:16px;border-radius:14px}
-  .pcard{padding:14px;border-radius:14px}
-  .btn{padding:12px 24px;font-size:14px;border-radius:14px}
-  .btn-o{padding:10px 22px;font-size:13px;border-radius:14px}
-  .cb{max-width:92%;padding:14px 18px;border-radius:16px}
-  .chat-wrap{height:calc(100vh - 68px);padding:16px 14px}
-  .rbox{padding:16px;border-radius:14px}
-  .stat{padding:14px 10px;border-radius:14px}
-  .stat-n{font-size:24px}
-  .stat-l{font-size:9px}
-  input[type=text],input[type=search],input[type=email],input[type=password]{padding:12px 16px;font-size:16px;border-radius:14px}
-  .pdrop{padding:40px 16px;border-radius:var(--r)}
-  .hero-glow::before{width:300px;height:160px;top:-40px}
-  .sec-header h2{font-size:24px}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 1.2rem; font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  cursor: pointer;
+  padding: 1rem 0;
+  margin-right: 1.5rem;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.nav-logo span { color: var(--gold); font-weight: 600; }
+.nav-tabs {
+  display: flex; gap: 1px;
+  overflow-x: auto; flex: 1;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  padding: 1rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--cream4);
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+.nav-tab:hover { color: var(--cream2); }
+.nav-tab.active {
+  color: var(--cream);
+  border-bottom-color: var(--gold);
+}
+.nav-tab .lock {
+  font-size: 0.6rem;
+  margin-left: 3px;
+  opacity: 0.5;
+}
+/* Page Container */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  animation: pageIn 0.35s ease;
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.page-kicker {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 300;
+  line-height: 1.15;
+  color: var(--cream);
+  margin-bottom: 0.75rem;
+}
+.page-title em { font-style: italic; color: var(--gold3); }
+.page-desc {
+  font-size: 0.92rem;
+  color: var(--cream3);
+  max-width: 500px;
+  line-height: 1.65;
+  margin-bottom: 2.5rem;
+}
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0.75rem 1.8rem;
+  border-radius: 100px;
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: none;
+  letter-spacing: 0.02em;
+}
+.btn-gold { background: var(--gold); color: var(--bg); }
+.btn-gold:hover { background: var(--gold3); transform: translateY(-1px); }
+.btn-gold:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn-ghost {
+  background: transparent; color: var(--cream);
+  border: 1px solid var(--border2);
+}
+.btn-ghost:hover { border-color: var(--cream3); }
+.btn-sm { padding: 0.5rem 1.2rem; font-size: 0.78rem; }
+/* Inputs */
+.input {
+  width: 100%; padding: 0.85rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.input:focus { border-color: var(--gold); }
+.input::placeholder { color: var(--cream4); }
+/* Tags */
+.tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--goldA08);
+  border: 1px solid var(--goldA12);
+  border-radius: 100px;
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.03em;
+}
+/* Cards */
+.card {
+  padding: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: all 0.3s;
+}
+.card:hover { border-color: var(--border2); }
+.card-clickable { cursor: pointer; }
+.card-clickable:hover { transform: translateY(-2px); }
+/* Fragrance result cards */
+.frag-card {
+  display: flex; gap: 1.25rem; align-items: flex-start;
+  padding: 1.5rem 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 0.3s;
+  margin-bottom: 0.75rem;
+}
+.frag-card:hover { border-color: var(--border2); }
+.frag-rank {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  color: var(--gold2);
+  opacity: 0.35;
+  min-width: 32px;
+  padding-top: 2px;
+}
+.frag-name {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--cream);
+}
+.frag-brand {
+  font-size: 0.8rem;
+  color: var(--cream3);
+  margin-top: 0.15rem;
+}
+.frag-notes {
+  font-size: 0.8rem;
+  color: var(--cream2);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+.frag-meta {
+  display: flex; gap: 0.4rem; flex-wrap: wrap;
+  margin-top: 0.7rem;
+}
+.frag-rating {
+  font-size: 0.72rem;
+  color: var(--gold);
+  margin-left: auto;
+}
+.divider-thin {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  margin: 2.5rem 0;
+}
+/* Loading dots */
+.loading-dots { display: flex; gap: 6px; padding: 1rem 0; }
+.loading-dots span {
+  width: 7px; height: 7px;
+  background: var(--gold2);
+  border-radius: 50%;
+  animation: dotPulse 1.2s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+/* Home Page */
+.home-hero {
+  text-align: center;
+  padding: 4rem 0 3rem;
+}
+.home-hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+.home-hero h1 em { font-style: italic; color: var(--gold3); }
+.home-hero p {
+  color: var(--cream3);
+  font-size: 0.95rem;
+  max-width: 440px;
+  margin: 0 auto 2.5rem;
+  line-height: 1.7;
+}
+.home-stats {
+  display: flex; gap: 3rem;
+  justify-content: center;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 3.5rem;
+}
+.home-stat-num {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  color: var(--cream);
+}
+.home-stat-label {
+  font-size: 0.7rem;
+  color: var(--cream3);
+  letter-spacing: 0.08em;
+  margin-top: 0.2rem;
+}
+.home-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.home-mode {
+  padding: 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.35s;
+  position: relative;
+  overflow: hidden;
+}
+.home-mode::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(200,165,90,0.03), transparent 60%);
+  opacity: 0; transition: opacity 0.35s;
+}
+.home-mode:hover { border-color: var(--border2); transform: translateY(-2px); }
+.home-mode:hover::after { opacity: 1; }
+.home-mode-num {
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  color: var(--gold2);
+  margin-bottom: 0.8rem;
+}
+.home-mode-name {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: 0.4rem;
+}
+.home-mode-desc {
+  font-size: 0.82rem;
+  color: var(--cream3);
+  line-height: 1.55;
+}
+/* Chat Page */
+.chat-wrap {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 65px);
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+.chat-header {
+  padding: 2rem 0 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-bottom: 1rem;
+}
+.chat-msg {
+  max-width: 85%;
+  animation: msgIn 0.3s ease;
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.user { align-self: flex-end; }
+.chat-msg.assistant { align-self: flex-start; }
+.chat-sender {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.chat-bubble {
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.chat-msg.user .chat-bubble {
+  background: var(--goldA08);
+  border: 1px solid var(--goldA12);
+  border-radius: 16px 16px 4px 16px;
+  color: var(--cream);
+}
+.chat-msg.assistant .chat-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 16px 4px;
+  color: var(--cream2);
+}
+.chat-bubble strong { color: var(--cream); font-weight: 500; }
+.chat-bubble em { color: var(--gold3); }
+.chat-input-row {
+  display: flex; gap: 0.6rem;
+  padding: 1rem 0 1.5rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.chat-input-row input {
+  flex: 1;
+  padding: 0.9rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.chat-input-row input:focus { border-color: var(--gold); }
+.chat-input-row input::placeholder { color: var(--cream4); }
+.chat-send-btn {
+  width: 44px; height: 44px;
+  background: var(--gold);
+  border: none;
+  border-radius: 50%;
+  color: var(--bg);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.chat-send-btn:hover { background: var(--gold3); }
+.chat-send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+/* Zodiac Page */
+.zodiac-form {
+  display: flex; gap: 0.75rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.zodiac-form select {
+  flex: 1; min-width: 120px;
+  padding: 0.85rem 1.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23a8a29e' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.2rem center;
+}
+.zodiac-form select:focus { border-color: var(--gold); }
+.zodiac-form select option { background: var(--bg2); color: var(--cream); }
+.zodiac-result {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+.zodiac-symbol { font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.7; }
+.zodiac-sign {
+  font-family: var(--serif);
+  font-size: 2rem; font-weight: 400;
+  color: var(--cream); margin-bottom: 0.3rem;
+}
+.zodiac-dates { font-size: 0.82rem; color: var(--cream3); margin-bottom: 1rem; }
+.zodiac-element {
+  display: inline-block;
+  padding: 0.3rem 1.1rem;
+  border: 1px solid var(--goldA15);
+  border-radius: 100px;
+  font-size: 0.72rem; font-weight: 500;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+.zodiac-desc {
+  margin-top: 1.25rem;
+  font-size: 0.9rem; color: var(--cream3);
+  line-height: 1.7; max-width: 500px;
+  margin-left: auto; margin-right: auto;
+  font-style: italic;
+}
+/* Music Page */
+.genre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem; margin-bottom: 2rem;
+}
+.genre-card {
+  padding: 1.4rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer; transition: all 0.3s;
+  text-align: center;
+}
+.genre-card:hover { border-color: var(--border2); }
+.genre-card.selected {
+  border-color: var(--gold);
+  background: var(--goldA08);
+}
+.genre-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.genre-name { font-size: 0.82rem; font-weight: 400; color: var(--cream2); }
+.genre-card.selected .genre-name { color: var(--cream); }
+.genre-counter { font-size: 0.78rem; color: var(--cream3); margin-bottom: 1.5rem; }
+/* Style Page */
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem; margin-bottom: 2rem;
+}
+.style-card {
+  padding: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer; transition: all 0.3s;
+}
+.style-card:hover { border-color: var(--border2); }
+.style-card.selected {
+  border-color: var(--gold);
+  background: var(--goldA08);
+}
+.style-card-name {
+  font-family: var(--serif);
+  font-size: 1.15rem; color: var(--cream);
+  margin-bottom: 0.35rem;
+}
+.style-card.selected .style-card-name { color: var(--gold3); }
+.style-card-desc { font-size: 0.78rem; color: var(--cream3); line-height: 1.5; }
+/* Photo Page */
+.photo-drop {
+  border: 2px dashed var(--border2);
+  border-radius: 16px;
+  padding: 4rem 2rem;
+  text-align: center;
+  cursor: pointer; transition: all 0.3s;
+  margin-bottom: 2rem;
+}
+.photo-drop:hover { border-color: var(--gold); }
+.photo-drop-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+.photo-drop-text { font-size: 1rem; color: var(--cream2); margin-bottom: 0.4rem; }
+.photo-drop-hint { font-size: 0.8rem; color: var(--cream4); }
+.photo-preview {
+  display: flex; gap: 1.5rem;
+  align-items: flex-start; flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.photo-preview img {
+  width: 220px; height: 280px;
+  object-fit: cover; border-radius: 14px;
+  border: 1px solid var(--border);
+}
+.photo-actions { flex: 1; min-width: 250px; }
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+/* City Page */
+.city-input-wrap { max-width: 480px; margin-bottom: 1.5rem; }
+.city-suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
+.city-pill {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border2);
+  border-radius: 100px;
+  font-size: 0.78rem; color: var(--cream3);
+  cursor: pointer; transition: all 0.3s;
+  background: transparent; font-family: var(--sans);
+}
+.city-pill:hover { border-color: var(--gold); color: var(--gold); }
+/* Celebrity Page */
+.celeb-search { margin-bottom: 2rem; }
+.celeb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+}
+.celeb-card {
+  padding: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  cursor: pointer; transition: all 0.3s;
+  text-align: center;
+}
+.celeb-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.celeb-emoji { font-size: 2.2rem; margin-bottom: 0.75rem; }
+.celeb-name {
+  font-family: var(--serif);
+  font-size: 1.1rem; font-weight: 400;
+  color: var(--cream); margin-bottom: 0.2rem;
+}
+.celeb-count { font-size: 0.72rem; color: var(--cream3); }
+.celeb-detail-back {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.82rem; color: var(--cream3);
+  cursor: pointer; margin-bottom: 2rem; transition: color 0.3s;
+}
+.celeb-detail-back:hover { color: var(--cream); }
+.celeb-detail-header {
+  display: flex; align-items: center; gap: 1.25rem; margin-bottom: 2rem;
+}
+.celeb-detail-emoji { font-size: 3rem; }
+.celeb-detail-name {
+  font-family: var(--serif);
+  font-size: 2rem; font-weight: 400; color: var(--cream);
+}
+.celeb-detail-sub { font-size: 0.85rem; color: var(--cream3); }
+/* Explore Page */
+.explore-controls {
+  display: flex; gap: 1rem; align-items: center;
+  margin-bottom: 1.5rem; flex-wrap: wrap;
+}
+.explore-search { flex: 1; min-width: 240px; }
+.explore-filters {
+  display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2rem;
+}
+.filter-chip {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.75rem; color: var(--cream3);
+  cursor: pointer; transition: all 0.3s;
+  background: transparent; font-family: var(--sans);
+}
+.filter-chip:hover { border-color: var(--border2); color: var(--cream2); }
+.filter-chip.active {
+  border-color: var(--gold); color: var(--gold);
+  background: var(--goldA08);
+}
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem; margin-bottom: 2rem;
+}
+.explore-card {
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  transition: border-color 0.3s; cursor: pointer;
+}
+.explore-card:hover { border-color: var(--border2); }
+.explore-card-name {
+  font-family: var(--serif);
+  font-size: 1.15rem; color: var(--cream); margin-bottom: 0.15rem;
+}
+.explore-card-brand { font-size: 0.78rem; color: var(--cream3); margin-bottom: 0.6rem; }
+.explore-card-accords { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+.explore-card-rating { font-size: 0.78rem; color: var(--gold); }
+.load-more-wrap { text-align: center; }
+/* Paywall */
+.paywall-overlay {
+  position: fixed; inset: 0;
+  background: rgba(12,10,9,0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 500;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.paywall-card {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 3rem;
+  max-width: 420px;
+  width: calc(100% - 2rem);
+  text-align: center;
+}
+.paywall-logo {
+  font-family: var(--serif);
+  font-size: 1.1rem; color: var(--gold);
+  letter-spacing: 0.1em; margin-bottom: 1.5rem;
+}
+.paywall-heading {
+  font-family: var(--serif);
+  font-size: 1.8rem; font-weight: 300;
+  color: var(--cream); margin-bottom: 0.6rem;
+}
+.paywall-heading em { font-style: italic; color: var(--gold3); }
+.paywall-sub { font-size: 0.88rem; color: var(--cream3); margin-bottom: 2rem; }
+.paywall-price {
+  font-family: var(--serif);
+  font-size: 3rem; font-weight: 400; color: var(--gold);
+}
+.paywall-period { font-size: 0.8rem; color: var(--cream3); margin-bottom: 2rem; }
+.paywall-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+.paywall-features li {
+  padding: 0.55rem 0; font-size: 0.85rem;
+  color: var(--cream2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.paywall-features li::before {
+  content: '\2713'; color: var(--gold);
+  font-size: 0.8rem; font-weight: 600;
+}
+.paywall-later {
+  font-size: 0.78rem; color: var(--cream4);
+  cursor: pointer; margin-top: 1rem;
+  text-decoration: underline; transition: color 0.3s;
+  background: none; border: none; font-family: var(--sans);
+}
+.paywall-later:hover { color: var(--cream3); }
+/* Results */
+.results-section { margin-top: 2rem; }
+.results-label {
+  font-size: 0.68rem; font-weight: 500;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 1rem;
+}
+/* AI Bar */
+.ai-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 200;
+  background: rgba(12,10,9,0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--border);
+  padding: 0.75rem 1.5rem;
+  transition: transform 0.3s;
+}
+.ai-bar.hidden { transform: translateY(100%); }
+.ai-bar-inner {
+  max-width: 760px; margin: 0 auto;
+  display: flex; gap: 0.6rem; align-items: center;
+}
+.ai-bar-input {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--cream);
+  font-family: var(--sans);
+  font-size: 0.85rem; font-weight: 300;
+  outline: none; transition: border-color 0.3s;
+}
+.ai-bar-input:focus { border-color: var(--gold); }
+.ai-bar-input::placeholder { color: var(--cream4); }
+.ai-bar-send {
+  width: 40px; height: 40px;
+  background: var(--gold); border: none;
+  border-radius: 50%; color: var(--bg);
+  font-size: 1rem; cursor: pointer;
+  transition: all 0.3s;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ai-bar-send:hover { background: var(--gold3); }
+.ai-bar-send:disabled { opacity: 0.3; cursor: not-allowed; }
+.ai-bar-label {
+  font-size: 0.68rem; color: var(--cream4);
+  letter-spacing: 0.08em; white-space: nowrap;
+  margin-right: 0.25rem;
+}
+/* Quick chat panel */
+.quick-chat {
+  position: fixed; bottom: 62px; left: 0; right: 0;
+  z-index: 199;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.3s;
+  opacity: 0;
+}
+.quick-chat.open { max-height: 400px; opacity: 1; }
+.quick-chat-inner { max-width: 760px; margin: 0 auto; padding: 0 1.5rem; }
+.quick-chat-panel {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  max-height: 350px; overflow-y: auto;
+  padding: 1.25rem;
+}
+.quick-chat-header {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 1rem;
+  padding-bottom: 0.75rem; border-bottom: 1px solid var(--border);
+}
+.quick-chat-title {
+  font-size: 0.7rem; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--gold);
+}
+.quick-chat-close {
+  background: none; border: none;
+  color: var(--cream4); cursor: pointer;
+  font-size: 1.1rem; padding: 0; transition: color 0.3s;
+}
+.quick-chat-close:hover { color: var(--cream); }
+.quick-chat-messages { display: flex; flex-direction: column; gap: 0.75rem; }
+.qc-msg { max-width: 90%; animation: msgIn 0.3s ease; }
+.qc-msg.user { align-self: flex-end; }
+.qc-msg.assistant { align-self: flex-start; }
+.qc-sender {
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 0.3rem;
+}
+.qc-bubble {
+  padding: 0.8rem 1.1rem; border-radius: 14px;
+  font-size: 0.85rem; line-height: 1.6;
+}
+.qc-msg.user .qc-bubble {
+  background: var(--goldA08);
+  border: 1px solid var(--goldA12);
+  border-radius: 14px 14px 3px 14px;
+  color: var(--cream);
+}
+.qc-msg.assistant .qc-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px 14px 14px 3px;
+  color: var(--cream2);
+}
+.qc-bubble strong { color: var(--cream); font-weight: 500; }
+.qc-expand {
+  display: block; margin-top: 0.75rem;
+  font-size: 0.75rem; color: var(--gold2);
+  cursor: pointer; background: none; border: none;
+  font-family: var(--sans); text-decoration: underline;
+  transition: color 0.3s;
+}
+.qc-expand:hover { color: var(--gold); }
+main { padding-bottom: 70px; }
+/* Footer */
+.app-footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  font-size: 0.72rem; color: var(--cream4);
+  max-width: 860px; margin: 0 auto;
+}
+.app-footer a {
+  color: var(--cream3); text-decoration: none;
+  transition: color 0.3s;
+}
+.app-footer a:hover { color: var(--cream); }
+/* Responsive */
+@media (max-width: 768px) {
+  .page { padding: 2rem 1rem 3rem; }
+  .nav-inner { padding: 0 0.75rem; }
+  .nav-tab { padding: 0.85rem 0.65rem; font-size: 0.72rem; }
+  .home-modes { grid-template-columns: 1fr; }
+  .home-stats { gap: 1.5rem; }
+  .chat-wrap { padding: 0 1rem; }
+  .genre-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  .style-grid { grid-template-columns: 1fr; }
+  .explore-grid { grid-template-columns: 1fr; }
+  .celeb-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .zodiac-form { flex-direction: column; }
+  .photo-preview { flex-direction: column; }
+  .photo-preview img { width: 100%; height: 240px; }
+  .frag-card { flex-direction: column; gap: 0.75rem; }
+  .frag-rank { font-size: 1rem; }
+  .paywall-card { padding: 2rem 1.5rem; }
+  .ai-bar { padding: 0.6rem 0.75rem; }
+  .ai-bar-label { display: none; }
+  .quick-chat-inner { padding: 0 0.75rem; }
+}
+/* Small phones */
+@media (max-width: 480px) {
+  .page { padding: 1.5rem 0.75rem 3rem; }
+  .home-hero { padding: 2.5rem 0 2rem; }
+  .home-hero h1 { font-size: 1.8rem; }
+  .home-stats { gap: 1rem; padding: 1.25rem 0; }
+  .home-stat-num { font-size: 1.4rem; }
+  .home-mode { padding: 1.5rem; }
+  .home-mode-name { font-size: 1.1rem; }
+  .page-title { font-size: 1.5rem; }
+  .chat-bubble { padding: 0.85rem 1rem; font-size: 0.85rem; }
+  .paywall-card { padding: 1.5rem 1rem; border-radius: 16px; }
+  .paywall-heading { font-size: 1.4rem; }
+  .paywall-price { font-size: 2.4rem; }
+  .paywall-features li { font-size: 0.8rem; padding: 0.45rem 0; }
+  .celeb-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; }
+  .celeb-card { padding: 1.25rem; }
+  .celeb-emoji { font-size: 1.8rem; }
+  .genre-grid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); }
+  .genre-card { padding: 1rem 0.75rem; }
+  .genre-icon { font-size: 1.3rem; }
+  .genre-name { font-size: 0.75rem; }
+}
+/* iOS input zoom prevention (inputs must be 16px+) */
+@media screen and (max-width: 768px) {
+  input[type="text"], input[type="email"], input[type="search"],
+  select, textarea, .input, .ai-bar-input, .chat-input-row input {
+    font-size: 16px !important;
+  }
+}
+/* Safe area insets for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .ai-bar {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+  .quick-chat {
+    bottom: calc(62px + env(safe-area-inset-bottom));
+  }
+  main {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+  #cookie-banner {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  }
 }
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
@@ -291,9 +1049,9 @@ input::placeholder{color:var(--td);opacity:.7}
 function getCookieConsent(){try{return localStorage.getItem('sw_cookie_consent')}catch(e){return null}}
 function acceptCookies(){try{localStorage.setItem('sw_cookie_consent','accepted')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
 function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
-document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
+document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent()){var b=document.getElementById('cookie-banner');if(b)b.style.display='block'}});
 </script>
-<!-- App scripts: perfumes DB loaded first (cached by browser), then app logic -->
+<!-- App data: perfumes DB -->
 <script src="/perfumes.js" defer></script>
 <script src="/app.js" defer></script>
 <!-- Vercel Web Analytics -->
@@ -303,31 +1061,21 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
-<!-- Desktop Navigation -->
-<div class="nav-w"><div class="nav-i">
-  <div class="logo" onclick="go('home')"><div class="logo-icon">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
-  <div class="nav-s" id="nav"></div>
-</div></div>
-<!-- Mobile Bottom Navigation -->
-<div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
-<!-- Pages -->
-<div id="page-home" class="hidden"></div>
-<div id="page-explore" class="hidden"></div>
-<div id="page-chat" class="hidden"></div>
-<div id="page-photo" class="hidden"></div>
-<div id="page-zodiac" class="hidden"></div>
-<div id="page-music" class="hidden"></div>
-<div id="page-style" class="hidden"></div>
-<div id="page-celeb" class="hidden"></div>
-<div id="page-account" class="hidden"></div>
-<div id="page-admin" class="hidden"></div>
-<!-- Noscript SEO fallback -->
+<!-- Navigation -->
+<nav class="app-nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">Scent<span>Wise</span></a>
+    <div class="nav-tabs" id="navTabs"></div>
+  </div>
+</nav>
+<!-- Main Content -->
+<main id="app">
 <noscript>
-<div style="max-width:960px;margin:0 auto;padding:3rem 1.5rem">
-  <h1 style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:400;line-height:1.2;margin-bottom:1rem;color:#f0ece4">Find the scent that <em style="color:#c9a96e">feels like you</em></h1>
-  <p style="color:#8a8278;font-size:0.95rem;max-width:500px;line-height:1.7;margin-bottom:2rem">ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.</p>
-  <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#f0ece4;margin-bottom:1rem">Six Ways to Discover Your Perfect Fragrance</h2>
-  <ul style="color:#d4cfc6;line-height:2;padding-left:1.5rem">
+<div style="max-width:860px;margin:0 auto;padding:3rem 1.5rem">
+  <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:2.4rem;font-weight:300;line-height:1.2;margin-bottom:1rem;color:#f5f0e8">Find the scent that <em style="color:#e8d5a0">feels like you</em></h1>
+  <p style="color:#a8a29e;font-size:0.95rem;max-width:500px;line-height:1.7;margin-bottom:2rem">ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.</p>
+  <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;color:#f5f0e8;margin-bottom:1rem">Six Ways to Discover Your Perfect Fragrance</h2>
+  <ul style="color:#d4cfc5;line-height:2;padding-left:1.5rem">
     <li><strong>AI Fragrance Advisor</strong> — Describe a mood, occasion, or memory for curated recommendations</li>
     <li><strong>Photo Style Scan</strong> — Upload a photo and our AI reads your aesthetic to match fragrances</li>
     <li><strong>Zodiac Match</strong> — Find scents aligned with your celestial profile and elemental energy</li>
@@ -335,46 +1083,510 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
     <li><strong>Style Match</strong> — Your wardrobe reveals scents that complete the picture</li>
     <li><strong>Celebrity Collections</strong> — Explore signature fragrances of icons across sports, music, and film</li>
   </ul>
-  <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#f0ece4;margin:2rem 0 1rem">From Our Blog</h2>
-  <ul style="color:#d4cfc6;line-height:2;padding-left:1.5rem">
-    <li><a href="/blog/best-mens-fragrances.html" style="color:#c9a96e">Best Men's Fragrances 2026 — Top Rated Perfumes for Men</a></li>
-    <li><a href="/blog/baccarat-rouge-540-dupes.html" style="color:#c9a96e">Best Baccarat Rouge 540 Dupes & Alternatives 2026</a></li>
-    <li><a href="/blog/celebrity-fragrances-guide.html" style="color:#c9a96e">What Perfume Do Celebrities Wear? Complete Guide 2026</a></li>
+  <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;color:#f5f0e8;margin:2rem 0 1rem">From Our Blog</h2>
+  <ul style="color:#d4cfc5;line-height:2;padding-left:1.5rem">
+    <li><a href="/blog/best-mens-fragrances.html" style="color:#c8a55a">Best Men's Fragrances 2026 — Top Rated Perfumes for Men</a></li>
+    <li><a href="/blog/baccarat-rouge-540-dupes.html" style="color:#c8a55a">Best Baccarat Rouge 540 Dupes & Alternatives 2026</a></li>
+    <li><a href="/blog/celebrity-fragrances-guide.html" style="color:#c8a55a">What Perfume Do Celebrities Wear? Complete Guide 2026</a></li>
   </ul>
 </div>
 </noscript>
+</main>
+<!-- Footer -->
+<footer class="app-footer">
+  <nav aria-label="Blog articles" style="margin-bottom:1rem">
+    <a href="/blog/best-mens-fragrances.html">Best Men's Fragrances</a> &middot;
+    <a href="/blog/baccarat-rouge-540-dupes.html">Baccarat Rouge 540 Dupes</a> &middot;
+    <a href="/blog/celebrity-fragrances-guide.html">Celebrity Fragrances</a>
+  </nav>
+  <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a> &middot; <a href="/refund.html">Refunds</a> &middot; <a href="mailto:scentwise.com@gmail.com">Contact</a>
+  <div style="margin-top:0.75rem">&copy; 2026 ScentWise. All rights reserved.</div>
+</footer>
 <!-- Cookie Banner -->
-<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,15,18,.95);border-top:1px solid rgba(255,255,255,.06);padding:16px 20px;font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
-  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-    <p style="flex:1;min-width:200px;line-height:1.6;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:var(--g)">Privacy Policy</a></p>
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(12,10,9,0.95);border-top:1px solid var(--border);padding:16px 20px;font-size:13px;color:var(--cream3);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+  <div style="max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <p style="flex:1;min-width:200px;line-height:1.6;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:var(--gold)">Privacy Policy</a></p>
     <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="acceptCookies()" class="btn btn-sm">Accept</button>
-      <button onclick="declineCookies()" class="btn-o btn-sm">Decline</button>
+      <button onclick="acceptCookies()" class="btn btn-gold btn-sm">Accept</button>
+      <button onclick="declineCookies()" class="btn btn-ghost btn-sm">Decline</button>
     </div>
   </div>
 </div>
-<!-- Footer -->
-<footer id="site-footer" style="border-top:1px solid rgba(255,255,255,.04);margin-top:48px;padding:40px 24px 32px;text-align:center;background:linear-gradient(180deg,transparent,rgba(9,9,11,.5))">
-  <div style="max-width:960px;margin:0 auto">
-    <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:8px">
-      <div class="logo-icon" style="width:24px;height:24px;font-size:11px;border-radius:6px">S</div>
-      <span class="fd gg" style="font-size:16px;font-weight:600">ScentWise</span>
+<!-- Quick Chat Panel -->
+<div class="quick-chat" id="quickChat">
+  <div class="quick-chat-inner">
+    <div class="quick-chat-panel" id="quickChatPanel">
+      <div class="quick-chat-header">
+        <div class="quick-chat-title">ScentWise AI</div>
+        <button class="quick-chat-close" onclick="closeQuickChat()">&#10005;</button>
+      </div>
+      <div class="quick-chat-messages" id="quickChatMsgs"></div>
     </div>
-    <p style="font-size:12px;color:var(--td);margin-bottom:20px;font-style:italic;font-family:'Playfair Display',serif">Your AI-powered fragrance journey</p>
-    <nav aria-label="Blog articles" style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:16px">
-      <a href="/blog/best-mens-fragrances.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Best Men's Fragrances</a>
-      <a href="/blog/baccarat-rouge-540-dupes.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">BR540 Dupes</a>
-      <a href="/blog/celebrity-fragrances-guide.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Celebrity Fragrances</a>
-    </nav>
-    <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:20px">
-      <a href="/terms.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Terms</a>
-      <a href="/privacy.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Privacy</a>
-      <a href="/refund.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Refunds</a>
-      <a href="mailto:scentwise.com@gmail.com" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
-    </div>
-    <p style="font-size:11px;color:var(--d5)">&copy; 2026 ScentWise. All rights reserved.</p>
   </div>
-</footer>
+</div>
+<!-- Persistent AI Bar -->
+<div class="ai-bar" id="aiBar">
+  <div class="ai-bar-inner">
+    <div class="ai-bar-label">&#10022; Ask AI</div>
+    <input class="ai-bar-input" id="aiBarInput" type="text" placeholder="Ask a follow-up about any fragrance..."
+      onkeydown="if(event.key==='Enter')sendQuickChat()"
+      onfocus="onAiBarFocus()">
+    <button class="ai-bar-send" id="aiBarSend" onclick="sendQuickChat()">&rarr;</button>
+  </div>
+</div>
+<!-- Paywall (hidden by default) -->
+<div class="paywall-overlay" id="paywall" style="display:none">
+  <div class="paywall-card">
+    <div class="paywall-logo">ScentWise Pro</div>
+    <div class="paywall-heading">Unlock your <em>perfect scent</em></div>
+    <p class="paywall-sub">Unlimited AI-powered fragrance recommendations tailored to your style, personality, and lifestyle.</p>
+    <div class="paywall-price">$7</div>
+    <div class="paywall-period">per month &middot; cancel anytime</div>
+    <ul class="paywall-features">
+      <li>Unlimited AI fragrance consultations</li>
+      <li>Photo style analysis &amp; matching</li>
+      <li>Zodiac, music, city &amp; style matching</li>
+      <li>Celebrity fragrance collections</li>
+      <li>Personalized seasonal recommendations</li>
+      <li>Budget-friendly dupe finder</li>
+    </ul>
+    <button class="btn btn-gold" style="width:100%;padding:0.9rem;font-size:0.95rem" onclick="subscribe()">Start Free Trial</button>
+    <button class="paywall-later" onclick="closePaywall()">Maybe later</button>
+  </div>
+</div>
+<script>
+// ScentWise SPA
+let currentPage = 'home';
+let chatMessages = [];
+let chatLoading = false;
+let selectedGenres = [];
+let selectedStyles = [];
+let selectedCeleb = null;
+let quickMessages = [];
+let quickLoading = false;
+let quickOpen = false;
+const PAGES = [
+  { id:'home', label:'Home' },
+  { id:'explore', label:'Explore' },
+  { id:'chat', label:'AI Advisor', paid:true },
+  { id:'photo', label:'Style Scan', paid:true },
+  { id:'zodiac', label:'Zodiac', paid:true },
+  { id:'music', label:'Music', paid:true },
+  { id:'style', label:'Style', paid:true },
+  { id:'city', label:'City', paid:true },
+  { id:'celeb', label:'Celebs' },
+];
+if (window.location.hash) {
+  var h = window.location.hash.replace('#','');
+  if (PAGES.find(function(p){ return p.id === h; })) currentPage = h;
+}
+function go(page) {
+  currentPage = page;
+  window.location.hash = page;
+  renderNav();
+  renderPage();
+  updateAiBar();
+  window.scrollTo(0, 0);
+}
+function updateAiBar() {
+  var bar = document.getElementById('aiBar');
+  var qc = document.getElementById('quickChat');
+  if (currentPage === 'chat') {
+    bar.classList.add('hidden');
+    qc.classList.remove('open');
+  } else {
+    bar.classList.remove('hidden');
+  }
+}
+function renderNav() {
+  document.getElementById('navTabs').innerHTML = PAGES.map(function(p) {
+    return '<div class="nav-tab '+(currentPage===p.id?'active':'')+'" onclick="go(\''+p.id+'\')">'+p.label+(p.paid?'<span class="lock">&#128274;</span>':'')+'</div>';
+  }).join('');
+}
+function renderPage() {
+  var el = document.getElementById('app');
+  var fn = {
+    home: renderHome,
+    chat: renderChat,
+    zodiac: renderZodiac,
+    music: renderMusic,
+    style: renderStyle,
+    photo: renderPhoto,
+    city: renderCity,
+    celeb: renderCeleb,
+    explore: renderExplore
+  };
+  (fn[currentPage] || renderHome)(el);
+}
+// Home
+function renderHome(el) {
+  el.innerHTML = '<div class="page">'+
+    '<div class="home-hero">'+
+      '<h1>Find the scent that<br><em>feels like you</em></h1>'+
+      '<p>Six unique paths to fragrance discovery \u2014 each one analyzes a different dimension of who you are.</p>'+
+      '<button class="btn btn-gold" onclick="go(\'chat\')">Start Discovering</button>'+
+    '</div>'+
+    '<div class="home-stats">'+
+      '<div style="text-align:center"><div class="home-stat-num">70,000+</div><div class="home-stat-label">Fragrances</div></div>'+
+      '<div style="text-align:center"><div class="home-stat-num">6</div><div class="home-stat-label">Discovery Modes</div></div>'+
+      '<div style="text-align:center"><div class="home-stat-num">2,500</div><div class="home-stat-label">Curated Picks</div></div>'+
+    '</div>'+
+    '<div class="home-modes">'+
+      '<div class="home-mode" onclick="go(\'chat\')"><div class="home-mode-num">01</div><div class="home-mode-name">Ask the Expert</div><div class="home-mode-desc">Describe a mood, occasion, or memory and get curated fragrance recommendations.</div></div>'+
+      '<div class="home-mode" onclick="go(\'zodiac\')"><div class="home-mode-num">02</div><div class="home-mode-name">Zodiac Match</div><div class="home-mode-desc">Your celestial profile reveals scents aligned with your elemental energy.</div></div>'+
+      '<div class="home-mode" onclick="go(\'photo\')"><div class="home-mode-num">03</div><div class="home-mode-name">Photo Style Scan</div><div class="home-mode-desc">Upload a photo and we\'ll read your aesthetic to match fragrances.</div></div>'+
+      '<div class="home-mode" onclick="go(\'music\')"><div class="home-mode-num">04</div><div class="home-mode-name">Music Match</div><div class="home-mode-desc">Your sonic taste reveals more about your scent preferences than you\'d think.</div></div>'+
+      '<div class="home-mode" onclick="go(\'style\')"><div class="home-mode-num">05</div><div class="home-mode-name">Style Match</div><div class="home-mode-desc">Your wardrobe speaks volumes. We\'ll find scents that complete the picture.</div></div>'+
+      '<div class="home-mode" onclick="go(\'celeb\')"><div class="home-mode-num">06</div><div class="home-mode-name">Celebrity Collections</div><div class="home-mode-desc">Explore the signature fragrances of icons across sports, music, and film.</div></div>'+
+    '</div>'+
+  '</div>';
+}
+// Chat
+function renderChat(el) {
+  var msgs = '';
+  if (chatMessages.length === 0) {
+    msgs = '<div class="chat-msg assistant"><div class="chat-sender">ScentWise</div><div class="chat-bubble">Welcome! Tell me what you\'re looking for \u2014 a date night fragrance, something fresh for summer, a dupe for an expensive scent, or anything else. I\'m here to help.</div></div>';
+  } else {
+    msgs = chatMessages.map(function(m) {
+      return '<div class="chat-msg '+m.role+'">'+(m.role==='assistant'?'<div class="chat-sender">ScentWise</div>':'')+'<div class="chat-bubble">'+m.content+'</div></div>';
+    }).join('');
+  }
+  if (chatLoading) {
+    msgs += '<div class="chat-msg assistant"><div class="chat-sender">ScentWise</div><div class="chat-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div></div>';
+  }
+  msgs += '<div id="chatEnd"></div>';
+  el.innerHTML = '<div class="chat-wrap">'+
+    '<div class="chat-header">'+
+      '<div class="page-kicker">AI Advisor</div>'+
+      '<div class="page-title">Ask the <em>Expert</em></div>'+
+      '<p style="color:var(--cream3);font-size:0.88rem;margin-top:0.25rem">Ask anything about fragrances \u2014 recommendations, notes, comparisons, dupes, or occasions.</p>'+
+    '</div>'+
+    '<div class="chat-messages" id="chatMsgs">'+msgs+'</div>'+
+    '<div class="chat-input-row">'+
+      '<input type="text" id="chatInput" placeholder="Ask about any fragrance..." onkeydown="if(event.key===\'Enter\')demoChat()">'+
+      '<button class="chat-send-btn" onclick="demoChat()" '+(chatLoading?'disabled':'')+'>&#8594;</button>'+
+    '</div>'+
+  '</div>';
+  var ce = document.getElementById('chatEnd');
+  if (ce) ce.scrollIntoView({behavior:'smooth'});
+  var ci = document.getElementById('chatInput');
+  if (ci) ci.focus();
+}
+function demoChat() {
+  var inp = document.getElementById('chatInput');
+  var text = inp && inp.value ? inp.value.trim() : '';
+  if (!text || chatLoading) return;
+  inp.value = '';
+  chatMessages.push({role:'user', content:text});
+  chatLoading = true;
+  renderChat(document.getElementById('app'));
+  setTimeout(function() {
+    chatMessages.push({role:'assistant', content:'<strong>Great question!</strong> This is a demo response. In the live version, this connects to the Gemini API for real fragrance recommendations with detailed notes, accords, and purchase links.'});
+    chatLoading = false;
+    renderChat(document.getElementById('app'));
+  }, 1500);
+}
+// Zodiac
+function renderZodiac(el) {
+  var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var monthOpts = '<option value="">Month</option>' + months.map(function(m,i){ return '<option value="'+(i+1)+'">'+m+'</option>'; }).join('');
+  var dayOpts = '<option value="">Day</option>';
+  for (var i=1;i<=31;i++) dayOpts += '<option value="'+i+'">'+i+'</option>';
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">Zodiac Match</div>'+
+    '<div class="page-title">What do the stars say<br>about your <em>scent?</em></div>'+
+    '<p class="page-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</p>'+
+    '<div class="zodiac-form">'+
+      '<select id="zMonth">'+monthOpts+'</select>'+
+      '<select id="zDay">'+dayOpts+'</select>'+
+      '<button class="btn btn-gold" onclick="demoZodiac()">Reveal My Sign</button>'+
+    '</div>'+
+    '<div id="zodiacResult"></div>'+
+  '</div>';
+}
+function demoZodiac() {
+  var m = parseInt(document.getElementById('zMonth').value);
+  var d = parseInt(document.getElementById('zDay').value);
+  if (!m || !d) return;
+  var signs = [
+    {name:'Capricorn',sym:'\u2651',el:'Earth',dates:'Dec 22 \u2013 Jan 19'},
+    {name:'Aquarius',sym:'\u2652',el:'Air',dates:'Jan 20 \u2013 Feb 18'},
+    {name:'Pisces',sym:'\u2653',el:'Water',dates:'Feb 19 \u2013 Mar 20'},
+    {name:'Aries',sym:'\u2648',el:'Fire',dates:'Mar 21 \u2013 Apr 19'},
+    {name:'Taurus',sym:'\u2649',el:'Earth',dates:'Apr 20 \u2013 May 20'},
+    {name:'Gemini',sym:'\u264A',el:'Air',dates:'May 21 \u2013 Jun 20'},
+    {name:'Cancer',sym:'\u264B',el:'Water',dates:'Jun 21 \u2013 Jul 22'},
+    {name:'Leo',sym:'\u264C',el:'Fire',dates:'Jul 23 \u2013 Aug 22'},
+    {name:'Virgo',sym:'\u264D',el:'Earth',dates:'Aug 23 \u2013 Sep 22'},
+    {name:'Libra',sym:'\u264E',el:'Air',dates:'Sep 23 \u2013 Oct 22'},
+    {name:'Scorpio',sym:'\u264F',el:'Water',dates:'Oct 23 \u2013 Nov 21'},
+    {name:'Sagittarius',sym:'\u2650',el:'Fire',dates:'Nov 22 \u2013 Dec 21'}
+  ];
+  var idx = [20,19,20,20,21,21,22,23,23,23,22,22];
+  var si = m - 1;
+  if (d < idx[si]) si = (si + 11) % 12;
+  var s = signs[si];
+  document.getElementById('zodiacResult').innerHTML =
+    '<div class="zodiac-result">'+
+      '<div class="zodiac-symbol">'+s.sym+'</div>'+
+      '<div class="zodiac-sign">'+s.name+'</div>'+
+      '<div class="zodiac-dates">'+s.dates+'</div>'+
+      '<div class="zodiac-element">'+s.el+' Sign</div>'+
+      '<div class="zodiac-desc">Your '+s.el.toLowerCase()+' energy shapes your fragrance preferences. In the live version, our AI matches you with specific scents based on your sign\'s personality traits.</div>'+
+    '</div>'+
+    '<div class="results-section">'+
+      '<div class="results-label">Recommended for '+s.name+'</div>'+
+      '<div class="frag-card"><div class="frag-rank">01</div><div><div class="frag-name">Demo Fragrance</div><div class="frag-brand">Brand \u00b7 Eau de Parfum</div><div class="frag-notes">Live version shows real AI-matched fragrances here</div><div class="frag-meta"><span class="tag">'+s.el+'</span> <span class="tag">'+s.name+'</span></div></div></div>'+
+    '</div>';
+}
+// Music
+function renderMusic(el) {
+  var genres = [
+    {id:'pop',icon:'\ud83c\udfa4',name:'Pop'},{id:'hiphop',icon:'\ud83c\udfa7',name:'Hip-Hop'},
+    {id:'rock',icon:'\ud83c\udfb8',name:'Rock'},{id:'rnb',icon:'\ud83c\udfb5',name:'R&B'},
+    {id:'electronic',icon:'\ud83c\udf9b\ufe0f',name:'Electronic'},{id:'jazz',icon:'\ud83c\udfb7',name:'Jazz'},
+    {id:'classical',icon:'\ud83c\udfbb',name:'Classical'},{id:'indie',icon:'\ud83c\udfb9',name:'Indie'},
+    {id:'latin',icon:'\ud83d\udc83',name:'Latin'},{id:'country',icon:'\ud83e\udd20',name:'Country'},
+    {id:'metal',icon:'\ud83e\udd18',name:'Metal'},{id:'soul',icon:'\ud83c\udfb6',name:'Soul'}
+  ];
+  var cards = genres.map(function(g) {
+    return '<div class="genre-card '+(selectedGenres.indexOf(g.id)>-1?'selected':'')+'" onclick="toggleGenre(\''+g.id+'\')"><div class="genre-icon">'+g.icon+'</div><div class="genre-name">'+g.name+'</div></div>';
+  }).join('');
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">Music Match</div>'+
+    '<div class="page-title">Your playlist reveals your<br><em>fragrance personality</em></div>'+
+    '<p class="page-desc">Select up to 3 genres that define your taste. We\'ll translate your sonic preferences into olfactory recommendations.</p>'+
+    '<div class="genre-counter">'+selectedGenres.length+'/3 selected</div>'+
+    '<div class="genre-grid">'+cards+'</div>'+
+    '<button class="btn btn-gold" '+(selectedGenres.length===0?'disabled':'')+' onclick="demoMusic()">Find My Scent</button>'+
+    '<div id="musicResult"></div>'+
+  '</div>';
+}
+function toggleGenre(id) {
+  var i = selectedGenres.indexOf(id);
+  if (i > -1) { selectedGenres.splice(i, 1); }
+  else if (selectedGenres.length < 3) { selectedGenres.push(id); }
+  renderMusic(document.getElementById('app'));
+}
+function demoMusic() {
+  var tags = selectedGenres.map(function(g){ return '<span class="tag">'+g+'</span>'; }).join(' ');
+  document.getElementById('musicResult').innerHTML =
+    '<div class="results-section"><div class="results-label">Matched to your taste</div>'+
+    '<div class="frag-card"><div class="frag-rank">01</div><div><div class="frag-name">Demo Recommendation</div><div class="frag-brand">Brand \u00b7 Type</div><div class="frag-notes">In the live version, the AI analyzes your genre combination for real matches</div><div class="frag-meta">'+tags+'</div></div></div></div>';
+}
+// Style
+function renderStyle(el) {
+  var styles = [
+    {id:'minimal',name:'Minimalist',desc:'Clean lines, neutral tones, less is more'},
+    {id:'streetwear',name:'Streetwear',desc:'Urban edge, bold graphics, sneaker culture'},
+    {id:'classic',name:'Classic',desc:'Tailored fits, timeless pieces, refined elegance'},
+    {id:'bohemian',name:'Bohemian',desc:'Flowing fabrics, earthy tones, free-spirited'},
+    {id:'athletic',name:'Athleisure',desc:'Sport-meets-style, comfort-first, dynamic'},
+    {id:'vintage',name:'Vintage',desc:'Retro inspiration, thrift finds, nostalgic charm'},
+    {id:'luxury',name:'Luxury',desc:'Designer labels, statement pieces, high fashion'},
+    {id:'edgy',name:'Edgy',desc:'Dark palette, leather accents, avant-garde'}
+  ];
+  var cards = styles.map(function(s) {
+    return '<div class="style-card '+(selectedStyles.indexOf(s.id)>-1?'selected':'')+'" onclick="toggleStyle(\''+s.id+'\')"><div class="style-card-name">'+s.name+'</div><div class="style-card-desc">'+s.desc+'</div></div>';
+  }).join('');
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">Style Match</div>'+
+    '<div class="page-title">Your wardrobe speaks.<br><em>We listen.</em></div>'+
+    '<p class="page-desc">Select 1\u20133 style aesthetics that define your look. We\'ll find scents that complete the picture.</p>'+
+    '<div class="genre-counter">'+selectedStyles.length+'/3 selected</div>'+
+    '<div class="style-grid">'+cards+'</div>'+
+    '<button class="btn btn-gold" '+(selectedStyles.length===0?'disabled':'')+' onclick="alert(\'Live version sends to AI\')">Find My Scent</button>'+
+  '</div>';
+}
+function toggleStyle(id) {
+  var i = selectedStyles.indexOf(id);
+  if (i > -1) { selectedStyles.splice(i, 1); }
+  else if (selectedStyles.length < 3) { selectedStyles.push(id); }
+  renderStyle(document.getElementById('app'));
+}
+// Photo
+function renderPhoto(el) {
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">Style Scan</div>'+
+    '<div class="page-title">Show us your world.<br><em>We\'ll find your scent.</em></div>'+
+    '<p class="page-desc">Upload a photo \u2014 your outfit, your room, a place you love \u2014 and our AI reads the aesthetic to match fragrances.</p>'+
+    '<div class="photo-drop" onclick="document.getElementById(\'photoFile\').click()" ondragover="event.preventDefault()" ondrop="event.preventDefault();handlePhoto(event.dataTransfer.files[0])">'+
+      '<input type="file" id="photoFile" accept="image/*" hidden onchange="handlePhoto(this.files[0])">'+
+      '<div class="photo-drop-icon">\ud83d\udcf8</div>'+
+      '<div class="photo-drop-text">Drop a photo here or click to upload</div>'+
+      '<div class="photo-drop-hint">JPG, PNG, WEBP \u00b7 Max 10MB</div>'+
+    '</div>'+
+    '<div id="photoResult"></div>'+
+  '</div>';
+}
+function handlePhoto(file) {
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    document.getElementById('photoResult').innerHTML =
+      '<div class="photo-preview">'+
+        '<img src="'+e.target.result+'" alt="Uploaded">'+
+        '<div class="photo-actions">'+
+          '<p style="font-size:0.88rem;color:var(--cream2);margin-bottom:1rem">Photo uploaded. In the live version, clicking below sends it to the AI for style analysis.</p>'+
+          '<button class="btn btn-gold" onclick="alert(\'Live version analyzes via AI\')">Analyze My Style</button>'+
+          '<div style="margin-top:0.75rem"><button class="btn btn-ghost btn-sm" onclick="renderPhoto(document.getElementById(\'app\'))">Upload different photo</button></div>'+
+        '</div>'+
+      '</div>';
+  };
+  reader.readAsDataURL(file);
+}
+// City
+function renderCity(el) {
+  var cities = ['Paris','Tokyo','Istanbul','New York','Marrakech','London','Dubai','Rome','Barcelona','Mumbai'];
+  var pills = cities.map(function(c){ return '<button class="city-pill" onclick="document.getElementById(\'cityInput\').value=\''+c+'\';demoCity()">'+c+'</button>'; }).join('');
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">City Match</div>'+
+    '<div class="page-title">Every city has a<br><em>fragrance signature</em></div>'+
+    '<p class="page-desc">Tell us a city you love and we\'ll match its olfactory character to fragrances you\'ll adore.</p>'+
+    '<div class="city-input-wrap"><input class="input" type="text" id="cityInput" placeholder="Type a city name..." onkeydown="if(event.key===\'Enter\')demoCity()"></div>'+
+    '<div class="city-suggestions">'+pills+'</div>'+
+    '<div id="cityResult"></div>'+
+  '</div>';
+}
+function demoCity() {
+  var inp = document.getElementById('cityInput');
+  var city = inp && inp.value ? inp.value.trim() : '';
+  if (!city) return;
+  document.getElementById('cityResult').innerHTML =
+    '<div class="results-section"><div class="results-label">The scent of '+city+'</div>'+
+    '<div class="card" style="margin-bottom:1.5rem"><p style="font-family:var(--serif);font-size:1.1rem;font-style:italic;color:var(--cream2);line-height:1.6">In the live version, the AI describes '+city+'\'s olfactory character and matches fragrances that capture its essence.</p></div>'+
+    '<div class="frag-card"><div class="frag-rank">01</div><div><div class="frag-name">Demo Fragrance for '+city+'</div><div class="frag-brand">Brand \u00b7 Eau de Parfum</div><div class="frag-notes">Real matches appear here in the live version</div><div class="frag-meta"><span class="tag">'+city+'</span></div></div></div></div>';
+}
+// Celebrity
+var CELEBS = [
+  {id:'beckham',name:'David Beckham',emoji:'\ud83c\udfe8\ufe0f',count:12,field:'Football'},
+  {id:'rihanna',name:'Rihanna',emoji:'\ud83c\udfa4',count:8,field:'Music'},
+  {id:'depp',name:'Johnny Depp',emoji:'\ud83c\udfac',count:5,field:'Film'},
+  {id:'ronaldo',name:'Cristiano Ronaldo',emoji:'\u26bd',count:10,field:'Football'},
+  {id:'ariana',name:'Ariana Grande',emoji:'\ud83c\udfb5',count:9,field:'Music'},
+  {id:'lebron',name:'LeBron James',emoji:'\ud83c\udfc0',count:6,field:'Basketball'},
+  {id:'zendaya',name:'Zendaya',emoji:'\ud83d\udc8e',count:7,field:'Film'},
+  {id:'drake',name:'Drake',emoji:'\ud83c\udfa4',count:4,field:'Music'},
+  {id:'beyonce',name:'Beyonc\u00e9',emoji:'\ud83d\udc51',count:11,field:'Music'},
+  {id:'brad',name:'Brad Pitt',emoji:'\ud83c\udfac',count:3,field:'Film'}
+];
+function renderCeleb(el) {
+  if (selectedCeleb) {
+    var c = CELEBS.find(function(x){ return x.id === selectedCeleb; });
+    var frags = '';
+    for (var i=0; i<Math.min(c.count,4); i++) {
+      frags += '<div class="frag-card"><div class="frag-rank">'+String(i+1).padStart(2,'0')+'</div><div><div class="frag-name">Demo Fragrance '+(i+1)+'</div><div class="frag-brand">Brand \u00b7 Type</div><div class="frag-notes">Real fragrance data appears in the live version</div><div class="frag-meta"><span class="tag">'+c.field+'</span></div></div></div>';
+    }
+    el.innerHTML = '<div class="page">'+
+      '<div class="celeb-detail-back" onclick="selectedCeleb=null;renderCeleb(document.getElementById(\'app\'))">\u2190 Back to all celebrities</div>'+
+      '<div class="celeb-detail-header"><div class="celeb-detail-emoji">'+c.emoji+'</div><div><div class="celeb-detail-name">'+c.name+'</div><div class="celeb-detail-sub">'+c.field+' \u00b7 '+c.count+' fragrances</div></div></div>'+
+      '<div class="results-label">Fragrance Collection</div>'+frags+
+    '</div>';
+  } else {
+    var cards = CELEBS.map(function(c) {
+      return '<div class="celeb-card" onclick="selectedCeleb=\''+c.id+'\';renderCeleb(document.getElementById(\'app\'))"><div class="celeb-emoji">'+c.emoji+'</div><div class="celeb-name">'+c.name+'</div><div class="celeb-count">'+c.count+' fragrances</div></div>';
+    }).join('');
+    el.innerHTML = '<div class="page">'+
+      '<div class="page-kicker">Celebrity Collections</div>'+
+      '<div class="page-title">What the <em>icons</em> wear</div>'+
+      '<p class="page-desc">Explore the signature fragrances of cultural icons \u2014 from athletes to actors, musicians to moguls.</p>'+
+      '<div class="celeb-search"><input class="input" type="text" placeholder="Search celebrities..." oninput="filterCelebs(this.value)"></div>'+
+      '<div class="celeb-grid" id="celebGrid">'+cards+'</div>'+
+    '</div>';
+  }
+}
+function filterCelebs(q) {
+  q = q.toLowerCase();
+  var cards = document.querySelectorAll('.celeb-card');
+  cards.forEach(function(card) {
+    var name = card.querySelector('.celeb-name').textContent.toLowerCase();
+    card.style.display = name.indexOf(q) > -1 ? '' : 'none';
+  });
+}
+// Explore
+function renderExplore(el) {
+  var filters = ['All','Men','Women','Unisex','Vanilla','Woody','Floral','Citrus','Oud','Fresh','Sweet'];
+  var filterHTML = filters.map(function(f,i){ return '<button class="filter-chip '+(i===0?'active':'')+'" onclick="this.parentElement.querySelectorAll(\'.filter-chip\').forEach(function(c){c.classList.remove(\'active\')});this.classList.add(\'active\')">'+f+'</button>'; }).join('');
+  var fragrances = [
+    {name:'Bleu de Chanel',brand:'Chanel \u00b7 EDP',accords:['Woody','Citrus'],rating:'4.5'},
+    {name:'Aventus',brand:'Creed \u00b7 EDP',accords:['Fruity','Smoky'],rating:'4.6'},
+    {name:'Baccarat Rouge 540',brand:'Maison FK \u00b7 EDP',accords:['Sweet','Amber'],rating:'4.4'},
+    {name:'Sauvage',brand:'Dior \u00b7 EDT',accords:['Fresh','Spicy'],rating:'4.3'},
+    {name:'La Vie Est Belle',brand:'Lanc\u00f4me \u00b7 EDP',accords:['Sweet','Gourmand'],rating:'4.2'},
+    {name:'Oud Wood',brand:'Tom Ford \u00b7 EDP',accords:['Oud','Woody'],rating:'4.5'}
+  ];
+  var cards = fragrances.map(function(f) {
+    var accords = f.accords.map(function(a){ return '<span class="tag">'+a+'</span>'; }).join(' ');
+    return '<div class="explore-card"><div class="explore-card-name">'+f.name+'</div><div class="explore-card-brand">'+f.brand+'</div><div class="explore-card-accords">'+accords+'</div><div class="explore-card-rating">\u2605 '+f.rating+'</div></div>';
+  }).join('');
+  el.innerHTML = '<div class="page">'+
+    '<div class="page-kicker">Database</div>'+
+    '<div class="page-title">The <em>Collection</em></div>'+
+    '<p class="page-desc">Browse 2,500 curated fragrances from around the world.</p>'+
+    '<div class="explore-controls"><input class="input explore-search" type="text" placeholder="Search by name, brand, or accord..."></div>'+
+    '<div class="explore-filters">'+filterHTML+'</div>'+
+    '<div class="explore-grid">'+cards+'</div>'+
+    '<div class="load-more-wrap"><button class="btn btn-ghost">Load More</button></div>'+
+  '</div>';
+}
+// Paywall
+function showPaywall() { document.getElementById('paywall').style.display = 'flex'; }
+function closePaywall() { document.getElementById('paywall').style.display = 'none'; }
+function subscribe() {
+  window.location.href = 'https://scent-wise.lemonsqueezy.com/checkout/buy/36ba41fc-d349-41f6-897e-623ddb01cd5b';
+}
+// Quick Chat / AI Bar
+function onAiBarFocus() {
+  if (quickMessages.length > 0 && !quickOpen) openQuickChat();
+}
+function openQuickChat() {
+  quickOpen = true;
+  document.getElementById('quickChat').classList.add('open');
+  renderQuickMessages();
+}
+function closeQuickChat() {
+  quickOpen = false;
+  document.getElementById('quickChat').classList.remove('open');
+}
+function renderQuickMessages() {
+  var el = document.getElementById('quickChatMsgs');
+  var html = quickMessages.map(function(m) {
+    return '<div class="qc-msg '+m.role+'">'+(m.role==='assistant'?'<div class="qc-sender">ScentWise</div>':'')+'<div class="qc-bubble">'+m.content+'</div></div>';
+  }).join('');
+  if (quickLoading) {
+    html += '<div class="qc-msg assistant"><div class="qc-sender">ScentWise</div><div class="qc-bubble"><div class="loading-dots"><span></span><span></span><span></span></div></div></div>';
+  }
+  if (quickMessages.length > 0 && !quickLoading) {
+    html += '<button class="qc-expand" onclick="closeQuickChat();go(\'chat\')">Open full conversation \u2192</button>';
+  }
+  html += '<div id="qcEnd"></div>';
+  el.innerHTML = html;
+  var qce = document.getElementById('qcEnd');
+  if (qce) qce.scrollIntoView({behavior:'smooth'});
+}
+function sendQuickChat() {
+  var inp = document.getElementById('aiBarInput');
+  var text = inp && inp.value ? inp.value.trim() : '';
+  if (!text || quickLoading) return;
+  inp.value = '';
+  quickMessages.push({role:'user', content: text});
+  quickLoading = true;
+  if (!quickOpen) openQuickChat();
+  renderQuickMessages();
+  chatMessages.push({role:'user', content: text});
+  setTimeout(function() {
+    var reply = '<strong>Great question!</strong> This is a demo response. In the live version, this connects to your Gemini API and provides real fragrance recommendations with notes, accords, and purchase links.';
+    quickMessages.push({role:'assistant', content: reply});
+    chatMessages.push({role:'assistant', content: reply});
+    quickLoading = false;
+    renderQuickMessages();
+  }, 1500);
+}
+// Init
+renderNav();
+renderPage();
+updateAiBar();
+</script>
 <!-- Vercel Speed Insights -->
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
