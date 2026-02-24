@@ -1039,6 +1039,21 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <script src="/perfumes.js" defer></script>
 <script src="/perfumes-rich.js" defer></script>
 <script src="/app.js" defer></script>
+<!-- Stale content detector: if page is blank after 4s, force reload once -->
+<script>
+setTimeout(function(){
+  var home = document.getElementById('page-home');
+  if (!home) return;
+  var vis = home.offsetHeight > 0 || !home.classList.contains('hidden');
+  if (vis && home.innerHTML.trim().length < 50) {
+    // Page container is visible but empty = stale cache or render failure
+    if (!sessionStorage.getItem('sw_reloaded')) {
+      sessionStorage.setItem('sw_reloaded', '1');
+      location.reload();
+    }
+  }
+}, 4000);
+</script>
 </head>
 <body>
 <!-- Desktop Navigation -->
@@ -1183,7 +1198,26 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 </nav>
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  // Force SW update: unregister stale SWs and re-register with no cache
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      // Unregister all existing SWs to clear stale v1/v2 workers
+      var p = regs.map(function(r) { return r.unregister(); });
+      return Promise.all(p);
+    }).then(function() {
+      // Re-register with fresh fetch (no browser cache for sw.js)
+      return navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+    }).catch(function() {
+      // Fallback: just register normally
+      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+    });
+    // Also clear all caches to remove stale HTML/JS
+    if (window.caches) {
+      caches.keys().then(function(keys) {
+        keys.forEach(function(k) { if (k !== 'sw-v3') caches.delete(k); });
+      });
+    }
+  }
 </script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
