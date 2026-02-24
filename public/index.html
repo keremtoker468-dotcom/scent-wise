@@ -423,8 +423,9 @@ input::placeholder{color:var(--td);opacity:.7}
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
 }
+@media(max-width:640px){.hp-grain::after{display:none}}
 /* Homepage nav */
 .hp-nav {
   position: fixed;
@@ -526,8 +527,7 @@ input::placeholder{color:var(--td);opacity:.7}
   text-transform: uppercase;
   color: var(--hp-gold);
   margin-bottom: 2rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.2s forwards;
+  animation: hpFadeUp 0.8s 0.2s both;
 }
 .hp-hero h1 {
   font-family: var(--hp-serif);
@@ -538,8 +538,7 @@ input::placeholder{color:var(--td);opacity:.7}
   color: var(--hp-cream);
   max-width: 700px;
   margin-bottom: 1.75rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.4s forwards;
+  animation: hpFadeUp 0.8s 0.4s both;
 }
 .hp-hero h1 em { font-style: italic; color: var(--hp-gold3); }
 .hp-hero-sub {
@@ -548,15 +547,13 @@ input::placeholder{color:var(--td);opacity:.7}
   max-width: 480px;
   line-height: 1.7;
   margin-bottom: 3rem;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.6s forwards;
+  animation: hpFadeUp 0.8s 0.6s both;
 }
 .hp-hero-actions {
   display: flex;
   gap: 1rem;
   align-items: center;
-  opacity: 0;
-  animation: hpFadeUp 0.8s 0.8s forwards;
+  animation: hpFadeUp 0.8s 0.8s both;
 }
 .hp-btn-primary {
   padding: 0.85rem 2.2rem;
@@ -594,8 +591,7 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-top: 5rem;
   padding-top: 3rem;
   border-top: 1px solid var(--hp-border);
-  opacity: 0;
-  animation: hpFadeUp 0.8s 1s forwards;
+  animation: hpFadeUp 0.8s 1s both;
 }
 .hp-hero-stat .num {
   font-family: var(--hp-serif);
@@ -908,12 +904,17 @@ input::placeholder{color:var(--td);opacity:.7}
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* Reveal animations: content is visible by default, JS adds .hp-anim to enable transitions */
 .hp-reveal {
+  opacity: 1;
+  transform: translateY(0);
+}
+.hp-anim .hp-reveal {
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.7s ease, transform 0.7s ease;
 }
-.hp-reveal.visible {
+.hp-anim .hp-reveal.visible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -928,29 +929,48 @@ input::placeholder{color:var(--td);opacity:.7}
   .hp-nav { padding: 1rem 1.25rem; }
   .hp-nav-links { display: none; }
   .hp-nav-toggle { display: flex; }
-  .hp-section { padding: 4rem 1.25rem; }
-  .hp-hero { padding: 4.5rem 1.25rem 3rem; min-height: 92vh; }
-  .hp-hero h1 { font-size: clamp(2.4rem, 8vw, 3.5rem); }
-  .hp-hero-sub { font-size: 0.95rem; }
-  .hp-hero-stats { gap: 2rem; flex-wrap: wrap; justify-content: center; }
+  .hp-section { padding: 3rem 1.25rem; }
+  .hp-hero { padding: 3.5rem 1.25rem 2rem; min-height: auto; }
+  .hp-hero h1 { font-size: clamp(2.2rem, 8vw, 3.2rem); margin-bottom: 1.25rem; }
+  .hp-hero-sub { font-size: 0.92rem; margin-bottom: 2rem; }
+  .hp-hero-stats { gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 2.5rem; padding-top: 2rem; }
+  .hp-hero-stat .num { font-size: 1.6rem; }
+  .hp-hero-stat .label { font-size: 0.68rem; }
   .hp-hero-actions { flex-direction: column; width: 100%; }
   .hp-btn-primary, .hp-btn-ghost { width: 100%; text-align: center; min-height: 52px; font-size: 1rem; }
-  .hp-celeb-section { padding: 4rem 0; }
+  .hp-celeb-section { padding: 3rem 0; }
   .hp-celeb-inner { padding: 0 1.25rem; }
-  .hp-mode-item { padding: 1.75rem; border-radius: 18px; }
-  .hp-mode-name { font-size: 1.3rem; }
-  .hp-mode-desc { font-size: 0.85rem; }
-  .hp-mode-tag { font-size: 0.72rem; padding: 0.4rem 1rem; }
+  .hp-mode-item { padding: 1.5rem; border-radius: 18px; }
+  .hp-mode-number { margin-bottom: 0.5rem; }
+  .hp-mode-name { font-size: 1.2rem; }
+  .hp-mode-desc { font-size: 0.82rem; line-height: 1.5; -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  .hp-mode-tag { font-size: 0.72rem; padding: 0.35rem 0.9rem; }
+  .hp-modes-layout { gap: 0.75rem; margin-top: 2rem; }
   .hp-steps { gap: 0; }
-  .hp-step { padding: 1.5rem 0; }
-  .hp-step-title { font-size: 1.1rem; }
-  .hp-celeb-card { min-width: 180px; padding: 1.5rem; }
-  .hp-section-heading { font-size: clamp(1.6rem, 5vw, 2.2rem); }
-  .hp-section-copy { font-size: 0.88rem; }
-  .hp-quote-text { font-size: clamp(1.2rem, 4vw, 1.6rem); }
+  .hp-step { padding: 1.25rem 0; }
+  .hp-step-title { font-size: 1.05rem; }
+  .hp-celeb-card { min-width: 150px; padding: 1.25rem; }
+  .hp-celeb-emoji { font-size: 28px; }
+  .hp-celeb-name { font-size: 0.82rem; }
+  .hp-celeb-count { font-size: 0.7rem; }
+  .hp-section-kicker { font-size: 0.65rem; margin-bottom: 0.75rem; }
+  .hp-section-heading { font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 0.75rem; }
+  .hp-section-copy { font-size: 0.85rem; }
+  .hp-quote-section { padding: 2.5rem 1.25rem; }
+  .hp-quote-mark { font-size: 4rem; }
+  .hp-quote-text { font-size: clamp(1.1rem, 3.5vw, 1.4rem); }
+  .hp-cta-section { padding: 3rem 1.25rem; }
+  .hp-cta-heading { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .hp-cta-sub { font-size: 0.88rem; }
   .hp-footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
   .hp-footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
   .hp-footer-links a { font-size: 0.85rem; padding: 4px 0; }
+  .hp-divider { padding: 0 1.25rem; }
+  /* Reveal animations scoped to .hp-anim on mobile too */
+  .hp-anim .hp-reveal { opacity: 0; transform: translateY(20px); }
+  .hp-hero-eyebrow, .hp-hero h1, .hp-hero-sub, .hp-hero-actions, .hp-hero-stats {
+    animation-fill-mode: both;
+  }
 }
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
@@ -961,6 +981,23 @@ input::placeholder{color:var(--td);opacity:.7}
 .mode-pill.mp-active{color:var(--g);background:var(--gl);border-color:rgba(201,169,110,.25)}
 .mode-pill .mp-icon{font-size:14px;line-height:1}
 @media(max-width:640px){.mode-bar{display:block}}
+/* ═══ MOBILE MODE SWITCHER SHEET ═══ */
+.mode-switcher-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center}
+.mode-switcher-overlay.active{display:flex}
+.mode-switcher{width:100%;max-width:420px;background:var(--d2);border-top-left-radius:24px;border-top-right-radius:24px;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));border:1px solid var(--d4);border-bottom:none;animation:msSlideUp .3s ease;max-height:80vh;overflow-y:auto}
+@keyframes msSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ms-handle{width:36px;height:4px;background:var(--d5);border-radius:2px;margin:0 auto 14px}
+.mode-switcher h3{font-size:16px;font-weight:600;color:var(--t);margin-bottom:4px;text-align:center}
+.mode-switcher p{font-size:12px;color:var(--td);margin-bottom:14px;text-align:center}
+.ms-option{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--d4);margin-bottom:8px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.ms-option:active{transform:scale(.98)}
+.ms-option.ms-active{border-color:rgba(201,169,110,.3);background:var(--gl)}
+.ms-icon{font-size:24px;line-height:1;flex-shrink:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--d3);border-radius:12px}
+.ms-option.ms-active .ms-icon{background:rgba(201,169,110,.12)}
+.ms-info{flex:1}
+.ms-name{font-size:14px;font-weight:600;color:var(--t)}
+.ms-desc{font-size:11px;color:var(--td);margin-top:2px;line-height:1.4}
+.ms-check{color:var(--g);font-size:16px;font-weight:700;flex-shrink:0}
 
 /* Core Web Vitals: contain + content-visibility for better INP/LCP */
 .card, .pcard { contain: layout style paint; }
@@ -1013,6 +1050,15 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
 <!-- Mobile Mode Switcher (scrollable pill bar) -->
 <div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div></div>
+<!-- Mobile Mode Switcher Sheet -->
+<div class="mode-switcher-overlay" id="mode-switcher-overlay" onclick="if(event.target===this)closeModeSwitcher()">
+  <div class="mode-switcher">
+    <div class="ms-handle"></div>
+    <h3>Switch Mode</h3>
+    <p>Choose how you want to discover fragrances</p>
+    <div id="mode-switch-options"></div>
+  </div>
+</div>
 <!-- Pages -->
 <div id="page-home" class="hidden"></div>
 <div id="page-explore" class="hidden"></div>
@@ -1047,6 +1093,7 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
       <a href="/privacy.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Privacy</a>
       <a href="/refund.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Refunds</a>
       <a href="mailto:scentwise.com@gmail.com" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
+      <a href="/blog/" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Blog</a>
     </div>
     <p style="font-size:11px;color:var(--d5)">&copy; 2026 ScentWise. All rights reserved.</p>
   </div>
@@ -1102,9 +1149,16 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
     <nav>
       <h2>Read Our Fragrance Guides</h2>
       <ul>
-        <li><a href="/blog/best-mens-fragrances.html">Best Men's Fragrances 2026 — Top Rated Perfumes for Men</a></li>
-        <li><a href="/blog/baccarat-rouge-540-dupes.html">Baccarat Rouge 540 Dupes — Best Affordable Alternatives</a></li>
-        <li><a href="/blog/celebrity-fragrances-guide.html">Celebrity Fragrances Guide — What Icons Actually Wear</a></li>
+        <li><a href="/blog/">All Fragrance Guides (35+ articles)</a></li>
+        <li><a href="/blog/best-mens-fragrances.html">Best Men's Fragrances 2026</a></li>
+        <li><a href="/blog/best-womens-fragrances.html">Best Women's Fragrances 2026</a></li>
+        <li><a href="/blog/best-date-night-fragrances.html">Best Date Night Fragrances</a></li>
+        <li><a href="/blog/smellmaxxing-guide-2026.html">Smellmaxxing Guide 2026</a></li>
+        <li><a href="/blog/baccarat-rouge-540-dupes.html">Baccarat Rouge 540 Dupes</a></li>
+        <li><a href="/blog/dior-sauvage-dupes.html">Dior Sauvage Dupes</a></li>
+        <li><a href="/blog/celebrity-fragrances-guide.html">Celebrity Fragrances Guide</a></li>
+        <li><a href="/blog/what-is-oud.html">What Is Oud?</a></li>
+        <li><a href="/blog/trending-pistachio-fragrances.html">Trending: Pistachio Fragrances</a></li>
       </ul>
     </nav>
 
@@ -1113,11 +1167,19 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 </main>
 </noscript>
 <!-- SEO blog links + internal linking -->
-<nav aria-label="Fragrance guides and blog articles" style="text-align:center;padding:12px 20px 20px;font-size:12px;color:var(--d5)">
+<nav aria-label="Fragrance guides and blog articles" style="text-align:center;padding:12px 20px 20px;font-size:12px;color:var(--d5);line-height:2.2">
   <span style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;color:var(--d5)">Fragrance Guides</span>
-  <a href="/blog/best-mens-fragrances.html" style="color:var(--td);margin:0 8px" title="Best Men's Fragrances 2026 — Top Rated Perfumes for Men">Best Men's Fragrances 2026</a> &middot;
-  <a href="/blog/baccarat-rouge-540-dupes.html" style="color:var(--td);margin:0 8px" title="Baccarat Rouge 540 Dupes — Best Affordable Alternatives">BR540 Dupes & Alternatives</a> &middot;
-  <a href="/blog/celebrity-fragrances-guide.html" style="color:var(--td);margin:0 8px" title="Celebrity Fragrances Guide — What Icons Actually Wear">Celebrity Fragrance Guide</a>
+  <a href="/blog/" style="color:var(--g);margin:0 8px;font-weight:600" title="Browse all 35+ fragrance guides">All Guides</a> &middot;
+  <a href="/blog/best-mens-fragrances.html" style="color:var(--td);margin:0 8px">Men's Fragrances</a> &middot;
+  <a href="/blog/best-womens-fragrances.html" style="color:var(--td);margin:0 8px">Women's Fragrances</a> &middot;
+  <a href="/blog/best-date-night-fragrances.html" style="color:var(--td);margin:0 8px">Date Night</a> &middot;
+  <a href="/blog/smellmaxxing-guide-2026.html" style="color:var(--td);margin:0 8px">Smellmaxxing</a> &middot;
+  <a href="/blog/baccarat-rouge-540-dupes.html" style="color:var(--td);margin:0 8px">BR540 Dupes</a> &middot;
+  <a href="/blog/dior-sauvage-dupes.html" style="color:var(--td);margin:0 8px">Sauvage Dupes</a> &middot;
+  <a href="/blog/celebrity-fragrances-guide.html" style="color:var(--td);margin:0 8px">Celebrity Fragrances</a> &middot;
+  <a href="/blog/what-is-oud.html" style="color:var(--td);margin:0 8px">What Is Oud?</a> &middot;
+  <a href="/blog/trending-pistachio-fragrances.html" style="color:var(--td);margin:0 8px">Pistachio Fragrances</a> &middot;
+  <a href="/blog/fragrance-layering-guide.html" style="color:var(--td);margin:0 8px">Layering Guide</a>
 </nav>
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };

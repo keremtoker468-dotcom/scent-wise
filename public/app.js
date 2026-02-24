@@ -3,6 +3,43 @@
 const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
+// ═══════════════ MOBILE MODE SWITCHER ═══════════════
+function openModeSwitcher() {
+  const overlay = document.getElementById('mode-switcher-overlay');
+  const optionsEl = document.getElementById('mode-switch-options');
+  if (!overlay || !optionsEl) return;
+  const allModes = [
+    {id:'chat',name:'AI Advisor',desc:'Ask anything about fragrances',i:'💬'},
+    {id:'explore',name:'Explore Database',desc:'Search 75,000+ perfumes',i:'🧪'},
+    {id:'photo',name:'Photo Style Scan',desc:'Upload a photo, get matched scents',i:'📸'},
+    {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
+    {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
+    {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
+    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
+  ];
+  optionsEl.innerHTML = allModes.map(m =>
+    `<div class="ms-option ${CP===m.id?'ms-active':''}" onclick="goFromSwitcher('${m.id}')">
+      <div class="ms-icon">${m.i}</div>
+      <div class="ms-info">
+        <div class="ms-name">${m.name}</div>
+        <div class="ms-desc">${m.desc}</div>
+      </div>
+      ${CP===m.id?'<div class="ms-check">&#10003;</div>':''}
+    </div>`
+  ).join('');
+  overlay.classList.add('active');
+}
+
+function closeModeSwitcher() {
+  const overlay = document.getElementById('mode-switcher-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function goFromSwitcher(id) {
+  closeModeSwitcher();
+  go(id);
+}
+
 // ═══════════════ DATABASE ENGINE ═══════════════
 const _CM = {F:'Fresh',L:'Floral',O:'Oriental',W:'Woody',S:'Sweet',A:'Aromatic',Q:'Aquatic',U:'Fruity',M:'Musky',P:'Warm Spicy','':''};
 const _GM = {M:'Male',F:'Female',U:'Unisex','':''};
@@ -604,7 +641,7 @@ const NI = [
 // Mobile bottom bar (core tabs)
 const MNI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
-  {id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'_modes',l:'Modes',i:'✧'},{id:'account',l:'Account',i:'👤'}
 ];
 // All switchable modes (for the pill bar)
 const MODES = [
@@ -620,9 +657,14 @@ function rNav() {
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
-    mobEl.innerHTML = MNI.map(n =>
-      `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
-    ).join('');
+    const modePages = ['photo','zodiac','music','style','celeb'];
+    mobEl.innerHTML = MNI.map(n => {
+      if (n.id === '_modes') {
+        const isOnMode = modePages.includes(CP);
+        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()"><span>${n.i}</span><span>${n.l}</span></div>`;
+      }
+      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`;
+    }).join('');
   }
   rModeBar();
 }
@@ -647,29 +689,36 @@ function rModeBar() {
 function go(p) {
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
   CP = p; rNav();
-  const e = document.getElementById('page-' + p);
-  if (e) { e.classList.remove('hidden'); e.innerHTML = ''; window['r_' + p](e); }
-  // Hide SPA nav/footer on homepage, show on other pages
+  // Hide/show SPA nav/footer BEFORE rendering page content
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
   const modeBar = document.getElementById('mode-bar');
   const footer = document.getElementById('site-footer');
+  const blogNav = document.querySelector('nav[aria-label]');
   if (p === 'home') {
     if (navW) navW.style.display = 'none';
     if (mobNav) mobNav.style.display = 'none';
     if (modeBar) modeBar.style.display = 'none';
     if (footer) footer.style.display = 'none';
+    if (blogNav) blogNav.style.display = 'none';
     document.body.style.paddingBottom = '0';
   } else {
     if (navW) navW.style.display = '';
     if (mobNav) mobNav.style.display = '';
     if (footer) footer.style.display = '';
+    if (blogNav) blogNav.style.display = '';
     document.body.style.paddingBottom = '';
-    // Clean up homepage scroll handler
     if (window._hpScrollHandler) {
       window.removeEventListener('scroll', window._hpScrollHandler);
       window._hpScrollHandler = null;
     }
+  }
+  // Render the page
+  const e = document.getElementById('page-' + p);
+  if (e) {
+    e.classList.remove('hidden');
+    e.innerHTML = '';
+    try { window['r_' + p](e); } catch(err) { console.error('Page render error:', p, err); }
   }
   window.scrollTo({top:0,behavior:'smooth'});
   initSwipe();
@@ -855,6 +904,7 @@ function r_home(el) {
     <div class="hp-footer-inner">
       <div class="hp-footer-logo">Scent<span>Wise</span></div>
       <div class="hp-footer-links">
+        <a href="/blog/">Blog</a>
         <a href="/terms.html">Terms</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/refund.html">Refunds</a>
@@ -866,15 +916,26 @@ function r_home(el) {
   </div>`;
   // Initialize reveal animations for homepage
   setTimeout(() => {
-    const hpObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          hpObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.hp-reveal').forEach(el => hpObserver.observe(el));
+    // Enable reveal animations (content is visible by default without .hp-anim)
+    const grain = el.querySelector('.hp-grain');
+    if (grain) grain.classList.add('hp-anim');
+    const reveals = document.querySelectorAll('.hp-reveal');
+    if ('IntersectionObserver' in window) {
+      const hpObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            hpObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+      reveals.forEach(el => hpObserver.observe(el));
+      // Fallback: force-reveal any elements still hidden after 2s
+      setTimeout(() => { reveals.forEach(el => { if (!el.classList.contains('visible')) el.classList.add('visible'); }); }, 2000);
+    } else {
+      // No IntersectionObserver: reveal all immediately
+      reveals.forEach(el => el.classList.add('visible'));
+    }
     // Homepage nav scroll effect
     const hpNav = document.getElementById('hp-nav');
     if (hpNav) {
