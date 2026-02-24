@@ -1,13 +1,24 @@
 # ScentWise — AI Fragrance Advisor
+# https://scent-wise.vercel.app
+
 User-agent: *
 Allow: /
 Allow: /blog/
-
 Disallow: /api/
 Disallow: /_vercel/
+
+# Google-specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
 
 # Sitemap
 Sitemap: https://scent-wise.vercel.app/sitemap.xml
 
-# Crawl-delay (optional, respected by some bots)
-Crawl-delay: 1
+# Host
+Host: https://scent-wise.vercel.app

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" prefix="og: http://ogp.me/ns#">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +7,9 @@
 <meta name="description" content="ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more. Explore celebrity fragrances, find dupes, and discover your signature scent.">
 <meta name="keywords" content="fragrance advisor, perfume recommendations, AI fragrance, scent finder, perfume database, fragrance dupes, celebrity perfumes, zodiac fragrances, signature scent">
 <meta name="author" content="ScentWise">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <link rel="canonical" href="https://scent-wise.vercel.app/">
+<meta name="format-detection" content="telephone=no">
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://scent-wise.vercel.app/">
@@ -106,6 +107,105 @@
   ]
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ScentWise",
+  "url": "https://scent-wise.vercel.app",
+  "logo": "https://scent-wise.vercel.app/icon-512.png",
+  "description": "AI-powered fragrance advisor helping you discover your perfect scent from 75,000+ perfumes.",
+  "email": "scentwise.com@gmail.com",
+  "sameAs": [],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "email": "scentwise.com@gmail.com",
+    "contactType": "customer support",
+    "availableLanguage": "English"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://scent-wise.vercel.app/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "AI Fragrance Advisor",
+      "item": "https://scent-wise.vercel.app/#chat"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Explore Perfumes",
+      "item": "https://scent-wise.vercel.app/#explore"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Celebrity Fragrances",
+      "item": "https://scent-wise.vercel.app/#celeb"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Find Your Perfect Fragrance with ScentWise",
+  "description": "Discover your signature scent in three simple steps using AI-powered fragrance matching.",
+  "totalTime": "PT3M",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Choose Your Discovery Path",
+      "text": "Pick from six unique discovery modes: AI Chat Advisor, Zodiac Match, Photo Style Scan, Music Match, Style Match, or Celebrity Collections.",
+      "url": "https://scent-wise.vercel.app/#home"
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Get AI-Matched Recommendations",
+      "text": "Our AI engine cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings to find your perfect match.",
+      "url": "https://scent-wise.vercel.app/#chat"
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Discover and Explore Your Matches",
+      "text": "Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.",
+      "url": "https://scent-wise.vercel.app/#explore"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "ScentWise Discovery Modes",
+  "description": "Six AI-powered ways to discover your perfect fragrance",
+  "numberOfItems": 6,
+  "itemListElement": [
+    {"@type": "ListItem", "position": 1, "name": "AI Chat Advisor", "url": "https://scent-wise.vercel.app/#chat"},
+    {"@type": "ListItem", "position": 2, "name": "Zodiac Fragrance Match", "url": "https://scent-wise.vercel.app/#zodiac"},
+    {"@type": "ListItem", "position": 3, "name": "Photo Style Scan", "url": "https://scent-wise.vercel.app/#photo"},
+    {"@type": "ListItem", "position": 4, "name": "Music to Fragrance Match", "url": "https://scent-wise.vercel.app/#music"},
+    {"@type": "ListItem", "position": 5, "name": "Style Match", "url": "https://scent-wise.vercel.app/#style"},
+    {"@type": "ListItem", "position": 6, "name": "Celebrity Fragrance Collections", "url": "https://scent-wise.vercel.app/#celeb"}
+  ]
+}
+</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#c8a55a">
@@ -116,6 +216,7 @@
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -924,31 +1025,71 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 </footer>
 <!-- Noscript SEO fallback content -->
 <noscript>
-<div style="max-width:700px;margin:60px auto;padding:20px;color:#f0ece4;font-family:sans-serif;line-height:1.8">
-  <h1>ScentWise — AI Fragrance Advisor</h1>
-  <p>Discover your perfect fragrance with ScentWise, the AI-powered scent advisor featuring over 75,000 perfumes. Get personalized recommendations through six unique discovery modes.</p>
-  <h2>Six Ways to Discover Your Signature Scent</h2>
-  <ul>
-    <li><strong>AI Chat Advisor</strong> — Describe what you're looking for and get curated recommendations with tasting notes, pricing, and alternatives.</li>
-    <li><strong>Zodiac Match</strong> — Enter your birthday to discover fragrances aligned with your celestial profile and elemental energy.</li>
-    <li><strong>Photo Style Scan</strong> — Upload a photo of your outfit, room, or any aesthetic, and we'll match fragrances to the vibe.</li>
-    <li><strong>Music Match</strong> — Tell us your music taste, and we'll translate your sonic preferences into fragrance recommendations.</li>
-    <li><strong>Style Match</strong> — Describe your fashion sense and we'll find scents that complete the picture.</li>
-    <li><strong>Celebrity Collections</strong> — Explore the signature fragrances of icons from athletes to musicians.</li>
-  </ul>
-  <h2>Frequently Asked Questions</h2>
-  <h3>How does ScentWise recommend fragrances?</h3>
-  <p>ScentWise uses AI to analyze your preferences — style, zodiac sign, music taste, and photos — then matches you from a database of 75,000+ perfumes.</p>
-  <h3>Is ScentWise free to use?</h3>
-  <p>ScentWise offers a free trial with 3 AI queries. Explore and Celebrity Collections are always free. Premium is $7/month.</p>
-  <p>Please enable JavaScript to use the full ScentWise experience.</p>
-</div>
+<main style="max-width:700px;margin:60px auto;padding:20px;color:#f0ece4;font-family:sans-serif;line-height:1.8">
+  <article>
+    <h1>ScentWise — AI Fragrance Advisor | Find Your Perfect Perfume</h1>
+    <p>Discover your perfect fragrance with <strong>ScentWise</strong>, the <strong>AI-powered scent advisor</strong> featuring over <strong>75,000 perfumes</strong>. Get personalized perfume recommendations through six unique discovery modes powered by artificial intelligence.</p>
+
+    <section>
+      <h2>Six Ways to Discover Your Signature Scent</h2>
+      <ul>
+        <li><strong>AI Chat Advisor</strong> — Describe what you're looking for and get curated <em>fragrance recommendations</em> with tasting notes, pricing, and alternatives from our expert AI system.</li>
+        <li><strong>Zodiac Fragrance Match</strong> — Enter your birthday to discover <em>perfumes aligned with your zodiac sign</em>, celestial profile, and elemental energy.</li>
+        <li><strong>Photo Style Scan</strong> — Upload a photo of your outfit, room, or any aesthetic, and our AI will read the visual style to match <em>fragrances to your aesthetic</em>.</li>
+        <li><strong>Music to Fragrance Match</strong> — Tell us what you listen to. Your <em>music taste reveals fragrance preferences</em> — from woody and deep for hip-hop to fresh and citrusy for indie.</li>
+        <li><strong>Style Match</strong> — Describe your fashion sense and we'll find <em>scents that complement your wardrobe</em> and personal style.</li>
+        <li><strong>Celebrity Fragrance Collections</strong> — Explore the <em>signature fragrances of celebrities</em> from David Beckham to Rihanna, Cristiano Ronaldo to Ariana Grande.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Why Choose ScentWise for Perfume Recommendations?</h2>
+      <ul>
+        <li><strong>75,000+ fragrances</strong> from thousands of brands with detailed notes, accords, and ratings</li>
+        <li><strong>AI-powered matching</strong> that understands your personality, not just preferences</li>
+        <li><strong>Six unique discovery modes</strong> — zodiac, music, style, photo, celebrity, and conversational AI</li>
+        <li><strong>Free to start</strong> — 3 free AI queries, unlimited database browsing</li>
+        <li><strong>Detailed breakdowns</strong> — top notes, longevity, sillage, occasions, price range, and purchase links</li>
+        <li><strong>Celebrity collections</strong> — explore what icons like LeBron James, Zendaya, and Drake actually wear</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Popular Fragrance Categories</h2>
+      <p>Browse popular categories: <strong>best men's fragrances 2026</strong>, <strong>best women's perfumes</strong>, <strong>Baccarat Rouge 540 dupes</strong>, <strong>long-lasting perfumes</strong>, <strong>summer fragrances</strong>, <strong>date night perfumes</strong>, <strong>office-friendly scents</strong>, and <strong>niche fragrances under $100</strong>.</p>
+    </section>
+
+    <section>
+      <h2>Frequently Asked Questions About ScentWise</h2>
+      <h3>How does ScentWise recommend fragrances?</h3>
+      <p>ScentWise uses AI to analyze your preferences — including style, zodiac sign, music taste, and uploaded photos — then matches you with fragrances from our database of over 75,000 perfumes based on notes, accords, and personality traits.</p>
+      <h3>How many fragrances does ScentWise have?</h3>
+      <p>ScentWise features a database of over 75,000 fragrances from thousands of brands, complete with detailed notes, accords, ratings, and reviews.</p>
+      <h3>Is ScentWise free to use?</h3>
+      <p>ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $7/month, cancel anytime.</p>
+      <h3>What are the six discovery modes?</h3>
+      <p>AI Chat Advisor, Zodiac Match, Photo Style Scan, Music Match, Style Match, and Celebrity Collections — six different paths to finding your perfect scent.</p>
+    </section>
+
+    <nav>
+      <h2>Read Our Fragrance Guides</h2>
+      <ul>
+        <li><a href="/blog/best-mens-fragrances.html">Best Men's Fragrances 2026 — Top Rated Perfumes for Men</a></li>
+        <li><a href="/blog/baccarat-rouge-540-dupes.html">Baccarat Rouge 540 Dupes — Best Affordable Alternatives</a></li>
+        <li><a href="/blog/celebrity-fragrances-guide.html">Celebrity Fragrances Guide — What Icons Actually Wear</a></li>
+      </ul>
+    </nav>
+
+    <p><em>Please enable JavaScript to use the full ScentWise experience.</em></p>
+  </article>
+</main>
 </noscript>
-<!-- SEO blog links -->
-<nav aria-label="Blog articles" style="text-align:center;padding:8px 20px 16px;font-size:12px;color:var(--d5)">
-  <a href="/blog/best-mens-fragrances.html" style="color:var(--td);margin:0 8px">Best Men's Fragrances</a> &middot;
-  <a href="/blog/baccarat-rouge-540-dupes.html" style="color:var(--td);margin:0 8px">BR540 Dupes</a> &middot;
-  <a href="/blog/celebrity-fragrances.html" style="color:var(--td);margin:0 8px">Celebrity Fragrances</a>
+<!-- SEO blog links + internal linking -->
+<nav aria-label="Fragrance guides and blog articles" style="text-align:center;padding:12px 20px 20px;font-size:12px;color:var(--d5)">
+  <span style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;color:var(--d5)">Fragrance Guides</span>
+  <a href="/blog/best-mens-fragrances.html" style="color:var(--td);margin:0 8px" title="Best Men's Fragrances 2026 — Top Rated Perfumes for Men">Best Men's Fragrances 2026</a> &middot;
+  <a href="/blog/baccarat-rouge-540-dupes.html" style="color:var(--td);margin:0 8px" title="Baccarat Rouge 540 Dupes — Best Affordable Alternatives">BR540 Dupes & Alternatives</a> &middot;
+  <a href="/blog/celebrity-fragrances-guide.html" style="color:var(--td);margin:0 8px" title="Celebrity Fragrances Guide — What Icons Actually Wear">Celebrity Fragrance Guide</a>
 </nav>
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
