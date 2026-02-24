@@ -16,7 +16,7 @@ ScentWise is an AI fragrance advisor that helps users discover their perfect sce
 - 75,000+ fragrances in database
 - 6 discovery modes
 - 2,500 curated top picks
-- $7/month premium (3 free AI queries)
+- $2.99/month premium (3 free AI queries)
 
 ## Links
 - Homepage: https://scent-wise.vercel.app
