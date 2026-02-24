@@ -775,6 +775,11 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <!-- App scripts: perfumes DB loaded first (cached by browser), then app logic -->
 <script src="/perfumes.js" defer></script>
 <script src="/app.js" defer></script>
+<!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <!-- Desktop Navigation -->
