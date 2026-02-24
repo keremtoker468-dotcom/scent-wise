@@ -585,10 +585,17 @@ const NI = [
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
   {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
-// Mobile nav shows condensed items
+// Mobile bottom bar (core tabs)
 const MNI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
   {id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+];
+// All switchable modes (for the pill bar)
+const MODES = [
+  {id:'chat',l:'AI Advisor',i:'💬'},{id:'explore',l:'Explore',i:'🧪'},
+  {id:'photo',l:'Photo Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},
+  {id:'music',l:'Music',i:'🎶'},{id:'style',l:'Style',i:'🪞'},
+  {id:'celeb',l:'Celebs',i:'💫'}
 ];
 
 function rNav() {
@@ -601,6 +608,24 @@ function rNav() {
       `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
     ).join('');
   }
+  rModeBar();
+}
+
+function rModeBar() {
+  const bar = document.getElementById('mode-bar');
+  const inner = document.getElementById('mode-bar-inner');
+  if (!bar || !inner) return;
+  const isModePage = MODES.some(m => m.id === CP);
+  bar.style.display = isModePage ? '' : 'none';
+  if (!isModePage) return;
+  inner.innerHTML = MODES.map(m =>
+    `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
+  ).join('');
+  // Auto-scroll active pill into view
+  setTimeout(() => {
+    const active = inner.querySelector('.mp-active');
+    if (active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  }, 50);
 }
 
 function go(p) {
@@ -611,10 +636,12 @@ function go(p) {
   // Hide SPA nav/footer on homepage, show on other pages
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
+  const modeBar = document.getElementById('mode-bar');
   const footer = document.getElementById('site-footer');
   if (p === 'home') {
     if (navW) navW.style.display = 'none';
     if (mobNav) mobNav.style.display = 'none';
+    if (modeBar) modeBar.style.display = 'none';
     if (footer) footer.style.display = 'none';
     document.body.style.paddingBottom = '0';
   } else {
@@ -629,7 +656,31 @@ function go(p) {
     }
   }
   window.scrollTo({top:0,behavior:'smooth'});
+  initSwipe();
 }
+
+// Swipe between modes on mobile
+let _swTx=0,_swTy=0,_swActive=false;
+function initSwipe(){
+  const isMode = MODES.some(m=>m.id===CP);
+  if(!isMode){_swActive=false;return;}
+  _swActive=true;
+}
+document.addEventListener('touchstart',function(e){
+  if(!_swActive)return;
+  _swTx=e.touches[0].clientX;
+  _swTy=e.touches[0].clientY;
+},{passive:true});
+document.addEventListener('touchend',function(e){
+  if(!_swActive)return;
+  const dx=e.changedTouches[0].clientX-_swTx;
+  const dy=e.changedTouches[0].clientY-_swTy;
+  if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*0.6)return; // need 80px+ horizontal, not too diagonal
+  const ci=MODES.findIndex(m=>m.id===CP);
+  if(ci===-1)return;
+  if(dx<0&&ci<MODES.length-1)go(MODES[ci+1].id); // swipe left = next
+  if(dx>0&&ci>0)go(MODES[ci-1].id); // swipe right = prev
+},{passive:true});
 
 // ═══════════════ HOME ═══════════════
 function r_home(el) {

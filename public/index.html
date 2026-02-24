@@ -952,6 +952,16 @@ input::placeholder{color:var(--td);opacity:.7}
   .hp-footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
   .hp-footer-links a { font-size: 0.85rem; padding: 4px 0; }
 }
+/* ═══ MODE SWITCHER BAR ═══ */
+.mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
+.mode-bar-inner{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.mode-bar-inner::-webkit-scrollbar{display:none}
+.mode-pill{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:100px;font-size:12px;font-weight:500;color:var(--td);background:var(--d3);border:1px solid var(--d4);cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;scroll-snap-align:center}
+.mode-pill:active{transform:scale(.95)}
+.mode-pill.mp-active{color:var(--g);background:var(--gl);border-color:rgba(201,169,110,.25)}
+.mode-pill .mp-icon{font-size:14px;line-height:1}
+@media(max-width:640px){.mode-bar{display:block}}
+
 /* Core Web Vitals: contain + content-visibility for better INP/LCP */
 .card, .pcard { contain: layout style paint; }
 .hp-mode-item { contain: layout style paint; }
@@ -1000,6 +1010,8 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 </div></div>
 <!-- Mobile Bottom Navigation -->
 <div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
+<!-- Mobile Mode Switcher (scrollable pill bar) -->
+<div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div></div>
 <!-- Pages -->
 <div id="page-home" class="hidden"></div>
 <div id="page-explore" class="hidden"></div>
