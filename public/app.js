@@ -3,6 +3,53 @@
 const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
+// ═══════════════ AI MODEL SWITCHER ═══════════════
+const AI_MODELS = [
+  {id:'gemini-flash',name:'Gemini Flash',desc:'Fast, great for quick answers',badge:'Fast',badgeColor:'#4285f4',badgeBg:'rgba(66,133,244,.12)'},
+  {id:'gemini-pro',name:'Gemini Pro',desc:'More detailed, nuanced recommendations',badge:'Pro',badgeColor:'#34a853',badgeBg:'rgba(52,168,83,.12)'},
+  {id:'claude-haiku',name:'Claude Haiku',desc:'Quick and concise responses',badge:'Fast',badgeColor:'#d97706',badgeBg:'rgba(217,119,6,.12)'},
+  {id:'gpt-4o-mini',name:'GPT-4o Mini',desc:'Balanced speed and quality',badge:'Balanced',badgeColor:'#10a37f',badgeBg:'rgba(16,163,127,.12)'}
+];
+let selectedModel = localStorage.getItem('sw_ai_model') || 'gemini-flash';
+
+function openModelPicker() {
+  const overlay = document.getElementById('model-picker-overlay');
+  const optionsEl = document.getElementById('model-options');
+  if (!overlay || !optionsEl) return;
+  optionsEl.innerHTML = AI_MODELS.map(m =>
+    `<div class="model-option ${selectedModel===m.id?'mo-active':''}" onclick="selectModel('${m.id}')">
+      <div class="mo-dot"></div>
+      <div class="mo-info">
+        <div class="mo-name">${m.name} <span class="mo-badge" style="color:${m.badgeColor};background:${m.badgeBg}">${m.badge}</span></div>
+        <div class="mo-desc">${m.desc}</div>
+      </div>
+    </div>`
+  ).join('');
+  overlay.classList.add('active');
+}
+
+function closeModelPicker() {
+  const overlay = document.getElementById('model-picker-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function selectModel(id) {
+  selectedModel = id;
+  localStorage.setItem('sw_ai_model', id);
+  const model = AI_MODELS.find(m => m.id === id);
+  const label = document.getElementById('ai-model-label');
+  if (label && model) label.textContent = model.name;
+  closeModelPicker();
+  // Re-render mode bar to update button
+  rModeBar();
+}
+
+function updateModelLabel() {
+  const label = document.getElementById('ai-model-label');
+  const model = AI_MODELS.find(m => m.id === selectedModel);
+  if (label && model) label.textContent = model.name;
+}
+
 // ═══════════════ DATABASE ENGINE ═══════════════
 const _CM = {F:'Fresh',L:'Floral',O:'Oriental',W:'Woody',S:'Sweet',A:'Aromatic',Q:'Aquatic',U:'Fruity',M:'Musky',P:'Warm Spicy','':''};
 const _GM = {M:'Male',F:'Female',U:'Unisex','':''};
@@ -324,7 +371,7 @@ async function aiCall(mode, payload) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       credentials: 'same-origin',
-      body: JSON.stringify({mode, ...payload})
+      body: JSON.stringify({mode, model: selectedModel, ...payload})
     });
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
@@ -637,6 +684,11 @@ function rModeBar() {
   inner.innerHTML = MODES.map(m =>
     `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
   ).join('');
+  // Show model switcher on AI pages
+  const modelBtn = document.getElementById('ai-model-btn');
+  const aiPages = ['chat','photo','zodiac','music','style'];
+  if (modelBtn) modelBtn.style.display = aiPages.includes(CP) ? 'flex' : 'none';
+  updateModelLabel();
   // Auto-scroll active pill into view
   setTimeout(() => {
     const active = inner.querySelector('.mp-active');
@@ -855,6 +907,7 @@ function r_home(el) {
     <div class="hp-footer-inner">
       <div class="hp-footer-logo">Scent<span>Wise</span></div>
       <div class="hp-footer-links">
+        <a href="/blog/">Blog</a>
         <a href="/terms.html">Terms</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/refund.html">Refunds</a>
@@ -866,15 +919,23 @@ function r_home(el) {
   </div>`;
   // Initialize reveal animations for homepage
   setTimeout(() => {
-    const hpObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 80);
-          hpObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.hp-reveal').forEach(el => hpObserver.observe(el));
+    const reveals = document.querySelectorAll('.hp-reveal');
+    if ('IntersectionObserver' in window) {
+      const hpObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            hpObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+      reveals.forEach(el => hpObserver.observe(el));
+      // Fallback: force-reveal any elements still hidden after 2s
+      setTimeout(() => { reveals.forEach(el => { if (!el.classList.contains('visible')) el.classList.add('visible'); }); }, 2000);
+    } else {
+      // No IntersectionObserver: reveal all immediately
+      reveals.forEach(el => el.classList.add('visible'));
+    }
     // Homepage nav scroll effect
     const hpNav = document.getElementById('hp-nav');
     if (hpNav) {
@@ -935,7 +996,7 @@ function r_chat(el) {
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:18px">
       <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
+      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes &middot; <span style="color:var(--g)">${(AI_MODELS.find(m=>m.id===selectedModel)||{name:'Gemini Flash'}).name}</span></p>
       ${trialBanner}
     </div>
     <div class="msgs" id="c-msgs">

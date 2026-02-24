@@ -423,8 +423,9 @@ input::placeholder{color:var(--td);opacity:.7}
   inset: 0;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
   pointer-events: none;
-  z-index: 9999;
+  z-index: 1;
 }
+@media(max-width:640px){.hp-grain::after{display:none}}
 /* Homepage nav */
 .hp-nav {
   position: fixed;
@@ -928,29 +929,48 @@ input::placeholder{color:var(--td);opacity:.7}
   .hp-nav { padding: 1rem 1.25rem; }
   .hp-nav-links { display: none; }
   .hp-nav-toggle { display: flex; }
-  .hp-section { padding: 4rem 1.25rem; }
-  .hp-hero { padding: 4.5rem 1.25rem 3rem; min-height: 92vh; }
-  .hp-hero h1 { font-size: clamp(2.4rem, 8vw, 3.5rem); }
-  .hp-hero-sub { font-size: 0.95rem; }
-  .hp-hero-stats { gap: 2rem; flex-wrap: wrap; justify-content: center; }
+  .hp-section { padding: 3rem 1.25rem; }
+  .hp-hero { padding: 3.5rem 1.25rem 2rem; min-height: auto; }
+  .hp-hero h1 { font-size: clamp(2.2rem, 8vw, 3.2rem); margin-bottom: 1.25rem; }
+  .hp-hero-sub { font-size: 0.92rem; margin-bottom: 2rem; }
+  .hp-hero-stats { gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 2.5rem; padding-top: 2rem; }
+  .hp-hero-stat .num { font-size: 1.6rem; }
+  .hp-hero-stat .label { font-size: 0.68rem; }
   .hp-hero-actions { flex-direction: column; width: 100%; }
   .hp-btn-primary, .hp-btn-ghost { width: 100%; text-align: center; min-height: 52px; font-size: 1rem; }
-  .hp-celeb-section { padding: 4rem 0; }
+  .hp-celeb-section { padding: 3rem 0; }
   .hp-celeb-inner { padding: 0 1.25rem; }
-  .hp-mode-item { padding: 1.75rem; border-radius: 18px; }
-  .hp-mode-name { font-size: 1.3rem; }
-  .hp-mode-desc { font-size: 0.85rem; }
-  .hp-mode-tag { font-size: 0.72rem; padding: 0.4rem 1rem; }
+  .hp-mode-item { padding: 1.5rem; border-radius: 18px; }
+  .hp-mode-number { margin-bottom: 0.5rem; }
+  .hp-mode-name { font-size: 1.2rem; }
+  .hp-mode-desc { font-size: 0.82rem; line-height: 1.5; -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  .hp-mode-tag { font-size: 0.72rem; padding: 0.35rem 0.9rem; }
+  .hp-modes-layout { gap: 0.75rem; margin-top: 2rem; }
   .hp-steps { gap: 0; }
-  .hp-step { padding: 1.5rem 0; }
-  .hp-step-title { font-size: 1.1rem; }
-  .hp-celeb-card { min-width: 180px; padding: 1.5rem; }
-  .hp-section-heading { font-size: clamp(1.6rem, 5vw, 2.2rem); }
-  .hp-section-copy { font-size: 0.88rem; }
-  .hp-quote-text { font-size: clamp(1.2rem, 4vw, 1.6rem); }
+  .hp-step { padding: 1.25rem 0; }
+  .hp-step-title { font-size: 1.05rem; }
+  .hp-celeb-card { min-width: 150px; padding: 1.25rem; }
+  .hp-celeb-emoji { font-size: 28px; }
+  .hp-celeb-name { font-size: 0.82rem; }
+  .hp-celeb-count { font-size: 0.7rem; }
+  .hp-section-kicker { font-size: 0.65rem; margin-bottom: 0.75rem; }
+  .hp-section-heading { font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 0.75rem; }
+  .hp-section-copy { font-size: 0.85rem; }
+  .hp-quote-section { padding: 2.5rem 1.25rem; }
+  .hp-quote-mark { font-size: 4rem; }
+  .hp-quote-text { font-size: clamp(1.1rem, 3.5vw, 1.4rem); }
+  .hp-cta-section { padding: 3rem 1.25rem; }
+  .hp-cta-heading { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+  .hp-cta-sub { font-size: 0.88rem; }
   .hp-footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
   .hp-footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
   .hp-footer-links a { font-size: 0.85rem; padding: 4px 0; }
+  .hp-divider { padding: 0 1.25rem; }
+  /* Ensure reveal animations fire on mobile */
+  .hp-reveal { opacity: 0; transform: translateY(20px); }
+  .hp-hero-eyebrow, .hp-hero h1, .hp-hero-sub, .hp-hero-actions, .hp-hero-stats {
+    animation-fill-mode: forwards;
+  }
 }
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
@@ -961,6 +981,29 @@ input::placeholder{color:var(--td);opacity:.7}
 .mode-pill.mp-active{color:var(--g);background:var(--gl);border-color:rgba(201,169,110,.25)}
 .mode-pill .mp-icon{font-size:14px;line-height:1}
 @media(max-width:640px){.mode-bar{display:block}}
+/* ═══ AI MODEL SWITCHER ═══ */
+.ai-model-btn{display:none;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:500;color:var(--g);background:var(--gl);border:1px solid rgba(201,169,110,.2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:all .2s;margin-left:auto;flex-shrink:0}
+.ai-model-btn:active{transform:scale(.95)}
+.ai-model-btn .ai-model-dot{width:6px;height:6px;border-radius:50%;background:var(--g);flex-shrink:0}
+.ai-model-btn svg{width:12px;height:12px;fill:var(--g);flex-shrink:0}
+@media(max-width:640px){.ai-model-btn{display:flex}}
+/* Model picker overlay */
+.model-picker-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center}
+.model-picker-overlay.active{display:flex}
+.model-picker{width:100%;max-width:420px;background:var(--d2);border-top-left-radius:24px;border-top-right-radius:24px;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));border:1px solid var(--d4);border-bottom:none;animation:mpSlideUp .3s ease}
+@keyframes mpSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.model-picker-handle{width:36px;height:4px;background:var(--d5);border-radius:2px;margin:0 auto 16px}
+.model-picker h3{font-size:15px;font-weight:600;color:var(--t);margin-bottom:4px;text-align:center}
+.model-picker p{font-size:12px;color:var(--td);margin-bottom:16px;text-align:center}
+.model-option{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--d4);margin-bottom:8px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.model-option:active{transform:scale(.98)}
+.model-option.mo-active{border-color:rgba(201,169,110,.3);background:var(--gl)}
+.model-option .mo-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--d5);flex-shrink:0;transition:all .2s}
+.model-option.mo-active .mo-dot{border-color:var(--g);background:var(--g);box-shadow:0 0 8px rgba(201,169,110,.3)}
+.model-option .mo-info{flex:1}
+.model-option .mo-name{font-size:14px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:6px}
+.model-option .mo-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+.model-option .mo-desc{font-size:11px;color:var(--td);margin-top:3px;line-height:1.4}
 
 /* Core Web Vitals: contain + content-visibility for better INP/LCP */
 .card, .pcard { contain: layout style paint; }
@@ -1012,7 +1055,16 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <!-- Mobile Bottom Navigation -->
 <div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
 <!-- Mobile Mode Switcher (scrollable pill bar) -->
-<div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div></div>
+<div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div><div class="ai-model-btn" id="ai-model-btn" onclick="openModelPicker()"><span class="ai-model-dot"></span><span id="ai-model-label">Gemini Flash</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
+<!-- AI Model Picker -->
+<div class="model-picker-overlay" id="model-picker-overlay" onclick="if(event.target===this)closeModelPicker()">
+  <div class="model-picker">
+    <div class="model-picker-handle"></div>
+    <h3>Choose AI Model</h3>
+    <p>Select which AI powers your recommendations</p>
+    <div id="model-options"></div>
+  </div>
+</div>
 <!-- Pages -->
 <div id="page-home" class="hidden"></div>
 <div id="page-explore" class="hidden"></div>
