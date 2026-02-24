@@ -688,8 +688,8 @@ function rModeBar() {
 
 function go(p) {
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
-  CP = p; rNav();
-  // Hide/show SPA nav/footer BEFORE rendering page content
+  CP = p;
+  // Hide/show SPA nav/footer FIRST (before rNav, so a rNav crash can't leave them visible)
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
   const modeBar = document.getElementById('mode-bar');
@@ -703,6 +703,9 @@ function go(p) {
     if (blogNav) blogNav.style.display = 'none';
     document.body.style.paddingBottom = '0';
   } else {
+    // Remove the early-hide stylesheet injected by inline script
+    var hpHide = document.getElementById('hp-hide');
+    if (hpHide) hpHide.remove();
     if (navW) navW.style.display = '';
     if (mobNav) mobNav.style.display = '';
     if (footer) footer.style.display = '';
@@ -713,6 +716,7 @@ function go(p) {
       window._hpScrollHandler = null;
     }
   }
+  try { rNav(); } catch(err) { console.error('rNav error:', err); }
   // Render the page
   const e = document.getElementById('page-' + p);
   if (e) {
