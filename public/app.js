@@ -676,7 +676,7 @@ function go(p) {
 }
 
 // Swipe between modes on mobile
-let _swTx=0,_swTy=0,_swActive=false;
+let _swTx=0,_swTy=0,_swActive=false,_swEl=null;
 function initSwipe(){
   const isMode = MODES.some(m=>m.id===CP);
   if(!isMode){_swActive=false;return;}
@@ -684,18 +684,23 @@ function initSwipe(){
 }
 document.addEventListener('touchstart',function(e){
   if(!_swActive)return;
+  // Skip swipe on interactive/scrollable elements
+  const t=e.target;
+  if(t.closest&&(t.closest('input,textarea,select,.mode-bar,.chat-msgs,a,button,[contenteditable]')))return;
+  _swEl=t;
   _swTx=e.touches[0].clientX;
   _swTy=e.touches[0].clientY;
 },{passive:true});
 document.addEventListener('touchend',function(e){
-  if(!_swActive)return;
+  if(!_swActive||!_swEl)return;
+  _swEl=null;
   const dx=e.changedTouches[0].clientX-_swTx;
   const dy=e.changedTouches[0].clientY-_swTy;
-  if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*0.6)return; // need 80px+ horizontal, not too diagonal
+  if(Math.abs(dx)<80||Math.abs(dy)>Math.abs(dx)*0.6)return;
   const ci=MODES.findIndex(m=>m.id===CP);
   if(ci===-1)return;
-  if(dx<0&&ci<MODES.length-1)go(MODES[ci+1].id); // swipe left = next
-  if(dx>0&&ci>0)go(MODES[ci-1].id); // swipe right = prev
+  if(dx<0&&ci<MODES.length-1)go(MODES[ci+1].id);
+  if(dx>0&&ci>0)go(MODES[ci-1].id);
 },{passive:true});
 
 // ═══════════════ HOME ═══════════════
