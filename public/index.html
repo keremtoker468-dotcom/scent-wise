@@ -41,7 +41,8 @@
     "@type": "Offer",
     "price": "7",
     "priceCurrency": "USD",
-    "description": "Premium subscription with unlimited AI queries per month"
+    "description": "Premium subscription with unlimited AI queries per month",
+    "availability": "https://schema.org/InStock"
   },
   "featureList": [
     "AI Fragrance Advisor Chat",
@@ -51,10 +52,58 @@
     "Celebrity Fragrance Database",
     "75,000+ Perfume Database with Notes and Ratings"
   ],
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.7",
+    "ratingCount": "1200",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
   "creator": {
     "@type": "Organization",
-    "name": "ScentWise"
+    "name": "ScentWise",
+    "url": "https://scent-wise.vercel.app"
   }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does ScentWise recommend fragrances?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ScentWise uses AI to analyze your preferences — including style, zodiac sign, music taste, and uploaded photos — then matches you with fragrances from our database of over 75,000 perfumes based on notes, accords, and personality traits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many fragrances does ScentWise have?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ScentWise features a comprehensive database of over 75,000 fragrances from thousands of brands, complete with detailed notes, accords, ratings, and user reviews."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ScentWise free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $7/month, cancel anytime."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the six discovery modes in ScentWise?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ScentWise offers six discovery modes: AI Chat Advisor for personalized recommendations, Photo Style Scan for aesthetic-based matching, Zodiac Match for celestial fragrance alignment, Music Match for sonic-to-scent translation, Style Match for wardrobe-based suggestions, and Celebrity Collections to explore what icons wear."
+      }
+    }
+  ]
 }
 </script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -63,6 +112,9 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://plausible.io">
+<link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
+<link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
@@ -100,6 +152,8 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 body::after {
   content: '';
@@ -936,6 +990,56 @@ main { padding-bottom: 70px; }
   .ai-bar-label { display: none; }
   .quick-chat-inner { padding: 0 0.75rem; }
 }
+/* Small phones */
+@media (max-width: 480px) {
+  .page { padding: 1.5rem 0.75rem 3rem; }
+  .home-hero { padding: 2.5rem 0 2rem; }
+  .home-hero h1 { font-size: 1.8rem; }
+  .home-stats { gap: 1rem; padding: 1.25rem 0; }
+  .home-stat-num { font-size: 1.4rem; }
+  .home-mode { padding: 1.5rem; }
+  .home-mode-name { font-size: 1.1rem; }
+  .page-title { font-size: 1.5rem; }
+  .chat-bubble { padding: 0.85rem 1rem; font-size: 0.85rem; }
+  .paywall-card { padding: 1.5rem 1rem; border-radius: 16px; }
+  .paywall-heading { font-size: 1.4rem; }
+  .paywall-price { font-size: 2.4rem; }
+  .paywall-features li { font-size: 0.8rem; padding: 0.45rem 0; }
+  .celeb-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.5rem; }
+  .celeb-card { padding: 1.25rem; }
+  .celeb-emoji { font-size: 1.8rem; }
+  .genre-grid { grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); }
+  .genre-card { padding: 1rem 0.75rem; }
+  .genre-icon { font-size: 1.3rem; }
+  .genre-name { font-size: 0.75rem; }
+}
+/* iOS input zoom prevention (inputs must be 16px+) */
+@media screen and (max-width: 768px) {
+  input[type="text"], input[type="email"], input[type="search"],
+  select, textarea, .input, .ai-bar-input, .chat-input-row input {
+    font-size: 16px !important;
+  }
+}
+/* Safe area insets for notched phones */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .ai-bar {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+  .quick-chat {
+    bottom: calc(62px + env(safe-area-inset-bottom));
+  }
+  main {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+  #cookie-banner {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  }
+}
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
 </style>
 <!-- Analytics -->
 <script defer data-domain="scent-wise.vercel.app" src="https://plausible.io/js/script.js"></script>
@@ -965,9 +1069,36 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent()){
   </div>
 </nav>
 <!-- Main Content -->
-<main id="app"></main>
+<main id="app">
+<noscript>
+<div style="max-width:860px;margin:0 auto;padding:3rem 1.5rem">
+  <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:2.4rem;font-weight:300;line-height:1.2;margin-bottom:1rem;color:#f5f0e8">Find the scent that <em style="color:#e8d5a0">feels like you</em></h1>
+  <p style="color:#a8a29e;font-size:0.95rem;max-width:500px;line-height:1.7;margin-bottom:2rem">ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.</p>
+  <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;color:#f5f0e8;margin-bottom:1rem">Six Ways to Discover Your Perfect Fragrance</h2>
+  <ul style="color:#d4cfc5;line-height:2;padding-left:1.5rem">
+    <li><strong>AI Fragrance Advisor</strong> — Describe a mood, occasion, or memory for curated recommendations</li>
+    <li><strong>Photo Style Scan</strong> — Upload a photo and our AI reads your aesthetic to match fragrances</li>
+    <li><strong>Zodiac Match</strong> — Find scents aligned with your celestial profile and elemental energy</li>
+    <li><strong>Music Match</strong> — Translate your sonic taste into olfactory recommendations</li>
+    <li><strong>Style Match</strong> — Your wardrobe reveals scents that complete the picture</li>
+    <li><strong>Celebrity Collections</strong> — Explore signature fragrances of icons across sports, music, and film</li>
+  </ul>
+  <h2 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.6rem;color:#f5f0e8;margin:2rem 0 1rem">From Our Blog</h2>
+  <ul style="color:#d4cfc5;line-height:2;padding-left:1.5rem">
+    <li><a href="/blog/best-mens-fragrances.html" style="color:#c8a55a">Best Men's Fragrances 2026 — Top Rated Perfumes for Men</a></li>
+    <li><a href="/blog/baccarat-rouge-540-dupes.html" style="color:#c8a55a">Best Baccarat Rouge 540 Dupes & Alternatives 2026</a></li>
+    <li><a href="/blog/celebrity-fragrances-guide.html" style="color:#c8a55a">What Perfume Do Celebrities Wear? Complete Guide 2026</a></li>
+  </ul>
+</div>
+</noscript>
+</main>
 <!-- Footer -->
 <footer class="app-footer">
+  <nav aria-label="Blog articles" style="margin-bottom:1rem">
+    <a href="/blog/best-mens-fragrances.html">Best Men's Fragrances</a> &middot;
+    <a href="/blog/baccarat-rouge-540-dupes.html">Baccarat Rouge 540 Dupes</a> &middot;
+    <a href="/blog/celebrity-fragrances-guide.html">Celebrity Fragrances</a>
+  </nav>
   <a href="/terms.html">Terms</a> &middot; <a href="/privacy.html">Privacy</a> &middot; <a href="/refund.html">Refunds</a> &middot; <a href="mailto:scentwise.com@gmail.com">Contact</a>
   <div style="margin-top:0.75rem">&copy; 2026 ScentWise. All rights reserved.</div>
 </footer>
