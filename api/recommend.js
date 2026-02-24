@@ -76,13 +76,11 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  const geminiKey = process.env.GEMINI_API_KEY;
-  const openaiKey = process.env.OPENAI_API_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!geminiKey && !openaiKey && !anthropicKey) return res.status(500).json({ error: 'API key not configured' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
 
   try {
-    const { mode, model: requestedModel, messages, imageBase64, imageMime } = req.body;
+    const { mode, messages, imageBase64, imageMime } = req.body;
 
     // Input validation
     if (mode === 'photo' && imageBase64 && imageBase64.length > 10 * 1024 * 1024) {
@@ -95,92 +93,44 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid image type' });
     }
 
+    let parts = [];
     let systemText = '';
+
     if (mode === 'photo') {
       systemText = 'You are ScentWise — an expert fragrance consultant who matches scents to personal style. Analyze the uploaded photo focusing on clothing style, color palette, accessories and overall aesthetic. Recommend exactly 5 fragrances that match. For each include: **Fragrance Name** by Brand, key notes (top/heart/base), price range ($, $$, $$$), and why it matches. End with 2 budget alternatives.';
+      parts = [
+        { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
+        { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
+      ];
     } else {
       systemText = 'You are ScentWise AI — a world-class fragrance advisor with encyclopedic knowledge of perfumery including designer, niche, and artisanal fragrances. Provide specific, confident recommendations with fragrance names, brands, key notes, price ranges, and reasons. Format with **bold** for fragrance names. Be conversational and knowledgeable.';
+      const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
+      const history = messages && messages.length > 1
+        ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
+        : '';
+      parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
     }
 
-    const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
-    const history = messages && messages.length > 1
-      ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
-      : '';
-
-    // Route to the requested AI model
-    const chosenModel = requestedModel || 'gemini-flash';
-    let result;
-
-    if (chosenModel === 'claude-haiku' && anthropicKey) {
-      // Anthropic Claude Haiku
-      const claudeMessages = [];
-      if (mode === 'photo' && imageBase64) {
-        claudeMessages.push({ role: 'user', content: [
-          { type: 'image', source: { type: 'base64', media_type: imageMime || 'image/jpeg', data: imageBase64 } },
-          { type: 'text', text: 'Analyze this style and recommend matching fragrances.' }
-        ]});
-      } else {
-        if (history) claudeMessages.push({ role: 'user', content: history });
-        if (history) claudeMessages.push({ role: 'assistant', content: 'Understood, continuing our conversation.' });
-        claudeMessages.push({ role: 'user', content: lastMsg });
-      }
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+      {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': anthropicKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 1500, system: systemText, messages: claudeMessages })
-      });
-      if (!response.ok) { console.error(`Claude API error: ${response.status}`, await response.text()); return res.status(500).json({ error: 'AI service temporarily unavailable' }); }
-      const data = await response.json();
-      result = data.content?.[0]?.text || 'No response generated.';
-
-    } else if (chosenModel === 'gpt-4o-mini' && openaiKey) {
-      // OpenAI GPT-4o Mini
-      const oaiMessages = [{ role: 'system', content: systemText }];
-      if (mode === 'photo' && imageBase64) {
-        oaiMessages.push({ role: 'user', content: [
-          { type: 'image_url', image_url: { url: `data:${imageMime || 'image/jpeg'};base64,${imageBase64}` } },
-          { type: 'text', text: 'Analyze this style and recommend matching fragrances.' }
-        ]});
-      } else {
-        if (history) oaiMessages.push({ role: 'user', content: history }, { role: 'assistant', content: 'Understood, continuing our conversation.' });
-        oaiMessages.push({ role: 'user', content: lastMsg });
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify({
+          contents: [{ parts }],
+          generationConfig: { maxOutputTokens: 1500, temperature: 0.8 }
+        })
       }
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${openaiKey}` },
-        body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 1500, temperature: 0.8, messages: oaiMessages })
-      });
-      if (!response.ok) { console.error(`OpenAI API error: ${response.status}`, await response.text()); return res.status(500).json({ error: 'AI service temporarily unavailable' }); }
-      const data = await response.json();
-      result = data.choices?.[0]?.message?.content || 'No response generated.';
+    );
 
-    } else {
-      // Default: Gemini (flash or pro)
-      if (!geminiKey) return res.status(500).json({ error: 'API key not configured' });
-      const geminiModel = chosenModel === 'gemini-pro' ? 'gemini-2.0-flash' : 'gemini-2.0-flash';
-      let parts = [];
-      if (mode === 'photo' && imageBase64) {
-        parts = [
-          { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
-          { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
-        ];
-      } else {
-        parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
-      }
-      const temp = chosenModel === 'gemini-pro' ? 0.7 : 0.8;
-      const maxTokens = chosenModel === 'gemini-pro' ? 2000 : 1500;
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': geminiKey },
-          body: JSON.stringify({ contents: [{ parts }], generationConfig: { maxOutputTokens: maxTokens, temperature: temp } })
-        }
-      );
-      if (!response.ok) { console.error(`Gemini API error: ${response.status}`, await response.text()); return res.status(500).json({ error: 'AI service temporarily unavailable' }); }
-      const data = await response.json();
-      result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Gemini API error: ${response.status}`, errText);
+      return res.status(500).json({ error: 'AI service temporarily unavailable' });
     }
+
+    const data = await response.json();
+    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
 
     // Track usage after successful AI call
     usageCount++;

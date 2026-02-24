@@ -981,29 +981,23 @@ input::placeholder{color:var(--td);opacity:.7}
 .mode-pill.mp-active{color:var(--g);background:var(--gl);border-color:rgba(201,169,110,.25)}
 .mode-pill .mp-icon{font-size:14px;line-height:1}
 @media(max-width:640px){.mode-bar{display:block}}
-/* ═══ AI MODEL SWITCHER ═══ */
-.ai-model-btn{display:none;align-items:center;gap:5px;padding:6px 12px;border-radius:100px;font-size:11px;font-weight:500;color:var(--g);background:var(--gl);border:1px solid rgba(201,169,110,.2);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:all .2s;margin-left:auto;flex-shrink:0}
-.ai-model-btn:active{transform:scale(.95)}
-.ai-model-btn .ai-model-dot{width:6px;height:6px;border-radius:50%;background:var(--g);flex-shrink:0}
-.ai-model-btn svg{width:12px;height:12px;fill:var(--g);flex-shrink:0}
-@media(max-width:640px){.ai-model-btn{display:flex}}
-/* Model picker overlay */
-.model-picker-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center}
-.model-picker-overlay.active{display:flex}
-.model-picker{width:100%;max-width:420px;background:var(--d2);border-top-left-radius:24px;border-top-right-radius:24px;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));border:1px solid var(--d4);border-bottom:none;animation:mpSlideUp .3s ease}
-@keyframes mpSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.model-picker-handle{width:36px;height:4px;background:var(--d5);border-radius:2px;margin:0 auto 16px}
-.model-picker h3{font-size:15px;font-weight:600;color:var(--t);margin-bottom:4px;text-align:center}
-.model-picker p{font-size:12px;color:var(--td);margin-bottom:16px;text-align:center}
-.model-option{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;border:1px solid var(--d4);margin-bottom:8px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
-.model-option:active{transform:scale(.98)}
-.model-option.mo-active{border-color:rgba(201,169,110,.3);background:var(--gl)}
-.model-option .mo-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--d5);flex-shrink:0;transition:all .2s}
-.model-option.mo-active .mo-dot{border-color:var(--g);background:var(--g);box-shadow:0 0 8px rgba(201,169,110,.3)}
-.model-option .mo-info{flex:1}
-.model-option .mo-name{font-size:14px;font-weight:600;color:var(--t);display:flex;align-items:center;gap:6px}
-.model-option .mo-badge{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
-.model-option .mo-desc{font-size:11px;color:var(--td);margin-top:3px;line-height:1.4}
+/* ═══ MOBILE MODE SWITCHER SHEET ═══ */
+.mode-switcher-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);align-items:flex-end;justify-content:center}
+.mode-switcher-overlay.active{display:flex}
+.mode-switcher{width:100%;max-width:420px;background:var(--d2);border-top-left-radius:24px;border-top-right-radius:24px;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));border:1px solid var(--d4);border-bottom:none;animation:msSlideUp .3s ease;max-height:80vh;overflow-y:auto}
+@keyframes msSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ms-handle{width:36px;height:4px;background:var(--d5);border-radius:2px;margin:0 auto 14px}
+.mode-switcher h3{font-size:16px;font-weight:600;color:var(--t);margin-bottom:4px;text-align:center}
+.mode-switcher p{font-size:12px;color:var(--td);margin-bottom:14px;text-align:center}
+.ms-option{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:16px;border:1px solid var(--d4);margin-bottom:8px;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.ms-option:active{transform:scale(.98)}
+.ms-option.ms-active{border-color:rgba(201,169,110,.3);background:var(--gl)}
+.ms-icon{font-size:24px;line-height:1;flex-shrink:0;width:40px;height:40px;display:flex;align-items:center;justify-content:center;background:var(--d3);border-radius:12px}
+.ms-option.ms-active .ms-icon{background:rgba(201,169,110,.12)}
+.ms-info{flex:1}
+.ms-name{font-size:14px;font-weight:600;color:var(--t)}
+.ms-desc{font-size:11px;color:var(--td);margin-top:2px;line-height:1.4}
+.ms-check{color:var(--g);font-size:16px;font-weight:700;flex-shrink:0}
 
 /* Core Web Vitals: contain + content-visibility for better INP/LCP */
 .card, .pcard { contain: layout style paint; }
@@ -1055,14 +1049,14 @@ document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())d
 <!-- Mobile Bottom Navigation -->
 <div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
 <!-- Mobile Mode Switcher (scrollable pill bar) -->
-<div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div><div class="ai-model-btn" id="ai-model-btn" onclick="openModelPicker()"><span class="ai-model-dot"></span><span id="ai-model-label">Gemini Flash</span><svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg></div></div>
-<!-- AI Model Picker -->
-<div class="model-picker-overlay" id="model-picker-overlay" onclick="if(event.target===this)closeModelPicker()">
-  <div class="model-picker">
-    <div class="model-picker-handle"></div>
-    <h3>Choose AI Model</h3>
-    <p>Select which AI powers your recommendations</p>
-    <div id="model-options"></div>
+<div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div></div>
+<!-- Mobile Mode Switcher Sheet -->
+<div class="mode-switcher-overlay" id="mode-switcher-overlay" onclick="if(event.target===this)closeModeSwitcher()">
+  <div class="mode-switcher">
+    <div class="ms-handle"></div>
+    <h3>Switch Mode</h3>
+    <p>Choose how you want to discover fragrances</p>
+    <div id="mode-switch-options"></div>
   </div>
 </div>
 <!-- Pages -->

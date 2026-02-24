@@ -3,51 +3,41 @@
 const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
-// ═══════════════ AI MODEL SWITCHER ═══════════════
-const AI_MODELS = [
-  {id:'gemini-flash',name:'Gemini Flash',desc:'Fast, great for quick answers',badge:'Fast',badgeColor:'#4285f4',badgeBg:'rgba(66,133,244,.12)'},
-  {id:'gemini-pro',name:'Gemini Pro',desc:'More detailed, nuanced recommendations',badge:'Pro',badgeColor:'#34a853',badgeBg:'rgba(52,168,83,.12)'},
-  {id:'claude-haiku',name:'Claude Haiku',desc:'Quick and concise responses',badge:'Fast',badgeColor:'#d97706',badgeBg:'rgba(217,119,6,.12)'},
-  {id:'gpt-4o-mini',name:'GPT-4o Mini',desc:'Balanced speed and quality',badge:'Balanced',badgeColor:'#10a37f',badgeBg:'rgba(16,163,127,.12)'}
-];
-let selectedModel = localStorage.getItem('sw_ai_model') || 'gemini-flash';
-
-function openModelPicker() {
-  const overlay = document.getElementById('model-picker-overlay');
-  const optionsEl = document.getElementById('model-options');
+// ═══════════════ MOBILE MODE SWITCHER ═══════════════
+function openModeSwitcher() {
+  const overlay = document.getElementById('mode-switcher-overlay');
+  const optionsEl = document.getElementById('mode-switch-options');
   if (!overlay || !optionsEl) return;
-  optionsEl.innerHTML = AI_MODELS.map(m =>
-    `<div class="model-option ${selectedModel===m.id?'mo-active':''}" onclick="selectModel('${m.id}')">
-      <div class="mo-dot"></div>
-      <div class="mo-info">
-        <div class="mo-name">${m.name} <span class="mo-badge" style="color:${m.badgeColor};background:${m.badgeBg}">${m.badge}</span></div>
-        <div class="mo-desc">${m.desc}</div>
+  const allModes = [
+    {id:'chat',name:'AI Advisor',desc:'Ask anything about fragrances',i:'💬'},
+    {id:'explore',name:'Explore Database',desc:'Search 75,000+ perfumes',i:'🧪'},
+    {id:'photo',name:'Photo Style Scan',desc:'Upload a photo, get matched scents',i:'📸'},
+    {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
+    {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
+    {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
+    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
+  ];
+  optionsEl.innerHTML = allModes.map(m =>
+    `<div class="ms-option ${CP===m.id?'ms-active':''}" onclick="goFromSwitcher('${m.id}')">
+      <div class="ms-icon">${m.i}</div>
+      <div class="ms-info">
+        <div class="ms-name">${m.name}</div>
+        <div class="ms-desc">${m.desc}</div>
       </div>
+      ${CP===m.id?'<div class="ms-check">&#10003;</div>':''}
     </div>`
   ).join('');
   overlay.classList.add('active');
 }
 
-function closeModelPicker() {
-  const overlay = document.getElementById('model-picker-overlay');
+function closeModeSwitcher() {
+  const overlay = document.getElementById('mode-switcher-overlay');
   if (overlay) overlay.classList.remove('active');
 }
 
-function selectModel(id) {
-  selectedModel = id;
-  localStorage.setItem('sw_ai_model', id);
-  const model = AI_MODELS.find(m => m.id === id);
-  const label = document.getElementById('ai-model-label');
-  if (label && model) label.textContent = model.name;
-  closeModelPicker();
-  // Re-render mode bar to update button
-  rModeBar();
-}
-
-function updateModelLabel() {
-  const label = document.getElementById('ai-model-label');
-  const model = AI_MODELS.find(m => m.id === selectedModel);
-  if (label && model) label.textContent = model.name;
+function goFromSwitcher(id) {
+  closeModeSwitcher();
+  go(id);
 }
 
 // ═══════════════ DATABASE ENGINE ═══════════════
@@ -371,7 +361,7 @@ async function aiCall(mode, payload) {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       credentials: 'same-origin',
-      body: JSON.stringify({mode, model: selectedModel, ...payload})
+      body: JSON.stringify({mode, ...payload})
     });
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
@@ -651,7 +641,7 @@ const NI = [
 // Mobile bottom bar (core tabs)
 const MNI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
-  {id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'_modes',l:'Modes',i:'✧'},{id:'account',l:'Account',i:'👤'}
 ];
 // All switchable modes (for the pill bar)
 const MODES = [
@@ -667,9 +657,14 @@ function rNav() {
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
-    mobEl.innerHTML = MNI.map(n =>
-      `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
-    ).join('');
+    const modePages = ['photo','zodiac','music','style','celeb'];
+    mobEl.innerHTML = MNI.map(n => {
+      if (n.id === '_modes') {
+        const isOnMode = modePages.includes(CP);
+        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()"><span>${n.i}</span><span>${n.l}</span></div>`;
+      }
+      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`;
+    }).join('');
   }
   rModeBar();
 }
@@ -684,11 +679,6 @@ function rModeBar() {
   inner.innerHTML = MODES.map(m =>
     `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
   ).join('');
-  // Show model switcher on AI pages
-  const modelBtn = document.getElementById('ai-model-btn');
-  const aiPages = ['chat','photo','zodiac','music','style'];
-  if (modelBtn) modelBtn.style.display = aiPages.includes(CP) ? 'flex' : 'none';
-  updateModelLabel();
   // Auto-scroll active pill into view
   setTimeout(() => {
     const active = inner.querySelector('.mp-active');
@@ -996,7 +986,7 @@ function r_chat(el) {
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:18px">
       <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes &middot; <span style="color:var(--g)">${(AI_MODELS.find(m=>m.id===selectedModel)||{name:'Gemini Flash'}).name}</span></p>
+      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
       ${trialBanner}
     </div>
     <div class="msgs" id="c-msgs">
