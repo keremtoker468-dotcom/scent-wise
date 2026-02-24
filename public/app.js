@@ -585,11 +585,52 @@ const NI = [
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
   {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
-// Mobile nav shows condensed items
-const MNI = [
-  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
-  {id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+// Mobile bottom bar: 5 items (Home, Explore, AI center, More, Account)
+const MNI_BAR = [
+  {id:'home',l:'Home',i:'✦'},
+  {id:'explore',l:'Explore',i:'🧪'},
+  {id:'chat',l:'AI',i:'💬',center:true},
+  {id:'_more',l:'More',i:'☰'},
+  {id:'account',l:'Account',i:'👤'}
 ];
+// More sheet: all features accessible from mobile
+const MNI_MORE = [
+  {id:'chat',l:'AI Advisor',i:'💬'},
+  {id:'explore',l:'Explore',i:'🧪'},
+  {id:'photo',l:'Style Scan',i:'📸'},
+  {id:'zodiac',l:'Zodiac',i:'🔮'},
+  {id:'music',l:'Music',i:'🎶'},
+  {id:'style',l:'Style',i:'🪞'},
+  {id:'celeb',l:'Celebs',i:'💫'},
+  {id:'account',l:'Account',i:'👤'}
+];
+
+let moreSheetOpen = false;
+
+function openMoreSheet() {
+  moreSheetOpen = true;
+  const overlay = document.getElementById('more-overlay');
+  const sheet = document.getElementById('more-sheet');
+  if (overlay) overlay.classList.add('open');
+  if (sheet) sheet.classList.add('open');
+  rMoreSheet();
+}
+
+function closeMoreSheet() {
+  moreSheetOpen = false;
+  const overlay = document.getElementById('more-overlay');
+  const sheet = document.getElementById('more-sheet');
+  if (overlay) overlay.classList.remove('open');
+  if (sheet) sheet.classList.remove('open');
+}
+
+function rMoreSheet() {
+  const grid = document.getElementById('more-grid');
+  if (!grid) return;
+  grid.innerHTML = MNI_MORE.map(n =>
+    `<div class="more-sheet-item ${CP===n.id?'msi-active':''}" onclick="closeMoreSheet();go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
+  ).join('');
+}
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
@@ -597,13 +638,18 @@ function rNav() {
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
-    mobEl.innerHTML = MNI.map(n =>
-      `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`
-    ).join('');
+    mobEl.innerHTML = MNI_BAR.map(n => {
+      if (n.id === '_more') {
+        return `<div class="mob-ni ${moreSheetOpen?'mob-na':''}" onclick="openMoreSheet()"><span>${n.i}</span><span>${n.l}</span></div>`;
+      }
+      const isCenter = n.center ? ' mob-ni-ai' : '';
+      return `<div class="mob-ni${isCenter} ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`;
+    }).join('');
   }
 }
 
 function go(p) {
+  if (moreSheetOpen) closeMoreSheet();
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
   CP = p; rNav();
   const e = document.getElementById('page-' + p);
