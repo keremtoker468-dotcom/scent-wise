@@ -1,0 +1,28 @@
+# ScentWise
+> AI-powered fragrance advisor with 75,000+ perfumes. Discover your perfect scent through personality-based matching.
+
+## About
+ScentWise is an AI fragrance advisor that helps users discover their perfect scent through six unique discovery modes. It analyzes your personality — zodiac sign, music taste, fashion style, photos, and conversational cues — to match you with fragrances from a database of over 75,000 perfumes.
+
+## Features
+- AI Chat Advisor: Conversational fragrance recommendations with tasting notes, pricing, and alternatives
+- Zodiac Fragrance Match: Birthday-based scent matching aligned with celestial profiles
+- Photo Style Scan: Upload photos for aesthetic-based fragrance matching
+- Music to Fragrance Match: Translate music taste into scent preferences
+- Style Match: Fashion-to-fragrance personality matching
+- Celebrity Fragrance Collections: Explore what icons wear — David Beckham, Rihanna, Cristiano Ronaldo, Ariana Grande, LeBron James, Zendaya, Drake
+
+## Stats
+- 75,000+ fragrances in database
+- 6 discovery modes
+- 2,500 curated top picks
+- $7/month premium (3 free AI queries)
+
+## Links
+- Homepage: https://scent-wise.vercel.app
+- Best Men's Fragrances 2026: https://scent-wise.vercel.app/blog/best-mens-fragrances.html
+- Baccarat Rouge 540 Dupes: https://scent-wise.vercel.app/blog/baccarat-rouge-540-dupes.html
+- Celebrity Fragrances Guide: https://scent-wise.vercel.app/blog/celebrity-fragrances-guide.html
+
+## Contact
+- Email: scentwise.com@gmail.com

@@ -7,18 +7,37 @@ Allow: /blog/
 Disallow: /api/
 Disallow: /_vercel/
 
-# Google-specific
+# Google (no crawl-delay — Google ignores it anyway)
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 0
 
 # Bing
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
+# AI Search Retrieval Bots (allow for AI search visibility)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# AI Training Bots (block content scraping for model training)
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
 # Sitemap
 Sitemap: https://scent-wise.vercel.app/sitemap.xml
-
-# Host
-Host: https://scent-wise.vercel.app
