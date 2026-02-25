@@ -95,9 +95,9 @@
   "provider": {"@id": "https://scent-wise.vercel.app/#organization"},
   "offers": {
     "@type": "Offer",
-    "price": "7",
+    "price": "2.99",
     "priceCurrency": "USD",
-    "description": "Premium subscription with unlimited AI queries per month",
+    "description": "Premium subscription with 500 AI queries per month",
     "availability": "https://schema.org/InStock",
     "priceValidUntil": "2026-12-31",
     "url": "https://scent-wise.vercel.app/"
@@ -142,7 +142,7 @@
   "mainEntity": [
     {"@type": "Question", "name": "How does ScentWise recommend fragrances?", "acceptedAnswer": {"@type": "Answer", "text": "ScentWise uses AI to analyze your preferences — including style, zodiac sign, music taste, and uploaded photos — then matches you with fragrances from our database of over 75,000 perfumes based on notes, accords, and personality traits."}},
     {"@type": "Question", "name": "How many fragrances does ScentWise have?", "acceptedAnswer": {"@type": "Answer", "text": "ScentWise features a comprehensive database of over 75,000 fragrances from thousands of brands, complete with detailed notes, accords, ratings, and user reviews."}},
-    {"@type": "Question", "name": "Is ScentWise free to use?", "acceptedAnswer": {"@type": "Answer", "text": "ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $2.99/month, cancel anytime."}},
+    {"@type": "Question", "name": "Is ScentWise free to use?", "acceptedAnswer": {"@type": "Answer", "text": "ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with 500 AI recommendations per month is $2.99/month, cancel anytime."}},
     {"@type": "Question", "name": "What are the six discovery modes in ScentWise?", "acceptedAnswer": {"@type": "Answer", "text": "ScentWise offers six discovery modes: AI Chat Advisor for personalized recommendations, Photo Style Scan for aesthetic-based matching, Zodiac Match for celestial fragrance alignment, Music Match for sonic-to-scent translation, Style Match for wardrobe-based suggestions, and Celebrity Collections to explore what icons wear."}}
   ]
 }
@@ -198,7 +198,7 @@
   "brand": {"@type": "Brand", "name": "ScentWise"},
   "offers": {
     "@type": "Offer",
-    "price": "7.00",
+    "price": "2.99",
     "priceCurrency": "USD",
     "availability": "https://schema.org/InStock",
     "priceValidUntil": "2026-12-31",
@@ -237,7 +237,7 @@
 }
 body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,.03) 0%,transparent 50%);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
-.fd{font-family:'Playfair Display',serif}.gg{color:var(--g)}
+.fd{font-family:'Cormorant Garamond',Georgia,serif}.gg{color:var(--g)}
 
 /* ═══ NAVIGATION ═══ */
 .nav-w{background:var(--glass);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 1px 0 rgba(201,169,110,.04)}
@@ -1024,6 +1024,26 @@ input::placeholder{color:var(--td);opacity:.7}
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   html { scroll-behavior: auto; }
 }
+/* ═══ SKIP NAV (Accessibility) ═══ */
+.skip-nav{position:absolute;top:-100%;left:16px;z-index:9999;padding:12px 24px;background:var(--g);color:var(--d);font-weight:600;font-size:14px;border-radius:0 0 var(--r-sm) var(--r-sm);transition:top .2s}
+.skip-nav:focus{top:0}
+/* ═══ FOCUS VISIBLE ═══ */
+:focus-visible{outline:2px solid var(--g);outline-offset:2px;border-radius:4px}
+/* ═══ VISUALLY HIDDEN (screen reader only) ═══ */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}
+/* ═══ TOAST NOTIFICATIONS ═══ */
+.toast-container{position:fixed;top:20px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:400px}
+.toast{pointer-events:auto;padding:14px 20px;border-radius:var(--r);font-size:13px;line-height:1.5;display:flex;align-items:flex-start;gap:10px;animation:toastIn .3s ease;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow-lg)}
+.toast-success{background:rgba(39,174,96,.15);border:1px solid rgba(39,174,96,.25);color:#6ddb9e}
+.toast-error{background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.25);color:#f0918a}
+.toast-info{background:rgba(201,169,110,.12);border:1px solid rgba(201,169,110,.2);color:var(--g)}
+.toast-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.toast-msg{flex:1}
+.toast-close{cursor:pointer;opacity:.6;font-size:16px;flex-shrink:0;transition:opacity .2s;background:none;border:none;color:inherit;padding:0}
+.toast-close:hover{opacity:1}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(40px)}}
+@media(max-width:640px){.toast-container{top:auto;bottom:80px;right:12px;left:12px;max-width:none}}
 </style>
 <!-- Analytics (privacy-respecting, no cookies) -->
 <script defer data-domain="scent-wise.vercel.app" src="https://plausible.io/js/script.js"></script>
@@ -1065,6 +1085,10 @@ setTimeout(function(){
 </script>
 </head>
 <body>
+<!-- Skip Navigation (Accessibility) -->
+<a href="#main-content" class="skip-nav">Skip to main content</a>
+<!-- Toast Notification Container -->
+<div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
 <!-- Hide SPA chrome on homepage immediately (before app.js loads) -->
 <script>
 (function(){
@@ -1078,12 +1102,12 @@ setTimeout(function(){
 })();
 </script>
 <!-- Desktop Navigation -->
-<div class="nav-w"><div class="nav-i">
-  <div class="logo" onclick="go('home')"><div class="logo-icon">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
-  <div class="nav-s" id="nav"></div>
-</div></div>
+<nav class="nav-w" aria-label="Main navigation"><div class="nav-i">
+  <div class="logo" onclick="go('home')" role="button" tabindex="0" aria-label="ScentWise Home" onkeydown="if(event.key==='Enter')go('home')"><div class="logo-icon" aria-hidden="true">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
+  <div class="nav-s" id="nav" role="tablist"></div>
+</div></nav>
 <!-- Mobile Bottom Navigation -->
-<div class="mob-nav"><div class="mob-nav-inner" id="mob-nav"></div></div>
+<nav class="mob-nav" aria-label="Mobile navigation"><div class="mob-nav-inner" id="mob-nav" role="tablist"></div></nav>
 <!-- Mobile Mode Switcher (scrollable pill bar) -->
 <div class="mode-bar" id="mode-bar"><div class="mode-bar-inner" id="mode-bar-inner"></div></div>
 <!-- Mobile Mode Switcher Sheet -->
@@ -1096,16 +1120,18 @@ setTimeout(function(){
   </div>
 </div>
 <!-- Pages -->
-<div id="page-home" class="hidden"></div>
-<div id="page-explore" class="hidden"></div>
-<div id="page-chat" class="hidden"></div>
-<div id="page-photo" class="hidden"></div>
-<div id="page-zodiac" class="hidden"></div>
-<div id="page-music" class="hidden"></div>
-<div id="page-style" class="hidden"></div>
-<div id="page-celeb" class="hidden"></div>
-<div id="page-account" class="hidden"></div>
-<div id="page-admin" class="hidden"></div>
+<main id="main-content">
+<div id="page-home" class="hidden" role="region" aria-label="Home"></div>
+<div id="page-explore" class="hidden" role="region" aria-label="Explore Database"></div>
+<div id="page-chat" class="hidden" role="region" aria-label="AI Fragrance Advisor"></div>
+<div id="page-photo" class="hidden" role="region" aria-label="Photo Style Scan"></div>
+<div id="page-zodiac" class="hidden" role="region" aria-label="Zodiac Match"></div>
+<div id="page-music" class="hidden" role="region" aria-label="Music Match"></div>
+<div id="page-style" class="hidden" role="region" aria-label="Style Match"></div>
+<div id="page-celeb" class="hidden" role="region" aria-label="Celebrity Fragrances"></div>
+<div id="page-account" class="hidden" role="region" aria-label="Account"></div>
+<div id="page-admin" class="hidden" role="region" aria-label="Admin"></div>
+</main>
 <!-- Cookie Banner -->
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,15,18,.95);border-top:1px solid rgba(255,255,255,.06);padding:16px 20px;font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
   <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
@@ -1177,7 +1203,7 @@ setTimeout(function(){
       <h3>How many fragrances does ScentWise have?</h3>
       <p>ScentWise features a database of over 75,000 fragrances from thousands of brands, complete with detailed notes, accords, ratings, and reviews.</p>
       <h3>Is ScentWise free to use?</h3>
-      <p>ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with unlimited AI recommendations is $2.99/month, cancel anytime.</p>
+      <p>ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with 500 AI recommendations per month is $2.99/month, cancel anytime.</p>
       <h3>What are the six discovery modes?</h3>
       <p>AI Chat Advisor, Zodiac Match, Photo Style Scan, Music Match, Style Match, and Celebrity Collections — six different paths to finding your perfect scent.</p>
     </section>

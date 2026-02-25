@@ -3,9 +3,16 @@
   <!-- Main page (SPA — all features live here) -->
   <url>
     <loc>https://scent-wise.vercel.app/</loc>
-    <lastmod>2026-02-24</lastmod>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
   </url>
-  <!-- Blog articles (35 pages) -->
+  <!-- Blog index -->
+  <url>
+    <loc>https://scent-wise.vercel.app/blog/</loc>
+    <lastmod>2026-02-25</lastmod>
+  </url>
+  <!-- Blog articles -->
   <url>
     <loc>https://scent-wise.vercel.app/blog/baccarat-rouge-540-dupes.html</loc>
     <lastmod>2026-02-24</lastmod>

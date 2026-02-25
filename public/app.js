@@ -1,4 +1,22 @@
 
+// ═══════════════ TOAST NOTIFICATIONS ═══════════════
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const icons = { success: '✓', error: '✕', info: '✦' };
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.setAttribute('role', 'alert');
+  toast.innerHTML = `<span class="toast-icon" aria-hidden="true">${icons[type] || icons.info}</span><span class="toast-msg">${message}</span><button class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>`;
+  container.appendChild(toast);
+  if (duration > 0) {
+    setTimeout(() => {
+      toast.style.animation = 'toastOut .3s ease forwards';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+}
+
 // ═══════════════ CONFIG ═══════════════
 const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
@@ -195,11 +213,11 @@ async function unlockPaid() {
       LEMON_URL = d.url;
       window.location.href = d.url;
     } else {
-      alert(d.error || 'Could not start checkout. Please try again.');
+      showToast(d.error || 'Could not start checkout. Please try again.', 'error');
       btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
     }
   } catch {
-    alert('Could not start checkout. Please try again.');
+    showToast('Could not start checkout. Please try again.', 'error');
     btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
   }
 }
@@ -237,14 +255,14 @@ async function activateSubscription(orderId, silent) {
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; if (d.email) userEmail = d.email; go(CP); return true; }
     if (!silent) {
       if (r.status === 429) {
-        alert('Too many attempts. Please wait a minute and try again.');
+        showToast('Too many attempts. Please wait a minute and try again.', 'error');
       } else {
-        alert(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.');
+        showToast(d.error || 'Could not verify your order. Double-check the order number from your LemonSqueezy confirmation email, or try logging in with your email instead.', 'error', 6000);
       }
     }
   } catch (err) {
     console.error('Subscription activation error:', err);
-    if (!silent) alert('Network error — please check your connection and try again.');
+    if (!silent) showToast('Network error — please check your connection and try again.', 'error');
   }
   return false;
 }
@@ -273,7 +291,7 @@ function promptActivate() {
   if (raw && raw.trim()) {
     const orderId = raw.trim().replace(/^#/, '').replace(/[^\d]/g, '');
     if (orderId) activateSubscription(orderId);
-    else alert('Please enter a valid numeric order ID (e.g. 2944561).');
+    else showToast('Please enter a valid numeric order ID (e.g. 2944561).', 'error');
   }
 }
 
@@ -290,15 +308,15 @@ async function loginWithEmail(email) {
     const d = await r.json();
     if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; userEmail = d.email || email.trim(); go(CP); return true; }
     if (r.status === 404) {
-      alert('No subscription found for this email. Make sure you\'re using the same email from your LemonSqueezy purchase. You can also try your order ID instead.');
+      showToast('No subscription found for this email. Make sure you\'re using the same email from your LemonSqueezy purchase.', 'error', 6000);
     } else if (r.status === 429) {
-      alert('Too many login attempts. Please wait a minute and try again.');
+      showToast('Too many login attempts. Please wait a minute and try again.', 'error');
     } else {
-      alert(d.error || 'Could not verify your subscription. Please try again or use your order ID.');
+      showToast(d.error || 'Could not verify your subscription. Please try again or use your order ID.', 'error');
     }
   } catch (err) {
     console.error('Login error:', err);
-    alert('Network error — please check your connection and try again.');
+    showToast('Network error — please check your connection and try again.', 'error');
   }
   return false;
 }
@@ -626,8 +644,9 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
     </div>`).join('')}
     ${loadingFlag?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:16px 20px;margin-bottom:10px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
     <div class="inp-row" style="margin-top:10px">
-      <input type="text" id="${inputId}" placeholder="${placeholder}" onkeydown="if(event.key==='Enter')${sendFn}()">
-      <button class="btn btn-sm" onclick="${sendFn}()" ${loadingFlag?'disabled':''}>Send</button>
+      <label for="${inputId}" class="sr-only">${placeholder}</label>
+      <input type="text" id="${inputId}" placeholder="${placeholder}" onkeydown="if(event.key==='Enter')${sendFn}()" autocomplete="off">
+      <button class="btn btn-sm" onclick="${sendFn}()" ${loadingFlag?'disabled':''} aria-label="Send follow-up">Send</button>
     </div>
   </div>`;
 }
@@ -653,7 +672,7 @@ const MODES = [
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
-    `<a class="ni ${CP===n.id?'na':''}" onclick="go('${n.id}')">${n.i} ${n.l}</a>`
+    `<a class="ni ${CP===n.id?'na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
@@ -661,9 +680,9 @@ function rNav() {
     mobEl.innerHTML = MNI.map(n => {
       if (n.id === '_modes') {
         const isOnMode = modePages.includes(CP);
-        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()"><span>${n.i}</span><span>${n.l}</span></div>`;
+        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()" role="tab" tabindex="0" aria-label="Switch discovery mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModeSwitcher()}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
       }
-      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')"><span>${n.i}</span><span>${n.l}</span></div>`;
+      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
     }).join('');
   }
   rModeBar();
@@ -686,9 +705,24 @@ function rModeBar() {
   }, 50);
 }
 
+const PAGE_TITLES = {
+  home: 'ScentWise — AI Fragrance Advisor | Personalized Perfume Recommendations',
+  explore: 'Explore 75,000+ Fragrances — ScentWise',
+  chat: 'AI Fragrance Advisor — ScentWise',
+  photo: 'Photo Style Scan — ScentWise',
+  zodiac: 'Zodiac Fragrance Match — ScentWise',
+  music: 'Music to Fragrance Match — ScentWise',
+  style: 'Style Match — ScentWise',
+  celeb: 'Celebrity Fragrances — ScentWise',
+  account: 'Account — ScentWise',
+  admin: 'Admin — ScentWise'
+};
+
 function go(p) {
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
   CP = p;
+  // Update page title for SEO and accessibility
+  document.title = PAGE_TITLES[p] || PAGE_TITLES.home;
   // Hide/show SPA nav/footer FIRST (before rNav, so a rNav crash can't leave them visible)
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
@@ -770,7 +804,7 @@ function r_home(el) {
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
-    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');this.closest('.hp-nav').querySelector('.hp-nav-links').style.display=this.classList.contains('open')?'flex':'none'">
+    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
       <span></span><span></span><span></span>
     </div>
   </nav>
@@ -883,14 +917,10 @@ function r_home(el) {
       <div class="hp-section-heading hp-reveal">What the <em>icons</em> wear</div>
       <p class="hp-section-copy hp-reveal">Explore the fragrance wardrobes of cultural icons and find out what your favourites reach for.</p>
       <div class="hp-celeb-scroll">
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🏎️</div><div class="hp-celeb-name">David Beckham</div><div class="hp-celeb-count">12 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🎤</div><div class="hp-celeb-name">Rihanna</div><div class="hp-celeb-count">8 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🎬</div><div class="hp-celeb-name">Johnny Depp</div><div class="hp-celeb-count">5 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">⚽</div><div class="hp-celeb-name">Cristiano Ronaldo</div><div class="hp-celeb-count">10 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🎵</div><div class="hp-celeb-name">Ariana Grande</div><div class="hp-celeb-count">9 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🏀</div><div class="hp-celeb-name">LeBron James</div><div class="hp-celeb-count">6 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">💎</div><div class="hp-celeb-name">Zendaya</div><div class="hp-celeb-count">7 fragrances</div></div>
-        <div class="hp-celeb-card" onclick="go('celeb')"><div class="hp-celeb-emoji">🎤</div><div class="hp-celeb-name">Drake</div><div class="hp-celeb-count">4 fragrances</div></div>
+        ${['Rihanna','David Beckham','Zendaya','Johnny Depp','Ariana Grande','Cristiano Ronaldo','Beyoncé','Drake','LeBron James','Taylor Swift','Kendall Jenner','Travis Scott'].map(name => {
+          const c = CELEBS.find(x => x.name === name);
+          return c ? `<div class="hp-celeb-card" onclick="go('celeb')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')go('celeb')" aria-label="${c.name} — ${c.frags.length} fragrances"><div class="hp-celeb-emoji" aria-hidden="true">${c.img}</div><div class="hp-celeb-name">${c.name}</div><div class="hp-celeb-count">${c.frags.length} fragrance${c.frags.length !== 1 ? 's' : ''}</div></div>` : '';
+        }).join('')}
       </div>
     </div>
   </section>
@@ -959,8 +989,9 @@ function r_explore(el) {
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div class="inp-row" style="margin-bottom:14px">
-        <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter')doExp()">
-        <button class="btn btn-sm" onclick="doExp()">Search</button>
+        <label for="exp-inp" class="sr-only">Search fragrances</label>
+        <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter')doExp()" autocomplete="off">
+        <button class="btn btn-sm" onclick="doExp()" aria-label="Search fragrances">Search</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${filters.map(f => `<button class="fbtn ${expFilter===f?'ac':''}" onclick="expFilter='${f}';doExp()">${f==='all'?'All':f}</button>`).join('')}
@@ -998,11 +1029,14 @@ function r_chat(el) {
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
   const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
-    <div style="margin-bottom:18px">
-      <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-      <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
-      ${trialBanner}
+    <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div>
+        <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
+        <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
+      </div>
+      ${chatMsgs.length > 0 ? `<button class="btn-o btn-sm" onclick="chatMsgs=[];_ssw('chatMsgs',[]);r_chat(document.getElementById('page-chat'))" aria-label="Start a new conversation" style="flex-shrink:0;white-space:nowrap">New Chat</button>` : ''}
     </div>
+    ${trialBanner}
     <div class="msgs" id="c-msgs">
       ${chatMsgs.length===0?`<div style="display:flex;flex-direction:column;gap:10px;margin-top:24px">
         <p style="color:var(--td);font-size:13px;margin-bottom:4px;font-weight:500">Try asking:</p>
@@ -1016,8 +1050,9 @@ function r_chat(el) {
       <div id="c-end"></div>
     </div>
     <div class="inp-row" style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
-      <input type="text" id="c-inp" placeholder="Ask about any fragrance..." onkeydown="if(event.key==='Enter')cSend()">
-      <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''}>Send</button>
+      <label for="c-inp" class="sr-only">Ask about any fragrance</label>
+      <input type="text" id="c-inp" placeholder="Ask about any fragrance..." onkeydown="if(event.key==='Enter')cSend()" autocomplete="off">
+      <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''} aria-label="Send message">Send</button>
     </div>
   </div>`;
   document.getElementById('c-end')?.scrollIntoView({behavior:'smooth'});
@@ -1181,7 +1216,7 @@ function tryBday() {
   if (!inp || !inp.value.trim()) return;
   const sign = bdayToZodiac(inp.value);
   if (sign) { pickZ(sign); }
-  else { alert('Could not detect your zodiac sign. Try a format like "March 15" or "15/03".'); }
+  else { showToast('Could not detect your zodiac sign. Try a format like "March 15" or "15/03".', 'error'); }
 }
 
 async function pickZ(sign) {
@@ -1446,7 +1481,7 @@ function doOrderActivate() {
   const inp = document.getElementById('order-id-input');
   if (!inp || !inp.value.trim()) return;
   const orderId = inp.value.trim().replace(/^#/, '').replace(/[^\d]/g, '');
-  if (!orderId) { alert('Please enter a valid numeric order ID.'); return; }
+  if (!orderId) { showToast('Please enter a valid numeric order ID.', 'error'); return; }
   const btn = document.getElementById('order-activate-btn');
   const bar = document.getElementById('order-progress');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; }
@@ -1543,7 +1578,7 @@ go(_wantAdmin ? 'admin' : 'home');
       }
       if (!activated) {
         // All retries failed — show a helpful message
-        alert('We couldn\'t verify your order yet. This can take a minute after purchase. Please try logging in with your email on the Account page, or enter your order ID there.');
+        showToast('We couldn\'t verify your order yet. This can take a minute after purchase. Try logging in with your email on the Account page.', 'info', 8000);
       }
     }
     window.history.replaceState({}, '', window.location.pathname);
