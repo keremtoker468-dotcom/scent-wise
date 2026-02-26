@@ -2,247 +2,247 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main page (SPA — all features live here) -->
   <url>
-    <loc>https://scent-wise.vercel.app/</loc>
+    <loc>https://scent-wise.com/</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <!-- Blog index -->
   <url>
-    <loc>https://scent-wise.vercel.app/blog/</loc>
+    <loc>https://scent-wise.com/blog/</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <!-- High-traffic blog articles -->
   <url>
-    <loc>https://scent-wise.vercel.app/blog/best-mens-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/best-mens-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/best-womens-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/best-womens-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/baccarat-rouge-540-dupes.html</loc>
+    <loc>https://scent-wise.com/blog/baccarat-rouge-540-dupes.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/dior-sauvage-dupes.html</loc>
+    <loc>https://scent-wise.com/blog/dior-sauvage-dupes.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/celebrity-fragrances-guide.html</loc>
+    <loc>https://scent-wise.com/blog/celebrity-fragrances-guide.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/smellmaxxing-guide-2026.html</loc>
+    <loc>https://scent-wise.com/blog/smellmaxxing-guide-2026.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Dupe & guide articles -->
   <url>
-    <loc>https://scent-wise.vercel.app/blog/best-budget-colognes-for-teens.html</loc>
+    <loc>https://scent-wise.com/blog/best-budget-colognes-for-teens.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/best-date-night-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/best-date-night-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/best-niche-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/best-niche-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/fragrance-layering-guide.html</loc>
+    <loc>https://scent-wise.com/blog/fragrance-layering-guide.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/le-labo-santal-33-dupes.html</loc>
+    <loc>https://scent-wise.com/blog/le-labo-santal-33-dupes.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/tom-ford-lost-cherry-dupes.html</loc>
+    <loc>https://scent-wise.com/blog/tom-ford-lost-cherry-dupes.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/ysl-libre-dupes.html</loc>
+    <loc>https://scent-wise.com/blog/ysl-libre-dupes.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/what-is-oud.html</loc>
+    <loc>https://scent-wise.com/blog/what-is-oud.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/vanilla-in-perfumery.html</loc>
+    <loc>https://scent-wise.com/blog/vanilla-in-perfumery.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/trending-pistachio-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/trending-pistachio-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/trending-marshmallow-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/trending-marshmallow-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <!-- Music-fragrance articles -->
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-classical-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-classical-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-electronic-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-electronic-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-hip-hop-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-hip-hop-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-indie-rock-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-indie-rock-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-jazz-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-jazz-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/music-rnb-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/music-rnb-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <!-- Zodiac fragrance articles -->
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-aquarius-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-aquarius-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-aries-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-aries-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-cancer-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-cancer-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-capricorn-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-capricorn-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-gemini-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-gemini-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-leo-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-leo-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-libra-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-libra-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-pisces-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-pisces-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-sagittarius-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-sagittarius-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-scorpio-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-scorpio-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-taurus-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-taurus-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/blog/zodiac-virgo-fragrances.html</loc>
+    <loc>https://scent-wise.com/blog/zodiac-virgo-fragrances.html</loc>
     <lastmod>2026-02-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <!-- Legal pages -->
   <url>
-    <loc>https://scent-wise.vercel.app/terms.html</loc>
+    <loc>https://scent-wise.com/terms.html</loc>
     <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/privacy.html</loc>
+    <loc>https://scent-wise.com/privacy.html</loc>
     <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://scent-wise.vercel.app/refund.html</loc>
+    <loc>https://scent-wise.com/refund.html</loc>
     <lastmod>2026-01-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>

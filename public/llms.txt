@@ -19,24 +19,24 @@ ScentWise is an AI fragrance advisor that helps users discover their perfect sce
 - $2.99/month premium (3 free AI queries)
 
 ## Guides (35 articles)
-- Homepage: https://scent-wise.vercel.app
-- Best Men's Fragrances 2026: https://scent-wise.vercel.app/blog/best-mens-fragrances.html
-- Best Women's Fragrances 2026: https://scent-wise.vercel.app/blog/best-womens-fragrances.html
-- Best Niche Fragrances Under $100: https://scent-wise.vercel.app/blog/best-niche-fragrances.html
-- Best Date Night Fragrances: https://scent-wise.vercel.app/blog/best-date-night-fragrances.html
-- Smellmaxxing Guide 2026: https://scent-wise.vercel.app/blog/smellmaxxing-guide-2026.html
-- Best Budget Colognes for Teens: https://scent-wise.vercel.app/blog/best-budget-colognes-for-teens.html
-- Fragrance Layering Guide: https://scent-wise.vercel.app/blog/fragrance-layering-guide.html
-- Baccarat Rouge 540 Dupes: https://scent-wise.vercel.app/blog/baccarat-rouge-540-dupes.html
-- Dior Sauvage Dupes: https://scent-wise.vercel.app/blog/dior-sauvage-dupes.html
-- Tom Ford Lost Cherry Dupes: https://scent-wise.vercel.app/blog/tom-ford-lost-cherry-dupes.html
-- YSL Libre Dupes: https://scent-wise.vercel.app/blog/ysl-libre-dupes.html
-- Le Labo Santal 33 Dupes: https://scent-wise.vercel.app/blog/le-labo-santal-33-dupes.html
-- Celebrity Fragrances Guide: https://scent-wise.vercel.app/blog/celebrity-fragrances-guide.html
-- What Is Oud?: https://scent-wise.vercel.app/blog/what-is-oud.html
-- Vanilla in Perfumery: https://scent-wise.vercel.app/blog/vanilla-in-perfumery.html
-- Trending Pistachio Fragrances: https://scent-wise.vercel.app/blog/trending-pistachio-fragrances.html
-- Trending Marshmallow Fragrances: https://scent-wise.vercel.app/blog/trending-marshmallow-fragrances.html
+- Homepage: https://scent-wise.com
+- Best Men's Fragrances 2026: https://scent-wise.com/blog/best-mens-fragrances.html
+- Best Women's Fragrances 2026: https://scent-wise.com/blog/best-womens-fragrances.html
+- Best Niche Fragrances Under $100: https://scent-wise.com/blog/best-niche-fragrances.html
+- Best Date Night Fragrances: https://scent-wise.com/blog/best-date-night-fragrances.html
+- Smellmaxxing Guide 2026: https://scent-wise.com/blog/smellmaxxing-guide-2026.html
+- Best Budget Colognes for Teens: https://scent-wise.com/blog/best-budget-colognes-for-teens.html
+- Fragrance Layering Guide: https://scent-wise.com/blog/fragrance-layering-guide.html
+- Baccarat Rouge 540 Dupes: https://scent-wise.com/blog/baccarat-rouge-540-dupes.html
+- Dior Sauvage Dupes: https://scent-wise.com/blog/dior-sauvage-dupes.html
+- Tom Ford Lost Cherry Dupes: https://scent-wise.com/blog/tom-ford-lost-cherry-dupes.html
+- YSL Libre Dupes: https://scent-wise.com/blog/ysl-libre-dupes.html
+- Le Labo Santal 33 Dupes: https://scent-wise.com/blog/le-labo-santal-33-dupes.html
+- Celebrity Fragrances Guide: https://scent-wise.com/blog/celebrity-fragrances-guide.html
+- What Is Oud?: https://scent-wise.com/blog/what-is-oud.html
+- Vanilla in Perfumery: https://scent-wise.com/blog/vanilla-in-perfumery.html
+- Trending Pistachio Fragrances: https://scent-wise.com/blog/trending-pistachio-fragrances.html
+- Trending Marshmallow Fragrances: https://scent-wise.com/blog/trending-marshmallow-fragrances.html
 - Zodiac Guides: Aries, Taurus, Gemini, Cancer, Leo, Virgo, Libra, Scorpio, Sagittarius, Capricorn, Aquarius, Pisces
 - Music Guides: Hip-Hop, Indie Rock, Jazz, Electronic, R&B, Classical
 

@@ -20,7 +20,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Determine redirect URL from request origin
-  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || 'https://scent-wise.vercel.app';
+  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || 'https://scent-wise.com';
   const siteUrl = origin.replace(/\/+$/, '');
 
   try {
