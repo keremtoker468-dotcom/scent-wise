@@ -60,16 +60,21 @@ module.exports = async function handler(req, res) {
       const errBody = await orderRes.text().catch(() => '');
       console.error(`LS API order-by-id miss: ${orderRes.status} for ${orderId} — ${errBody}`);
 
-      // Don't include store_id filter in URL — validate locally instead
-      const searchUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=25`;
+      // Search by order_number with pagination
+      const MAX_PAGES = 10;
+      let pageUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=100`;
 
-      const listRes = await fetch(searchUrl, { headers: lsHeaders });
-      if (listRes.ok) {
+      for (let page = 0; page < MAX_PAGES && !orderData; page++) {
+        const listRes = await fetch(pageUrl, { headers: lsHeaders });
+        if (!listRes.ok) break;
         const listData = await listRes.json();
         const match = (listData.data || []).find(o =>
           String(o.attributes.order_number) === orderId
         );
-        if (match) orderData = { data: match };
+        if (match) { orderData = { data: match }; break; }
+        const nextUrl = listData.links?.next;
+        if (!nextUrl) break;
+        pageUrl = nextUrl;
       }
     }
 
