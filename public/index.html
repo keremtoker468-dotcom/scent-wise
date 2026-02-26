@@ -74,7 +74,7 @@
     "@type": "SearchAction",
     "target": {
       "@type": "EntryPoint",
-      "urlTemplate": "https://scent-wise.vercel.app/#explore?q={search_term_string}"
+      "urlTemplate": "https://scent-wise.vercel.app/?q={search_term_string}"
     },
     "query-input": "required name=search_term_string"
   }
@@ -153,8 +153,9 @@
   "@type": "BreadcrumbList",
   "itemListElement": [
     {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://scent-wise.vercel.app/"},
-    {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://scent-wise.vercel.app/blog/best-mens-fragrances.html"},
-    {"@type": "ListItem", "position": 3, "name": "Celebrity Fragrances", "item": "https://scent-wise.vercel.app/blog/celebrity-fragrances-guide.html"}
+    {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://scent-wise.vercel.app/blog/"},
+    {"@type": "ListItem", "position": 3, "name": "AI Fragrance Advisor", "item": "https://scent-wise.vercel.app/"},
+    {"@type": "ListItem", "position": 4, "name": "Celebrity Fragrances", "item": "https://scent-wise.vercel.app/blog/celebrity-fragrances-guide.html"}
   ]
 }
 </script>
@@ -1135,7 +1136,144 @@ setTimeout(function(){
 </div>
 <!-- Pages -->
 <main id="main-content">
-<div id="page-home" class="hidden" role="region" aria-label="Home"></div>
+<div id="page-home" role="region" aria-label="Home"><div class="hp-grain">
+  <nav class="hp-nav" id="hp-nav">
+    <div class="hp-nav-logo" onclick="go('home')">Scent<span>Wise</span></div>
+    <div class="hp-nav-links">
+      <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
+      <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
+    </div>
+    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </div>
+  </nav>
+  <section class="hp-hero">
+    <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
+    <h1>Find the scent that <em>feels like you</em></h1>
+    <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of 75,000+ scents.</p>
+    <div class="hp-hero-actions">
+      <button class="hp-btn-primary" onclick="go('chat')">Start Discovering</button>
+      <button class="hp-btn-ghost" onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+    <div class="hp-hero-stats">
+      <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
+      <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
+      <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-discover">
+    <div class="hp-section-kicker hp-reveal visible">Ways to Discover</div>
+    <div class="hp-section-heading hp-reveal visible">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
+    <p class="hp-section-copy hp-reveal visible">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
+    <div class="hp-modes-layout">
+      <div class="hp-mode-item featured hp-reveal visible" onclick="go('chat')">
+        <div>
+          <div class="hp-mode-number">01</div>
+          <div class="hp-mode-name">Ask the Expert</div>
+          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
+          <div class="hp-mode-tag">Conversation → Recommendations</div>
+        </div>
+        <div class="hp-mode-visual">
+          <div class="hp-mode-visual-circle">
+            <div class="hp-mode-visual-icon">✦</div>
+            <div class="hp-mode-visual-ring"></div>
+          </div>
+        </div>
+      </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('zodiac')">
+        <div class="hp-mode-number">02</div>
+        <div class="hp-mode-name">Zodiac Match</div>
+        <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
+        <div class="hp-mode-tag">Birthday → Scent</div>
+      </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('photo')">
+        <div class="hp-mode-number">03</div>
+        <div class="hp-mode-name">Photo Style Scan</div>
+        <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
+        <div class="hp-mode-tag">Photo → Scent</div>
+      </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('music')">
+        <div class="hp-mode-number">04</div>
+        <div class="hp-mode-name">Music Match</div>
+        <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
+        <div class="hp-mode-tag">Genres → Scent</div>
+      </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('style')">
+        <div class="hp-mode-number">05</div>
+        <div class="hp-mode-name">Style Match</div>
+        <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
+        <div class="hp-mode-tag">Fashion → Scent</div>
+      </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('celeb')">
+        <div class="hp-mode-number">06</div>
+        <div class="hp-mode-name">Celebrity Collections</div>
+        <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
+        <div class="hp-mode-tag">Browse → Discover</div>
+      </div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-how">
+    <div class="hp-section-kicker hp-reveal visible">How It Works</div>
+    <div class="hp-section-heading hp-reveal visible">Three steps to your <em>perfect match</em></div>
+    <p class="hp-section-copy hp-reveal visible">No samples, no guesswork, no department store pressure. Just intelligent recommendations.</p>
+    <div class="hp-steps">
+      <div class="hp-step hp-reveal visible">
+        <div class="hp-step-num">01</div>
+        <div class="hp-step-title">Choose Your Path</div>
+        <div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div>
+      </div>
+      <div class="hp-step hp-reveal visible">
+        <div class="hp-step-num">02</div>
+        <div class="hp-step-title">Get Matched</div>
+        <div class="hp-step-text">Our engine cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings.</div>
+      </div>
+      <div class="hp-step hp-reveal visible">
+        <div class="hp-step-num">03</div>
+        <div class="hp-step-title">Discover &amp; Explore</div>
+        <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
+      </div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-quote-section">
+    <div class="hp-quote-mark hp-reveal visible">"</div>
+    <div class="hp-quote-text hp-reveal visible">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
+    <div class="hp-quote-attr hp-reveal visible">— The Philosophy Behind ScentWise</div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-celeb-section" id="hp-celebrities">
+    <div class="hp-celeb-inner">
+      <div class="hp-section-kicker hp-reveal visible">Celebrity Collections</div>
+      <div class="hp-section-heading hp-reveal visible">What the <em>icons</em> wear</div>
+      <p class="hp-section-copy hp-reveal visible">Explore the fragrance wardrobes of cultural icons and find out what your favourites reach for.</p>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-cta-section">
+    <div class="hp-cta-heading hp-reveal visible">Ready to find <em>your scent?</em></div>
+    <p class="hp-cta-sub hp-reveal visible">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
+    <div class="hp-reveal visible">
+      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
+    </div>
+  </section>
+  <footer class="hp-footer">
+    <div class="hp-footer-inner">
+      <div class="hp-footer-logo">Scent<span>Wise</span></div>
+      <div class="hp-footer-links">
+        <a href="/blog/">Blog</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/refund.html">Refunds</a>
+        <a href="mailto:scentwise.com@gmail.com">Contact</a>
+      </div>
+    </div>
+    <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
+  </footer>
+</div></div>
 <div id="page-explore" class="hidden" role="region" aria-label="Explore Database"></div>
 <div id="page-chat" class="hidden" role="region" aria-label="AI Fragrance Advisor"></div>
 <div id="page-photo" class="hidden" role="region" aria-label="Photo Style Scan"></div>
@@ -1275,7 +1413,7 @@ setTimeout(function(){
     // Also clear all caches to remove stale HTML/JS
     if (window.caches) {
       caches.keys().then(function(keys) {
-        keys.forEach(function(k) { if (k !== 'sw-v3') caches.delete(k); });
+        keys.forEach(function(k) { if (k !== 'sw-v4') caches.delete(k); });
       });
     }
   }

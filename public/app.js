@@ -780,11 +780,10 @@ function go(p) {
     }
   }
   try { rNav(); } catch(err) { console.error('rNav error:', err); }
-  // Render the page
+  // Render the page (r_* functions set innerHTML directly, no need to clear first)
   const e = document.getElementById('page-' + p);
   if (e) {
     e.classList.remove('hidden');
-    e.innerHTML = '';
     try { window['r_' + p](e); } catch(err) { console.error('Page render error:', p, err); }
   }
   window.scrollTo({top:0,behavior:'smooth'});
