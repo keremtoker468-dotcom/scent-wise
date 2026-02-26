@@ -1,20 +1,21 @@
-const { validateOrigin } = require('./_lib/csrf');
+const { verifyOwnerToken } = require('./_lib/owner-token');
+const { parseCookies } = require('./_lib/usage');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
-
+  // Authenticate via sw_owner cookie (timing-safe), not query params
   const ownerKey = process.env.OWNER_KEY;
-  // Require owner key as query param to access this endpoint
-  const { key } = req.query || {};
-  if (!ownerKey || !key || key !== ownerKey) {
+  if (!ownerKey) return res.status(401).json({ error: 'Unauthorized' });
+
+  const cookies = parseCookies(req.headers.cookie || '');
+  if (!cookies.sw_owner || !verifyOwnerToken(cookies.sw_owner, ownerKey)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
   const config = {
-    LEMONSQUEEZY_API_KEY: lsApiKey ? `set (${lsApiKey.length} chars)` : 'MISSING',
+    LEMONSQUEEZY_API_KEY: lsApiKey ? 'set' : 'MISSING',
     SUBSCRIPTION_SECRET: process.env.SUBSCRIPTION_SECRET ? 'set' : 'MISSING',
     LEMONSQUEEZY_STORE_ID: process.env.LEMONSQUEEZY_STORE_ID || 'not set',
     LEMONSQUEEZY_PRODUCT_ID: process.env.LEMONSQUEEZY_PRODUCT_ID || 'not set',
@@ -36,7 +37,6 @@ module.exports = async function handler(req, res) {
         }
       });
       if (r.ok) {
-        const d = await r.json();
         apiTest = 'OK — API key is valid';
       } else {
         const body = await r.text().catch(() => '');

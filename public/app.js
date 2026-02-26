@@ -7,7 +7,21 @@ function showToast(message, type = 'info', duration = 4000) {
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.setAttribute('role', 'alert');
-  toast.innerHTML = `<span class="toast-icon" aria-hidden="true">${icons[type] || icons.info}</span><span class="toast-msg">${message}</span><button class="toast-close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>`;
+  const icon = document.createElement('span');
+  icon.className = 'toast-icon';
+  icon.setAttribute('aria-hidden', 'true');
+  icon.textContent = icons[type] || icons.info;
+  const msg = document.createElement('span');
+  msg.className = 'toast-msg';
+  msg.textContent = message;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'toast-close';
+  closeBtn.setAttribute('aria-label', 'Dismiss');
+  closeBtn.innerHTML = '&times;';
+  closeBtn.onclick = function() { toast.remove(); };
+  toast.appendChild(icon);
+  toast.appendChild(msg);
+  toast.appendChild(closeBtn);
   container.appendChild(toast);
   if (duration > 0) {
     setTimeout(() => {
@@ -1483,7 +1497,7 @@ function r_account(el) {
         </div>
         ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Email</span>
-          <span style="font-size:14px">${userEmail}</span>
+          <span style="font-size:14px">${esc(userEmail)}</span>
         </div>` : ''}
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
           <span style="color:var(--td);font-size:13px">AI Queries</span>

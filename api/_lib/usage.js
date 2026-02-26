@@ -129,6 +129,35 @@ async function redisSetFreeUsage(ip, month, count) {
   }
 }
 
+// Atomic increment for free trial usage — prevents TOCTOU race conditions
+// Returns the new count after increment, or null if Redis is unavailable
+async function redisIncrFreeUsage(ip, month) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+
+  try {
+    const key = `sw_free:${ip}:${month}`;
+    const resp = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify([
+        ['INCR', key],
+        ['EXPIRE', key, 33 * 24 * 60 * 60]
+      ])
+    });
+    if (!resp.ok) return null;
+    const results = await resp.json();
+    const newCount = results[0]?.result;
+    return typeof newCount === 'number' ? newCount : null;
+  } catch {
+    return null;
+  }
+}
+
 function memoryGetFreeUsage(ip, month) {
   cleanupFreeStore();
   const key = `${ip}:${month}`;
@@ -207,4 +236,4 @@ async function writeFreeUsage(res, ip, count, secret, isProduction) {
   res.setHeader('Set-Cookie', cookies);
 }
 
-module.exports = { readUsage, writeUsage, readFreeUsage, writeFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies };
+module.exports = { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies };

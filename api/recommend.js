@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);
@@ -133,10 +133,18 @@ module.exports = async function handler(req, res) {
     const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
 
     // Track usage after successful AI call
-    usageCount++;
     if (isFreeTrialRequest && subSecret) {
-      await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
+      // Use atomic Redis INCR to prevent TOCTOU race conditions
+      const atomicCount = await redisIncrFreeUsage(ip, getCurrentMonth());
+      if (atomicCount !== null) {
+        usageCount = atomicCount;
+      } else {
+        // Fallback: non-atomic increment when Redis is unavailable
+        usageCount++;
+        await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
+      }
     } else if (access.tier === 'premium' && subSecret) {
+      usageCount++;
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);
     }
 

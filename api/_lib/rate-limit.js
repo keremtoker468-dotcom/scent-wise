@@ -80,8 +80,10 @@ function rateLimit(key, max, windowMs) {
 }
 
 function getClientIp(req) {
-  return req.headers['x-forwarded-for']?.split(',')[0]?.trim()
-    || req.headers['x-real-ip']
+  // Prefer x-real-ip (set by Vercel to the true client IP) to prevent
+  // X-Forwarded-For spoofing which could bypass rate limits and IP tracking
+  return req.headers['x-real-ip']
+    || req.headers['x-forwarded-for']?.split(',').pop()?.trim()
     || req.socket?.remoteAddress
     || 'unknown';
 }

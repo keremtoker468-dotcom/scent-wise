@@ -41,30 +41,42 @@ module.exports = async function handler(req, res) {
 
   try {
     // Step 1: Find customer by email
-    // We fetch customers by store_id (reliable) and match email locally,
+    // We fetch customers by store_id and match email locally with pagination,
     // because filter[email] returns HTTP 400 on the LemonSqueezy API.
+    let customers = [];
     let custUrl = 'https://api.lemonsqueezy.com/v1/customers?page[size]=100';
     if (expectedStoreId) custUrl += `&filter[store_id]=${expectedStoreId}`;
 
-    const custRes = await fetch(custUrl, { headers: lsHeaders });
+    const MAX_PAGES = 10; // Safety limit to prevent infinite loops
+    let pageUrl = custUrl;
 
-    if (!custRes.ok) {
-      const errBody = await custRes.text().catch(() => '');
-      console.error(`LS customers API error: ${custRes.status} — ${errBody}`);
-      // Parse JSON:API error detail if available
-      let detail = '';
-      try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
-      if (custRes.status === 401 || custRes.status === 403) {
-        return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+    for (let page = 0; page < MAX_PAGES; page++) {
+      const custRes = await fetch(pageUrl, { headers: lsHeaders });
+
+      if (!custRes.ok) {
+        const errBody = await custRes.text().catch(() => '');
+        console.error(`LS customers API error: ${custRes.status} — ${errBody}`);
+        let detail = '';
+        try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
+        if (custRes.status === 401 || custRes.status === 403) {
+          return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+        }
+        return res.status(502).json({ error: 'Could not look up subscription. Please try again later.' });
       }
-      return res.status(502).json({ error: `Could not look up subscription (upstream HTTP ${custRes.status}). ${detail || 'Please try again later.'}` });
-    }
 
-    const custData = await custRes.json();
-    // Filter by email locally since the API filter[email] param is unreliable
-    const customers = (custData.data || []).filter(c =>
-      c.attributes.email && c.attributes.email.toLowerCase() === emailClean
-    );
+      const custData = await custRes.json();
+      // Filter by email locally since the API filter[email] param is unreliable
+      const matched = (custData.data || []).filter(c =>
+        c.attributes.email && c.attributes.email.toLowerCase() === emailClean
+      );
+      customers.push(...matched);
+
+      // Stop paginating once we found a match or there are no more pages
+      if (customers.length > 0) break;
+      const nextUrl = custData.links?.next;
+      if (!nextUrl) break;
+      pageUrl = nextUrl;
+    }
 
     if (customers.length === 0) {
       return res.status(404).json({ error: 'No active subscription found for this email. Please make sure you\'re using the same email address from your LemonSqueezy purchase.' });

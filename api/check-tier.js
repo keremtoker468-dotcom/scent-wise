@@ -24,6 +24,12 @@ module.exports = async function handler(req, res) {
   const rl = await rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
   if (!rl.allowed) return res.status(429).json({ error: 'Too many requests' });
 
+  // Only allow cookie mutations (clearing invalid subscriptions, setting revalidation)
+  // when the request comes from our own origin. This prevents cross-site requests
+  // from triggering subscription cookie clearing via <img> or other GET vectors.
+  const isSameOrigin = req.headers['sec-fetch-site'] === 'same-origin'
+    || req.headers['x-requested-with'] === 'ScentWise';
+
   const cookies = parseCookies(req.headers.cookie || '');
   const subSecret = process.env.SUBSCRIPTION_SECRET;
   const ownerKey = process.env.OWNER_KEY;
@@ -40,7 +46,7 @@ module.exports = async function handler(req, res) {
       // Periodically re-validate subscription with LS API
       // Use sw_revalidated cookie to throttle (once per 24h)
       const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
-      const needsRevalidation = lsApiKey && !cookies.sw_revalidated;
+      const needsRevalidation = lsApiKey && !cookies.sw_revalidated && isSameOrigin;
       const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
 
       if (needsRevalidation) {
@@ -83,8 +89,11 @@ module.exports = async function handler(req, res) {
         limit: MAX_MONTHLY_QUERIES
       });
     }
-    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-    res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+    // Invalid subscription token — only clear cookie if same-origin request
+    if (isSameOrigin) {
+      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+      res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+    }
   }
 
   // Return free trial usage for anonymous users
