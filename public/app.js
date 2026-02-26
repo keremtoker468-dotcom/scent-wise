@@ -62,23 +62,52 @@ function goFromSwitcher(id) {
 const _CM = {F:'Fresh',L:'Floral',O:'Oriental',W:'Woody',S:'Sweet',A:'Aromatic',Q:'Aquatic',U:'Fruity',M:'Musky',P:'Warm Spicy','':''};
 const _GM = {M:'Male',F:'Female',U:'Unisex','':''};
 
-// Decode SI (basic 70k entries): _SI stores "name|brandIdx|catChar|genderChar", _SB is brand list
-const SI = (typeof _SI !== 'undefined') ? _SI.map(s => {
-  const p = s.split('|');
-  return p[0] + '|' + (_SB[+p[1]]||'') + '|' + (_CM[p[2]]||p[2]) + '|' + (_GM[p[3]]||p[3]);
-}) : [];
-
-// Decode RD (rich 8k entries): _RD stores [name,brandIdx,catChar,genderChar,rating,accordIdxs,notes,conc,longevity]
-const RD = (typeof _RD !== 'undefined') ? _RD.map(e => {
-  const o = {n:e[0], b:_RB[e[1]]||'', c:_CM[e[2]]||e[2], g:_GM[e[3]]||e[3], r:e[4], a:(e[5]||[]).map(i=>_RA[i]).join(', ')};
-  if (e[6]) o.t = e[6];
-  if (e[7]) o.o = e[7];
-  if (e[8]) o.l = e[8];
-  return o;
-}) : [];
-
+// Lazy-loaded database arrays — populated by loadDB()
+let SI = [];
+let RD = [];
 const RL = {};
-RD.forEach(p => { RL[(p.n+'|'+p.b).toLowerCase()] = p; });
+let _dbLoaded = false;
+let _dbLoadPromise = null;
+
+function _decodeDB() {
+  if (typeof _SI !== 'undefined' && SI.length === 0) {
+    SI = _SI.map(s => {
+      const p = s.split('|');
+      return p[0] + '|' + (_SB[+p[1]]||'') + '|' + (_CM[p[2]]||p[2]) + '|' + (_GM[p[3]]||p[3]);
+    });
+  }
+  if (typeof _RD !== 'undefined' && RD.length === 0) {
+    RD = _RD.map(e => {
+      const o = {n:e[0], b:_RB[e[1]]||'', c:_CM[e[2]]||e[2], g:_GM[e[3]]||e[3], r:e[4], a:(e[5]||[]).map(i=>_RA[i]).join(', ')};
+      if (e[6]) o.t = e[6];
+      if (e[7]) o.o = e[7];
+      if (e[8]) o.l = e[8];
+      return o;
+    });
+    RD.forEach(p => { RL[(p.n+'|'+p.b).toLowerCase()] = p; });
+  }
+  _dbLoaded = true;
+}
+
+function _loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function loadDB() {
+  if (_dbLoaded) return Promise.resolve();
+  if (_dbLoadPromise) return _dbLoadPromise;
+  _dbLoadPromise = _loadScript('/perfumes.js')
+    .then(() => _loadScript('/perfumes-rich.js'))
+    .then(() => { _decodeDB(); })
+    .catch(err => { console.error('Failed to load perfume data:', err); _dbLoaded = true; });
+  return _dbLoadPromise;
+}
 
 function find(name, brand) {
   if (!name) return null;
@@ -792,7 +821,7 @@ document.addEventListener('touchend',function(e){
 
 // ═══════════════ HOME ═══════════════
 function r_home(el) {
-  const perfumeCount = (Math.ceil(SI.length/5000)*5000).toLocaleString();
+  const perfumeCount = SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000';
   const celebCount = CELEBS.length;
   el.innerHTML = `<div class="hp-grain">
   <!-- Homepage Nav -->
@@ -970,17 +999,31 @@ function r_home(el) {
       // No IntersectionObserver: reveal all immediately
       reveals.forEach(el => el.classList.add('visible'));
     }
-    // Homepage nav scroll effect
+    // Homepage nav scroll effect (throttled with rAF for better INP)
     const hpNav = document.getElementById('hp-nav');
     if (hpNav) {
-      window._hpScrollHandler = () => { hpNav.classList.toggle('scrolled', window.scrollY > 60); };
-      window.addEventListener('scroll', window._hpScrollHandler);
+      let _hpScrollTick = false;
+      window._hpScrollHandler = () => {
+        if (!_hpScrollTick) {
+          _hpScrollTick = true;
+          requestAnimationFrame(() => {
+            hpNav.classList.toggle('scrolled', window.scrollY > 60);
+            _hpScrollTick = false;
+          });
+        }
+      };
+      window.addEventListener('scroll', window._hpScrollHandler, {passive: true});
     }
   }, 50);
 }
 
 // ═══════════════ EXPLORE (FREE — uses local DB) ═══════════════
 function r_explore(el) {
+  if (!_dbLoaded) {
+    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td)">Loading fragrance database...</p></div>';
+    loadDB().then(() => { if (CP === 'explore') r_explore(el); });
+    return;
+  }
   const filters = ['all','Male','Female','Unisex'];
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
@@ -1032,7 +1075,7 @@ function r_chat(el) {
     <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
         <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-        <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ perfumes with real notes, accords & ratings</p>
+        <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000'}+ perfumes with real notes, accords & ratings</p>
       </div>
       ${chatMsgs.length > 0 ? `<button class="btn-o btn-sm" onclick="chatMsgs=[];_ssw('chatMsgs',[]);r_chat(document.getElementById('page-chat'))" aria-label="Start a new conversation" style="flex-shrink:0;white-space:nowrap">New Chat</button>` : ''}
     </div>
@@ -1069,7 +1112,8 @@ async function cSend(text) {
   chatLoad = true;
   r_chat(document.getElementById('page-chat'));
 
-  // Build context from local DB
+  // Build context from local DB (ensure loaded)
+  await loadDB();
   const ctx = getContext(text);
   const sysWithCtx = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 75,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ' + (ctx || '');
   const apiMsgs = chatMsgs.map(m => ({role:m.role, content: m.role==='user' && m.content===text ? sysWithCtx + '\n\nUser question: ' + m.content : m.content}));
@@ -1380,6 +1424,11 @@ async function sFollow() {
 
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
 function r_celeb(el) {
+  if (!_dbLoaded) {
+    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td)">Loading fragrance data...</p></div>';
+    loadDB().then(() => { if (CP === 'celeb') r_celeb(el); });
+    return;
+  }
   const q = celebQ.toLowerCase();
   const f = q ? CELEBS.filter(c => c.name.toLowerCase().includes(q)) : CELEBS;
   el.innerHTML = `<div class="sec fi">
@@ -1562,8 +1611,12 @@ const _wantAdmin = _initParams.has('admin');
 
 go(_wantAdmin ? 'admin' : 'home');
 
+// Preload database in background (non-blocking, ready when user navigates to explore/chat/celeb)
+requestAnimationFrame(() => { loadDB(); });
+
 // Initialize auth from server-side cookies
 (async function() {
+  const prevTier = currentTier;
   await checkTier();
   // Handle payment return — verify order with retry for LS API propagation delay
   const params = new URLSearchParams(window.location.search);
@@ -1583,6 +1636,8 @@ go(_wantAdmin ? 'admin' : 'home');
     }
     window.history.replaceState({}, '', window.location.pathname);
   }
-  // Re-render with updated auth state (admin page re-renders to reflect owner status)
-  go(CP);
+  // Only re-render if auth state actually changed (avoids wasteful double-render on homepage)
+  if (currentTier !== prevTier || orderId) {
+    go(CP);
+  }
 })();

@@ -223,8 +223,24 @@
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap">
 <style>
+/* Font fallback metrics to reduce CLS from font swap */
+@font-face {
+  font-family: 'Cormorant Garamond Fallback';
+  src: local('Georgia');
+  size-adjust: 113%;
+  ascent-override: 80%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 104%;
+  ascent-override: 95%;
+  descent-override: 25%;
+  line-gap-override: 0%;
+}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
@@ -235,9 +251,9 @@
   --shadow-lg:0 12px 48px rgba(0,0,0,.5),0 2px 8px rgba(0,0,0,.3);
   --glow:0 0 60px rgba(201,169,110,.08),0 0 120px rgba(201,169,110,.04);
 }
-body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,.03) 0%,transparent 50%);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{background:var(--d);color:var(--t);font-family:'DM Sans','DM Sans Fallback',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,.03) 0%,transparent 50%);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
-.fd{font-family:'Cormorant Garamond',Georgia,serif}.gg{color:var(--g)}
+.fd{font-family:'Cormorant Garamond','Cormorant Garamond Fallback',Georgia,serif}.gg{color:var(--g)}
 
 /* ═══ NAVIGATION ═══ */
 .nav-w{background:var(--glass);border-bottom:1px solid rgba(255,255,255,.04);position:sticky;top:0;z-index:100;backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);box-shadow:0 1px 0 rgba(201,169,110,.04)}
@@ -413,8 +429,8 @@ input::placeholder{color:var(--td);opacity:.7}
   --hp-gold: #c8a55a;
   --hp-gold2: #b8944d;
   --hp-gold3: #e8d5a0;
-  --hp-serif: 'Cormorant Garamond', Georgia, serif;
-  --hp-sans: 'DM Sans', -apple-system, sans-serif;
+  --hp-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
+  --hp-sans: 'DM Sans', 'DM Sans Fallback', -apple-system, sans-serif;
 }
 /* Grain overlay for homepage */
 .hp-grain::after {
@@ -1055,9 +1071,7 @@ function acceptCookies(){try{localStorage.setItem('sw_cookie_consent','accepted'
 function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
 document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
 </script>
-<!-- App scripts: data files loaded first (cached by browser), then app logic -->
-<script src="/perfumes.js" defer></script>
-<script src="/perfumes-rich.js" defer></script>
+<!-- App logic loads first (small, renders homepage immediately), data files load lazily -->
 <script src="/app.js" defer></script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
