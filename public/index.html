@@ -1073,7 +1073,7 @@ function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined
 document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
 </script>
 <!-- App logic loads first (small, renders homepage immediately), data files load lazily -->
-<script src="/app.js" defer></script>
+<script src="/app.js?v=2" defer></script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
 setTimeout(function(){
