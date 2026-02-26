@@ -1,13 +1,12 @@
-const CACHE = 'sw-v3';
+const CACHE = 'sw-v4';
 const SHELL = [
   '/',
   '/app.js',
-  '/perfumes.js',
-  '/perfumes-rich.js',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
 ];
+// perfumes.js and perfumes-rich.js are cached on-demand when lazily loaded by app.js
 
 // Install: cache app shell
 self.addEventListener('install', e => {
