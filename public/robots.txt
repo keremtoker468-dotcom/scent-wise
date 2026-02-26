@@ -1,5 +1,5 @@
 # ScentWise — AI Fragrance Advisor
-# https://scent-wise.vercel.app
+# https://scent-wise.com
 
 User-agent: *
 Allow: /
@@ -40,4 +40,4 @@ User-agent: FacebookBot
 Disallow: /
 
 # Sitemap
-Sitemap: https://scent-wise.vercel.app/sitemap.xml
+Sitemap: https://scent-wise.com/sitemap.xml
