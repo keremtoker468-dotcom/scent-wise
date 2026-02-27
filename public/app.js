@@ -254,6 +254,7 @@ async function unlockPaid() {
     const d = await r.json();
     if (d.url) {
       LEMON_URL = d.url;
+      if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
       window.location.href = d.url;
     } else {
       showToast(d.error || 'Could not start checkout. Please try again.', 'error');
@@ -389,6 +390,7 @@ function setupLemonSqueezy() {
     window.LemonSqueezy.Setup({
       eventHandler: async function(event) {
         if (event.event === 'Checkout.Success') {
+          if (typeof gtag === 'function') gtag('event', 'purchase', { currency: 'USD', value: 2.99, transaction_id: event.data?.order?.data?.id || event.data?.order?.id || event.data?.id || '', items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
           const orderId = event.data?.order?.data?.id || event.data?.order?.id || event.data?.id;
           if (orderId) {
             let ok = await activateSubscription(String(orderId), true);
@@ -435,6 +437,7 @@ async function aiCall(mode, payload) {
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
     else if (typeof d.usage === 'number') trackUsage(d.usage);
     else if (isPaid) trackUsage();
+    if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
     return d.result || 'No response. Try again.';
   } catch (e) {
     if (e.message === 'ai_unavailable') return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
