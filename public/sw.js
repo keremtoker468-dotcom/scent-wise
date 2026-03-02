@@ -1,4 +1,4 @@
-const CACHE = 'sw-v4';
+const CACHE = 'sw-v5';
 const SHELL = [
   '/',
   '/app.js',
@@ -42,7 +42,13 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => caches.match(e.request))
+      }).catch(() => caches.match(e.request).then(cached => {
+        // Return cached page or a proper error response
+        return cached || new Response('Offline — please check your connection and reload.', {
+          status: 503, statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/html' }
+        });
+      }))
     );
     return;
   }
@@ -56,7 +62,12 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => cached);
+      }).catch(() => {
+        // Network failed — return cached version if available,
+        // otherwise return a proper error response instead of undefined
+        if (cached) return cached;
+        return new Response('Network error', { status: 503, statusText: 'Service Unavailable' });
+      });
       return cached || fetched;
     })
   );

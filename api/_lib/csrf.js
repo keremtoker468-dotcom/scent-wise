@@ -1,5 +1,8 @@
 // CSRF protection via Origin/Referer header validation.
 // Modern browsers always send Origin on cross-origin POST requests.
+// Falls back to X-Requested-With custom header check for browsers/extensions
+// that strip Origin and Referer (custom headers can't be sent cross-origin
+// without CORS preflight, so their presence proves same-origin).
 function validateOrigin(req) {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return true;
 
@@ -19,7 +22,10 @@ function validateOrigin(req) {
     catch { return false; }
   }
 
-  // No Origin or Referer — reject
+  // Fallback: X-Requested-With header (can't be set cross-origin without CORS preflight)
+  if (req.headers['x-requested-with'] === 'ScentWise') return true;
+
+  // No Origin, Referer, or custom header — reject
   return false;
 }
 

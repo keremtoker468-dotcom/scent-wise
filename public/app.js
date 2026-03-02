@@ -209,7 +209,7 @@ const FREE_LIMIT = 3;
 
 async function checkTier() {
   try {
-    const r = await fetch('/api/check-tier', { credentials: 'same-origin' });
+    const r = await fetch('/api/check-tier', { credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
     const d = await r.json();
     currentTier = d.tier || 'free';
     isOwner = currentTier === 'owner';
@@ -250,7 +250,7 @@ async function unlockPaid() {
   const btns = document.querySelectorAll('[data-subscribe-btn]');
   btns.forEach(b => { b._prev = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; });
   try {
-    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin' });
+    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
     const d = await r.json();
     if (d.url) {
       LEMON_URL = d.url;
@@ -270,7 +270,7 @@ async function loginOwner(key) {
   try {
     const r = await fetch('/api/owner-auth', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
       credentials: 'same-origin',
       body: JSON.stringify({ key })
     });
@@ -282,7 +282,7 @@ async function loginOwner(key) {
 
 async function logoutOwner() {
   try {
-    await fetch('/api/owner-auth', { method: 'DELETE', credentials: 'same-origin' });
+    await fetch('/api/owner-auth', { method: 'DELETE', credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
   } catch {}
   isOwner = false; isPaid = false; currentTier = 'free'; go(CP);
 }
@@ -291,7 +291,7 @@ async function activateSubscription(orderId, silent) {
   try {
     const r = await fetch('/api/verify-subscription', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
       credentials: 'same-origin',
       body: JSON.stringify({ orderId })
     });
@@ -345,7 +345,7 @@ async function loginWithEmail(email) {
   try {
     const r = await fetch('/api/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
       credentials: 'same-origin',
       body: JSON.stringify({ email: email.trim() })
     });
@@ -379,7 +379,7 @@ function doEmailLogin() {
 }
 
 function doLogout() {
-  fetch('/api/owner-auth', { method: 'DELETE', credentials: 'same-origin' }).catch(() => {});
+  fetch('/api/owner-auth', { method: 'DELETE', credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } }).catch(() => {});
   isOwner = false; isPaid = false; currentTier = 'free'; userEmail = ''; go('home');
 }
 
@@ -422,7 +422,7 @@ async function aiCall(mode, payload) {
   try {
     const r = await fetch(API_URL, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise'},
       credentials: 'same-origin',
       body: JSON.stringify({mode, ...payload})
     });
@@ -1597,7 +1597,7 @@ async function doAdminLogin() {
   try {
     const r = await fetch('/api/owner-auth', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
       credentials: 'same-origin',
       body: JSON.stringify({ key: inp.value.trim() })
     });
