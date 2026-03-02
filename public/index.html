@@ -1099,10 +1099,11 @@ setTimeout(function(){
     // No page rendered = app.js failed to load/execute, or render crashed
     if (!sessionStorage.getItem('sw_reloaded')) {
       sessionStorage.setItem('sw_reloaded', '1');
-      // Clear all SW caches before reload
-      if (window.caches) { caches.keys().then(function(k) { k.forEach(function(n) { caches.delete(n); }); }); }
-      if (navigator.serviceWorker) { navigator.serviceWorker.getRegistrations().then(function(r) { r.forEach(function(w) { w.unregister(); }); }); }
-      setTimeout(function() { location.reload(); }, 200);
+      // Clear all SW caches and unregister before reload — wait for completion
+      var tasks = [];
+      if (window.caches) { tasks.push(caches.keys().then(function(k) { return Promise.all(k.map(function(n) { return caches.delete(n); })); })); }
+      if (navigator.serviceWorker) { tasks.push(navigator.serviceWorker.getRegistrations().then(function(r) { return Promise.all(r.map(function(w) { return w.unregister(); })); })); }
+      Promise.all(tasks).then(function() { location.reload(); }).catch(function() { location.reload(); });
     }
   }
 }, 4000);
@@ -1406,23 +1407,15 @@ setTimeout(function(){
 </nav>
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  // Force SW update: unregister stale SWs and re-register with no cache
+  // Register SW normally — the SW's activate event cleans old caches,
+  // and skipWaiting + clients.claim ensure updates take effect immediately.
+  // updateViaCache:'none' ensures the browser always checks for a new sw.js.
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-      // Unregister all existing SWs to clear stale v1/v2 workers
-      var p = regs.map(function(r) { return r.unregister(); });
-      return Promise.all(p);
-    }).then(function() {
-      // Re-register with fresh fetch (no browser cache for sw.js)
-      return navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
-    }).catch(function() {
-      // Fallback: just register normally
-      navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
-    });
-    // Also clear all caches to remove stale HTML/JS
+    navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(function() {});
+    // Clean up legacy caches from older SW versions
     if (window.caches) {
       caches.keys().then(function(keys) {
-        keys.forEach(function(k) { if (k !== 'sw-v4') caches.delete(k); });
+        keys.forEach(function(k) { if (k !== 'sw-v5') caches.delete(k); });
       });
     }
   }
