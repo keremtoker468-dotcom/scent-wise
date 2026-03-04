@@ -1,9 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/login", "destination": "/api/auth" },
-    { "source": "/api/owner-auth", "destination": "/api/auth" },
-    { "source": "/api/check-tier", "destination": "/api/subscription" },
-    { "source": "/api/verify-subscription", "destination": "/api/subscription" }
+    { "source": "/api/:path*", "destination": "/api/:path*" }
   ],
   "headers": [
     {
