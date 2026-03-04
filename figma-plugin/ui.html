@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ScentWise</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+      font-size: 13px;
+      color: #1a1a1a;
+      background: #fff;
+      height: 560px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #6c4de6 0%, #a855f7 100%);
+      padding: 16px 16px 12px;
+      color: white;
+      flex-shrink: 0;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .logo {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .header p {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    /* Search */
+    .search-box {
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 8px 12px 8px 32px;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.2);
+      color: white;
+      font-size: 12px;
+      outline: none;
+    }
+    .search-box input::placeholder { color: rgba(255,255,255,0.6); }
+    .search-box input:focus { background: rgba(255,255,255,0.3); }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.7;
+      font-size: 14px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      background: #fafafa;
+      flex-shrink: 0;
+    }
+    .tab {
+      flex: 1;
+      padding: 8px 4px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #6b7280;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .tab.active {
+      color: #6c4de6;
+      border-bottom-color: #6c4de6;
+      background: #fff;
+    }
+    .tab:hover:not(.active) { color: #374151; }
+
+    /* Content */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    /* Results list */
+    .results-count {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .perfume-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+    .perfume-item:hover { border-color: #6c4de6; background: #faf7ff; }
+    .perfume-item.selected { border-color: #6c4de6; background: #f3f0ff; }
+
+    .perfume-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .perfume-info { flex: 1; min-width: 0; }
+    .perfume-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: #111;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .perfume-meta {
+      font-size: 10px;
+      color: #9ca3af;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .perfume-check {
+      font-size: 14px;
+      color: #6c4de6;
+      flex-shrink: 0;
+      opacity: 0;
+    }
+    .perfume-item.selected .perfume-check { opacity: 1; }
+
+    /* Actions */
+    .actions {
+      border-top: 1px solid #e5e7eb;
+      padding: 10px 12px;
+      background: #fafafa;
+      flex-shrink: 0;
+    }
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .btn {
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: #6c4de6;
+      color: white;
+    }
+    .btn-primary:hover { background: #5b3dd4; }
+    .btn-primary:disabled { background: #c4b5fd; cursor: not-allowed; }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+    .btn-secondary:hover { background: #e5e7eb; }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-full {
+      grid-column: 1 / -1;
+    }
+
+    /* Selection bar */
+    .selection-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+    .selection-bar button {
+      font-size: 11px;
+      color: #6c4de6;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1a1a1a;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      opacity: 0;
+      transition: all 0.2s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+    .empty .icon { font-size: 32px; margin-bottom: 8px; }
+    .empty p { font-size: 12px; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Scrollbar */
+    .content::-webkit-scrollbar { width: 4px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
+    .content::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+
+    /* Info tab */
+    .info-section { margin-bottom: 16px; }
+    .info-section h3 {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .info-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #374151;
+      line-height: 1.6;
+    }
+    .color-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .color-swatch {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #374151;
+    }
+    .swatch-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">🌸</div>
+      <div>
+        <h1>ScentWise</h1>
+        <p>Fragrance design toolkit</p>
+      </div>
+    </div>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search perfumes, brands, notes…" autocomplete="off" />
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="browse">Browse</button>
+    <button class="tab" data-tab="info">Guide</button>
+  </div>
+
+  <div class="content" id="browseTab">
+    <div class="selection-bar" id="selectionBar" style="display:none">
+      <span id="selectionCount">0 selected</span>
+      <button onclick="clearSelection()">Clear</button>
+    </div>
+    <div class="results-count" id="resultsCount"></div>
+    <div id="resultsList"></div>
+  </div>
+
+  <div class="content" id="infoTab" style="display:none">
+    <div class="info-section">
+      <h3>What you can create</h3>
+      <div class="info-card">
+        <strong>Perfume Card</strong> — A branded card with name, family color accent, and notes. Select one perfume.<br><br>
+        <strong>Mood Board</strong> — A grid of cards for multiple perfumes. Select 2–9 perfumes.<br><br>
+        <strong>Color Palette</strong> — Fragrance-family color swatches. Select multiple perfumes.<br><br>
+        <strong>Text Block</strong> — Clean typography block with perfume details. Select one perfume.
+      </div>
+    </div>
+    <div class="info-section">
+      <h3>Fragrance family colors</h3>
+      <div class="color-swatches" id="colorSwatches"></div>
+    </div>
+    <div class="info-section">
+      <h3>Tips</h3>
+      <div class="info-card">
+        • Search by brand, name, or fragrance note<br>
+        • Click items to select/deselect<br>
+        • Use Cmd/Ctrl+click to select multiple<br>
+        • Elements are fully editable after insertion
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="btnCard" disabled onclick="createCard()">🃏 Card</button>
+      <button class="btn btn-secondary" id="btnText" disabled onclick="insertText()">📝 Text</button>
+      <button class="btn btn-secondary" id="btnBoard" disabled onclick="createBoard()">🎨 Mood Board</button>
+      <button class="btn btn-secondary" id="btnPalette" disabled onclick="createPalette()">🎨 Palette</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Built-in sample perfume data (subset for offline use)
+    const SAMPLE_PERFUMES = [
+      { name: "Chanel No. 5", brand: "Chanel", family: "Floral", year: 1921, notes: ["Ylang-Ylang", "Rose", "Jasmine", "Sandalwood", "Vetiver"] },
+      { name: "Dior Sauvage", brand: "Dior", family: "Fresh", year: 2015, notes: ["Bergamot", "Pepper", "Lavender", "Vetiver", "Ambroxan"] },
+      { name: "Black Orchid", brand: "Tom Ford", family: "Oriental", year: 2006, notes: ["Truffle", "Ylang-Ylang", "Black Orchid", "Sandalwood", "Patchouli"] },
+      { name: "Acqua di Giò", brand: "Giorgio Armani", family: "Aquatic", year: 1996, notes: ["Bergamot", "Neroli", "Jasmine", "Patchouli", "White Musk"] },
+      { name: "J'adore", brand: "Dior", family: "Floral", year: 1999, notes: ["Ylang-Ylang", "Damask Rose", "Jasmine", "Lily", "Vanilla"] },
+      { name: "Bleu de Chanel", brand: "Chanel", family: "Woody", year: 2010, notes: ["Citrus", "Labdanum", "Ginger", "Incense", "Vetiver", "Cedar"] },
+      { name: "La Vie Est Belle", brand: "Lancôme", family: "Gourmand", year: 2012, notes: ["Black Currant", "Iris", "Jasmine", "Praline", "Vanilla", "Patchouli"] },
+      { name: "Aventus", brand: "Creed", family: "Chypre", year: 2010, notes: ["Pineapple", "Bergamot", "Blackcurrant", "Oak Moss", "Ambergris", "Musk"] },
+      { name: "Flowerbomb", brand: "Viktor & Rolf", family: "Floral", year: 2005, notes: ["Tea", "Bergamot", "Sambac Jasmine", "Freesia", "Orchid", "Patchouli"] },
+      { name: "Oud Wood", brand: "Tom Ford", family: "Woody", year: 2007, notes: ["Rare Oud", "Sandalwood", "Rosewood", "Amber", "Tonka Bean"] },
+      { name: "Light Blue", brand: "Dolce & Gabbana", family: "Fresh", year: 2001, notes: ["Sicilian Lemon", "Apple", "Cedarwood", "Bamboo", "White Rose"] },
+      { name: "Coco Mademoiselle", brand: "Chanel", family: "Chypre", year: 2001, notes: ["Orange", "Bergamot", "Rose", "Jasmine", "Patchouli", "Vetiver"] },
+      { name: "Angel", brand: "Thierry Mugler", family: "Gourmand", year: 1992, notes: ["Bergamot", "Honey", "Praline", "Patchouli", "Vanilla", "Chocolate"] },
+      { name: "Terre d'Hermès", brand: "Hermès", family: "Woody", year: 2006, notes: ["Grapefruit", "Orange", "Flint", "Pepper", "Vetiver", "Cedar"] },
+      { name: "212 Sexy", brand: "Carolina Herrera", family: "Oriental", year: 2007, notes: ["Bergamot", "Pink Pepper", "Gardenia", "Musk", "Sandalwood"] },
+      { name: "Good Girl", brand: "Carolina Herrera", family: "Floral", year: 2016, notes: ["Coffee", "Tuberose", "Jasmine Sambac", "Tonka Bean", "Cacao"] },
+      { name: "Versace Eros", brand: "Versace", family: "Fougere", year: 2012, notes: ["Mint", "Green Apple", "Lemon", "Tonka Bean", "Amber Wood", "Vanilla"] },
+      { name: "Shalimar", brand: "Guerlain", family: "Oriental", year: 1925, notes: ["Bergamot", "Lemon", "Iris", "Jasmine", "Vetiver", "Vanilla"] },
+      { name: "Eternity", brand: "Calvin Klein", family: "Floral", year: 1988, notes: ["Green Freesia", "Muguet", "Lily of the Valley", "White Violet", "Sandalwood"] },
+      { name: "Cool Water", brand: "Davidoff", family: "Aquatic", year: 1988, notes: ["Mint", "Lavender", "Coriander", "Sandalwood", "Oakmoss", "Musk"] },
+    ];
+
+    const FAMILY_COLORS = {
+      floral: "#f599b3",
+      woody: "#8c6139",
+      oriental: "#bb700f",
+      fresh: "#87cefb",
+      citrus: "#fcca33",
+      aquatic: "#3da3e0",
+      gourmand: "#d09366",
+      green: "#66bb6a",
+      fougere: "#78a060",
+      chypre: "#857457",
+    };
+
+    function getFamilyColor(family) {
+      if (!family) return "#d8b4fe";
+      const key = family.toLowerCase();
+      for (const [name, color] of Object.entries(FAMILY_COLORS)) {
+        if (key.includes(name)) return color;
+      }
+      return "#d8b4fe";
+    }
+
+    let allPerfumes = [...SAMPLE_PERFUMES];
+    let filteredPerfumes = [...allPerfumes];
+    let selectedPerfumes = new Set();
+    let searchTimer = null;
+
+    // Render color swatches in info tab
+    const swatchContainer = document.getElementById("colorSwatches");
+    Object.entries(FAMILY_COLORS).forEach(([name, color]) => {
+      const div = document.createElement("div");
+      div.className = "color-swatch";
+      div.innerHTML = `<div class="swatch-dot" style="background:${color}"></div><span style="text-transform:capitalize">${name}</span>`;
+      swatchContainer.appendChild(div);
+    });
+
+    function renderResults() {
+      const list = document.getElementById("resultsList");
+      const countEl = document.getElementById("resultsCount");
+
+      countEl.textContent = `${filteredPerfumes.length} perfume${filteredPerfumes.length !== 1 ? "s" : ""}`;
+
+      if (filteredPerfumes.length === 0) {
+        list.innerHTML = `<div class="empty"><div class="icon">🌸</div><p>No results found.<br>Try a different search.</p></div>`;
+        return;
+      }
+
+      list.innerHTML = filteredPerfumes.slice(0, 50).map((p, i) => {
+        const color = getFamilyColor(p.family);
+        const isSelected = selectedPerfumes.has(p.name);
+        const meta = [p.brand, p.family, p.year].filter(Boolean).join(" · ");
+        return `
+          <div class="perfume-item${isSelected ? " selected" : ""}" onclick="toggleSelect(${i})">
+            <div class="perfume-dot" style="background:${color}"></div>
+            <div class="perfume-info">
+              <div class="perfume-name">${escHtml(p.name)}</div>
+              <div class="perfume-meta">${escHtml(meta)}</div>
+            </div>
+            <span class="perfume-check">✓</span>
+          </div>`;
+      }).join("");
+
+      updateSelectionBar();
+    }
+
+    function toggleSelect(filteredIndex) {
+      const perfume = filteredPerfumes[filteredIndex];
+      if (!perfume) return;
+      if (selectedPerfumes.has(perfume.name)) {
+        selectedPerfumes.delete(perfume.name);
+      } else {
+        selectedPerfumes.add(perfume.name);
+      }
+      renderResults();
+    }
+
+    function clearSelection() {
+      selectedPerfumes.clear();
+      renderResults();
+    }
+
+    function getSelectedPerfumes() {
+      return allPerfumes.filter(p => selectedPerfumes.has(p.name));
+    }
+
+    function updateSelectionBar() {
+      const count = selectedPerfumes.size;
+      const bar = document.getElementById("selectionBar");
+      bar.style.display = count > 0 ? "flex" : "none";
+      document.getElementById("selectionCount").textContent = `${count} selected`;
+
+      document.getElementById("btnCard").disabled = count !== 1;
+      document.getElementById("btnText").disabled = count !== 1;
+      document.getElementById("btnBoard").disabled = count < 2 || count > 9;
+      document.getElementById("btnPalette").disabled = count < 1;
+    }
+
+    function escHtml(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function doSearch(q) {
+      q = q.toLowerCase().trim();
+      if (!q) {
+        filteredPerfumes = [...allPerfumes];
+      } else {
+        filteredPerfumes = allPerfumes.filter(p => {
+          const searchStr = [p.name, p.brand, p.family,
+            Array.isArray(p.notes) ? p.notes.join(" ") : String(p.notes || "")
+          ].join(" ").toLowerCase();
+          return searchStr.includes(q);
+        });
+      }
+      renderResults();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => doSearch(e.target.value), 150);
+    });
+
+    // Tab switching
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        const target = tab.dataset.tab;
+        document.getElementById("browseTab").style.display = target === "browse" ? "block" : "none";
+        document.getElementById("infoTab").style.display = target === "info" ? "block" : "none";
+      });
+    });
+
+    // Plugin actions
+    function createCard() {
+      const selected = getSelectedPerfumes();
+      if (selected.length !== 1) return;
+      parent.postMessage({ pluginMessage: { type: "create-perfume-card", perfume: selected[0] } }, "*");
+    }
+    function insertText() {
+      const selected = getSelectedPerfumes();
+      if (selected.length !== 1) return;
+      parent.postMessage({ pluginMessage: { type: "insert-perfume-text", perfume: selected[0] } }, "*");
+    }
+    function createBoard() {
+      const selected = getSelectedPerfumes();
+      if (selected.length < 2) return;
+      parent.postMessage({ pluginMessage: { type: "create-mood-board", perfumes: selected } }, "*");
+    }
+    function createPalette() {
+      const selected = getSelectedPerfumes();
+      if (selected.length < 1) return;
+      parent.postMessage({ pluginMessage: { type: "create-scent-palette", perfumes: selected } }, "*");
+    }
+
+    // Messages from plugin sandbox
+    window.onmessage = (e) => {
+      const msg = e.data.pluginMessage;
+      if (!msg) return;
+      const messages = {
+        "card-created": `Card created for "${msg.name}"`,
+        "board-created": `Mood board with ${msg.count} perfumes created`,
+        "palette-created": "Color palette created",
+        "text-inserted": `Text block inserted for "${msg.name}"`,
+      };
+      if (messages[msg.type]) showToast(messages[msg.type]);
+    };
+
+    function showToast(text) {
+      const toast = document.getElementById("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    // Init
+    renderResults();
+  </script>
+</body>
+</html>
