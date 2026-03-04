@@ -847,7 +847,6 @@ function r_home(el) {
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
-      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
     <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
@@ -856,8 +855,7 @@ function r_home(el) {
   </nav>
   <!-- Hero -->
   <section class="hp-hero">
-    <div class="hp-hero-particles"><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div></div>
-    <div class="hp-hero-eyebrow">AI-Powered Fragrance Discovery</div>
+    <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of ${perfumeCount}+ scents.</p>
     <div class="hp-hero-actions">
@@ -867,45 +865,23 @@ function r_home(el) {
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">${perfumeCount}+</div><div class="label">Fragrances</div></div>
       <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
-      <div class="hp-hero-stat"><div class="num">${celebCount}</div><div class="label">Celebrity Collections</div></div>
+      <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
     </div>
   </section>
-  <!-- Trust Section -->
-  <section class="hp-trust hp-reveal">
-    <div class="hp-trust-headline">ScentWise is an AI fragrance advisor that recommends perfumes based on who you are — your zodiac sign, music taste, personal style, and more. Powered by a database of ${perfumeCount}+ fragrances.</div>
-    <div class="hp-trust-badges">
-      <div class="hp-trust-badge">
-        <div class="hp-trust-badge-icon">🧪</div>
-        <div class="hp-trust-badge-label">${perfumeCount}+ Fragrances</div>
-        <div class="hp-trust-badge-sub">From thousands of brands</div>
-      </div>
-      <div class="hp-trust-badge">
-        <div class="hp-trust-badge-icon">✦</div>
-        <div class="hp-trust-badge-label">AI-Powered</div>
-        <div class="hp-trust-badge-sub">Smart recommendations</div>
-      </div>
-      <div class="hp-trust-badge">
-        <div class="hp-trust-badge-icon">🎁</div>
-        <div class="hp-trust-badge-label">Free to Start</div>
-        <div class="hp-trust-badge-sub">No sign-up required</div>
-      </div>
-    </div>
-  </section>
+  <!-- Divider -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Discovery Modes -->
   <section class="hp-section" id="hp-discover">
-    <div class="hp-section-kicker hp-reveal">Six Ways to Discover</div>
-    <div class="hp-section-heading hp-reveal">Your personality is the key to your <em>perfect scent</em></div>
-    <p class="hp-section-copy hp-reveal">Each discovery mode analyzes a different dimension of who you are to find fragrances you'll love.</p>
+    <div class="hp-section-kicker hp-reveal">Ways to Discover</div>
+    <div class="hp-section-heading hp-reveal">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
+    <p class="hp-section-copy hp-reveal">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
     <div class="hp-modes-layout">
       <div class="hp-mode-item featured hp-reveal" onclick="go('chat')">
         <div>
-          <div class="hp-mode-badge hp-mode-badge--popular">Most Popular</div>
-          <div class="hp-mode-icon-lg">💬</div>
+          <div class="hp-mode-number">01</div>
           <div class="hp-mode-name">Ask the Expert</div>
-          <div class="hp-mode-desc">Have a conversation with our AI fragrance advisor. Describe an occasion, a mood, or a memory — and get curated recommendations with notes, pricing, and alternatives.</div>
+          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
           <div class="hp-mode-tag">Conversation → Recommendations</div>
-          <div class="hp-mode-action">Try it free →</div>
         </div>
         <div class="hp-mode-visual">
           <div class="hp-mode-visual-circle">
@@ -915,101 +891,71 @@ function r_home(el) {
         </div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('zodiac')">
-        <div class="hp-mode-icon-lg">🔮</div>
+        <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
-        <div class="hp-mode-tag">Birthday → Scent Match</div>
-        <div class="hp-mode-action">Try it →</div>
+        <div class="hp-mode-tag">Birthday → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('photo')">
-        <div class="hp-mode-icon-lg">📸</div>
+        <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Photo Style Scan</div>
-        <div class="hp-mode-desc">Upload a photo of your outfit, room, or any aesthetic — our AI reads the visual style to match fragrances.</div>
-        <div class="hp-mode-tag">Photo → Scent Match</div>
-        <div class="hp-mode-action">Try it →</div>
+        <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
+        <div class="hp-mode-tag">Photo → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('music')">
-        <div class="hp-mode-icon-lg">🎶</div>
+        <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
-        <div class="hp-mode-tag">Genres → Scent Match</div>
-        <div class="hp-mode-action">Try it →</div>
+        <div class="hp-mode-tag">Genres → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('style')">
-        <div class="hp-mode-icon-lg">🪞</div>
+        <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Style Match</div>
-        <div class="hp-mode-desc">Describe your fashion sense and wardrobe — we'll find scents that complete the picture.</div>
-        <div class="hp-mode-tag">Fashion → Scent Match</div>
-        <div class="hp-mode-action">Try it →</div>
+        <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
+        <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
-        <div class="hp-mode-badge hp-mode-badge--free">Free</div>
-        <div class="hp-mode-icon-lg">💫</div>
+        <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
-        <div class="hp-mode-desc">Explore the signature fragrances of ${celebCount} icons — from athletes to actors, musicians to moguls.</div>
+        <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
-        <div class="hp-mode-action">Browse free →</div>
       </div>
     </div>
   </section>
+  <!-- Divider -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- How It Works -->
   <section class="hp-section" id="hp-how">
     <div class="hp-section-kicker hp-reveal">How It Works</div>
     <div class="hp-section-heading hp-reveal">Three steps to your <em>perfect match</em></div>
     <p class="hp-section-copy hp-reveal">No samples, no guesswork, no department store pressure. Just intelligent recommendations.</p>
-    <div class="hp-steps-enhanced">
-      <div class="hp-step-enhanced hp-reveal">
-        <div class="hp-step-circle">01</div>
+    <div class="hp-steps">
+      <div class="hp-step hp-reveal">
+        <div class="hp-step-num">01</div>
         <div class="hp-step-title">Choose Your Path</div>
         <div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div>
       </div>
-      <div class="hp-step-enhanced hp-reveal">
-        <div class="hp-step-circle">02</div>
-        <div class="hp-step-title">Share About You</div>
-        <div class="hp-step-text">Our AI cross-references your input against ${perfumeCount}+ fragrance profiles including notes, accords, seasons, and ratings.</div>
+      <div class="hp-step hp-reveal">
+        <div class="hp-step-num">02</div>
+        <div class="hp-step-title">Get Matched</div>
+        <div class="hp-step-text">Our engine cross-references your input against ${perfumeCount}+ fragrance profiles including notes, accords, seasons, and ratings.</div>
       </div>
-      <div class="hp-step-enhanced hp-reveal">
-        <div class="hp-step-circle">03</div>
-        <div class="hp-step-title">Get Your Matches</div>
+      <div class="hp-step hp-reveal">
+        <div class="hp-step-num">03</div>
+        <div class="hp-step-title">Discover & Explore</div>
         <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
       </div>
     </div>
   </section>
+  <!-- Quote -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
-  <!-- Testimonials -->
-  <section class="hp-testimonials">
-    <div class="hp-testimonials-header">
-      <div class="hp-section-kicker hp-reveal">What Users Say</div>
-      <div class="hp-section-heading hp-reveal" style="margin:0 auto">Loved by <em>fragrance enthusiasts</em></div>
-      <div class="hp-rating-display hp-reveal">
-        <div class="hp-rating-stars">★★★★★</div>
-        <div class="hp-rating-text">4.7/5 from 1,200+ users</div>
-      </div>
-    </div>
-    <div class="hp-testimonial-grid">
-      <div class="hp-testimonial-card hp-reveal">
-        <div class="hp-testimonial-stars">★★★★★</div>
-        <div class="hp-testimonial-text">The zodiac match was scarily accurate. It recommended Baccarat Rouge 540 and I've been wearing it ever since. This app gets me.</div>
-        <div class="hp-testimonial-author">Sarah M.</div>
-        <div class="hp-testimonial-mode">Used: Zodiac Match</div>
-      </div>
-      <div class="hp-testimonial-card hp-reveal">
-        <div class="hp-testimonial-stars">★★★★★</div>
-        <div class="hp-testimonial-text">I uploaded a photo of my outfit and it suggested a fragrance that perfectly matched the vibe. Way better than random Sephora sampling.</div>
-        <div class="hp-testimonial-author">James K.</div>
-        <div class="hp-testimonial-mode">Used: Photo Style Scan</div>
-      </div>
-      <div class="hp-testimonial-card hp-reveal">
-        <div class="hp-testimonial-stars">★★★★★</div>
-        <div class="hp-testimonial-text">The music match blew my mind. I said I listen to jazz and R&B, and every recommendation was warm, smooth, and exactly my type.</div>
-        <div class="hp-testimonial-author">Maya L.</div>
-        <div class="hp-testimonial-mode">Used: Music Match</div>
-      </div>
-    </div>
+  <section class="hp-quote-section">
+    <div class="hp-quote-mark hp-reveal">"</div>
+    <div class="hp-quote-text hp-reveal">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
+    <div class="hp-quote-attr hp-reveal">— The Philosophy Behind ScentWise</div>
   </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Celebrities -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-celeb-section" id="hp-celebrities">
     <div class="hp-celeb-inner">
       <div class="hp-section-kicker hp-reveal">Celebrity Collections</div>
@@ -1023,55 +969,14 @@ function r_home(el) {
       </div>
     </div>
   </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
-  <!-- Pricing -->
-  <section class="hp-pricing" id="hp-pricing">
-    <div class="hp-section-kicker hp-reveal">Simple Pricing</div>
-    <div class="hp-section-heading hp-reveal" style="margin:0 auto">Start free, upgrade <em>when you're ready</em></div>
-    <div class="hp-pricing-cards">
-      <div class="hp-pricing-card hp-reveal">
-        <div class="hp-pricing-tier">Free</div>
-        <div class="hp-pricing-price">$0 <span>forever</span></div>
-        <div class="hp-pricing-desc">Explore the database and try AI features</div>
-        <ul class="hp-pricing-features">
-          <li><span class="hp-pricing-check">✓</span> Browse ${perfumeCount}+ fragrances</li>
-          <li><span class="hp-pricing-check">✓</span> 3 free AI queries</li>
-          <li><span class="hp-pricing-check">✓</span> Celebrity collections</li>
-          <li><span class="hp-pricing-check">✓</span> No sign-up required</li>
-        </ul>
-        <button class="hp-pricing-btn hp-pricing-btn--free" onclick="go('explore')">Start Exploring</button>
-      </div>
-      <div class="hp-pricing-card hp-pricing-card--premium hp-reveal">
-        <div class="hp-pricing-tier">Premium</div>
-        <div class="hp-pricing-price">$2.99 <span>/month</span></div>
-        <div class="hp-pricing-desc">Unlock all AI-powered discovery modes</div>
-        <ul class="hp-pricing-features">
-          <li><span class="hp-pricing-check">✓</span> 500 AI queries per month</li>
-          <li><span class="hp-pricing-check">✓</span> All 6 discovery modes</li>
-          <li><span class="hp-pricing-check">✓</span> Photo, zodiac, music & style</li>
-          <li><span class="hp-pricing-check">✓</span> Cancel anytime</li>
-        </ul>
-        <button class="hp-pricing-btn hp-pricing-btn--premium" onclick="go('chat')">Start Free Trial</button>
-      </div>
-    </div>
-  </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
-  <!-- Quote -->
-  <section class="hp-quote-section">
-    <div class="hp-quote-mark hp-reveal">"</div>
-    <div class="hp-quote-text hp-reveal">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
-    <div class="hp-quote-attr hp-reveal">— The Philosophy Behind ScentWise</div>
-  </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Final CTA -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-cta-section">
-    <div class="hp-cta-heading hp-reveal">Your <em>signature scent</em> is waiting</div>
-    <p class="hp-cta-sub hp-reveal">Join thousands who have discovered their perfect fragrance through AI-powered recommendations.</p>
-    <div class="hp-reveal" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <div class="hp-cta-heading hp-reveal">Ready to find <em>your scent?</em></div>
+    <p class="hp-cta-sub hp-reveal">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
+    <div class="hp-reveal">
       <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
-      <button class="hp-btn-ghost" onclick="go('explore')" style="font-size:1rem;padding:1rem 3rem">Browse Database</button>
     </div>
-    <p class="hp-reveal" style="font-size:0.75rem;color:var(--hp-cream3);margin-top:1.25rem;opacity:0.7">No credit card required · 3 free AI queries included</p>
   </section>
   <!-- Homepage Footer -->
   <footer class="hp-footer">
