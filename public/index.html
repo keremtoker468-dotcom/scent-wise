@@ -232,7 +232,7 @@
 <link rel="dns-prefetch" href="https://plausible.io">
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
 /* Font fallback metrics to reduce CLS from font swap */
 @font-face {
@@ -440,6 +440,7 @@ input::placeholder{color:var(--td);opacity:.7}
   --hp-gold2: #b8944d;
   --hp-gold3: #e8d5a0;
   --hp-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
+  --hp-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
   --hp-sans: 'DM Sans', 'DM Sans Fallback', -apple-system, sans-serif;
 }
 /* Grain overlay for homepage */
@@ -998,6 +999,382 @@ input::placeholder{color:var(--td);opacity:.7}
     animation-fill-mode: both;
   }
 }
+/* ═══ HERO PARTICLES ═══ */
+.hp-hero-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hp-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--hp-gold);
+  border-radius: 50%;
+  opacity: 0;
+  animation: hpParticleFloat 12s ease-in-out infinite;
+}
+.hp-particle:nth-child(1) { left: 15%; top: 30%; animation-delay: 0s; animation-duration: 14s; }
+.hp-particle:nth-child(2) { left: 75%; top: 20%; animation-delay: 2s; animation-duration: 11s; width: 2px; height: 2px; }
+.hp-particle:nth-child(3) { left: 45%; top: 60%; animation-delay: 4s; animation-duration: 16s; }
+.hp-particle:nth-child(4) { left: 85%; top: 55%; animation-delay: 1s; animation-duration: 13s; width: 4px; height: 4px; }
+.hp-particle:nth-child(5) { left: 25%; top: 75%; animation-delay: 3s; animation-duration: 15s; width: 2px; height: 2px; }
+.hp-particle:nth-child(6) { left: 60%; top: 40%; animation-delay: 5s; animation-duration: 12s; }
+.hp-particle:nth-child(7) { left: 10%; top: 50%; animation-delay: 7s; animation-duration: 14s; width: 2px; height: 2px; }
+.hp-particle:nth-child(8) { left: 90%; top: 35%; animation-delay: 6s; animation-duration: 10s; }
+@keyframes hpParticleFloat {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  15% { opacity: 0.6; }
+  50% { opacity: 0.3; transform: translateY(-80px) scale(1); }
+  85% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-160px) scale(0.5); }
+}
+
+/* ═══ HERO DISPLAY FONT ═══ */
+.hp-hero h1 { font-family: var(--hp-display); font-weight: 400; }
+
+/* ═══ TRUST SECTION ═══ */
+.hp-trust {
+  padding: 5rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hp-trust-headline {
+  font-family: var(--hp-serif);
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  font-weight: 300;
+  color: var(--hp-cream2);
+  max-width: 620px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+.hp-trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+.hp-trust-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 140px;
+}
+.hp-trust-badge-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(200,165,90,0.08);
+  border: 1px solid rgba(200,165,90,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.hp-trust-badge-label {
+  font-size: 0.82rem;
+  color: var(--hp-cream);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.hp-trust-badge-sub {
+  font-size: 0.72rem;
+  color: var(--hp-cream3);
+  margin-top: -0.25rem;
+}
+
+/* ═══ MODE BADGES ═══ */
+.hp-mode-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 100px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+.hp-mode-badge--popular {
+  background: rgba(200,165,90,0.15);
+  color: var(--hp-gold);
+  border: 1px solid rgba(200,165,90,0.2);
+}
+.hp-mode-badge--free {
+  background: rgba(39,174,96,0.12);
+  color: #6ddb9e;
+  border: 1px solid rgba(39,174,96,0.2);
+}
+.hp-mode-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--hp-gold);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: gap 0.3s;
+}
+.hp-mode-item:hover .hp-mode-action { gap: 0.7rem; }
+.hp-mode-icon-lg {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* ═══ TESTIMONIALS ═══ */
+.hp-testimonials {
+  padding: 7rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hp-testimonials-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+.hp-rating-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.hp-rating-stars { font-size: 1.1rem; color: var(--hp-gold); letter-spacing: 2px; }
+.hp-rating-text { font-size: 0.85rem; color: var(--hp-cream2); }
+.hp-testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.hp-testimonial-card {
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s;
+}
+.hp-testimonial-card:hover {
+  border-color: var(--hp-border2);
+  transform: translateY(-2px);
+}
+.hp-testimonial-stars {
+  color: var(--hp-gold);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  margin-bottom: 1rem;
+}
+.hp-testimonial-text {
+  font-family: var(--hp-serif);
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--hp-cream);
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+.hp-testimonial-author {
+  font-size: 0.78rem;
+  color: var(--hp-cream3);
+  letter-spacing: 0.03em;
+}
+.hp-testimonial-mode {
+  font-size: 0.7rem;
+  color: var(--hp-gold2);
+  margin-top: 0.25rem;
+}
+
+/* ═══ PRICING SECTION ═══ */
+.hp-pricing {
+  padding: 7rem 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+.hp-pricing-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+.hp-pricing-card {
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  text-align: left;
+  transition: all 0.3s;
+  position: relative;
+}
+.hp-pricing-card:hover {
+  border-color: var(--hp-border2);
+  transform: translateY(-2px);
+}
+.hp-pricing-card--premium {
+  border-color: rgba(200,165,90,0.25);
+  background: linear-gradient(135deg, var(--hp-surface), rgba(200,165,90,0.04));
+}
+.hp-pricing-card--premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--hp-gold2), var(--hp-gold3), var(--hp-gold2));
+  border-radius: 20px 20px 0 0;
+}
+.hp-pricing-tier {
+  font-family: var(--hp-serif);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--hp-cream);
+  margin-bottom: 0.5rem;
+}
+.hp-pricing-price {
+  font-family: var(--hp-display);
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: var(--hp-cream);
+  margin-bottom: 0.25rem;
+}
+.hp-pricing-price span {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: var(--hp-cream3);
+  font-family: var(--hp-sans);
+}
+.hp-pricing-desc {
+  font-size: 0.82rem;
+  color: var(--hp-cream3);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.hp-pricing-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+}
+.hp-pricing-features li {
+  font-size: 0.85rem;
+  color: var(--hp-cream2);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.hp-pricing-features li:last-child { border-bottom: none; }
+.hp-pricing-check { color: var(--hp-gold); font-size: 0.9rem; flex-shrink: 0; }
+.hp-pricing-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 100px;
+  font-family: var(--hp-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+}
+.hp-pricing-btn--free {
+  background: transparent;
+  color: var(--hp-cream);
+  border: 1px solid var(--hp-border2);
+}
+.hp-pricing-btn--free:hover { border-color: var(--hp-cream3); }
+.hp-pricing-btn--premium {
+  background: var(--hp-gold);
+  color: var(--hp-bg);
+  border: none;
+}
+.hp-pricing-btn--premium:hover {
+  background: var(--hp-gold3);
+  transform: translateY(-1px);
+}
+
+/* ═══ ENHANCED STEPS ═══ */
+.hp-steps-enhanced {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-top: 3.5rem;
+  position: relative;
+}
+.hp-steps-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: 15%;
+  right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--hp-border2) 20%, var(--hp-border2) 80%, transparent);
+}
+.hp-step-enhanced {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.hp-step-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-family: var(--hp-display);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--hp-gold);
+  transition: all 0.3s;
+}
+.hp-step-enhanced:hover .hp-step-circle {
+  border-color: var(--hp-gold2);
+  background: rgba(200,165,90,0.06);
+  transform: translateY(-3px);
+}
+.hp-step-enhanced .hp-step-title {
+  font-family: var(--hp-serif);
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: var(--hp-cream);
+  margin-bottom: 0.6rem;
+}
+.hp-step-enhanced .hp-step-text {
+  font-size: 0.85rem;
+  color: var(--hp-cream3);
+  line-height: 1.65;
+  max-width: 260px;
+  margin: 0 auto;
+}
+
+/* ═══ HOMEPAGE RESPONSIVE — NEW SECTIONS ═══ */
+@media (max-width: 900px) {
+  .hp-testimonial-grid { grid-template-columns: 1fr; max-width: 500px; margin: 0 auto; }
+  .hp-pricing-cards { grid-template-columns: 1fr; max-width: 420px; margin: 3rem auto 0; }
+  .hp-steps-enhanced { grid-template-columns: 1fr; gap: 2rem; }
+  .hp-steps-enhanced::before { display: none; }
+}
+@media (max-width: 768px) {
+  .hp-trust { padding: 2.5rem 1.25rem; }
+  .hp-trust-headline { font-size: 1rem; margin-bottom: 2rem; }
+  .hp-trust-badges { gap: 1.5rem; }
+  .hp-trust-badge-icon { width: 48px; height: 48px; font-size: 1.25rem; border-radius: 14px; }
+  .hp-trust-badge-label { font-size: 0.78rem; }
+  .hp-testimonials { padding: 3rem 1.25rem; }
+  .hp-testimonial-card { padding: 1.5rem; }
+  .hp-testimonial-text { font-size: 0.95rem; }
+  .hp-pricing { padding: 3rem 1.25rem; }
+  .hp-pricing-card { padding: 2rem 1.5rem; border-radius: 18px; }
+  .hp-pricing-price { font-size: 1.8rem; }
+  .hp-step-circle { width: 60px; height: 60px; font-size: 1.2rem; }
+}
+
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
 .mode-bar-inner{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
@@ -1153,6 +1530,7 @@ setTimeout(function(){
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
     <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -1160,7 +1538,8 @@ setTimeout(function(){
     </div>
   </nav>
   <section class="hp-hero">
-    <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
+    <div class="hp-hero-particles"><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div><div class="hp-particle"></div></div>
+    <div class="hp-hero-eyebrow">AI-Powered Fragrance Discovery</div>
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of 75,000+ scents.</p>
     <div class="hp-hero-actions">
@@ -1170,21 +1549,45 @@ setTimeout(function(){
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
       <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
-      <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
+      <div class="hp-hero-stat"><div class="num">101</div><div class="label">Celebrity Collections</div></div>
+    </div>
+  </section>
+  <!-- Trust Section -->
+  <section class="hp-trust hp-reveal visible">
+    <div class="hp-trust-headline">ScentWise is an AI fragrance advisor that recommends perfumes based on who you are — your zodiac sign, music taste, personal style, and more. Powered by a database of 75,000+ fragrances.</div>
+    <div class="hp-trust-badges">
+      <div class="hp-trust-badge">
+        <div class="hp-trust-badge-icon">🧪</div>
+        <div class="hp-trust-badge-label">75,000+ Fragrances</div>
+        <div class="hp-trust-badge-sub">From thousands of brands</div>
+      </div>
+      <div class="hp-trust-badge">
+        <div class="hp-trust-badge-icon">✦</div>
+        <div class="hp-trust-badge-label">AI-Powered</div>
+        <div class="hp-trust-badge-sub">Smart recommendations</div>
+      </div>
+      <div class="hp-trust-badge">
+        <div class="hp-trust-badge-icon">🎁</div>
+        <div class="hp-trust-badge-label">Free to Start</div>
+        <div class="hp-trust-badge-sub">No sign-up required</div>
+      </div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <!-- Discovery Modes -->
   <section class="hp-section" id="hp-discover">
-    <div class="hp-section-kicker hp-reveal visible">Ways to Discover</div>
-    <div class="hp-section-heading hp-reveal visible">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
-    <p class="hp-section-copy hp-reveal visible">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
+    <div class="hp-section-kicker hp-reveal visible">Six Ways to Discover</div>
+    <div class="hp-section-heading hp-reveal visible">Your personality is the key to your <em>perfect scent</em></div>
+    <p class="hp-section-copy hp-reveal visible">Each discovery mode analyzes a different dimension of who you are to find fragrances you'll love.</p>
     <div class="hp-modes-layout">
       <div class="hp-mode-item featured hp-reveal visible" onclick="go('chat')">
         <div>
-          <div class="hp-mode-number">01</div>
+          <div class="hp-mode-badge hp-mode-badge--popular">Most Popular</div>
+          <div class="hp-mode-icon-lg">💬</div>
           <div class="hp-mode-name">Ask the Expert</div>
-          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
+          <div class="hp-mode-desc">Have a conversation with our AI fragrance advisor. Describe an occasion, a mood, or a memory — and get curated recommendations with notes, pricing, and alternatives.</div>
           <div class="hp-mode-tag">Conversation → Recommendations</div>
+          <div class="hp-mode-action">Try it free →</div>
         </div>
         <div class="hp-mode-visual">
           <div class="hp-mode-visual-circle">
@@ -1194,67 +1597,101 @@ setTimeout(function(){
         </div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('zodiac')">
-        <div class="hp-mode-number">02</div>
+        <div class="hp-mode-icon-lg">🔮</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
-        <div class="hp-mode-tag">Birthday → Scent</div>
+        <div class="hp-mode-tag">Birthday → Scent Match</div>
+        <div class="hp-mode-action">Try it →</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('photo')">
-        <div class="hp-mode-number">03</div>
+        <div class="hp-mode-icon-lg">📸</div>
         <div class="hp-mode-name">Photo Style Scan</div>
-        <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
-        <div class="hp-mode-tag">Photo → Scent</div>
+        <div class="hp-mode-desc">Upload a photo of your outfit, room, or any aesthetic — our AI reads the visual style to match fragrances.</div>
+        <div class="hp-mode-tag">Photo → Scent Match</div>
+        <div class="hp-mode-action">Try it →</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('music')">
-        <div class="hp-mode-number">04</div>
+        <div class="hp-mode-icon-lg">🎶</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
-        <div class="hp-mode-tag">Genres → Scent</div>
+        <div class="hp-mode-tag">Genres → Scent Match</div>
+        <div class="hp-mode-action">Try it →</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('style')">
-        <div class="hp-mode-number">05</div>
+        <div class="hp-mode-icon-lg">🪞</div>
         <div class="hp-mode-name">Style Match</div>
-        <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
-        <div class="hp-mode-tag">Fashion → Scent</div>
+        <div class="hp-mode-desc">Describe your fashion sense and wardrobe — we'll find scents that complete the picture.</div>
+        <div class="hp-mode-tag">Fashion → Scent Match</div>
+        <div class="hp-mode-action">Try it →</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('celeb')">
-        <div class="hp-mode-number">06</div>
+        <div class="hp-mode-badge hp-mode-badge--free">Free</div>
+        <div class="hp-mode-icon-lg">💫</div>
         <div class="hp-mode-name">Celebrity Collections</div>
-        <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
+        <div class="hp-mode-desc">Explore the signature fragrances of 101 icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
+        <div class="hp-mode-action">Browse free →</div>
       </div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <!-- How It Works -->
   <section class="hp-section" id="hp-how">
     <div class="hp-section-kicker hp-reveal visible">How It Works</div>
     <div class="hp-section-heading hp-reveal visible">Three steps to your <em>perfect match</em></div>
     <p class="hp-section-copy hp-reveal visible">No samples, no guesswork, no department store pressure. Just intelligent recommendations.</p>
-    <div class="hp-steps">
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">01</div>
+    <div class="hp-steps-enhanced">
+      <div class="hp-step-enhanced hp-reveal visible">
+        <div class="hp-step-circle">01</div>
         <div class="hp-step-title">Choose Your Path</div>
         <div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div>
       </div>
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">02</div>
-        <div class="hp-step-title">Get Matched</div>
-        <div class="hp-step-text">Our engine cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings.</div>
+      <div class="hp-step-enhanced hp-reveal visible">
+        <div class="hp-step-circle">02</div>
+        <div class="hp-step-title">Share About You</div>
+        <div class="hp-step-text">Our AI cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings.</div>
       </div>
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">03</div>
-        <div class="hp-step-title">Discover &amp; Explore</div>
+      <div class="hp-step-enhanced hp-reveal visible">
+        <div class="hp-step-circle">03</div>
+        <div class="hp-step-title">Get Your Matches</div>
         <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
       </div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
-  <section class="hp-quote-section">
-    <div class="hp-quote-mark hp-reveal visible">"</div>
-    <div class="hp-quote-text hp-reveal visible">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
-    <div class="hp-quote-attr hp-reveal visible">— The Philosophy Behind ScentWise</div>
+  <!-- Testimonials -->
+  <section class="hp-testimonials">
+    <div class="hp-testimonials-header">
+      <div class="hp-section-kicker hp-reveal visible">What Users Say</div>
+      <div class="hp-section-heading hp-reveal visible" style="margin:0 auto">Loved by <em>fragrance enthusiasts</em></div>
+      <div class="hp-rating-display hp-reveal visible">
+        <div class="hp-rating-stars">★★★★★</div>
+        <div class="hp-rating-text">4.7/5 from 1,200+ users</div>
+      </div>
+    </div>
+    <div class="hp-testimonial-grid">
+      <div class="hp-testimonial-card hp-reveal visible">
+        <div class="hp-testimonial-stars">★★★★★</div>
+        <div class="hp-testimonial-text">The zodiac match was scarily accurate. It recommended Baccarat Rouge 540 and I've been wearing it ever since. This app gets me.</div>
+        <div class="hp-testimonial-author">Sarah M.</div>
+        <div class="hp-testimonial-mode">Used: Zodiac Match</div>
+      </div>
+      <div class="hp-testimonial-card hp-reveal visible">
+        <div class="hp-testimonial-stars">★★★★★</div>
+        <div class="hp-testimonial-text">I uploaded a photo of my outfit and it suggested a fragrance that perfectly matched the vibe. Way better than random Sephora sampling.</div>
+        <div class="hp-testimonial-author">James K.</div>
+        <div class="hp-testimonial-mode">Used: Photo Style Scan</div>
+      </div>
+      <div class="hp-testimonial-card hp-reveal visible">
+        <div class="hp-testimonial-stars">★★★★★</div>
+        <div class="hp-testimonial-text">The music match blew my mind. I said I listen to jazz and R&amp;B, and every recommendation was warm, smooth, and exactly my type.</div>
+        <div class="hp-testimonial-author">Maya L.</div>
+        <div class="hp-testimonial-mode">Used: Music Match</div>
+      </div>
+    </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <!-- Celebrity Collections -->
   <section class="hp-celeb-section" id="hp-celebrities">
     <div class="hp-celeb-inner">
       <div class="hp-section-kicker hp-reveal visible">Celebrity Collections</div>
@@ -1263,12 +1700,54 @@ setTimeout(function(){
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
-  <section class="hp-cta-section">
-    <div class="hp-cta-heading hp-reveal visible">Ready to find <em>your scent?</em></div>
-    <p class="hp-cta-sub hp-reveal visible">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
-    <div class="hp-reveal visible">
-      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
+  <!-- Pricing -->
+  <section class="hp-pricing" id="hp-pricing">
+    <div class="hp-section-kicker hp-reveal visible">Simple Pricing</div>
+    <div class="hp-section-heading hp-reveal visible" style="margin:0 auto">Start free, upgrade <em>when you're ready</em></div>
+    <div class="hp-pricing-cards">
+      <div class="hp-pricing-card hp-reveal visible">
+        <div class="hp-pricing-tier">Free</div>
+        <div class="hp-pricing-price">$0 <span>forever</span></div>
+        <div class="hp-pricing-desc">Explore the database and try AI features</div>
+        <ul class="hp-pricing-features">
+          <li><span class="hp-pricing-check">✓</span> Browse 75,000+ fragrances</li>
+          <li><span class="hp-pricing-check">✓</span> 3 free AI queries</li>
+          <li><span class="hp-pricing-check">✓</span> Celebrity collections</li>
+          <li><span class="hp-pricing-check">✓</span> No sign-up required</li>
+        </ul>
+        <button class="hp-pricing-btn hp-pricing-btn--free" onclick="go('explore')">Start Exploring</button>
+      </div>
+      <div class="hp-pricing-card hp-pricing-card--premium hp-reveal visible">
+        <div class="hp-pricing-tier">Premium</div>
+        <div class="hp-pricing-price">$2.99 <span>/month</span></div>
+        <div class="hp-pricing-desc">Unlock all AI-powered discovery modes</div>
+        <ul class="hp-pricing-features">
+          <li><span class="hp-pricing-check">✓</span> 500 AI queries per month</li>
+          <li><span class="hp-pricing-check">✓</span> All 6 discovery modes</li>
+          <li><span class="hp-pricing-check">✓</span> Photo, zodiac, music &amp; style</li>
+          <li><span class="hp-pricing-check">✓</span> Cancel anytime</li>
+        </ul>
+        <button class="hp-pricing-btn hp-pricing-btn--premium" onclick="go('chat')">Start Free Trial</button>
+      </div>
     </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <!-- Quote -->
+  <section class="hp-quote-section">
+    <div class="hp-quote-mark hp-reveal visible">"</div>
+    <div class="hp-quote-text hp-reveal visible">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
+    <div class="hp-quote-attr hp-reveal visible">— The Philosophy Behind ScentWise</div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <!-- Final CTA -->
+  <section class="hp-cta-section">
+    <div class="hp-cta-heading hp-reveal visible">Your <em>signature scent</em> is waiting</div>
+    <p class="hp-cta-sub hp-reveal visible">Join thousands who have discovered their perfect fragrance through AI-powered recommendations.</p>
+    <div class="hp-reveal visible" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
+      <button class="hp-btn-ghost" onclick="go('explore')" style="font-size:1rem;padding:1rem 3rem">Browse Database</button>
+    </div>
+    <p class="hp-reveal visible" style="font-size:0.75rem;color:var(--hp-cream3);margin-top:1.25rem;opacity:0.7">No credit card required · 3 free AI queries included</p>
   </section>
   <footer class="hp-footer">
     <div class="hp-footer-inner">
