@@ -225,7 +225,7 @@
 </script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#d4b896">
+<meta name="theme-color" content="#f4a900">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -429,17 +429,17 @@ input::placeholder{color:var(--td);opacity:.7}
 
 /* ═══════ HOMEPAGE REDESIGN ═══════ */
 :root {
-  --hp-bg: #121110;
-  --hp-surface: #1e1b18;
-  --hp-border: #3d3835;
-  --hp-border2: #524c47;
-  --hp-cream: #f2ede6;
-  --hp-cream2: #d4c8b8;
-  --hp-cream3: #a89f96;
-  --hp-gold: #d4b896;
-  --hp-gold2: #b89f7e;
-  --hp-gold3: #e8dcc8;
-  --hp-terracotta: #b8979a;
+  --hp-bg: #0c0a09;
+  --hp-surface: #1a1714;
+  --hp-border: #4a403a;
+  --hp-border2: #5a4f48;
+  --hp-cream: #f5f0e8;
+  --hp-cream2: #d4b896;
+  --hp-cream3: #a8a29e;
+  --hp-gold: #f4a900;
+  --hp-gold2: #d49200;
+  --hp-gold3: #ffd966;
+  --hp-terracotta: #c1666b;
   --hp-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
   --hp-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
   --hp-sans: 'DM Sans', 'DM Sans Fallback', -apple-system, sans-serif;
@@ -468,7 +468,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transition: all 0.4s;
 }
 .hp-nav.scrolled {
-  background: rgba(18,17,16,0.92);
+  background: rgba(12,10,9,0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--hp-border);
@@ -544,7 +544,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateX(-50%);
   width: 800px;
   height: 800px;
-  background: radial-gradient(ellipse, rgba(212,184,150,0.06) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(244,169,0,0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 .hp-hero-eyebrow {
@@ -695,7 +695,7 @@ input::placeholder{color:var(--td);opacity:.7}
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(212,184,150,0.04) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(244,169,0,0.04) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.4s;
 }
@@ -735,8 +735,8 @@ input::placeholder{color:var(--td);opacity:.7}
   display: inline-block;
   margin-top: 1.25rem;
   padding: 0.35rem 0.9rem;
-  background: rgba(212,184,150,0.1);
-  border: 1px solid rgba(212,184,150,0.15);
+  background: rgba(244,169,0,0.1);
+  border: 1px solid rgba(244,169,0,0.15);
   border-radius: 100px;
   font-size: 0.72rem;
   color: var(--hp-gold);
@@ -762,7 +762,7 @@ input::placeholder{color:var(--td);opacity:.7}
   position: absolute;
   inset: -15px;
   border-radius: 50%;
-  border: 1px solid rgba(212,184,150,0.08);
+  border: 1px solid rgba(244,169,0,0.08);
 }
 /* Steps */
 .hp-steps {
@@ -872,7 +872,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateX(-50%);
   width: 600px;
   height: 600px;
-  background: radial-gradient(ellipse, rgba(212,184,150,0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(244,169,0,0.05) 0%, transparent 70%);
   pointer-events: none;
 }
 .hp-cta-heading {
@@ -1068,8 +1068,8 @@ input::placeholder{color:var(--td);opacity:.7}
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(212,184,150,0.08);
-  border: 1px solid rgba(212,184,150,0.12);
+  background: rgba(244,169,0,0.08);
+  border: 1px solid rgba(244,169,0,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1099,9 +1099,9 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-bottom: 0.75rem;
 }
 .hp-mode-badge--popular {
-  background: rgba(184,151,154,0.12);
+  background: rgba(193,102,107,0.15);
   color: var(--hp-terracotta);
-  border: 1px solid rgba(184,151,154,0.2);
+  border: 1px solid rgba(193,102,107,0.25);
 }
 .hp-mode-badge--free {
   background: rgba(39,174,96,0.12);
@@ -1214,8 +1214,8 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateY(-2px);
 }
 .hp-pricing-card--premium {
-  border-color: rgba(212,184,150,0.25);
-  background: linear-gradient(135deg, var(--hp-surface), rgba(212,184,150,0.04));
+  border-color: rgba(244,169,0,0.25);
+  background: linear-gradient(135deg, var(--hp-surface), rgba(244,169,0,0.04));
 }
 .hp-pricing-card--premium::before {
   content: '';
@@ -1336,7 +1336,7 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 .hp-step-enhanced:hover .hp-step-circle {
   border-color: var(--hp-gold2);
-  background: rgba(212,184,150,0.06);
+  background: rgba(244,169,0,0.06);
   transform: translateY(-3px);
 }
 .hp-step-enhanced .hp-step-title {
