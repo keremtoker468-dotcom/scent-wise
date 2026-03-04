@@ -427,10 +427,11 @@ input::placeholder{color:var(--td);opacity:.7}
   .grid{gap:12px}
 }
 
-/* ═══════ HOMEPAGE REDESIGN ═══════ */
+/* ═══════ HOMEPAGE — QUIET LUXURY REDESIGN ═══════ */
 :root {
   --hp-bg: #0c0a09;
   --hp-surface: #1a1714;
+  --hp-surface2: #141210;
   --hp-border: #2e2922;
   --hp-border2: #3d3529;
   --hp-cream: #f5f0e8;
@@ -442,7 +443,8 @@ input::placeholder{color:var(--td);opacity:.7}
   --hp-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
   --hp-sans: 'DM Sans', 'DM Sans Fallback', -apple-system, sans-serif;
 }
-/* Grain overlay for homepage */
+/* Grain overlay */
+.hp-grain { position: relative; }
 .hp-grain::after {
   content: '';
   position: fixed;
@@ -452,57 +454,59 @@ input::placeholder{color:var(--td);opacity:.7}
   z-index: 1;
 }
 @media(max-width:640px){.hp-grain::after{display:none}}
-/* Homepage nav */
+/* ═══ Navigation ═══ */
 .hp-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
-  padding: 1.25rem 2.5rem;
+  padding: 1.5rem 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: all 0.4s;
+  transition: all 0.4s cubic-bezier(.4,0,.2,1);
 }
 .hp-nav.scrolled {
-  background: rgba(12,10,9,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(12,10,9,0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-bottom: 1px solid var(--hp-border);
-  padding: 0.9rem 2.5rem;
+  padding: 0.9rem 3rem;
 }
 .hp-nav-logo {
   font-family: var(--hp-serif);
-  font-size: 1.4rem;
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
   color: var(--hp-cream);
   cursor: pointer;
+  text-transform: uppercase;
 }
-.hp-nav-logo span { color: var(--hp-gold); font-weight: 600; }
+.hp-nav-logo span { color: var(--hp-gold); font-weight: 500; }
 .hp-nav-links {
   display: flex;
-  gap: 2.25rem;
+  gap: 2.5rem;
   align-items: center;
 }
 .hp-nav-links a {
   color: var(--hp-cream3);
   text-decoration: none;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 400;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   transition: color 0.3s;
   cursor: pointer;
 }
 .hp-nav-links a:hover { color: var(--hp-cream); }
 .hp-nav-cta {
-  padding: 0.55rem 1.4rem;
+  padding: 0.6rem 1.6rem;
   border: 1px solid var(--hp-gold2);
   color: var(--hp-gold) !important;
   border-radius: 100px;
-  font-size: 0.78rem !important;
-  letter-spacing: 0.06em !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
   transition: all 0.3s !important;
 }
 .hp-nav-cta:hover {
@@ -522,7 +526,7 @@ input::placeholder{color:var(--td);opacity:.7}
   background: var(--hp-cream);
   transition: 0.3s;
 }
-/* Hero */
+/* ═══ Hero ═══ */
 .hp-hero {
   min-height: 100vh;
   display: flex;
@@ -530,40 +534,61 @@ input::placeholder{color:var(--td);opacity:.7}
   justify-content: center;
   align-items: center;
   text-align: center;
-  padding: 6rem 2rem 4rem;
+  padding: 8rem 2rem 5rem;
   position: relative;
   overflow: hidden;
 }
 .hp-hero::before {
   content: '';
   position: absolute;
-  top: -20%;
+  top: -30%;
   left: 50%;
   transform: translateX(-50%);
-  width: 800px;
-  height: 800px;
-  background: radial-gradient(ellipse, rgba(200,165,90,0.06) 0%, transparent 70%);
+  width: 900px;
+  height: 900px;
+  background: radial-gradient(ellipse, rgba(200,165,90,0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hp-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(to top, var(--hp-bg), transparent);
   pointer-events: none;
 }
 .hp-hero-eyebrow {
   font-family: var(--hp-sans);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--hp-gold);
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   animation: hpFadeUp 0.8s 0.2s both;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.hp-hero-eyebrow::before,
+.hp-hero-eyebrow::after {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--hp-gold2);
+  opacity: 0.4;
 }
 .hp-hero h1 {
   font-family: var(--hp-serif);
   font-size: clamp(3rem, 7vw, 5.5rem);
   font-weight: 300;
-  line-height: 1.08;
+  line-height: 1.05;
   letter-spacing: -0.01em;
   color: var(--hp-cream);
-  max-width: 700px;
-  margin-bottom: 1.75rem;
+  max-width: 720px;
+  margin-bottom: 2rem;
   animation: hpFadeUp 0.8s 0.4s both;
 }
 .hp-hero h1 em { font-style: italic; color: var(--hp-gold3); }
@@ -571,7 +596,7 @@ input::placeholder{color:var(--td);opacity:.7}
   font-size: 1.05rem;
   color: var(--hp-cream3);
   max-width: 480px;
-  line-height: 1.7;
+  line-height: 1.75;
   margin-bottom: 3rem;
   animation: hpFadeUp 0.8s 0.6s both;
 }
@@ -582,76 +607,123 @@ input::placeholder{color:var(--td);opacity:.7}
   animation: hpFadeUp 0.8s 0.8s both;
 }
 .hp-btn-primary {
-  padding: 0.85rem 2.2rem;
+  padding: 0.9rem 2.4rem;
   background: var(--hp-gold);
   color: var(--hp-bg);
   border: none;
   border-radius: 100px;
   font-family: var(--hp-sans);
-  font-size: 0.88rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.3s;
+  text-transform: uppercase;
 }
 .hp-btn-primary:hover {
   background: var(--hp-gold3);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(200,165,90,0.25);
 }
 .hp-btn-ghost {
-  padding: 0.85rem 2.2rem;
+  padding: 0.9rem 2.4rem;
   background: transparent;
   color: var(--hp-cream);
   border: 1px solid var(--hp-border2);
   border-radius: 100px;
   font-family: var(--hp-sans);
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 400;
+  letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.3s;
+  text-transform: uppercase;
 }
-.hp-btn-ghost:hover { border-color: var(--hp-cream3); }
+.hp-btn-ghost:hover { border-color: var(--hp-cream3); color: var(--hp-cream); }
 .hp-hero-stats {
   display: flex;
-  gap: 3.5rem;
+  gap: 4rem;
   margin-top: 5rem;
   padding-top: 3rem;
   border-top: 1px solid var(--hp-border);
   animation: hpFadeUp 0.8s 1s both;
 }
+.hp-hero-stat { text-align: center; }
 .hp-hero-stat .num {
   font-family: var(--hp-serif);
-  font-size: 2rem;
-  font-weight: 400;
+  font-size: 2.2rem;
+  font-weight: 300;
   color: var(--hp-cream);
+  letter-spacing: -0.02em;
 }
 .hp-hero-stat .label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--hp-cream3);
-  letter-spacing: 0.06em;
-  margin-top: 0.25rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.4rem;
 }
-/* Sections */
+/* ═══ Sensory Strip ═══ */
+.hp-sensory {
+  padding: 3rem 0;
+  overflow: hidden;
+  border-top: 1px solid var(--hp-border);
+  border-bottom: 1px solid var(--hp-border);
+  background: var(--hp-surface2);
+}
+.hp-sensory-track {
+  display: flex;
+  gap: 0;
+  animation: hpMarquee 30s linear infinite;
+  width: max-content;
+}
+.hp-sensory-item {
+  padding: 0 3rem;
+  font-family: var(--hp-serif);
+  font-size: 0.95rem;
+  font-weight: 300;
+  color: var(--hp-cream3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+}
+.hp-sensory-item::after {
+  content: '\2726';
+  color: var(--hp-gold2);
+  opacity: 0.3;
+  font-size: 0.6rem;
+}
+@keyframes hpMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+/* ═══ Sections (shared) ═══ */
 .hp-section {
   padding: 7rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
+.hp-section-center { text-align: center; }
+.hp-section-center .hp-section-heading,
+.hp-section-center .hp-section-copy { margin-left: auto; margin-right: auto; }
 .hp-section-kicker {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 500;
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--hp-gold);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 .hp-section-heading {
   font-family: var(--hp-serif);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 300;
-  line-height: 1.15;
+  line-height: 1.12;
   color: var(--hp-cream);
-  max-width: 600px;
+  max-width: 620px;
   margin-bottom: 1.25rem;
 }
 .hp-section-heading em { font-style: italic; color: var(--hp-gold3); }
@@ -659,9 +731,9 @@ input::placeholder{color:var(--td);opacity:.7}
   font-size: 0.95rem;
   color: var(--hp-cream3);
   max-width: 520px;
-  line-height: 1.7;
+  line-height: 1.75;
 }
-/* Divider */
+/* ═══ Divider ═══ */
 .hp-divider {
   max-width: 1200px;
   margin: 0 auto;
@@ -671,19 +743,21 @@ input::placeholder{color:var(--td);opacity:.7}
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--hp-border2) 20%, var(--hp-border2) 80%, transparent);
 }
-/* Discovery modes */
+/* ═══ Innovation Grid (Discovery Modes) ═══ */
 .hp-modes-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1px;
   margin-top: 3.5rem;
+  background: var(--hp-border);
+  border: 1px solid var(--hp-border);
+  border-radius: 20px;
+  overflow: hidden;
 }
 .hp-mode-item {
   position: relative;
   padding: 2.5rem;
-  background: var(--hp-surface);
-  border: 1px solid var(--hp-border);
-  border-radius: 16px;
+  background: var(--hp-bg);
   cursor: pointer;
   transition: all 0.4s;
   overflow: hidden;
@@ -692,14 +766,12 @@ input::placeholder{color:var(--td);opacity:.7}
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(200,165,90,0.04) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(200,165,90,0.03) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.4s;
 }
 .hp-mode-item:hover {
-  border-color: var(--hp-border2);
-  transform: translateY(-3px);
+  background: var(--hp-surface);
 }
 .hp-mode-item:hover::before { opacity: 1; }
 .hp-mode-item.featured {
@@ -708,37 +780,41 @@ input::placeholder{color:var(--td);opacity:.7}
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   align-items: center;
+  background: var(--hp-surface2);
 }
+.hp-mode-item.featured:hover { background: var(--hp-surface); }
 .hp-mode-number {
   font-family: var(--hp-serif);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: var(--hp-gold2);
   margin-bottom: 1rem;
   font-weight: 400;
+  letter-spacing: 0.05em;
 }
 .hp-mode-name {
   font-family: var(--hp-serif);
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 400;
   color: var(--hp-cream);
   margin-bottom: 0.6rem;
 }
 .hp-mode-desc {
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   color: var(--hp-cream3);
-  line-height: 1.6;
+  line-height: 1.65;
   max-width: 380px;
 }
 .hp-mode-tag {
   display: inline-block;
   margin-top: 1.25rem;
-  padding: 0.35rem 0.9rem;
-  background: rgba(200,165,90,0.1);
-  border: 1px solid rgba(200,165,90,0.15);
+  padding: 0.3rem 0.85rem;
+  background: rgba(200,165,90,0.08);
+  border: 1px solid rgba(200,165,90,0.12);
   border-radius: 100px;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: var(--hp-gold);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .hp-mode-visual {
   display: flex;
@@ -746,23 +822,310 @@ input::placeholder{color:var(--td);opacity:.7}
   justify-content: center;
 }
 .hp-mode-visual-circle {
-  width: 180px;
-  height: 180px;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
   border: 1px solid var(--hp-border2);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
+  background: radial-gradient(circle, rgba(200,165,90,0.04) 0%, transparent 70%);
 }
-.hp-mode-visual-icon { font-size: 3.5rem; opacity: 0.7; }
+.hp-mode-visual-icon { font-size: 3rem; opacity: 0.6; }
 .hp-mode-visual-ring {
   position: absolute;
-  inset: -15px;
+  inset: -18px;
   border-radius: 50%;
-  border: 1px solid rgba(200,165,90,0.08);
+  border: 1px solid rgba(200,165,90,0.06);
 }
-/* Steps */
+/* ═══ AI Preview ═══ */
+.hp-ai-preview {
+  padding: 7rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hp-ai-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-top: 3rem;
+}
+.hp-ai-mockup {
+  background: var(--hp-surface2);
+  border: 1px solid var(--hp-border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.hp-ai-mockup-bar {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--hp-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.hp-ai-mockup-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--hp-border2);
+}
+.hp-ai-mockup-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 280px;
+}
+.hp-ai-msg {
+  max-width: 85%;
+  padding: 0.85rem 1.1rem;
+  border-radius: 14px;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.hp-ai-msg-user {
+  align-self: flex-end;
+  background: rgba(200,165,90,0.12);
+  border: 1px solid rgba(200,165,90,0.15);
+  color: var(--hp-cream);
+}
+.hp-ai-msg-bot {
+  align-self: flex-start;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  color: var(--hp-cream2);
+}
+.hp-ai-features {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.hp-ai-feature {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+.hp-ai-feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(200,165,90,0.08);
+  border: 1px solid rgba(200,165,90,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.hp-ai-feature-text h4 {
+  font-family: var(--hp-serif);
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: var(--hp-cream);
+  margin-bottom: 0.35rem;
+}
+.hp-ai-feature-text p {
+  font-size: 0.82rem;
+  color: var(--hp-cream3);
+  line-height: 1.6;
+}
+/* ═══ Social Proof ═══ */
+.hp-social {
+  padding: 6rem 2rem;
+  background: var(--hp-surface2);
+  border-top: 1px solid var(--hp-border);
+  border-bottom: 1px solid var(--hp-border);
+}
+.hp-social-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hp-social-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+.hp-social-stat {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+.hp-social-stat .num {
+  font-family: var(--hp-serif);
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: var(--hp-cream);
+  letter-spacing: -0.02em;
+}
+.hp-social-stat .label {
+  font-size: 0.72rem;
+  color: var(--hp-cream3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+.hp-testimonials {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.hp-testimonial {
+  padding: 2rem;
+  background: var(--hp-bg);
+  border: 1px solid var(--hp-border);
+  border-radius: 16px;
+  position: relative;
+}
+.hp-testimonial-stars {
+  color: var(--hp-gold);
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  margin-bottom: 1rem;
+}
+.hp-testimonial-text {
+  font-family: var(--hp-serif);
+  font-size: 1rem;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--hp-cream2);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+.hp-testimonial-author {
+  font-size: 0.75rem;
+  color: var(--hp-cream3);
+  letter-spacing: 0.04em;
+}
+/* ═══ Pricing ═══ */
+.hp-pricing {
+  padding: 7rem 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.hp-pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+}
+.hp-price-card {
+  padding: 2.5rem;
+  background: var(--hp-surface2);
+  border: 1px solid var(--hp-border);
+  border-radius: 20px;
+  position: relative;
+  transition: all 0.4s;
+}
+.hp-price-card:hover {
+  border-color: var(--hp-border2);
+  transform: translateY(-2px);
+}
+.hp-price-card.featured {
+  border-color: var(--hp-gold2);
+  background: linear-gradient(180deg, rgba(200,165,90,0.06) 0%, var(--hp-surface2) 40%);
+}
+.hp-price-badge {
+  position: absolute;
+  top: -1px;
+  right: 2rem;
+  padding: 0.35rem 1rem;
+  background: var(--hp-gold);
+  color: var(--hp-bg);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-radius: 0 0 8px 8px;
+}
+.hp-price-name {
+  font-family: var(--hp-serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--hp-cream);
+  margin-bottom: 0.5rem;
+}
+.hp-price-desc {
+  font-size: 0.82rem;
+  color: var(--hp-cream3);
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+.hp-price-amount {
+  font-family: var(--hp-serif);
+  font-size: 3rem;
+  font-weight: 300;
+  color: var(--hp-cream);
+  margin-bottom: 0.25rem;
+}
+.hp-price-amount span {
+  font-size: 0.9rem;
+  color: var(--hp-cream3);
+  font-family: var(--hp-sans);
+  font-weight: 400;
+}
+.hp-price-period {
+  font-size: 0.75rem;
+  color: var(--hp-cream3);
+  margin-bottom: 2rem;
+}
+.hp-price-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.hp-price-features li {
+  font-size: 0.82rem;
+  color: var(--hp-cream2);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  line-height: 1.5;
+}
+.hp-price-features li::before {
+  content: '\2713';
+  color: var(--hp-gold);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.hp-price-btn {
+  display: block;
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 100px;
+  font-family: var(--hp-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: center;
+  border: none;
+}
+.hp-price-btn-primary {
+  background: var(--hp-gold);
+  color: var(--hp-bg);
+}
+.hp-price-btn-primary:hover {
+  background: var(--hp-gold3);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(200,165,90,0.2);
+}
+.hp-price-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--hp-border2);
+  color: var(--hp-cream);
+}
+.hp-price-btn-ghost:hover {
+  border-color: var(--hp-cream3);
+}
+/* ═══ Steps ═══ */
 .hp-steps {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -775,7 +1138,7 @@ input::placeholder{color:var(--td);opacity:.7}
   font-size: 2.5rem;
   font-weight: 300;
   color: var(--hp-gold2);
-  opacity: 0.4;
+  opacity: 0.3;
   margin-bottom: 1.25rem;
 }
 .hp-step-title {
@@ -786,16 +1149,16 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-bottom: 0.6rem;
 }
 .hp-step-text {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   color: var(--hp-cream3);
-  line-height: 1.65;
+  line-height: 1.7;
 }
-/* Celebrity strip */
+/* ═══ Celebrity Strip ═══ */
 .hp-celeb-section { padding: 7rem 0; overflow: hidden; }
 .hp-celeb-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
 .hp-celeb-scroll {
   display: flex;
-  gap: 1.25rem;
+  gap: 1rem;
   margin-top: 3rem;
   overflow-x: auto;
   padding-bottom: 1rem;
@@ -804,10 +1167,10 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 .hp-celeb-scroll::-webkit-scrollbar { display: none; }
 .hp-celeb-card {
-  min-width: 220px;
-  background: var(--hp-surface);
+  min-width: 200px;
+  background: var(--hp-surface2);
   border: 1px solid var(--hp-border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 1.75rem;
   cursor: pointer;
   transition: all 0.3s;
@@ -821,24 +1184,25 @@ input::placeholder{color:var(--td);opacity:.7}
 .hp-celeb-emoji { font-size: 2rem; margin-bottom: 1rem; }
 .hp-celeb-name {
   font-family: var(--hp-serif);
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 400;
   color: var(--hp-cream);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
 }
-.hp-celeb-count { font-size: 0.75rem; color: var(--hp-cream3); }
-/* Quote */
+.hp-celeb-count { font-size: 0.72rem; color: var(--hp-cream3); letter-spacing: 0.04em; }
+/* ═══ Quote ═══ */
 .hp-quote-section {
   text-align: center;
   padding: 7rem 2rem;
   max-width: 800px;
   margin: 0 auto;
+  position: relative;
 }
 .hp-quote-mark {
   font-family: var(--hp-serif);
-  font-size: 4rem;
+  font-size: 5rem;
   color: var(--hp-gold2);
-  opacity: 0.3;
+  opacity: 0.2;
   line-height: 1;
   margin-bottom: 1.5rem;
 }
@@ -848,15 +1212,16 @@ input::placeholder{color:var(--td);opacity:.7}
   font-weight: 300;
   font-style: italic;
   color: var(--hp-cream);
-  line-height: 1.5;
+  line-height: 1.55;
   margin-bottom: 1.5rem;
 }
 .hp-quote-attr {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   color: var(--hp-cream3);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-/* CTA */
+/* ═══ CTA ═══ */
 .hp-cta-section {
   text-align: center;
   padding: 8rem 2rem;
@@ -868,9 +1233,9 @@ input::placeholder{color:var(--td);opacity:.7}
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(ellipse, rgba(200,165,90,0.05) 0%, transparent 70%);
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(ellipse, rgba(200,165,90,0.04) 0%, transparent 70%);
   pointer-events: none;
 }
 .hp-cta-heading {
@@ -886,12 +1251,12 @@ input::placeholder{color:var(--td);opacity:.7}
   color: var(--hp-cream3);
   max-width: 420px;
   margin: 0 auto 2.5rem;
-  line-height: 1.7;
+  line-height: 1.75;
 }
-/* Homepage footer */
+/* ═══ Footer ═══ */
 .hp-footer {
   border-top: 1px solid var(--hp-border);
-  padding: 3rem 2rem;
+  padding: 4rem 2rem 3rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -902,35 +1267,37 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 .hp-footer-logo {
   font-family: var(--hp-serif);
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: var(--hp-cream);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 .hp-footer-logo span { color: var(--hp-gold); }
 .hp-footer-links { display: flex; gap: 2rem; }
 .hp-footer-links a {
   color: var(--hp-cream3);
   text-decoration: none;
-  font-size: 0.78rem;
-  letter-spacing: 0.03em;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   transition: color 0.3s;
 }
 .hp-footer-links a:hover { color: var(--hp-cream); }
 .hp-footer-copy {
   text-align: center;
-  padding-top: 2rem;
-  margin-top: 2rem;
+  padding-top: 2.5rem;
+  margin-top: 2.5rem;
   border-top: 1px solid var(--hp-border);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--hp-cream3);
-  opacity: 0.6;
+  opacity: 0.5;
+  letter-spacing: 0.04em;
 }
-/* Homepage animations */
+/* ═══ Animations ═══ */
 @keyframes hpFadeUp {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(28px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* Reveal animations: content is visible by default, JS adds .hp-anim to enable transitions */
 .hp-reveal {
   opacity: 1;
   transform: translateY(0);
@@ -944,59 +1311,76 @@ input::placeholder{color:var(--td);opacity:.7}
   opacity: 1;
   transform: translateY(0);
 }
-/* Homepage responsive */
+/* ═══ Responsive ═══ */
 @media (max-width: 900px) {
   .hp-modes-layout { grid-template-columns: 1fr; }
   .hp-mode-item.featured { grid-column: span 1; grid-template-columns: 1fr; }
   .hp-mode-visual { display: none; }
   .hp-steps { grid-template-columns: 1fr; gap: 0; }
+  .hp-ai-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+  .hp-social-stats { grid-template-columns: repeat(2, 1fr); }
+  .hp-testimonials { grid-template-columns: 1fr; }
+  .hp-pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
 }
 @media (max-width: 768px) {
   .hp-nav { padding: 1rem 1.25rem; }
+  .hp-nav.scrolled { padding: 0.75rem 1.25rem; }
   .hp-nav-links { display: none; }
   .hp-nav-toggle { display: flex; }
-  .hp-section { padding: 3rem 1.25rem; }
-  .hp-hero { padding: 3.5rem 1.25rem 2rem; min-height: auto; }
+  .hp-section { padding: 3.5rem 1.25rem; }
+  .hp-hero { padding: 4rem 1.25rem 2.5rem; min-height: auto; }
   .hp-hero h1 { font-size: clamp(2.2rem, 8vw, 3.2rem); margin-bottom: 1.25rem; }
   .hp-hero-sub { font-size: 0.92rem; margin-bottom: 2rem; }
   .hp-hero-stats { gap: 1.5rem; flex-wrap: wrap; justify-content: center; margin-top: 2.5rem; padding-top: 2rem; }
   .hp-hero-stat .num { font-size: 1.6rem; }
-  .hp-hero-stat .label { font-size: 0.68rem; }
+  .hp-hero-stat .label { font-size: 0.65rem; }
   .hp-hero-actions { flex-direction: column; width: 100%; }
-  .hp-btn-primary, .hp-btn-ghost { width: 100%; text-align: center; min-height: 52px; font-size: 1rem; }
+  .hp-btn-primary, .hp-btn-ghost { width: 100%; text-align: center; min-height: 52px; font-size: 0.9rem; }
   .hp-celeb-section { padding: 3rem 0; }
   .hp-celeb-inner { padding: 0 1.25rem; }
-  .hp-mode-item { padding: 1.5rem; border-radius: 18px; }
+  .hp-mode-item { padding: 1.5rem; }
   .hp-mode-number { margin-bottom: 0.5rem; }
-  .hp-mode-name { font-size: 1.2rem; }
-  .hp-mode-desc { font-size: 0.82rem; line-height: 1.5; -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-  .hp-mode-tag { font-size: 0.72rem; padding: 0.35rem 0.9rem; }
-  .hp-modes-layout { gap: 0.75rem; margin-top: 2rem; }
+  .hp-mode-name { font-size: 1.15rem; }
+  .hp-mode-desc { font-size: 0.8rem; line-height: 1.5; -webkit-line-clamp: 3; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+  .hp-mode-tag { font-size: 0.68rem; padding: 0.3rem 0.8rem; }
+  .hp-modes-layout { margin-top: 2rem; border-radius: 16px; }
   .hp-steps { gap: 0; }
   .hp-step { padding: 1.25rem 0; }
   .hp-step-title { font-size: 1.05rem; }
-  .hp-celeb-card { min-width: 150px; padding: 1.25rem; }
+  .hp-celeb-card { min-width: 160px; padding: 1.25rem; }
   .hp-celeb-emoji { font-size: 28px; }
-  .hp-celeb-name { font-size: 0.82rem; }
-  .hp-celeb-count { font-size: 0.7rem; }
-  .hp-section-kicker { font-size: 0.65rem; margin-bottom: 0.75rem; }
+  .hp-celeb-name { font-size: 0.85rem; }
+  .hp-celeb-count { font-size: 0.68rem; }
+  .hp-section-kicker { font-size: 0.62rem; margin-bottom: 0.75rem; }
   .hp-section-heading { font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 0.75rem; }
   .hp-section-copy { font-size: 0.85rem; }
   .hp-quote-section { padding: 2.5rem 1.25rem; }
   .hp-quote-mark { font-size: 4rem; }
   .hp-quote-text { font-size: clamp(1.1rem, 3.5vw, 1.4rem); }
-  .hp-cta-section { padding: 3rem 1.25rem; }
+  .hp-cta-section { padding: 3.5rem 1.25rem; }
   .hp-cta-heading { font-size: clamp(1.6rem, 5vw, 2.2rem); }
   .hp-cta-sub { font-size: 0.88rem; }
   .hp-footer-inner { flex-direction: column; gap: 1.5rem; text-align: center; }
   .hp-footer-links { flex-wrap: wrap; justify-content: center; gap: 1.25rem; }
-  .hp-footer-links a { font-size: 0.85rem; padding: 4px 0; }
+  .hp-footer-links a { font-size: 0.8rem; padding: 4px 0; }
   .hp-divider { padding: 0 1.25rem; }
-  /* Reveal animations scoped to .hp-anim on mobile too */
+  .hp-sensory-item { padding: 0 2rem; font-size: 0.8rem; gap: 2rem; }
+  .hp-social { padding: 3.5rem 1.25rem; }
+  .hp-social-stats { gap: 1rem; }
+  .hp-social-stat { padding: 1.25rem 0.5rem; }
+  .hp-social-stat .num { font-size: 1.8rem; }
+  .hp-testimonial { padding: 1.5rem; }
+  .hp-testimonial-text { font-size: 0.9rem; }
+  .hp-pricing { padding: 3.5rem 1.25rem; }
+  .hp-price-card { padding: 2rem; }
+  .hp-price-amount { font-size: 2.5rem; }
+  .hp-ai-preview { padding: 3.5rem 1.25rem; }
+  .hp-ai-mockup-body { min-height: 220px; }
   .hp-anim .hp-reveal { opacity: 0; transform: translateY(20px); }
   .hp-hero-eyebrow, .hp-hero h1, .hp-hero-sub, .hp-hero-actions, .hp-hero-stats {
     animation-fill-mode: both;
   }
+  .hp-hero-eyebrow::before, .hp-hero-eyebrow::after { width: 24px; }
 }
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
@@ -1029,10 +1413,15 @@ input::placeholder{color:var(--td);opacity:.7}
 .card, .pcard { contain: layout style paint; }
 .hp-mode-item { contain: layout style paint; }
 .hp-celeb-card { contain: layout style paint; }
+.hp-testimonial { contain: layout style paint; }
+.hp-price-card { contain: layout style paint; }
 .hp-section { content-visibility: auto; contain-intrinsic-size: 0 500px; }
 .hp-celeb-section { content-visibility: auto; contain-intrinsic-size: 0 400px; }
 .hp-quote-section { content-visibility: auto; contain-intrinsic-size: 0 300px; }
 .hp-cta-section { content-visibility: auto; contain-intrinsic-size: 0 350px; }
+.hp-social { content-visibility: auto; contain-intrinsic-size: 0 500px; }
+.hp-ai-preview { content-visibility: auto; contain-intrinsic-size: 0 500px; }
+.hp-pricing { content-visibility: auto; contain-intrinsic-size: 0 600px; }
 /* iOS zoom prevention on input focus */
 @media screen and (max-width: 768px) {
   input[type=text], input[type=search], input[type=email], input[type=password], textarea, select {
@@ -1152,6 +1541,7 @@ setTimeout(function(){
     <div class="hp-nav-links">
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
@@ -1169,26 +1559,26 @@ setTimeout(function(){
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
-      <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
-      <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
+      <div class="hp-hero-stat"><div class="num">6</div><div class="label">AI Modes</div></div>
+      <div class="hp-hero-stat"><div class="num">101</div><div class="label">Celebrities</div></div>
     </div>
   </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <div class="hp-sensory"><div class="hp-sensory-track"><div class="hp-sensory-item">Bergamot</div><div class="hp-sensory-item">Oud</div><div class="hp-sensory-item">Jasmine</div><div class="hp-sensory-item">Sandalwood</div><div class="hp-sensory-item">Amber</div><div class="hp-sensory-item">Rose</div><div class="hp-sensory-item">Vetiver</div><div class="hp-sensory-item">Musk</div><div class="hp-sensory-item">Vanilla</div><div class="hp-sensory-item">Cedar</div><div class="hp-sensory-item">Iris</div><div class="hp-sensory-item">Patchouli</div><div class="hp-sensory-item">Neroli</div><div class="hp-sensory-item">Tuberose</div><div class="hp-sensory-item">Tonka Bean</div><div class="hp-sensory-item">Saffron</div><div class="hp-sensory-item">Bergamot</div><div class="hp-sensory-item">Oud</div><div class="hp-sensory-item">Jasmine</div><div class="hp-sensory-item">Sandalwood</div><div class="hp-sensory-item">Amber</div><div class="hp-sensory-item">Rose</div><div class="hp-sensory-item">Vetiver</div><div class="hp-sensory-item">Musk</div><div class="hp-sensory-item">Vanilla</div><div class="hp-sensory-item">Cedar</div><div class="hp-sensory-item">Iris</div><div class="hp-sensory-item">Patchouli</div><div class="hp-sensory-item">Neroli</div><div class="hp-sensory-item">Tuberose</div><div class="hp-sensory-item">Tonka Bean</div><div class="hp-sensory-item">Saffron</div></div></div>
   <section class="hp-section" id="hp-discover">
-    <div class="hp-section-kicker hp-reveal visible">Ways to Discover</div>
+    <div class="hp-section-kicker hp-reveal visible">Six Ways to Discover</div>
     <div class="hp-section-heading hp-reveal visible">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
     <p class="hp-section-copy hp-reveal visible">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
     <div class="hp-modes-layout">
       <div class="hp-mode-item featured hp-reveal visible" onclick="go('chat')">
         <div>
           <div class="hp-mode-number">01</div>
-          <div class="hp-mode-name">Ask the Expert</div>
-          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
-          <div class="hp-mode-tag">Conversation → Recommendations</div>
+          <div class="hp-mode-name">AI Fragrance Advisor</div>
+          <div class="hp-mode-desc">Have a conversation with our AI advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with notes, pricing, and alternatives.</div>
+          <div class="hp-mode-tag">Conversation &rarr; Recommendations</div>
         </div>
         <div class="hp-mode-visual">
           <div class="hp-mode-visual-circle">
-            <div class="hp-mode-visual-icon">✦</div>
+            <div class="hp-mode-visual-icon">&#10022;</div>
             <div class="hp-mode-visual-ring"></div>
           </div>
         </div>
@@ -1197,31 +1587,51 @@ setTimeout(function(){
         <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
-        <div class="hp-mode-tag">Birthday → Scent</div>
+        <div class="hp-mode-tag">Birthday &rarr; Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('photo')">
         <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
-        <div class="hp-mode-tag">Photo → Scent</div>
+        <div class="hp-mode-tag">Photo &rarr; Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('music')">
         <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
-        <div class="hp-mode-tag">Genres → Scent</div>
+        <div class="hp-mode-tag">Genres &rarr; Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('style')">
         <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
-        <div class="hp-mode-tag">Fashion → Scent</div>
+        <div class="hp-mode-tag">Fashion &rarr; Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('celeb')">
         <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
-        <div class="hp-mode-tag">Browse → Discover</div>
+        <div class="hp-mode-tag">Browse &rarr; Discover</div>
+      </div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-ai-preview">
+    <div class="hp-section-kicker hp-reveal visible">Powered by AI</div>
+    <div class="hp-section-heading hp-reveal visible">Your personal <em>fragrance advisor</em></div>
+    <p class="hp-section-copy hp-reveal visible">Ask anything about fragrances. Our AI cross-references 75,000+ scents to find your perfect match.</p>
+    <div class="hp-ai-layout hp-reveal visible">
+      <div class="hp-ai-mockup">
+        <div class="hp-ai-mockup-bar"><div class="hp-ai-mockup-dot"></div><div class="hp-ai-mockup-dot"></div><div class="hp-ai-mockup-dot"></div></div>
+        <div class="hp-ai-mockup-body">
+          <div class="hp-ai-msg hp-ai-msg-user">I need a warm, cozy fragrance for winter date nights — something memorable but not overpowering.</div>
+          <div class="hp-ai-msg hp-ai-msg-bot">For a warm winter date night, I'd recommend <strong>Maison Francis Kurkdjian Baccarat Rouge 540</strong> — a blend of saffron, cedarwood, and ambergris that creates an intimate, skin-like warmth. For a more affordable option, try <strong>Lattafa Raghba</strong> with similar DNA at a fraction of the price.</div>
+        </div>
+      </div>
+      <div class="hp-ai-features">
+        <div class="hp-ai-feature"><div class="hp-ai-feature-icon">&#10022;</div><div class="hp-ai-feature-text"><h4>Context-Aware Recommendations</h4><p>Our AI understands occasion, season, budget, and personal taste to deliver truly relevant suggestions.</p></div></div>
+        <div class="hp-ai-feature"><div class="hp-ai-feature-icon">&#10048;</div><div class="hp-ai-feature-text"><h4>Deep Fragrance Knowledge</h4><p>Trained on 75,000+ fragrances with notes, accords, longevity, sillage, and real user ratings.</p></div></div>
+        <div class="hp-ai-feature"><div class="hp-ai-feature-icon">&#9826;</div><div class="hp-ai-feature-text"><h4>Dupes &amp; Alternatives</h4><p>Get budget-friendly alternatives for any luxury fragrance — same scent profile, different price point.</p></div></div>
       </div>
     </div>
   </section>
@@ -1231,28 +1641,30 @@ setTimeout(function(){
     <div class="hp-section-heading hp-reveal visible">Three steps to your <em>perfect match</em></div>
     <p class="hp-section-copy hp-reveal visible">No samples, no guesswork, no department store pressure. Just intelligent recommendations.</p>
     <div class="hp-steps">
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">01</div>
-        <div class="hp-step-title">Choose Your Path</div>
-        <div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div>
+      <div class="hp-step hp-reveal visible"><div class="hp-step-num">01</div><div class="hp-step-title">Choose Your Path</div><div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div></div>
+      <div class="hp-step hp-reveal visible"><div class="hp-step-num">02</div><div class="hp-step-title">Get Matched</div><div class="hp-step-text">Our engine cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings.</div></div>
+      <div class="hp-step hp-reveal visible"><div class="hp-step-num">03</div><div class="hp-step-title">Discover &amp; Explore</div><div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div></div>
+    </div>
+  </section>
+  <section class="hp-social">
+    <div class="hp-social-inner">
+      <div class="hp-social-stats hp-reveal visible">
+        <div class="hp-social-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
+        <div class="hp-social-stat"><div class="num">101</div><div class="label">Celebrities</div></div>
+        <div class="hp-social-stat"><div class="num">6</div><div class="label">AI Modes</div></div>
+        <div class="hp-social-stat"><div class="num">4.7</div><div class="label">Avg Rating</div></div>
       </div>
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">02</div>
-        <div class="hp-step-title">Get Matched</div>
-        <div class="hp-step-text">Our engine cross-references your input against 75,000+ fragrance profiles including notes, accords, seasons, and ratings.</div>
-      </div>
-      <div class="hp-step hp-reveal visible">
-        <div class="hp-step-num">03</div>
-        <div class="hp-step-title">Discover &amp; Explore</div>
-        <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
+      <div class="hp-testimonials hp-reveal visible">
+        <div class="hp-testimonial"><div class="hp-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="hp-testimonial-text">The zodiac match was eerily accurate. Found my new signature scent in under two minutes.</div><div class="hp-testimonial-author">Sarah M. — Zodiac Match user</div></div>
+        <div class="hp-testimonial"><div class="hp-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="hp-testimonial-text">I uploaded a photo of my outfit and got three perfect fragrance recommendations. This is the future.</div><div class="hp-testimonial-author">James K. — Photo Style Scan user</div></div>
+        <div class="hp-testimonial"><div class="hp-testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="hp-testimonial-text">Finally, a fragrance tool that understands the connection between music taste and scent. Absolutely brilliant.</div><div class="hp-testimonial-author">Priya R. — Music Match user</div></div>
       </div>
     </div>
   </section>
-  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-quote-section">
-    <div class="hp-quote-mark hp-reveal visible">"</div>
+    <div class="hp-quote-mark hp-reveal visible">&#8220;</div>
     <div class="hp-quote-text hp-reveal visible">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
-    <div class="hp-quote-attr hp-reveal visible">— The Philosophy Behind ScentWise</div>
+    <div class="hp-quote-attr hp-reveal visible">The Philosophy Behind ScentWise</div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-celeb-section" id="hp-celebrities">
@@ -1263,11 +1675,38 @@ setTimeout(function(){
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-pricing" id="hp-pricing">
+    <div class="hp-section-center">
+      <div class="hp-section-kicker hp-reveal visible">Simple Pricing</div>
+      <div class="hp-section-heading hp-reveal visible" style="margin-left:auto;margin-right:auto;text-align:center">Discover for free, <em>unlock everything</em></div>
+      <p class="hp-section-copy hp-reveal visible" style="margin-left:auto;margin-right:auto;text-align:center">Browse 75,000+ fragrances and celebrity collections for free. Upgrade for unlimited AI recommendations.</p>
+    </div>
+    <div class="hp-pricing-grid hp-reveal visible">
+      <div class="hp-price-card">
+        <div class="hp-price-name">Free</div>
+        <div class="hp-price-desc">Explore the database and try AI features</div>
+        <div class="hp-price-amount">$0<span> /month</span></div>
+        <div class="hp-price-period">No credit card required</div>
+        <ul class="hp-price-features"><li>Browse 75,000+ fragrances</li><li>3 free AI recommendations</li><li>Celebrity fragrance collections</li><li>Search by name, brand, notes</li><li>Detailed fragrance profiles</li></ul>
+        <button class="hp-price-btn hp-price-btn-ghost" onclick="go('explore')">Start Exploring</button>
+      </div>
+      <div class="hp-price-card featured">
+        <div class="hp-price-badge">Most Popular</div>
+        <div class="hp-price-name">Premium</div>
+        <div class="hp-price-desc">Unlimited access to all AI modes</div>
+        <div class="hp-price-amount">$2.99<span> /month</span></div>
+        <div class="hp-price-period">Cancel anytime</div>
+        <ul class="hp-price-features"><li>Everything in Free</li><li>500 AI recommendations per month</li><li>AI Chat Advisor</li><li>Photo Style Scan</li><li>Zodiac, Music &amp; Style Match</li><li>Priority support</li></ul>
+        <button class="hp-price-btn hp-price-btn-primary" onclick="unlockPaid()" data-subscribe-btn>Subscribe Now</button>
+      </div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-cta-section">
     <div class="hp-cta-heading hp-reveal visible">Ready to find <em>your scent?</em></div>
     <p class="hp-cta-sub hp-reveal visible">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
     <div class="hp-reveal visible">
-      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
+      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:0.9rem;padding:1rem 3rem">Start Free Discovery</button>
     </div>
   </section>
   <footer class="hp-footer">
@@ -1281,7 +1720,7 @@ setTimeout(function(){
         <a href="mailto:scentwise.com@gmail.com">Contact</a>
       </div>
     </div>
-    <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
+    <div class="hp-footer-copy">&copy; 2026 ScentWise. All rights reserved.</div>
   </footer>
 </div></div>
 <div id="page-explore" class="hidden" role="region" aria-label="Explore Database"></div>

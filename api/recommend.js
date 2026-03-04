@@ -1,8 +1,8 @@
 const crypto = require('crypto');
-const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
-const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { rateLimit, getClientIp } = require('../lib/rate-limit');
+const { validateOrigin } = require('../lib/csrf');
+const { verifyOwnerToken } = require('../lib/owner-token');
+const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('../lib/usage');
 
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);

@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { rateLimit, getClientIp } = require('../lib/rate-limit');
+const { verifyOwnerToken } = require('../lib/owner-token');
+const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('../lib/usage');
 
 function verifySubToken(cookieValue, secret) {
   try {

@@ -1,5 +1,5 @@
-const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
+const { rateLimit, getClientIp } = require('../lib/rate-limit');
+const { validateOrigin } = require('../lib/csrf');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
