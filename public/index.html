@@ -225,7 +225,7 @@
 </script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#c8a55a">
+<meta name="theme-color" content="#f4a900">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -431,14 +431,15 @@ input::placeholder{color:var(--td);opacity:.7}
 :root {
   --hp-bg: #0c0a09;
   --hp-surface: #1a1714;
-  --hp-border: #2e2922;
-  --hp-border2: #3d3529;
+  --hp-border: #4a403a;
+  --hp-border2: #5a4f48;
   --hp-cream: #f5f0e8;
-  --hp-cream2: #d4cfc5;
+  --hp-cream2: #d4b896;
   --hp-cream3: #a8a29e;
-  --hp-gold: #c8a55a;
-  --hp-gold2: #b8944d;
-  --hp-gold3: #e8d5a0;
+  --hp-gold: #f4a900;
+  --hp-gold2: #d49200;
+  --hp-gold3: #ffd966;
+  --hp-terracotta: #c1666b;
   --hp-serif: 'Cormorant Garamond', 'Cormorant Garamond Fallback', Georgia, serif;
   --hp-display: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
   --hp-sans: 'DM Sans', 'DM Sans Fallback', -apple-system, sans-serif;
@@ -543,7 +544,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateX(-50%);
   width: 800px;
   height: 800px;
-  background: radial-gradient(ellipse, rgba(200,165,90,0.06) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(244,169,0,0.06) 0%, transparent 70%);
   pointer-events: none;
 }
 .hp-hero-eyebrow {
@@ -694,7 +695,7 @@ input::placeholder{color:var(--td);opacity:.7}
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: linear-gradient(135deg, rgba(200,165,90,0.04) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(244,169,0,0.04) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.4s;
 }
@@ -734,8 +735,8 @@ input::placeholder{color:var(--td);opacity:.7}
   display: inline-block;
   margin-top: 1.25rem;
   padding: 0.35rem 0.9rem;
-  background: rgba(200,165,90,0.1);
-  border: 1px solid rgba(200,165,90,0.15);
+  background: rgba(244,169,0,0.1);
+  border: 1px solid rgba(244,169,0,0.15);
   border-radius: 100px;
   font-size: 0.72rem;
   color: var(--hp-gold);
@@ -761,7 +762,7 @@ input::placeholder{color:var(--td);opacity:.7}
   position: absolute;
   inset: -15px;
   border-radius: 50%;
-  border: 1px solid rgba(200,165,90,0.08);
+  border: 1px solid rgba(244,169,0,0.08);
 }
 /* Steps */
 .hp-steps {
@@ -838,8 +839,8 @@ input::placeholder{color:var(--td);opacity:.7}
 .hp-quote-mark {
   font-family: var(--hp-serif);
   font-size: 4rem;
-  color: var(--hp-gold2);
-  opacity: 0.3;
+  color: var(--hp-terracotta);
+  opacity: 0.4;
   line-height: 1;
   margin-bottom: 1.5rem;
 }
@@ -871,7 +872,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateX(-50%);
   width: 600px;
   height: 600px;
-  background: radial-gradient(ellipse, rgba(200,165,90,0.05) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(244,169,0,0.05) 0%, transparent 70%);
   pointer-events: none;
 }
 .hp-cta-heading {
@@ -1067,8 +1068,8 @@ input::placeholder{color:var(--td);opacity:.7}
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(200,165,90,0.08);
-  border: 1px solid rgba(200,165,90,0.12);
+  background: rgba(244,169,0,0.08);
+  border: 1px solid rgba(244,169,0,0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1098,9 +1099,9 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-bottom: 0.75rem;
 }
 .hp-mode-badge--popular {
-  background: rgba(200,165,90,0.15);
-  color: var(--hp-gold);
-  border: 1px solid rgba(200,165,90,0.2);
+  background: rgba(193,102,107,0.15);
+  color: var(--hp-terracotta);
+  border: 1px solid rgba(193,102,107,0.25);
 }
 .hp-mode-badge--free {
   background: rgba(39,174,96,0.12);
@@ -1161,7 +1162,7 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateY(-2px);
 }
 .hp-testimonial-stars {
-  color: var(--hp-gold);
+  color: var(--hp-terracotta);
   font-size: 0.85rem;
   letter-spacing: 1px;
   margin-bottom: 1rem;
@@ -1182,7 +1183,7 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 .hp-testimonial-mode {
   font-size: 0.7rem;
-  color: var(--hp-gold2);
+  color: var(--hp-terracotta);
   margin-top: 0.25rem;
 }
 
@@ -1213,8 +1214,8 @@ input::placeholder{color:var(--td);opacity:.7}
   transform: translateY(-2px);
 }
 .hp-pricing-card--premium {
-  border-color: rgba(200,165,90,0.25);
-  background: linear-gradient(135deg, var(--hp-surface), rgba(200,165,90,0.04));
+  border-color: rgba(244,169,0,0.25);
+  background: linear-gradient(135deg, var(--hp-surface), rgba(244,169,0,0.04));
 }
 .hp-pricing-card--premium::before {
   content: '';
@@ -1335,7 +1336,7 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 .hp-step-enhanced:hover .hp-step-circle {
   border-color: var(--hp-gold2);
-  background: rgba(200,165,90,0.06);
+  background: rgba(244,169,0,0.06);
   transform: translateY(-3px);
 }
 .hp-step-enhanced .hp-step-title {
