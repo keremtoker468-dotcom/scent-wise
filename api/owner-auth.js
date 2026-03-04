@@ -1,7 +1,7 @@
 const crypto = require('crypto');
-const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
-const { makeOwnerToken } = require('./_lib/owner-token');
+const { rateLimit, getClientIp } = require('../lib/rate-limit');
+const { validateOrigin } = require('../lib/csrf');
+const { makeOwnerToken } = require('../lib/owner-token');
 
 module.exports = async function handler(req, res) {
   // --- Login ---

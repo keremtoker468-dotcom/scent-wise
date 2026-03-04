@@ -1,6 +1,6 @@
 const crypto = require('crypto');
-const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
+const { rateLimit, getClientIp } = require('../lib/rate-limit');
+const { validateOrigin } = require('../lib/csrf');
 
 function makeToken(subscriptionId, customerId, secret) {
   return crypto.createHmac('sha256', secret).update(subscriptionId + ':' + customerId).digest('hex');
