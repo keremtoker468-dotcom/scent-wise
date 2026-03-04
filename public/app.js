@@ -314,7 +314,7 @@ async function activateSubscription(orderId, silent) {
 function showPaywall() {
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
-    ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(201,169,110,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
+    ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(74,111,165,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
     : `<div style="color:var(--td);font-size:13px;margin-bottom:20px;padding:12px 18px;background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm)">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</div>`;
   return `<div class="paywall fi">
     <div style="font-size:48px;margin-bottom:20px;position:relative">✦</div>
@@ -1086,7 +1086,7 @@ function doExp() {
 function r_chat(el) {
   if (!isPaid && !hasFreeTrialLeft() && chatMsgs.length === 0) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
-  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
+  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(74,111,165,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
@@ -1458,7 +1458,7 @@ function r_celeb(el) {
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
       ${f.map(c=>`<div class="pcard" style="padding:22px">
         <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-          <div style="width:48px;height:48px;border-radius:14px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;font-size:22px">${c.img}</div>
+          <div style="width:48px;height:48px;border-radius:14px;background:var(--gl);border:1px solid rgba(74,111,165,.1);display:flex;align-items:center;justify-content:center;font-size:22px">${c.img}</div>
           <h3 style="font-size:16px;font-weight:600">${esc(c.name)}</h3>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px">
@@ -1489,7 +1489,7 @@ function r_account(el) {
     // Show profile for logged-in users
     el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:48px auto">
       <div style="text-align:center;padding:36px 0">
-        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">${isOwner ? '👑' : '✦'}</div>
+        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(74,111,165,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">${isOwner ? '👑' : '✦'}</div>
         <h2 class="fd" style="font-size:30px;margin-bottom:6px">Your Account</h2>
         <p style="color:var(--td);font-size:14px">${isOwner ? 'Owner Access' : 'Premium Member'}</p>
       </div>
@@ -1513,7 +1513,7 @@ function r_account(el) {
     // Show login form for non-premium users
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:48px auto">
       <div style="text-align:center;margin-bottom:36px">
-        <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">👤</div>
+        <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(74,111,165,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">👤</div>
         <h2 class="fd" style="font-size:30px;margin-bottom:8px">Log In</h2>
         <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
       </div>
@@ -1559,7 +1559,7 @@ function doOrderActivate() {
 function r_admin(el) {
   if (isOwner) {
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto;text-align:center">
-      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">👑</div>
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(74,111,165,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">👑</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Access Active</h2>
       <p style="color:var(--td);margin-bottom:28px">You are logged in as the owner with unlimited access.</p>
       <div style="display:flex;gap:12px;justify-content:center">
@@ -1571,7 +1571,7 @@ function r_admin(el) {
   }
   el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto">
     <div style="text-align:center;margin-bottom:36px">
-      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">🔐</div>
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(74,111,165,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">🔐</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Login</h2>
       <p style="color:var(--td);font-size:14px">Enter your owner key to access the admin panel.</p>
     </div>
