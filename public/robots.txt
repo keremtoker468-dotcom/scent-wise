@@ -3,9 +3,18 @@
 
 User-agent: *
 Allow: /
+Allow: /explore
+Allow: /chat
+Allow: /zodiac
+Allow: /music
+Allow: /style
+Allow: /celeb
+Allow: /photo
 Allow: /blog/
 Disallow: /api/
 Disallow: /_vercel/
+Disallow: /account
+Disallow: /admin
 
 # Google (no crawl-delay — Google ignores it anyway)
 User-agent: Googlebot

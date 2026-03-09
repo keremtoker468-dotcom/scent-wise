@@ -163,8 +163,11 @@
   "itemListElement": [
     {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://scent-wise.com/"},
     {"@type": "ListItem", "position": 2, "name": "Blog", "item": "https://scent-wise.com/blog/"},
-    {"@type": "ListItem", "position": 3, "name": "AI Fragrance Advisor", "item": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 4, "name": "Celebrity Fragrances", "item": "https://scent-wise.com/blog/celebrity-fragrances-guide.html"}
+    {"@type": "ListItem", "position": 3, "name": "AI Fragrance Advisor", "item": "https://scent-wise.com/chat"},
+    {"@type": "ListItem", "position": 4, "name": "Explore Fragrances", "item": "https://scent-wise.com/explore"},
+    {"@type": "ListItem", "position": 5, "name": "Zodiac Match", "item": "https://scent-wise.com/zodiac"},
+    {"@type": "ListItem", "position": 6, "name": "Music Match", "item": "https://scent-wise.com/music"},
+    {"@type": "ListItem", "position": 7, "name": "Celebrity Fragrances", "item": "https://scent-wise.com/celeb"}
   ]
 }
 </script>
@@ -190,12 +193,12 @@
   "description": "Six AI-powered ways to discover your perfect fragrance",
   "numberOfItems": 6,
   "itemListElement": [
-    {"@type": "ListItem", "position": 1, "name": "AI Chat Advisor", "url": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 2, "name": "Zodiac Fragrance Match", "url": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 3, "name": "Photo Style Scan", "url": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 4, "name": "Music to Fragrance Match", "url": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 5, "name": "Style Match", "url": "https://scent-wise.com/"},
-    {"@type": "ListItem", "position": 6, "name": "Celebrity Fragrance Collections", "url": "https://scent-wise.com/"}
+    {"@type": "ListItem", "position": 1, "name": "AI Chat Advisor", "url": "https://scent-wise.com/chat"},
+    {"@type": "ListItem", "position": 2, "name": "Zodiac Fragrance Match", "url": "https://scent-wise.com/zodiac"},
+    {"@type": "ListItem", "position": 3, "name": "Photo Style Scan", "url": "https://scent-wise.com/photo"},
+    {"@type": "ListItem", "position": 4, "name": "Music to Fragrance Match", "url": "https://scent-wise.com/music"},
+    {"@type": "ListItem", "position": 5, "name": "Style Match", "url": "https://scent-wise.com/style"},
+    {"@type": "ListItem", "position": 6, "name": "Celebrity Fragrance Collections", "url": "https://scent-wise.com/celeb"}
   ]
 }
 </script>
@@ -1276,13 +1279,88 @@ setTimeout(function(){
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
   </footer>
 </div></div>
-<div id="page-explore" class="hidden" role="region" aria-label="Explore Database"></div>
-<div id="page-chat" class="hidden" role="region" aria-label="AI Fragrance Advisor"></div>
-<div id="page-photo" class="hidden" role="region" aria-label="Photo Style Scan"></div>
-<div id="page-zodiac" class="hidden" role="region" aria-label="Zodiac Match"></div>
-<div id="page-music" class="hidden" role="region" aria-label="Music Match"></div>
-<div id="page-style" class="hidden" role="region" aria-label="Style Match"></div>
-<div id="page-celeb" class="hidden" role="region" aria-label="Celebrity Fragrances"></div>
+<div id="page-explore" class="hidden" role="region" aria-label="Explore Database">
+  <section class="sec fi">
+    <h1>Explore 75,000+ Fragrances</h1>
+    <p>Search the world's largest open fragrance database. Filter by brand, notes, accords, gender, rating, and season. Browse detailed perfume profiles with top, middle, and base notes, longevity ratings, and user reviews — completely free, no subscription required.</p>
+    <h2>Popular Fragrance Searches</h2>
+    <ul>
+      <li><a href="/blog/best-mens-fragrances.html">Best men's fragrances</a></li>
+      <li><a href="/blog/best-womens-fragrances.html">Best women's fragrances</a></li>
+      <li><a href="/blog/best-niche-fragrances.html">Best niche fragrances</a></li>
+      <li><a href="/blog/best-long-lasting-perfumes.html">Best long-lasting perfumes</a></li>
+      <li><a href="/blog/best-perfumes-under-50.html">Best perfumes under $50</a></li>
+    </ul>
+  </section>
+</div>
+<div id="page-chat" class="hidden" role="region" aria-label="AI Fragrance Advisor">
+  <section class="sec fi">
+    <h1>AI Fragrance Advisor</h1>
+    <p>Chat with our AI-powered fragrance advisor to get personalized perfume recommendations. Describe your preferences, occasion, season, or mood — and our AI will match you with the perfect scent from our database of 75,000+ fragrances. Each recommendation includes detailed notes, accords, longevity, and where to buy.</p>
+    <h2>What You Can Ask</h2>
+    <ul>
+      <li>Find a fresh, citrusy cologne for summer under $50</li>
+      <li>Recommend a warm, cozy perfume for date night</li>
+      <li>Suggest fragrances similar to Dior Sauvage</li>
+      <li>What's a good unisex fragrance for the office?</li>
+    </ul>
+  </section>
+</div>
+<div id="page-photo" class="hidden" role="region" aria-label="Photo Style Scan">
+  <section class="sec fi">
+    <h1>Photo Style Scan</h1>
+    <p>Upload a photo and let our AI analyze your visual aesthetic to recommend fragrances that match your style. Whether it's a fashion photo, outfit of the day, or mood board — our AI translates visual cues into scent recommendations from 75,000+ perfumes.</p>
+  </section>
+</div>
+<div id="page-zodiac" class="hidden" role="region" aria-label="Zodiac Match">
+  <section class="sec fi">
+    <h1>Zodiac Fragrance Match</h1>
+    <p>Discover fragrances aligned with your zodiac sign. Our AI matches the personality traits, elements, and energy of each astrological sign to curated perfume recommendations from 75,000+ fragrances. Find your cosmic signature scent.</p>
+    <h2>Zodiac Fragrance Guides</h2>
+    <ul>
+      <li><a href="/blog/zodiac-aries-fragrances.html">Aries Fragrances</a></li>
+      <li><a href="/blog/zodiac-taurus-fragrances.html">Taurus Fragrances</a></li>
+      <li><a href="/blog/zodiac-gemini-fragrances.html">Gemini Fragrances</a></li>
+      <li><a href="/blog/zodiac-cancer-fragrances.html">Cancer Fragrances</a></li>
+      <li><a href="/blog/zodiac-leo-fragrances.html">Leo Fragrances</a></li>
+      <li><a href="/blog/zodiac-virgo-fragrances.html">Virgo Fragrances</a></li>
+      <li><a href="/blog/zodiac-libra-fragrances.html">Libra Fragrances</a></li>
+      <li><a href="/blog/zodiac-scorpio-fragrances.html">Scorpio Fragrances</a></li>
+      <li><a href="/blog/zodiac-sagittarius-fragrances.html">Sagittarius Fragrances</a></li>
+      <li><a href="/blog/zodiac-capricorn-fragrances.html">Capricorn Fragrances</a></li>
+      <li><a href="/blog/zodiac-aquarius-fragrances.html">Aquarius Fragrances</a></li>
+      <li><a href="/blog/zodiac-pisces-fragrances.html">Pisces Fragrances</a></li>
+    </ul>
+  </section>
+</div>
+<div id="page-music" class="hidden" role="region" aria-label="Music Match">
+  <section class="sec fi">
+    <h1>Music to Fragrance Match</h1>
+    <p>Discover fragrances that match your music taste. Our AI translates your favorite genres, artists, and playlists into personalized perfume recommendations. From jazz to hip-hop, classical to electronic — find scents that harmonize with your sonic identity.</p>
+    <h2>Music Genre Fragrance Guides</h2>
+    <ul>
+      <li><a href="/blog/music-jazz-fragrances.html">Jazz Fragrances</a></li>
+      <li><a href="/blog/music-hip-hop-fragrances.html">Hip-Hop Fragrances</a></li>
+      <li><a href="/blog/music-classical-fragrances.html">Classical Fragrances</a></li>
+      <li><a href="/blog/music-electronic-fragrances.html">Electronic Fragrances</a></li>
+      <li><a href="/blog/music-rnb-fragrances.html">R&amp;B Fragrances</a></li>
+      <li><a href="/blog/music-indie-rock-fragrances.html">Indie Rock Fragrances</a></li>
+    </ul>
+  </section>
+</div>
+<div id="page-style" class="hidden" role="region" aria-label="Style Match">
+  <section class="sec fi">
+    <h1>Style Match — Wardrobe to Fragrance</h1>
+    <p>Get fragrance recommendations based on your fashion style. Describe your wardrobe, favorite brands, or personal aesthetic and our AI will recommend perfumes that complement your look from 75,000+ fragrances. From streetwear to haute couture — smell like you dress.</p>
+  </section>
+</div>
+<div id="page-celeb" class="hidden" role="region" aria-label="Celebrity Fragrances">
+  <section class="sec fi">
+    <h1>Celebrity Fragrances — What Icons Wear</h1>
+    <p>Explore fragrances worn by 101 celebrities. From Rihanna to David Beckham, discover what your favorite icons smell like. Browse their signature scents, find affordable alternatives, and get AI-powered recommendations for similar fragrances from our 75,000+ database.</p>
+    <p><a href="/blog/celebrity-fragrances-guide.html">Read the full celebrity fragrances guide</a></p>
+  </section>
+</div>
 <div id="page-account" class="hidden" role="region" aria-label="Account"></div>
 <div id="page-admin" class="hidden" role="region" aria-label="Admin"></div>
 </main>
@@ -1363,6 +1441,19 @@ setTimeout(function(){
     </section>
 
     <nav>
+      <h2>Discovery Modes</h2>
+      <ul>
+        <li><a href="/explore">Explore 75,000+ Fragrances</a></li>
+        <li><a href="/chat">AI Fragrance Advisor</a></li>
+        <li><a href="/zodiac">Zodiac Fragrance Match</a></li>
+        <li><a href="/music">Music to Fragrance Match</a></li>
+        <li><a href="/style">Style Match</a></li>
+        <li><a href="/celeb">Celebrity Fragrances</a></li>
+        <li><a href="/photo">Photo Style Scan</a></li>
+      </ul>
+    </nav>
+
+    <nav>
       <h2>Read Our Fragrance Guides</h2>
       <ul>
         <li><a href="/blog/">All Fragrance Guides (35+ articles)</a></li>
@@ -1382,8 +1473,18 @@ setTimeout(function(){
   </article>
 </main>
 </noscript>
-<!-- SEO blog links + internal linking -->
-<nav aria-label="Fragrance guides and blog articles" style="text-align:center;padding:12px 20px 20px;font-size:12px;color:var(--d5);line-height:2.2">
+<!-- SEO mode + blog links for internal linking -->
+<nav aria-label="Discovery modes" style="text-align:center;padding:12px 20px 4px;font-size:12px;color:var(--d5);line-height:2.2">
+  <span style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;color:var(--d5)">Discovery Modes</span>
+  <a href="/explore" style="color:var(--td);margin:0 8px">Explore Fragrances</a> &middot;
+  <a href="/chat" style="color:var(--td);margin:0 8px">AI Advisor</a> &middot;
+  <a href="/zodiac" style="color:var(--td);margin:0 8px">Zodiac Match</a> &middot;
+  <a href="/music" style="color:var(--td);margin:0 8px">Music Match</a> &middot;
+  <a href="/style" style="color:var(--td);margin:0 8px">Style Match</a> &middot;
+  <a href="/celeb" style="color:var(--td);margin:0 8px">Celebrity Scents</a> &middot;
+  <a href="/photo" style="color:var(--td);margin:0 8px">Photo Scan</a>
+</nav>
+<nav aria-label="Fragrance guides and blog articles" style="text-align:center;padding:4px 20px 20px;font-size:12px;color:var(--d5);line-height:2.2">
   <span style="display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;color:var(--d5)">Fragrance Guides</span>
   <a href="/blog/" style="color:var(--g);margin:0 8px;font-weight:600" title="Browse all 35+ fragrance guides">All Guides</a> &middot;
   <a href="/blog/best-mens-fragrances.html" style="color:var(--td);margin:0 8px">Men's Fragrances</a> &middot;

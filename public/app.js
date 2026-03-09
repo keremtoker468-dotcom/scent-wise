@@ -326,7 +326,7 @@ function showPaywall() {
     <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
-    <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
+    <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a href="/account" onclick="event.preventDefault();go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
   </div>`;
 }
 
@@ -718,7 +718,7 @@ const MODES = [
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
-    `<a class="ni ${CP===n.id?'na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
+    `<a class="ni ${CP===n.id?'na':''}" href="/${n.id==='home'?'':n.id}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
@@ -728,7 +728,7 @@ function rNav() {
         const isOnMode = modePages.includes(CP);
         return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()" role="tab" tabindex="0" aria-label="Switch discovery mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModeSwitcher()}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
       }
-      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
+      return `<a class="mob-ni ${CP===n.id?'mob-na':''}" href="/${n.id==='home'?'':n.id}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></a>`;
     }).join('');
   }
   rModeBar();
@@ -742,7 +742,7 @@ function rModeBar() {
   bar.style.display = isModePage ? '' : 'none';
   if (!isModePage) return;
   inner.innerHTML = MODES.map(m =>
-    `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
+    `<a class="mode-pill ${CP===m.id?'mp-active':''}" href="/${m.id}" onclick="event.preventDefault();go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</a>`
   ).join('');
   // Auto-scroll active pill into view
   setTimeout(() => {
@@ -764,11 +764,92 @@ const PAGE_TITLES = {
   admin: 'Admin — ScentWise'
 };
 
-function go(p) {
+// ═══════════════ SEO: PAGE META & DYNAMIC META TAGS ═══════════════
+const PAGE_META = {
+  home: {
+    description: 'ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.',
+    canonical: 'https://scent-wise.com/',
+    ogTitle: 'ScentWise — AI Fragrance Advisor',
+    ogDescription: 'AI-powered fragrance advisor with 75,000+ perfumes. Get personalized scent recommendations based on your style, zodiac sign, music taste, and celebrity preferences.'
+  },
+  explore: {
+    description: 'Search and explore 75,000+ fragrances with detailed notes, accords, ratings, and reviews. Filter by brand, gender, season, and more. Free to use.',
+    canonical: 'https://scent-wise.com/explore',
+    ogTitle: 'Explore 75,000+ Fragrances — ScentWise',
+    ogDescription: 'Browse the world\'s largest open fragrance database. Search by brand, notes, accords, gender, and rating — completely free.'
+  },
+  chat: {
+    description: 'Get personalized AI fragrance recommendations. Tell our AI advisor your preferences and discover your perfect perfume from 75,000+ fragrances.',
+    canonical: 'https://scent-wise.com/chat',
+    ogTitle: 'AI Fragrance Advisor — ScentWise',
+    ogDescription: 'Chat with our AI to get personalized perfume recommendations from 75,000+ fragrances based on your unique preferences.'
+  },
+  photo: {
+    description: 'Upload a photo and let AI match your visual aesthetic to the perfect fragrance. Style-based scent recommendations from 75,000+ perfumes.',
+    canonical: 'https://scent-wise.com/photo',
+    ogTitle: 'Photo Style Scan — ScentWise',
+    ogDescription: 'Upload a photo and discover fragrances that match your visual aesthetic. AI-powered style-to-scent matching.'
+  },
+  zodiac: {
+    description: 'Discover fragrances aligned with your zodiac sign. AI-powered celestial fragrance matching from 75,000+ perfumes for every astrological sign.',
+    canonical: 'https://scent-wise.com/zodiac',
+    ogTitle: 'Zodiac Fragrance Match — ScentWise',
+    ogDescription: 'Find your cosmic signature scent. AI matches fragrances to your zodiac sign from 75,000+ perfumes.'
+  },
+  music: {
+    description: 'Find fragrances that match your music taste. AI translates your favorite genres and artists into personalized perfume recommendations.',
+    canonical: 'https://scent-wise.com/music',
+    ogTitle: 'Music to Fragrance Match — ScentWise',
+    ogDescription: 'Discover perfumes that sound like your playlist. AI-powered music-to-scent translation from 75,000+ fragrances.'
+  },
+  style: {
+    description: 'Get fragrance recommendations based on your fashion style and wardrobe. AI matches your personal style to the perfect perfume.',
+    canonical: 'https://scent-wise.com/style',
+    ogTitle: 'Style Match — ScentWise',
+    ogDescription: 'Discover fragrances that complement your fashion sense. AI-powered wardrobe-to-scent matching from 75,000+ perfumes.'
+  },
+  celeb: {
+    description: 'Explore fragrances worn by 101 celebrities. Discover what your favorite icons smell like and find similar perfumes in our 75,000+ database.',
+    canonical: 'https://scent-wise.com/celeb',
+    ogTitle: 'Celebrity Fragrances — ScentWise',
+    ogDescription: 'Explore what 101 celebrities wear. Discover iconic fragrances and find affordable alternatives from 75,000+ perfumes.'
+  }
+};
+
+const VALID_PAGES = ['home','explore','chat','photo','zodiac','music','style','celeb','account','admin'];
+
+function updateMeta(p) {
+  var meta = PAGE_META[p] || PAGE_META.home;
+  var d = document.querySelector('meta[name="description"]');
+  if (d) d.setAttribute('content', meta.description);
+  var c = document.querySelector('link[rel="canonical"]');
+  if (c) c.setAttribute('href', meta.canonical);
+  var ot = document.querySelector('meta[property="og:title"]');
+  if (ot) ot.setAttribute('content', meta.ogTitle);
+  var od = document.querySelector('meta[property="og:description"]');
+  if (od) od.setAttribute('content', meta.ogDescription);
+  var ou = document.querySelector('meta[property="og:url"]');
+  if (ou) ou.setAttribute('content', meta.canonical);
+  var tt = document.querySelector('meta[name="twitter:title"]');
+  if (tt) tt.setAttribute('content', meta.ogTitle);
+  var td = document.querySelector('meta[name="twitter:description"]');
+  if (td) td.setAttribute('content', meta.ogDescription);
+}
+
+function go(p, skipPush) {
   document.querySelectorAll('[id^="page-"]').forEach(e => e.classList.add('hidden'));
   CP = p;
   // Update page title for SEO and accessibility
   document.title = PAGE_TITLES[p] || PAGE_TITLES.home;
+  // Update meta tags for SEO
+  updateMeta(p);
+  // Update URL via History API (skip on popstate/init)
+  if (!skipPush) {
+    var targetPath = p === 'home' ? '/' : '/' + p;
+    if (window.location.pathname !== targetPath) {
+      window.history.pushState({ page: p }, '', targetPath);
+    }
+  }
   // Hide/show SPA nav/footer FIRST (before rNav, so a rNav crash can't leave them visible)
   const navW = document.querySelector('.nav-w');
   const mobNav = document.querySelector('.mob-nav');
@@ -842,12 +923,12 @@ function r_home(el) {
   el.innerHTML = `<div class="hp-grain">
   <!-- Homepage Nav -->
   <nav class="hp-nav" id="hp-nav">
-    <div class="hp-nav-logo" onclick="go('home')">Scent<span>Wise</span></div>
+    <a class="hp-nav-logo" href="/" onclick="event.preventDefault();go('home')">Scent<span>Wise</span></a>
     <div class="hp-nav-links">
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
-      <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
+      <a class="hp-nav-cta" href="/chat" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
     <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
       <span></span><span></span><span></span>
@@ -859,7 +940,7 @@ function r_home(el) {
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of ${perfumeCount}+ scents.</p>
     <div class="hp-hero-actions">
-      <button class="hp-btn-primary" onclick="go('chat')">Start Discovering</button>
+      <a class="hp-btn-primary" href="/chat" onclick="event.preventDefault();go('chat')" role="button">Start Discovering</a>
       <button class="hp-btn-ghost" onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See How It Works</button>
     </div>
     <div class="hp-hero-stats">
@@ -876,7 +957,7 @@ function r_home(el) {
     <div class="hp-section-heading hp-reveal">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
     <p class="hp-section-copy hp-reveal">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
     <div class="hp-modes-layout">
-      <div class="hp-mode-item featured hp-reveal" onclick="go('chat')">
+      <a class="hp-mode-item featured hp-reveal" href="/chat" onclick="event.preventDefault();go('chat')">
         <div>
           <div class="hp-mode-number">01</div>
           <div class="hp-mode-name">Ask the Expert</div>
@@ -889,32 +970,32 @@ function r_home(el) {
             <div class="hp-mode-visual-ring"></div>
           </div>
         </div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('zodiac')">
+      </a>
+      <a class="hp-mode-item hp-reveal" href="/zodiac" onclick="event.preventDefault();go('zodiac')">
         <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('photo')">
+      </a>
+      <a class="hp-mode-item hp-reveal" href="/photo" onclick="event.preventDefault();go('photo')">
         <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('music')">
+      </a>
+      <a class="hp-mode-item hp-reveal" href="/music" onclick="event.preventDefault();go('music')">
         <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('style')">
+      </a>
+      <a class="hp-mode-item hp-reveal" href="/style" onclick="event.preventDefault();go('style')">
         <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+      </a>
+      <a class="hp-mode-item hp-reveal" href="/celeb" onclick="event.preventDefault();go('celeb')">
         <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
@@ -964,7 +1045,7 @@ function r_home(el) {
       <div class="hp-celeb-scroll">
         ${['Rihanna','David Beckham','Zendaya','Johnny Depp','Ariana Grande','Cristiano Ronaldo','Beyoncé','Drake','LeBron James','Taylor Swift','Kendall Jenner','Travis Scott'].map(name => {
           const c = CELEBS.find(x => x.name === name);
-          return c ? `<div class="hp-celeb-card" onclick="go('celeb')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')go('celeb')" aria-label="${c.name} — ${c.frags.length} fragrances"><div class="hp-celeb-emoji" aria-hidden="true">${c.img}</div><div class="hp-celeb-name">${c.name}</div><div class="hp-celeb-count">${c.frags.length} fragrance${c.frags.length !== 1 ? 's' : ''}</div></div>` : '';
+          return c ? `<a class="hp-celeb-card" href="/celeb" onclick="event.preventDefault();go('celeb')" aria-label="${c.name} — ${c.frags.length} fragrances"><div class="hp-celeb-emoji" aria-hidden="true">${c.img}</div><div class="hp-celeb-name">${c.name}</div><div class="hp-celeb-count">${c.frags.length} fragrance${c.frags.length !== 1 ? 's' : ''}</div></a>` : '';
         }).join('')}
       </div>
     </div>
@@ -975,7 +1056,7 @@ function r_home(el) {
     <div class="hp-cta-heading hp-reveal">Ready to find <em>your scent?</em></div>
     <p class="hp-cta-sub hp-reveal">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
     <div class="hp-reveal">
-      <button class="hp-btn-primary" onclick="go('chat')" style="font-size:1rem;padding:1rem 3rem">Start Free Discovery</button>
+      <a class="hp-btn-primary" href="/chat" onclick="event.preventDefault();go('chat')" role="button" style="font-size:1rem;padding:1rem 3rem;display:inline-block;text-decoration:none">Start Free Discovery</a>
     </div>
   </section>
   <!-- Homepage Footer -->
@@ -1621,11 +1702,23 @@ async function doAdminLogin() {
 // ═══════════════ INIT ═══════════════
 rNav();
 
-// Check if ?admin is in URL before first render
+// Handle browser back/forward navigation
+window.addEventListener('popstate', function(e) {
+  var path = window.location.pathname.replace(/^\//, '') || 'home';
+  if (VALID_PAGES.indexOf(path) !== -1) {
+    go(path, true);
+  } else {
+    go('home', true);
+  }
+});
+
+// Check URL path and ?admin for initial page
 const _initParams = new URLSearchParams(window.location.search);
 const _wantAdmin = _initParams.has('admin');
+const _initPath = window.location.pathname.replace(/^\//, '') || 'home';
+const _startPage = _wantAdmin ? 'admin' : (VALID_PAGES.indexOf(_initPath) !== -1 ? _initPath : 'home');
 
-go(_wantAdmin ? 'admin' : 'home');
+go(_startPage, true);
 
 // Preload database in background (non-blocking, ready when user navigates to explore/chat/celeb)
 requestAnimationFrame(() => { loadDB(); });
