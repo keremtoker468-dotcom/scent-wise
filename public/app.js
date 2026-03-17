@@ -84,23 +84,29 @@ let _dbLoaded = false;
 let _dbLoadPromise = null;
 
 function _decodeDB() {
-  if (typeof _SI !== 'undefined' && SI.length === 0) {
-    SI = _SI.map(s => {
-      const p = s.split('|');
-      return p[0] + '|' + (_SB[+p[1]]||'') + '|' + (_CM[p[2]]||p[2]) + '|' + (_GM[p[3]]||p[3]);
-    });
-  }
-  if (typeof _RD !== 'undefined' && RD.length === 0) {
-    RD = _RD.map(e => {
-      const o = {n:e[0], b:_RB[e[1]]||'', c:_CM[e[2]]||e[2], g:_GM[e[3]]||e[3], r:e[4], a:(e[5]||[]).map(i=>_RA[i]).join(', ')};
-      if (e[6]) o.t = e[6];
-      if (e[7]) o.o = e[7];
-      if (e[8]) o.l = e[8];
-      return o;
-    });
-    RD.forEach(p => { RL[(p.n+'|'+p.b).toLowerCase()] = p; });
-  }
-  _dbLoaded = true;
+  return new Promise(resolve => {
+    if (typeof _SI !== 'undefined' && SI.length === 0) {
+      SI = _SI.map(s => {
+        const p = s.split('|');
+        return p[0] + '|' + (_SB[+p[1]]||'') + '|' + (_CM[p[2]]||p[2]) + '|' + (_GM[p[3]]||p[3]);
+      });
+    }
+    // Yield to main thread between SI and RD processing
+    setTimeout(() => {
+      if (typeof _RD !== 'undefined' && RD.length === 0) {
+        RD = _RD.map(e => {
+          const o = {n:e[0], b:_RB[e[1]]||'', c:_CM[e[2]]||e[2], g:_GM[e[3]]||e[3], r:e[4], a:(e[5]||[]).map(i=>_RA[i]).join(', ')};
+          if (e[6]) o.t = e[6];
+          if (e[7]) o.o = e[7];
+          if (e[8]) o.l = e[8];
+          return o;
+        });
+        RD.forEach(p => { RL[(p.n+'|'+p.b).toLowerCase()] = p; });
+      }
+      _dbLoaded = true;
+      resolve();
+    }, 0);
+  });
 }
 
 function _loadScript(src) {
@@ -116,9 +122,10 @@ function _loadScript(src) {
 function loadDB() {
   if (_dbLoaded) return Promise.resolve();
   if (_dbLoadPromise) return _dbLoadPromise;
-  _dbLoadPromise = _loadScript('/perfumes.js')
-    .then(() => _loadScript('/perfumes-rich.js'))
-    .then(() => { _decodeDB(); })
+  _dbLoadPromise = Promise.all([
+    _loadScript('/perfumes.js'),
+    _loadScript('/perfumes-rich.js')
+  ]).then(() => _decodeDB())
     .catch(err => { console.error('Failed to load perfume data:', err); _dbLoaded = true; });
   return _dbLoadPromise;
 }
@@ -1627,8 +1634,7 @@ const _wantAdmin = _initParams.has('admin');
 
 go(_wantAdmin ? 'admin' : 'home');
 
-// Preload database in background (non-blocking, ready when user navigates to explore/chat/celeb)
-requestAnimationFrame(() => { loadDB(); });
+// Database loads on-demand when user navigates to explore/chat/celeb pages
 
 // Initialize auth from server-side cookies
 (async function() {
