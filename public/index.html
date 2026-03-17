@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" prefix="og: http://ogp.me/ns#">
 <head>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-769WY8EYH6');
-</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ScentWise — AI Fragrance Advisor | Personalized Perfume Recommendations</title>
@@ -1421,5 +1412,17 @@ setTimeout(function(){
   }
 </script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
+<!-- Google Analytics (deferred to avoid blocking render) -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-769WY8EYH6');
+(window.requestIdleCallback || function(cb){setTimeout(cb,3000)})(function(){
+  var s = document.createElement('script');
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6';
+  document.head.appendChild(s);
+});
+</script>
 </body>
 </html>
