@@ -47,7 +47,8 @@ function openModeSwitcher() {
     {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
     {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
     {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
-    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
+    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'},
+    {id:'dupe',name:'Dupe Finder',desc:'Find affordable alternatives',i:'🔄'}
   ];
   optionsEl.innerHTML = allModes.map(m =>
     `<div class="ms-option ${CP===m.id?'ms-active':''}" onclick="goFromSwitcher('${m.id}')">
@@ -105,6 +106,8 @@ function _decodeDB() {
       }
       _dbLoaded = true;
       resolve();
+      // Initialize Orama search index in background
+      _initOrama();
     }, 0);
   });
 }
@@ -141,8 +144,49 @@ function find(name, brand) {
   return null;
 }
 
+// ═══════════════ SEARCH (Orama fuzzy + fallback) ═══════════════
+let _oramaDB = null;
+let _oramaReady = false;
+
+async function _initOrama() {
+  if (_oramaReady || !window.orama) return;
+  try {
+    const { create, insert } = window.orama;
+    _oramaDB = await create({
+      schema: { name: 'string', brand: 'string', category: 'string', gender: 'string' },
+      components: { tokenizer: { stemming: false } }
+    });
+    for (let i = 0; i < SI.length; i++) {
+      const parts = SI[i].split('|');
+      await insert(_oramaDB, { name: parts[0], brand: parts[1], category: parts[2] || '', gender: parts[3] || '' });
+    }
+    _oramaReady = true;
+  } catch (e) {
+    console.warn('Orama init failed, using fallback search:', e);
+    _oramaReady = false;
+  }
+}
+
 function searchDB(query, limit) {
   limit = limit || 50;
+  // Try Orama first for fuzzy search
+  if (_oramaReady && _oramaDB && window.orama) {
+    try {
+      const res = window.orama.search(_oramaDB, { term: query, limit, tolerance: 1 });
+      if (res && res.hits && res.hits.length) {
+        return res.hits.map(h => {
+          const d = h.document;
+          const key = (d.name + '|' + d.brand).toLowerCase();
+          const rich = RL[key];
+          return {
+            name: d.name, brand: d.brand, category: d.category, gender: d.gender,
+            ...(rich ? {notes: rich.t, accords: rich.a, rating: rich.r, concentration: rich.o, longevity: rich.l} : {})
+          };
+        });
+      }
+    } catch {}
+  }
+  // Fallback: linear search
   const q = query.toLowerCase();
   const terms = q.split(/\s+/).filter(t => t.length > 1);
   if (!terms.length) return [];
@@ -264,7 +308,8 @@ async function unlockPaid() {
       if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
       window.location.href = d.url;
     } else {
-      showToast(d.error || 'Could not start checkout. Please try again.', 'error');
+      const msg = d.error === 'Checkout not configured' ? 'Payment system is set up in production only. Deploy to test checkout.' : (d.error || 'Could not start checkout. Please try again.');
+      showToast(msg, 'error', 6000);
       btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
     }
   } catch {
@@ -322,7 +367,7 @@ function showPaywall() {
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
     ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(201,169,110,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
-    : `<div style="color:var(--td);font-size:13px;margin-bottom:20px;padding:12px 18px;background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm)">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</div>`;
+    : `<div style="color:var(--t);font-size:14px;margin-bottom:20px;padding:14px 18px;background:linear-gradient(135deg,rgba(201,169,110,.12),rgba(201,169,110,.06));border:1px solid rgba(201,169,110,.25);border-radius:var(--r-sm);text-align:center;font-weight:500">Your ${FREE_LIMIT} free queries are used — subscribe to keep discovering!</div>`;
   return `<div class="paywall fi">
     <div style="font-size:48px;margin-bottom:20px;position:relative">✦</div>
     <h3 class="fd" style="font-size:28px">Unlock <span class="gg">ScentWise AI</span></h3>
@@ -334,7 +379,41 @@ function showPaywall() {
     <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
     <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
+    <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--d4);position:relative">
+      <p style="font-size:13px;color:var(--td);margin-bottom:10px">Not ready? Get your fragrance matches emailed free:</p>
+      <div id="email-capture-row" style="display:flex;gap:8px;max-width:360px;margin:0 auto">
+        <label for="pw-email" class="sr-only">Your email address</label>
+        <input type="email" id="pw-email" placeholder="your@email.com" style="flex:1;background:var(--d3);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 14px;color:var(--t);font-size:14px;min-width:0">
+        <button class="btn-o btn-sm" onclick="captureEmail()" style="white-space:nowrap;padding:10px 16px">Send Matches</button>
+      </div>
+      <p id="email-capture-msg" style="font-size:12px;margin-top:8px;display:none"></p>
+    </div>
   </div>`;
+}
+
+async function captureEmail() {
+  const inp = document.getElementById('pw-email');
+  const msg = document.getElementById('email-capture-msg');
+  if (!inp || !msg) return;
+  const email = inp.value.trim();
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    msg.style.display = 'block'; msg.style.color = 'var(--td)'; msg.textContent = 'Please enter a valid email address.'; return;
+  }
+  inp.disabled = true;
+  try {
+    const r = await fetch('/api/capture-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json();
+    msg.style.display = 'block';
+    msg.style.color = r.ok ? 'var(--g)' : 'var(--td)';
+    msg.textContent = d.message || d.error || 'Done!';
+    if (r.ok) { inp.value = ''; document.getElementById('email-capture-row').style.display = 'none'; }
+  } catch { msg.style.display = 'block'; msg.style.color = 'var(--td)'; msg.textContent = 'Network error. Try again.'; }
+  inp.disabled = false;
 }
 
 function promptActivate() {
@@ -441,7 +520,13 @@ async function aiCall(mode, payload) {
     if (r.status === 429) { const d = await r.json().catch(()=>({})); if (d.usage) trackUsage(d.usage); return d.error || 'Our AI is a bit busy right now. Please try again in a few seconds.'; }
     if (!r.ok) throw new Error(r.status >= 500 ? 'ai_unavailable' : 'request_failed');
     const d = await r.json();
-    if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
+    if (typeof d.freeUsed === 'number') {
+      trackFreeUsage(d.freeUsed);
+      // Warn when 1 query left
+      if (!isPaid && freeUsed === FREE_LIMIT - 1) {
+        showToast('You have 1 free query left! Make it count.', 'info', 5000);
+      }
+    }
     else if (typeof d.usage === 'number') trackUsage(d.usage);
     else if (isPaid) trackUsage();
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
@@ -464,7 +549,102 @@ function fmt(text) {
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
     s += '<br><button onclick="retryLast()" class="btn-o btn-sm" style="margin-top:10px">Try Again</button>';
   }
+  // Add prominent subscribe CTA to trial-ended messages
+  if (text.includes('free queries') || text.includes('Subscribe to ScentWise Premium')) {
+    s += '<div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.06);text-align:center">'
+      + '<a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;padding:12px 32px;font-size:14px">Subscribe Now — $2.99/mo</a>'
+      + '<div style="margin-top:8px;font-size:11px;color:var(--td)">500 queries/month · Cancel anytime</div>'
+      + '</div>';
+  }
   return s;
+}
+
+// ═══════════════ SHARE BUTTONS ═══════════════
+function shareHTML(text, context) {
+  const siteUrl = 'https://scent-wise.com';
+  const maxLen = 240;
+  const clean = text.replace(/\*\*/g, '').replace(/\n+/g, '\n').trim();
+  const preview = clean.length > maxLen ? clean.slice(0, maxLen) + '...' : clean;
+  const tweetText = encodeURIComponent((context || 'Check out this AI fragrance recommendation') + '\n\n' + siteUrl);
+  const waText = encodeURIComponent(preview + '\n\nTry it free: ' + siteUrl);
+  const emailSubject = encodeURIComponent(context || 'Fragrance recommendation from ScentWise');
+  const emailBody = encodeURIComponent(preview + '\n\nDiscover your perfect scent: ' + siteUrl);
+  const btnStyle = 'padding:3px 8px;border-radius:6px;border:1px solid var(--d4);color:var(--td);font-size:12px;text-decoration:none;transition:all .2s;cursor:pointer;background:transparent;display:inline-block';
+  return `<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+    <span style="font-size:11px;color:var(--td)">Share:</span>
+    <button class="btn-reset" onclick="copyShare(\`${clean.replace(/`/g,'\\`').replace(/\\/g,'\\\\')}\`)" title="Copy for TikTok, Instagram, Reddit" style="${btnStyle}">📋 Copy for TikTok/IG</button>
+    <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener" title="Send via WhatsApp" style="${btnStyle}">💬 WhatsApp</a>
+    <button class="btn-reset" onclick="openEmailShare('${emailSubject}','${emailBody}')" title="Share via Email" style="${btnStyle}">✉️ Email</button>
+    <a href="https://twitter.com/intent/tweet?text=${tweetText}" target="_blank" rel="noopener" title="Share on X/Twitter" style="${btnStyle}">𝕏 Tweet</a>
+  </div>`;
+}
+function copyShare(text) {
+  const full = text + '\n\nFound on ScentWise AI — https://scent-wise.com';
+  navigator.clipboard.writeText(full).then(() => showToast('Copied to clipboard!', 'success', 2000)).catch(() => showToast('Could not copy', 'error'));
+}
+function openEmailShare(subject, body) {
+  const s = decodeURIComponent(subject);
+  const b = decodeURIComponent(body);
+  const el = document.createElement('div');
+  el.id = 'email-share-picker';
+  el.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)';
+  const btnS = 'display:flex;align-items:center;gap:10px;width:100%;padding:14px 18px;border:1px solid var(--d4);border-radius:10px;background:var(--d3);color:var(--t);font-size:14px;cursor:pointer;text-decoration:none;transition:all .15s';
+  el.innerHTML = `<div style="background:var(--d2);border:1px solid var(--d4);border-radius:16px;padding:24px;max-width:320px;width:90%">
+    <div style="font-size:16px;font-weight:600;margin-bottom:16px;color:var(--t)">Send via email</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <a href="https://mail.google.com/mail/?view=cm&su=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}" target="_blank" rel="noopener" style="${btnS}" onclick="closeEmailPicker()">
+        <span style="font-size:20px">📧</span> Gmail
+      </a>
+      <a href="https://outlook.live.com/mail/0/deeplink/compose?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}" target="_blank" rel="noopener" style="${btnS}" onclick="closeEmailPicker()">
+        <span style="font-size:20px">📬</span> Outlook
+      </a>
+      <a href="https://compose.mail.yahoo.com/?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}" target="_blank" rel="noopener" style="${btnS}" onclick="closeEmailPicker()">
+        <span style="font-size:20px">📨</span> Yahoo Mail
+      </a>
+      <a href="mailto:?subject=${encodeURIComponent(s)}&body=${encodeURIComponent(b)}" style="${btnS}" onclick="closeEmailPicker()">
+        <span style="font-size:20px">✉️</span> Other / Default
+      </a>
+    </div>
+    <button onclick="closeEmailPicker()" class="btn-reset" style="margin-top:14px;width:100%;text-align:center;color:var(--td);font-size:13px;cursor:pointer;padding:8px">Cancel</button>
+  </div>`;
+  el.addEventListener('click', e => { if (e.target === el) closeEmailPicker(); });
+  document.body.appendChild(el);
+}
+function closeEmailPicker() {
+  const el = document.getElementById('email-share-picker');
+  if (el) el.remove();
+}
+
+// ═══════════════ FEEDBACK WIDGET ═══════════════
+function feedbackHTML(msgIdx) {
+  return `<div class="fb-widget" id="fb-${msgIdx}" style="margin-top:10px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--td)">
+    <span>Was this helpful?</span>
+    <button class="btn-reset" onclick="submitFeedback(${msgIdx},true)" aria-label="Yes, helpful" style="cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--d4);background:transparent;color:var(--td);font-size:14px;transition:all .2s">👍</button>
+    <button class="btn-reset" onclick="submitFeedback(${msgIdx},false)" aria-label="Not helpful" style="cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--d4);background:transparent;color:var(--td);font-size:14px;transition:all .2s">👎</button>
+  </div>`;
+}
+async function submitFeedback(msgIdx, helpful) {
+  const w = document.getElementById('fb-' + msgIdx);
+  if (!w) return;
+  if (helpful) {
+    w.innerHTML = '<span style="color:var(--g)">Thanks! Want to share more?</span> <input id="fb-text-'+msgIdx+'" type="text" placeholder="Optional feedback..." style="flex:1;background:var(--d3);border:1px solid var(--d4);border-radius:6px;padding:6px 10px;color:var(--t);font-size:12px;min-width:0"> <button class="btn-o btn-sm" onclick="sendFeedback('+msgIdx+',true)" style="font-size:11px;padding:4px 10px">Send</button>';
+  } else {
+    w.innerHTML = '<span style="color:var(--td)">Sorry about that! What went wrong?</span> <input id="fb-text-'+msgIdx+'" type="text" placeholder="Optional feedback..." style="flex:1;background:var(--d3);border:1px solid var(--d4);border-radius:6px;padding:6px 10px;color:var(--t);font-size:12px;min-width:0"> <button class="btn-o btn-sm" onclick="sendFeedback('+msgIdx+',false)" style="font-size:11px;padding:4px 10px">Send</button>';
+  }
+}
+async function sendFeedback(msgIdx, helpful) {
+  const inp = document.getElementById('fb-text-' + msgIdx);
+  const text = inp ? inp.value.trim() : '';
+  const w = document.getElementById('fb-' + msgIdx);
+  try {
+    await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ helpful, text, mode: CP || 'chat' })
+    });
+  } catch {}
+  if (w) w.innerHTML = '<span style="color:var(--g)">✓ Feedback submitted — thank you!</span>';
 }
 
 function perfCard(p) {
@@ -650,6 +830,7 @@ let selM = _ss('selM'), musicRes = _ss('musicRes') || '', musicLoad = false, mus
 let selS = _ss('selS'), styleRes = _ss('styleRes') || '', styleLoad = false, styleChat = _ss('styleChat') || [], styleChatLoad = false;
 let photoChat = _ss('photoChat') || [], photoChatLoad = false;
 let celebQ = '';
+let dupeQuery = '', dupeRes = _ss('dupeRes') || '', dupeLoad = false, dupeChat = _ss('dupeChat') || [], dupeChatLoad = false;
 let expQ = '', expFilter = 'all', expResults = [];
 const cache = {};
 
@@ -708,7 +889,7 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI Advisor',i:'💬'},
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
-  {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'dupe',l:'Dupes',i:'🔄'},{id:'account',l:'Account',i:'👤'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
@@ -720,7 +901,7 @@ const MODES = [
   {id:'chat',l:'AI Advisor',i:'💬'},{id:'explore',l:'Explore',i:'🧪'},
   {id:'photo',l:'Photo Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},
   {id:'music',l:'Music',i:'🎶'},{id:'style',l:'Style',i:'🪞'},
-  {id:'celeb',l:'Celebs',i:'💫'}
+  {id:'celeb',l:'Celebs',i:'💫'},{id:'dupe',l:'Dupes',i:'🔄'}
 ];
 
 function rNav() {
@@ -729,7 +910,7 @@ function rNav() {
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
-    const modePages = ['photo','zodiac','music','style','celeb'];
+    const modePages = ['photo','zodiac','music','style','celeb','dupe'];
     mobEl.innerHTML = MNI.map(n => {
       if (n.id === '_modes') {
         const isOnMode = modePages.includes(CP);
@@ -767,6 +948,7 @@ const PAGE_TITLES = {
   music: 'Music to Fragrance Match — ScentWise',
   style: 'Style Match — ScentWise',
   celeb: 'Celebrity Fragrances — ScentWise',
+  dupe: 'Dupe Finder — ScentWise',
   account: 'Account — ScentWise',
   admin: 'Admin — ScentWise'
 };
@@ -856,9 +1038,9 @@ function r_home(el) {
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
-    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+    <button class="hp-nav-toggle btn-reset" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" aria-label="Toggle navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </nav>
   <!-- Hero -->
   <section class="hp-hero">
@@ -971,7 +1153,7 @@ function r_home(el) {
       <div class="hp-celeb-scroll">
         ${['Rihanna','David Beckham','Zendaya','Johnny Depp','Ariana Grande','Cristiano Ronaldo','Beyoncé','Drake','LeBron James','Taylor Swift','Kendall Jenner','Travis Scott'].map(name => {
           const c = CELEBS.find(x => x.name === name);
-          return c ? `<div class="hp-celeb-card" onclick="go('celeb')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')go('celeb')" aria-label="${c.name} — ${c.frags.length} fragrances"><div class="hp-celeb-emoji" aria-hidden="true">${c.img}</div><div class="hp-celeb-name">${c.name}</div><div class="hp-celeb-count">${c.frags.length} fragrance${c.frags.length !== 1 ? 's' : ''}</div></div>` : '';
+          return c ? `<button class="hp-celeb-card btn-reset" onclick="go('celeb')" aria-label="${c.name} — ${c.frags.length} fragrances"><div class="hp-celeb-emoji" aria-hidden="true">${c.img}</div><div class="hp-celeb-name">${c.name}</div><div class="hp-celeb-count">${c.frags.length} fragrance${c.frags.length !== 1 ? 's' : ''}</div></button>` : '';
         }).join('')}
       </div>
     </div>
@@ -1093,7 +1275,12 @@ function doExp() {
 function r_chat(el) {
   if (!isPaid && !hasFreeTrialLeft() && chatMsgs.length === 0) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
-  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
+  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:linear-gradient(135deg,rgba(201,169,110,.12),rgba(201,169,110,.06));border:1px solid rgba(201,169,110,.3);border-radius:var(--r-sm);padding:16px 20px;margin-bottom:14px;text-align:center">
+      <div style="font-size:14px;color:var(--t);font-weight:600;margin-bottom:6px">Your free trial has ended</div>
+      <div style="font-size:13px;color:var(--td);margin-bottom:12px">Unlock 500 AI queries/month for just $2.99</div>
+      <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;padding:10px 28px;font-size:14px">Subscribe Now — $2.99/mo</a>
+      <div style="margin-top:8px;font-size:11px;color:var(--td)">Cancel anytime · <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline">Already subscribed? Log in</a></div>
+    </div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
     <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
@@ -1108,11 +1295,19 @@ function r_chat(el) {
         <p style="color:var(--td);font-size:13px;margin-bottom:4px;font-weight:500">Try asking:</p>
         ${sugg.map((s,i)=>`<div class="card fi stagger-${i+1}" onclick="cSend('${s}')" style="padding:14px 18px;cursor:pointer;font-size:14px">${s}</div>`).join('')}
       </div>`:''}
-      ${chatMsgs.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
+      ${chatMsgs.map((m,i)=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
         ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
         ${fmt(m.content)}
+        ${m.role==='assistant'&&!m.content.startsWith('**Oops')&&!m.content.startsWith('**Something')&&!m.content.startsWith('**Connection')&&!m.content.includes('free queries')?feedbackHTML(i)+shareHTML(m.content,'I found this on ScentWise AI:'):''}
       </div>`).join('')}
       ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
+      ${(!isPaid && freeUsed >= FREE_LIMIT && chatMsgs.length > 0) ? `<div class="fi" style="margin:20px 0;padding:24px;background:linear-gradient(135deg,rgba(201,169,110,.12),rgba(201,169,110,.05));border:1px solid rgba(201,169,110,.3);border-radius:var(--r);text-align:center">
+        <div style="font-size:20px;margin-bottom:8px">✦</div>
+        <div style="font-size:16px;font-weight:600;color:var(--t);margin-bottom:6px">Want to keep chatting?</div>
+        <div style="font-size:13px;color:var(--td);margin-bottom:16px">Your 3 free queries are used. Unlock 500/month for $2.99.</div>
+        <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:inline-block;text-decoration:none;padding:14px 36px;font-size:15px;font-weight:600">Subscribe Now — $2.99/mo</a>
+        <div style="margin-top:10px;font-size:12px;color:var(--td)">Cancel anytime · <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline">Log in</a></div>
+      </div>` : ''}
       <div id="c-end"></div>
     </div>
     <div class="inp-row" style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
@@ -1173,7 +1368,7 @@ function r_photo(el) {
       <p style="font-size:17px;margin-bottom:8px;font-weight:500">Drop a photo here or click to upload</p>
       <p style="color:var(--td);font-size:13px">We'll analyze your style and match fragrances to your vibe</p>
     </div>`:`<div class="glass-panel" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
-      <img src="${photoPrev}" style="width:200px;height:260px;object-fit:cover;border-radius:var(--r);border:1px solid var(--d4);box-shadow:var(--shadow)">
+      <img src="${photoPrev}" loading="lazy" alt="Uploaded photo for style analysis" style="width:200px;height:260px;object-fit:cover;border-radius:var(--r);border:1px solid var(--d4);box-shadow:var(--shadow)">
       <div style="flex:1;min-width:250px">
         ${!photoRes&&!photoLoad?`
           <p style="margin-bottom:18px;color:var(--td);font-size:14px">Photo uploaded. Ready to analyze your style.</p>
@@ -1490,6 +1685,97 @@ function r_celeb(el) {
   </div>`;
 }
 
+// ═══════════════ DUPE FINDER (PAID) ═══════════════
+function r_dupe(el) {
+  if (!isPaid && !hasFreeTrialLeft() && !dupeRes) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : '';
+  const popular = ['Baccarat Rouge 540','Creed Aventus','Tom Ford Lost Cherry','Dior Sauvage','Le Labo Santal 33','YSL Libre'];
+  el.innerHTML = `<div class="sec fi">
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Dupe</span> Finder</h2>
+      <p>Enter any expensive fragrance and find affordable alternatives that smell just as good.</p>
+    </div>
+    ${trialBanner}
+    ${!dupeRes ? `<div style="margin-bottom:20px">
+      <p style="color:var(--td);font-size:13px;margin-bottom:10px;font-weight:500">Popular searches:</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${popular.map(p => `<div class="card fi" onclick="dupeSearch('${p}')" style="padding:10px 16px;cursor:pointer;font-size:13px;display:inline-block">${p}</div>`).join('')}
+      </div>
+    </div>
+    <div class="inp-row">
+      <label for="dupe-inp" class="sr-only">Enter a fragrance name</label>
+      <input type="text" id="dupe-inp" placeholder="Enter an expensive fragrance (e.g. Baccarat Rouge 540)..." onkeydown="if(event.key==='Enter')dupeSearch()" autocomplete="off" value="${esc(dupeQuery)}">
+      <button class="btn btn-sm" onclick="dupeSearch()" ${dupeLoad?'disabled':''} aria-label="Find dupes">Find Dupes</button>
+    </div>` : `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <p style="color:var(--td);font-size:13px">Showing dupes for: <strong style="color:var(--t)">${esc(dupeQuery)}</strong></p>
+      <button class="btn-o btn-sm" onclick="dupeRes='';dupeChat=[];_ssw('dupeRes','');_ssw('dupeChat',[]);r_dupe(document.getElementById('page-dupe'))">New Search</button>
+    </div>
+    <div class="cb cb-a fi" style="margin-bottom:16px">
+      <div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI — Dupe Finder</div>
+      ${fmt(dupeRes)}
+    </div>
+    ${followUpHTML(dupeChat, dupeChatLoad, 'dupe-fu-inp', 'dupeFU', 'Ask a follow-up about these dupes...')}
+    `}
+    ${dupeLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px;margin-top:16px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
+  </div>`;
+  if (!dupeRes) document.getElementById('dupe-inp')?.focus();
+}
+
+async function dupeSearch(text) {
+  if (!text) { const i = document.getElementById('dupe-inp'); text = i?.value; }
+  if (!text || !text.trim() || dupeLoad) return;
+  dupeQuery = text.trim();
+  dupeLoad = true;
+  r_dupe(document.getElementById('page-dupe'));
+
+  await loadDB();
+  // Find the perfume in our DB for context
+  const matches = searchDB(dupeQuery, 5);
+  let dbContext = '';
+  if (matches.length) {
+    const m = matches[0];
+    dbContext = `\nOriginal fragrance from database: ${m.name} by ${m.brand}`;
+    if (m.accords) dbContext += ` | Accords: ${m.accords}`;
+    if (m.notes) dbContext += ` | Notes: ${m.notes}`;
+    if (m.rating) dbContext += ` | Rating: ${m.rating}/5`;
+    // Find similar fragrances
+    const similar = findSimilar(m.name, m.brand, 10);
+    if (similar.length) {
+      dbContext += '\n\nSimilar fragrances from database (by accord overlap):\n';
+      dbContext += similar.map(s => `${s.n} by ${s.b} | Accords: ${s.a || ''} | Rating: ${s.r || 'N/A'}/5`).join('\n');
+    }
+  }
+
+  const sysPrompt = `You are ScentWise AI Dupe Finder — the internet's best fragrance dupe expert. The user wants affordable alternatives ("dupes") for an expensive perfume. You MUST:
+1. Identify the original fragrance and briefly describe its scent profile
+2. Recommend exactly 5 affordable alternatives, ordered from best match to good match
+3. For each dupe, include: **Name** by Brand — price range, key matching notes/accords, similarity percentage (your expert estimate), and why it's a good match
+4. Include a mix of designer and niche alternatives at different price points
+5. End with a quick "Pro tip" about how to test dupes
+Format with **bold** for fragrance names. Keep it concise and actionable.${dbContext}`;
+
+  const reply = await aiCall('dupe', { messages: [{ role: 'user', content: sysPrompt + '\n\nFind dupes for: ' + dupeQuery }] });
+  dupeRes = reply;
+  _ssw('dupeRes', dupeRes);
+  dupeLoad = false;
+  r_dupe(document.getElementById('page-dupe'));
+}
+
+async function dupeFU() {
+  const inp = document.getElementById('dupe-fu-inp');
+  if (!inp) return;
+  const text = inp.value.trim(); inp.value = '';
+  if (!text || dupeChatLoad) return;
+  dupeChat.push({ role: 'user', content: text });
+  dupeChatLoad = true; r_dupe(document.getElementById('page-dupe'));
+  const msgs = [{ role: 'user', content: `Context: The user searched for dupes of "${dupeQuery}" and got:\n${dupeRes}\n\nFollow-up: ${text}` }];
+  const reply = await aiCall('chat', { messages: msgs });
+  dupeChat.push({ role: 'assistant', content: reply });
+  _ssw('dupeChat', dupeChat);
+  dupeChatLoad = false; r_dupe(document.getElementById('page-dupe'));
+}
+
 // ═══════════════ ACCOUNT PAGE ═══════════════
 function r_account(el) {
   if (isPaid) {
@@ -1662,4 +1948,31 @@ go(_wantAdmin ? 'admin' : 'home');
   if (currentTier !== prevTier || orderId) {
     go(CP);
   }
+})();
+
+// Load testimonials for homepage
+(async function loadTestimonials() {
+  try {
+    const r = await fetch('/api/feedback', { credentials: 'same-origin' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.discoveryCount > 0) {
+      const el = document.getElementById('hp-discovery-count');
+      if (el) el.textContent = d.discoveryCount.toLocaleString();
+    }
+    if (d.testimonials && d.testimonials.length > 0) {
+      const wrap = document.getElementById('hp-testimonials');
+      const list = document.getElementById('hp-testimonials-list');
+      if (wrap && list) {
+        list.innerHTML = d.testimonials.map(t =>
+          `<div style="background:var(--d3);border:1px solid var(--d4);border-radius:var(--r-sm);padding:16px 20px;font-size:14px;color:var(--t);line-height:1.6;position:relative">
+            <span style="color:var(--g);font-size:18px;position:absolute;top:10px;left:14px">"</span>
+            <span style="margin-left:12px">${esc(t.text)}</span>
+            ${t.mode ? '<span style="display:block;margin-top:6px;font-size:11px;color:var(--td)">via ' + esc(t.mode) + ' mode</span>' : ''}
+          </div>`
+        ).join('');
+        wrap.style.display = 'block';
+      }
+    }
+  } catch {}
 })();

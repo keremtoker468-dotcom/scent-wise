@@ -1,0 +1,107 @@
+---
+layout: base.njk
+---
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Brand",
+  "name": "{{ name }}",
+  "description": "Explore {{ name }} fragrances — {{ brandItems | length }} top-rated perfumes. Average rating: {{ avgRating }}/5.",
+  "url": "{{ site.url }}/brands/{{ slug }}/"
+}
+</script>
+
+<style>
+.brand-hero{position:relative;padding:60px 24px 48px;text-align:center;overflow:hidden;margin-bottom:2rem;border-radius:0 0 16px 16px;background:linear-gradient(135deg,#140a1e 0%,#1a1028 30%,#100a1a 60%,#0f0f12 100%)}
+.brand-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(201,169,110,.15),transparent 60%)}
+.brand-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.2;margin-bottom:12px;position:relative}
+.brand-hero .brand-stats{display:flex;gap:32px;justify-content:center;margin-bottom:20px;position:relative}
+.brand-hero .brand-stat{text-align:center}
+.brand-hero .brand-stat .num{font-size:1.8rem;font-weight:700;color:var(--g)}
+.brand-hero .brand-stat .label{font-size:.8rem;color:var(--td);margin-top:2px}
+
+.section-title{font-size:1.1rem;color:var(--g);font-weight:500;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--d4)}
+
+.perfume-rank{position:absolute;top:12px;right:14px;font-size:11px;color:var(--td);font-weight:600;background:var(--d2);padding:2px 8px;border-radius:6px;border:1px solid var(--d4)}
+</style>
+
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    <a href="/brands/">Brands</a><span>/</span>
+    {{ name }}
+  </nav>
+
+  <div class="brand-hero">
+    <h1>{{ name }}</h1>
+    <div class="brand-stats">
+      <div class="brand-stat">
+        <div class="num">{{ brandItems | length }}</div>
+        <div class="label">Fragrances</div>
+      </div>
+      {% if avgRating %}
+      <div class="brand-stat">
+        <div class="num">{{ avgRating }}</div>
+        <div class="label">Avg Rating</div>
+      </div>
+      {% endif %}
+    </div>
+    {% if topAccords | length %}
+    <div class="accord-tags" style="justify-content:center;display:flex;flex-wrap:wrap;gap:.4rem">
+      {% for accord in topAccords %}
+      <a href="/notes/{{ accord | slugify }}/" class="accord-tag">{{ accord }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="section-title">Top {{ name }} Fragrances</div>
+
+  <section>
+    <div class="perfume-grid">
+      {% for p in brandItems %}
+      <div class="perfume-card" data-cat="{{ p.category | lower }}" style="position:relative">
+        <div class="bottle-art">
+          {% if p.category == 'Floral' or p.category == 'Fresh' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="4" width="12" height="8" rx="2" fill="rgba(201,169,110,.3)"/><rect x="20" y="0" width="8" height="6" rx="1.5" fill="rgba(201,169,110,.2)"/><path d="M14 16C14 14 16 12 18 12h12c2 0 4 2 4 4v48c0 6-4 12-10 12h-4c-6 0-10-6-10-12V16z" fill="rgba(180,200,220,.12)" stroke="rgba(180,200,220,.25)" stroke-width="1"/><ellipse cx="24" cy="45" rx="6" ry="8" fill="rgba(180,200,220,.08)"/></svg>
+          {% elif p.category == 'Oriental' or p.category == 'Sweet' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="19" y="2" width="10" height="10" rx="2" fill="rgba(201,169,110,.3)"/><rect x="21" y="0" width="6" height="4" rx="1" fill="rgba(201,169,110,.2)"/><path d="M10 18c0-3 3-6 6-6h16c3 0 6 3 6 6v38c0 10-6 18-14 18-8 0-14-8-14-18V18z" fill="rgba(201,169,110,.1)" stroke="rgba(201,169,110,.25)" stroke-width="1"/><circle cx="24" cy="42" r="7" fill="rgba(201,169,110,.08)"/></svg>
+          {% elif p.category == 'Woody' or p.category == 'Aromatic' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="6" width="12" height="6" rx="1" fill="rgba(160,140,120,.3)"/><rect x="22" y="0" width="4" height="8" rx="1" fill="rgba(160,140,120,.2)"/><rect x="12" y="14" width="24" height="56" rx="4" fill="rgba(160,140,120,.1)" stroke="rgba(160,140,120,.25)" stroke-width="1"/><line x1="12" y1="24" x2="36" y2="24" stroke="rgba(160,140,120,.15)" stroke-width="1"/></svg>
+          {% else %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="4" width="8" height="8" rx="1.5" fill="rgba(201,169,110,.3)"/><rect x="22" y="0" width="4" height="6" rx="1" fill="rgba(201,169,110,.2)"/><path d="M16 16h16l2 50c0 6-4 10-10 10s-10-4-10-10l2-50z" fill="rgba(201,169,110,.08)" stroke="rgba(201,169,110,.2)" stroke-width="1"/></svg>
+          {% endif %}
+        </div>
+        <div class="card-info">
+          <h3><a href="/perfumes/{{ p.slug }}/">{{ p.name }}</a></h3>
+          <div class="brand">{{ p.brand }}</div>
+          {% if p.accords | length %}
+          <div class="accord-tags">
+            {% for a in p.accords | slice(0, 4) %}
+            <a href="/notes/{{ a | slugify }}/" class="accord-tag">{{ a }}</a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="meta">
+            {% if p.rating %}<span class="rating">★ {{ p.rating }}</span>{% endif %}
+            <span>{{ p.category }}</span>
+            <span>{{ p.gender }}</span>
+          </div>
+          <div class="buy-row">
+            <a href="/api/affiliate-redirect?perfume={{ p.name | urlencode }}&brand={{ p.brand | urlencode }}&retailer=fragrancex" rel="sponsored noopener" target="_blank" class="buy-btn">FragranceX</a>
+            <a href="/api/affiliate-redirect?perfume={{ p.name | urlencode }}&brand={{ p.brand | urlencode }}&retailer=amazon" rel="sponsored noopener" target="_blank" class="buy-btn">Amazon</a>
+          </div>
+        </div>
+        <div class="perfume-rank">#{{ loop.index }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section style="margin-top:3rem;padding:2rem;background:var(--d3);border-radius:var(--r);border:1px solid var(--d4);text-align:center">
+    <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;margin-bottom:.75rem">Looking for the perfect {{ name }} fragrance?</p>
+    <p style="color:var(--td);margin-bottom:1.25rem;font-size:.9rem">Our AI advisor can help you find the ideal scent based on your preferences.</p>
+    <a href="/" style="display:inline-block;padding:.75rem 2rem;background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border-radius:var(--r);text-decoration:none;font-size:.95rem">Try AI Advisor Free</a>
+  </section>
+</div>

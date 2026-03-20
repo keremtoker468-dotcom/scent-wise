@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fragrance Notes &amp; Accords — Explore by Scent Profile — ScentWise</title>
+<meta name="description" content="Explore perfumes by fragrance notes and accords. From vanilla and oud to rose and leather — find your preferred scent profile.">
+<link rel="canonical" href="https://scent-wise.com/notes/">
+<meta property="og:title" content="Fragrance Notes &amp; Accords — Explore by Scent Profile — ScentWise">
+<meta property="og:description" content="Explore perfumes by fragrance notes and accords. From vanilla and oud to rose and leather — find your preferred scent profile.">
+<meta property="og:url" content="https://scent-wise.com/notes/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScentWise">
+<meta property="og:image" content="https://scent-wise.com/api/og?title=Fragrance%20Notes%20%26%20Accords%20%E2%80%94%20Explore%20by%20Scent%20Profile&brand=&rating=&accords=&type=perfume">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fragrance Notes &amp; Accords — Explore by Scent Profile — ScentWise">
+<meta name="twitter:description" content="Explore perfumes by fragrance notes and accords. From vanilla and oud to rose and leather — find your preferred scent profile.">
+<meta name="twitter:image" content="https://scent-wise.com/api/og?title=Fragrance%20Notes%20%26%20Accords%20%E2%80%94%20Explore%20by%20Scent%20Profile&brand=&rating=&accords=&type=perfume">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
+  --t:#f0ece4;--t2:#d4cfc6;--td:#a8a29e;--g:#c9a96e;--gd:#b8944f;
+  --r:16px;--r-sm:10px;
+}
+body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--g);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+
+/* Header */
+.seo-header{border-bottom:1px solid var(--d4);padding:18px 0}
+.seo-header .container{display:flex;align-items:center;justify-content:space-between}
+.seo-logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;color:var(--g);text-decoration:none;font-weight:600;letter-spacing:.5px}
+.seo-logo:hover{text-decoration:none;opacity:.85}
+.seo-nav{display:flex;gap:1.5rem;font-size:.9rem}
+.seo-nav a{color:var(--td)}
+.seo-nav a:hover{color:var(--t);text-decoration:none}
+
+/* Breadcrumb */
+.breadcrumb{padding:1rem 0;font-size:.85rem;color:var(--td)}
+.breadcrumb a{color:var(--td)}
+.breadcrumb a:hover{color:var(--g)}
+.breadcrumb span{margin:0 .5rem;opacity:.5}
+
+/* Footer */
+.seo-footer{border-top:1px solid var(--d4);padding:3rem 0;margin-top:4rem;color:var(--td);font-size:.85rem}
+.seo-footer .container{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:center}
+.seo-footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.seo-footer-links a{color:var(--td)}
+.seo-footer-links a:hover{color:var(--g)}
+
+/* Cards grid */
+.perfume-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin:2rem 0}
+.perfume-card{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:1.25rem;transition:border-color .25s;display:flex;gap:1rem}
+.perfume-card:hover{border-color:rgba(201,169,110,.3)}
+.perfume-card h3{font-size:1rem;margin-bottom:.25rem}
+.perfume-card h3 a{color:var(--t);text-decoration:none}
+.perfume-card h3 a:hover{color:var(--g)}
+.perfume-card .brand{color:var(--td);font-size:.85rem;margin-bottom:.5rem}
+.perfume-card .card-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.perfume-card .meta{display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;color:var(--td);margin-top:.5rem}
+.perfume-card .rating{color:var(--g);font-weight:600}
+.accord-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.accord-tag{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.15);color:var(--g);padding:2px 10px;border-radius:20px;font-size:.75rem;text-decoration:none}
+.accord-tag:hover{background:rgba(201,169,110,.18);text-decoration:none}
+
+/* Bottle illustration */
+.bottle-art{width:56px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center;padding-top:.25rem}
+.bottle-art svg{width:44px;height:72px;opacity:.6;transition:opacity .2s}
+.perfume-card:hover .bottle-art svg{opacity:.9}
+
+/* Buy buttons — inline, right-aligned at bottom of card-info */
+.buy-row{display:flex;gap:.4rem;margin-top:auto;padding-top:.6rem;justify-content:flex-end}
+.buy-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .6rem;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(201,169,110,.08));border:1px solid rgba(201,169,110,.25);border-radius:6px;color:var(--g);font-size:.7rem;font-weight:500;text-decoration:none;transition:all .2s;white-space:nowrap}
+.buy-btn:hover{background:rgba(201,169,110,.25);border-color:rgba(201,169,110,.4);text-decoration:none;transform:translateY(-1px)}
+.buy-btn::after{content:'→';margin-left:2px;font-size:.6rem}
+
+/* Responsive */
+@media(max-width:640px){
+  .perfume-grid{grid-template-columns:1fr}
+  .seo-header .container{flex-direction:column;gap:.75rem}
+  .seo-nav{gap:1rem}
+}
+</style>
+</head>
+<body>
+<header class="seo-header">
+  <div class="container">
+    <a href="/" class="seo-logo">ScentWise</a>
+    <nav class="seo-nav">
+      <a href="/perfumes/">Perfumes</a>
+      <a href="/brands/">Brands</a>
+      <a href="/notes/">Notes</a>
+      <a href="/blog/">Blog</a>
+      <a href="/">Try AI Advisor</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    Notes &amp; Accords
+  </nav>
+
+  <header style="padding:2rem 0 1rem">
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300">Fragrance Notes &amp; Accords</h1>
+    <p style="color:var(--td);margin-top:.5rem">Explore perfumes by their dominant scent profiles</p>
+  </header>
+
+  <div class="perfume-grid">
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/citrus/">Citrus</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Bright, uplifting, and energizing. Citrus notes like bergamot, lemon, and orange open fragrances with sparkling...</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/aromatic/">Aromatic</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Herbal, green, and invigorating. Aromatic fragrances feature lavender, sage, rosemary, and other botanical notes.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/green/">Green</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Leafy, grassy, and herbal. Green notes evoke freshly cut stems, dewy gardens, and natural vitality.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/fresh-spicy/">Fresh Spicy</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">A vibrant blend of crisp freshness and pepper-like spice. Fresh spicy accords add energy and sophistication.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/rose/">Rose</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">The queen of flowers in perfumery. Rose spans from fresh and dewy to deep and velvety, with thousands of variations.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/oud/">Oud</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Prized in Middle Eastern perfumery, oud (agarwood) delivers rich, complex, woody-animalic notes. A luxury ingredient...</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/powdery/">Powdery</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Soft, elegant, and nostalgic. Powdery fragrances evoke classic beauty and refined femininity.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/amber/">Amber</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">A warm, resinous accord that evokes golden warmth. Amber perfumes are cozy, enveloping, and perfect for cooler weather.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/sweet/">Sweet</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Gourmand and indulgent — sweet fragrances feature sugar, praline, and dessert-like notes that captivate the senses.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/floral/">Floral</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">The heart of perfumery. Floral fragrances capture the essence of blooming gardens in endless combinations.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/woody/">Woody</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sandalwood, cedar, vetiver, and more. Woody fragrances ground compositions with earthy sophistication.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/musky/">Musky</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Soft, sensual, and skin-like — musk notes create an intimate, clean aura. A foundation of modern perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/patchouli/">Patchouli</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Earthy, rich, and slightly sweet. Patchouli is a versatile base note beloved in niche and mainstream perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/warm-spicy/">Warm Spicy</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Pepper, clove, nutmeg, and cardamom. Warm spices add exotic heat and complexity.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/vanilla/">Vanilla</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Warm, sweet, and universally loved — vanilla is one of the most popular fragrance notes worldwide. It adds depth and...</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/white-floral/">White Floral</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Jasmine, tuberose, and gardenia — lush, creamy, and intoxicating. White florals are the heart of many iconic perfumes.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/leather/">Leather</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Smoky, animalic, and refined. Leather notes add a distinctive edge of luxury and rebellion.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/fruity/">Fruity</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Juicy and playful — fruity notes like peach, apple, and berries add a youthful, vibrant character.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/fresh/">Fresh</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Clean, airy, and invigorating — fresh fragrances feel like a cool breeze. Perfect for everyday wear and warmer climates.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/animalic/">Animalic</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Primal, skin-like, and provocative. Animalic notes add an intimate, sensual dimension to fragrances.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/violet/">Violet</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sweet, green, and powdery. Violet notes are delicate yet distinctive, with a retro charm.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/yellow-floral/">Yellow Floral</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Bright, sunny florals like ylang-ylang and mimosa. Warm and radiant with a honeyed character.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/cinnamon/">Cinnamon</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Warm and spicy with a sweet edge. Cinnamon adds an exotic, festive quality to fragrances.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/earthy/">Earthy</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Rich soil, vetiver, and forest floor. Earthy accords ground fragrances with raw, natural depth.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/mossy/">Mossy</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Damp forest undergrowth and oakmoss. Mossy accords are the foundation of classic chypre perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/lavender/">Lavender</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Calming and aromatic, lavender bridges the gap between fresh and herbal. A pillar of fougere fragrances.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/smoky/">Smoky</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Incense, birch tar, and fire. Smoky notes add mystery and intensity to compositions.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/iris/">Iris</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sophisticated and buttery with a cool, suede-like quality. Iris is a hallmark of luxury perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/soft-spicy/">Soft Spicy</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Gentle warmth without the bite. Soft spices like cardamom and pink pepper add subtle complexity.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/caramel/">Caramel</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Buttery, sweet, and indulgent. Caramel notes add a warm, dessert-like quality.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/tobacco/">Tobacco</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Smooth, warm, and slightly sweet. Tobacco notes evoke vintage elegance and comfort.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/balsamic/">Balsamic</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Warm, resinous, and slightly sweet. Balsamic notes like benzoin and Peru balsam add rich depth.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/herbal/">Herbal</a></h3>
+      <div class="meta">
+        <span>50 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sage, thyme, and basil. Herbal notes bring a fresh, medicinal, garden-like quality to compositions.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/honey/">Honey</a></h3>
+      <div class="meta">
+        <span>45 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Golden, warm, and slightly animalic. Honey notes add natural sweetness with depth.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/almond/">Almond</a></h3>
+      <div class="meta">
+        <span>44 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sweet, nutty, and slightly bitter. Almond notes add a gourmand warmth reminiscent of marzipan.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/ozonic/">Ozonic</a></h3>
+      <div class="meta">
+        <span>43 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Clean, airy, and atmospheric. Ozonic notes evoke the smell of air after a thunderstorm.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/nutty/">Nutty</a></h3>
+      <div class="meta">
+        <span>42 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Warm and comforting — hazelnut, walnut, and pistachio. Nutty notes add a gourmand sophistication.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/aquatic/">Aquatic</a></h3>
+      <div class="meta">
+        <span>41 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Ocean-inspired freshness with marine, ozone, and water-like accords. Modern and clean-wearing.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/aldehydic/">Aldehydic</a></h3>
+      <div class="meta">
+        <span>41 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sparkling, soapy, and effervescent. Aldehydes give fragrances a champagne-like fizz famously used in Chanel No. 5.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/lactonic/">Lactonic</a></h3>
+      <div class="meta">
+        <span>39 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Creamy, milky, and skin-like. Lactonic notes evoke warmth and comfort with a subtle sweetness.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/tropical/">Tropical</a></h3>
+      <div class="meta">
+        <span>38 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Exotic fruits, coconut, and warm breezes. Tropical notes transport you to island paradises.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/coconut/">Coconut</a></h3>
+      <div class="meta">
+        <span>32 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Tropical and creamy — coconut notes transport you to sun-soaked beaches and add a luxurious creaminess.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/rum/">Rum</a></h3>
+      <div class="meta">
+        <span>31 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Boozy, warm, and sweet. Rum accords add a festive, indulgent quality to gourmand fragrances.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/tuberose/">Tuberose</a></h3>
+      <div class="meta">
+        <span>30 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Intensely floral, creamy, and narcotic. Tuberose is one of the most powerful flowers in perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/cacao/">Cacao</a></h3>
+      <div class="meta">
+        <span>26 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Rich, bitter-sweet, and indulgent. Cacao notes bring a sophisticated chocolate depth without the sweetness.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/anis/">Anis</a></h3>
+      <div class="meta">
+        <span>22 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Licorice-like, sweet, and aromatic. Anise adds a distinctive, slightly medicinal charm.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/chocolate/">Chocolate</a></h3>
+      <div class="meta">
+        <span>20 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Decadent and rich. Chocolate notes bring a gourmand sophistication to fragrance compositions.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/marine/">Marine</a></h3>
+      <div class="meta">
+        <span>15 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Ocean spray, sea salt, and fresh air. Marine notes capture the essence of the coastline.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/cherry/">Cherry</a></h3>
+      <div class="meta">
+        <span>14 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Juicy, sweet, and slightly tart. Cherry notes range from bright Maraschino to dark, boozy amarena.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/coffee/">Coffee</a></h3>
+      <div class="meta">
+        <span>14 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Rich, roasted, and addictive. Coffee notes bring a gourmand depth that appeals to modern fragrance lovers.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/metallic/">Metallic</a></h3>
+      <div class="meta">
+        <span>12 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Cool, sharp, and unusual. Metallic notes add an avant-garde, industrial edge to compositions.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/whiskey/">Whiskey</a></h3>
+      <div class="meta">
+        <span>12 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Smoky, malty, and warm. Whiskey accords add a sophisticated, boozy depth.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/salty/">Salty</a></h3>
+      <div class="meta">
+        <span>8 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Sea salt and mineral freshness. Salty notes add an unexpected twist that enhances other accords.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/conifer/">Conifer</a></h3>
+      <div class="meta">
+        <span>6 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Pine, fir, and spruce. Coniferous notes evoke deep forests and crisp mountain air.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/soapy/">Soapy</a></h3>
+      <div class="meta">
+        <span>5 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Clean, fresh, and comforting. Soapy fragrances evoke freshly laundered linens and daily rituals.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/beeswax/">Beeswax</a></h3>
+      <div class="meta">
+        <span>4 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Beeswax is a distinctive fragrance accord that adds unique character to perfume compositions.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/savory/">Savory</a></h3>
+      <div class="meta">
+        <span>4 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Unexpected and intriguing — cumin, saffron, and kitchen spices in perfumery.</p>
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/notes/camphor/">Camphor</a></h3>
+      <div class="meta">
+        <span>3 perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">Cool, medicinal, and penetrating. Camphor notes add a refreshing, eucalyptus-like quality.</p>
+    </div>
+    
+  </div>
+</div>
+
+
+</main>
+
+<footer class="seo-footer">
+  <div class="container">
+    <div>&copy; 2026 ScentWise — AI-Powered Fragrance Advisor</div>
+    <nav class="seo-footer-links">
+      <a href="/">Home</a>
+      <a href="/perfumes/">Perfumes</a>
+      <a href="/brands/">Brands</a>
+      <a href="/notes/">Notes</a>
+      <a href="/blog/">Blog</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+<script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+---
+layout: base.njk
+title: "Fragrance Notes & Accords — Explore by Scent Profile"
+description: "Explore perfumes by fragrance notes and accords. From vanilla and oud to rose and leather — find your preferred scent profile."
+permalink: "notes/index.html"
+---
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    Notes &amp; Accords
+  </nav>
+
+  <header style="padding:2rem 0 1rem">
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300">Fragrance Notes &amp; Accords</h1>
+    <p style="color:var(--td);margin-top:.5rem">Explore perfumes by their dominant scent profiles</p>
+  </header>
+
+  <div class="perfume-grid">
+    {% for n in notes %}
+    <div class="perfume-card">
+      <h3><a href="/notes/{{ n.slug }}/">{{ n.name }}</a></h3>
+      <div class="meta">
+        <span>{{ n.count }} perfumes</span>
+      </div>
+      <p style="color:var(--t2);font-size:.85rem;margin-top:.5rem;line-height:1.5">{{ n.description | truncate(120) }}</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

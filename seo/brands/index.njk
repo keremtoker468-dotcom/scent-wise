@@ -1,0 +1,38 @@
+---
+layout: base.njk
+title: "Perfume Brands — Top 50 Fragrance Houses"
+description: "Browse the top 50 perfume brands by rating. Explore fragrances from Chanel, Dior, Tom Ford, Creed, and more."
+permalink: "brands/index.html"
+---
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    Brands
+  </nav>
+
+  <header style="padding:2rem 0 1rem">
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300">Perfume Brands</h1>
+    <p style="color:var(--td);margin-top:.5rem">Top {{ brands | length }} fragrance houses with their highest-rated perfumes</p>
+  </header>
+
+  <div class="perfume-grid">
+    {% for b in brands %}
+    <div class="perfume-card">
+      <h3><a href="/brands/{{ b.slug }}/">{{ b.name }}</a></h3>
+      <div class="meta">
+        <span>{{ b.perfumes.length }} perfumes</span>
+        <span class="rating">{{ b.avgRating }}/5 avg</span>
+      </div>
+      {% if b.topAccords.length %}
+      <div class="accord-tags">
+        {% for a in b.topAccords | slice(0, 4) %}
+        <span class="accord-tag">{{ a }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -79,8 +79,13 @@ module.exports = async function handler(req, res) {
 
     const order = orderData.data?.attributes;
 
-    if (!order || order.status === 'refunded') {
-      return res.status(400).json({ error: 'This order is not valid or has been refunded. Please contact support if you believe this is an error.' });
+    if (!order) {
+      return res.status(400).json({ error: 'This order is not valid. Please contact support if you believe this is an error.' });
+    }
+
+    const invalidStatuses = ['refunded', 'expired', 'paused', 'cancelled', 'failed', 'pending'];
+    if (invalidStatuses.includes(order.status)) {
+      return res.status(400).json({ error: `This order is ${order.status}. Please contact support if you believe this is an error.` });
     }
 
     // Validate order belongs to our store

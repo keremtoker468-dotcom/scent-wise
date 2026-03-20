@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfume Brands — Top 50 Fragrance Houses — ScentWise</title>
+<meta name="description" content="Browse the top 50 perfume brands by rating. Explore fragrances from Chanel, Dior, Tom Ford, Creed, and more.">
+<link rel="canonical" href="https://scent-wise.com/brands/">
+<meta property="og:title" content="Perfume Brands — Top 50 Fragrance Houses — ScentWise">
+<meta property="og:description" content="Browse the top 50 perfume brands by rating. Explore fragrances from Chanel, Dior, Tom Ford, Creed, and more.">
+<meta property="og:url" content="https://scent-wise.com/brands/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ScentWise">
+<meta property="og:image" content="https://scent-wise.com/api/og?title=Perfume%20Brands%20%E2%80%94%20Top%2050%20Fragrance%20Houses&brand=&rating=&accords=&type=perfume">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Perfume Brands — Top 50 Fragrance Houses — ScentWise">
+<meta name="twitter:description" content="Browse the top 50 perfume brands by rating. Explore fragrances from Chanel, Dior, Tom Ford, Creed, and more.">
+<meta name="twitter:image" content="https://scent-wise.com/api/og?title=Perfume%20Brands%20%E2%80%94%20Top%2050%20Fragrance%20Houses&brand=&rating=&accords=&type=perfume">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
+  --t:#f0ece4;--t2:#d4cfc6;--td:#a8a29e;--g:#c9a96e;--gd:#b8944f;
+  --r:16px;--r-sm:10px;
+}
+body{background:var(--d);color:var(--t);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.6}
+a{color:var(--g);text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.serif{font-family:'Cormorant Garamond',Georgia,serif}
+
+/* Header */
+.seo-header{border-bottom:1px solid var(--d4);padding:18px 0}
+.seo-header .container{display:flex;align-items:center;justify-content:space-between}
+.seo-logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.5rem;color:var(--g);text-decoration:none;font-weight:600;letter-spacing:.5px}
+.seo-logo:hover{text-decoration:none;opacity:.85}
+.seo-nav{display:flex;gap:1.5rem;font-size:.9rem}
+.seo-nav a{color:var(--td)}
+.seo-nav a:hover{color:var(--t);text-decoration:none}
+
+/* Breadcrumb */
+.breadcrumb{padding:1rem 0;font-size:.85rem;color:var(--td)}
+.breadcrumb a{color:var(--td)}
+.breadcrumb a:hover{color:var(--g)}
+.breadcrumb span{margin:0 .5rem;opacity:.5}
+
+/* Footer */
+.seo-footer{border-top:1px solid var(--d4);padding:3rem 0;margin-top:4rem;color:var(--td);font-size:.85rem}
+.seo-footer .container{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:center}
+.seo-footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.seo-footer-links a{color:var(--td)}
+.seo-footer-links a:hover{color:var(--g)}
+
+/* Cards grid */
+.perfume-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem;margin:2rem 0}
+.perfume-card{background:var(--d3);border:1px solid var(--d4);border-radius:var(--r);padding:1.25rem;transition:border-color .25s;display:flex;gap:1rem}
+.perfume-card:hover{border-color:rgba(201,169,110,.3)}
+.perfume-card h3{font-size:1rem;margin-bottom:.25rem}
+.perfume-card h3 a{color:var(--t);text-decoration:none}
+.perfume-card h3 a:hover{color:var(--g)}
+.perfume-card .brand{color:var(--td);font-size:.85rem;margin-bottom:.5rem}
+.perfume-card .card-info{flex:1;min-width:0;display:flex;flex-direction:column}
+.perfume-card .meta{display:flex;gap:.75rem;flex-wrap:wrap;font-size:.8rem;color:var(--td);margin-top:.5rem}
+.perfume-card .rating{color:var(--g);font-weight:600}
+.accord-tags{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.5rem}
+.accord-tag{background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.15);color:var(--g);padding:2px 10px;border-radius:20px;font-size:.75rem;text-decoration:none}
+.accord-tag:hover{background:rgba(201,169,110,.18);text-decoration:none}
+
+/* Bottle illustration */
+.bottle-art{width:56px;flex-shrink:0;display:flex;align-items:flex-start;justify-content:center;padding-top:.25rem}
+.bottle-art svg{width:44px;height:72px;opacity:.6;transition:opacity .2s}
+.perfume-card:hover .bottle-art svg{opacity:.9}
+
+/* Buy buttons — inline, right-aligned at bottom of card-info */
+.buy-row{display:flex;gap:.4rem;margin-top:auto;padding-top:.6rem;justify-content:flex-end}
+.buy-btn{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .6rem;background:linear-gradient(135deg,rgba(201,169,110,.15),rgba(201,169,110,.08));border:1px solid rgba(201,169,110,.25);border-radius:6px;color:var(--g);font-size:.7rem;font-weight:500;text-decoration:none;transition:all .2s;white-space:nowrap}
+.buy-btn:hover{background:rgba(201,169,110,.25);border-color:rgba(201,169,110,.4);text-decoration:none;transform:translateY(-1px)}
+.buy-btn::after{content:'→';margin-left:2px;font-size:.6rem}
+
+/* Responsive */
+@media(max-width:640px){
+  .perfume-grid{grid-template-columns:1fr}
+  .seo-header .container{flex-direction:column;gap:.75rem}
+  .seo-nav{gap:1rem}
+}
+</style>
+</head>
+<body>
+<header class="seo-header">
+  <div class="container">
+    <a href="/" class="seo-logo">ScentWise</a>
+    <nav class="seo-nav">
+      <a href="/perfumes/">Perfumes</a>
+      <a href="/brands/">Brands</a>
+      <a href="/notes/">Notes</a>
+      <a href="/blog/">Blog</a>
+      <a href="/">Try AI Advisor</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    Brands
+  </nav>
+
+  <header style="padding:2rem 0 1rem">
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300">Perfume Brands</h1>
+    <p style="color:var(--td);margin-top:.5rem">Top 50 fragrance houses with their highest-rated perfumes</p>
+  </header>
+
+  <div class="perfume-grid">
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/guerlain/">Guerlain</a></h3>
+      <div class="meta">
+        <span>93 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/bath-body-works/">Bath Body Works</a></h3>
+      <div class="meta">
+        <span>45 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/zara/">Zara</a></h3>
+      <div class="meta">
+        <span>43 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/victoria-s-secret/">Victoria s Secret</a></h3>
+      <div class="meta">
+        <span>39 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/natura/">Natura</a></h3>
+      <div class="meta">
+        <span>36 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/dior/">Dior</a></h3>
+      <div class="meta">
+        <span>33 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">white floral</span>
+        
+        <span class="accord-tag">floral</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/arabian-oud/">Arabian Oud</a></h3>
+      <div class="meta">
+        <span>32 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">musky</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/yves-saint-laurent/">Yves Saint Laurent</a></h3>
+      <div class="meta">
+        <span>32 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/roja-dove/">Roja Dove</a></h3>
+      <div class="meta">
+        <span>30 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/giorgio-armani/">Giorgio Armani</a></h3>
+      <div class="meta">
+        <span>26 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/mugler/">Mugler</a></h3>
+      <div class="meta">
+        <span>26 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">patchouli</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/areej-le-dore/">Areej Le Dore</a></h3>
+      <div class="meta">
+        <span>25 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/amouage/">Amouage</a></h3>
+      <div class="meta">
+        <span>25 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">rose</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/lattafa-perfumes/">Lattafa Perfumes</a></h3>
+      <div class="meta">
+        <span>25 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/alexandria-fragrances/">Alexandria Fragrances</a></h3>
+      <div class="meta">
+        <span>23 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">amber</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/o-boticario/">O Boticario</a></h3>
+      <div class="meta">
+        <span>23 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/ermenegildo-zegna/">Ermenegildo Zegna</a></h3>
+      <div class="meta">
+        <span>20 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/chanel/">Chanel</a></h3>
+      <div class="meta">
+        <span>20 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">floral</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/avon/">Avon</a></h3>
+      <div class="meta">
+        <span>19 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/l-occitane-en-provence/">L Occitane en Provence</a></h3>
+      <div class="meta">
+        <span>19 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">floral</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/givenchy/">Givenchy</a></h3>
+      <div class="meta">
+        <span>18 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/carolina-herrera/">Carolina Herrera</a></h3>
+      <div class="meta">
+        <span>18 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/issey-miyake/">Issey Miyake</a></h3>
+      <div class="meta">
+        <span>17 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/abdul-samad-al-qurashi/">Abdul Samad Al Qurashi</a></h3>
+      <div class="meta">
+        <span>16 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">oud</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">rose</span>
+        
+        <span class="accord-tag">woody</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/maison-alhambra/">Maison Alhambra</a></h3>
+      <div class="meta">
+        <span>16 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+        <span class="accord-tag">woody</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/granado/">Granado</a></h3>
+      <div class="meta">
+        <span>15 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/cartier/">Cartier</a></h3>
+      <div class="meta">
+        <span>15 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">white floral</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/ajmal/">Ajmal</a></h3>
+      <div class="meta">
+        <span>14 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">oud</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">amber</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/boadicea-the-victorious/">Boadicea the Victorious</a></h3>
+      <div class="meta">
+        <span>14 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/jean-patou/">Jean Patou</a></h3>
+      <div class="meta">
+        <span>14 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">floral</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/swiss-arabian/">Swiss Arabian</a></h3>
+      <div class="meta">
+        <span>13 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">amber</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/prada/">Prada</a></h3>
+      <div class="meta">
+        <span>13 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">woody</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/caron/">Caron</a></h3>
+      <div class="meta">
+        <span>12 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">white floral</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/phebo/">Phebo</a></h3>
+      <div class="meta">
+        <span>12 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">musky</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/bvlgari/">Bvlgari</a></h3>
+      <div class="meta">
+        <span>12 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">oud</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/rasasi/">Rasasi</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">oud</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/aaron-terence-hughes/">Aaron Terence Hughes</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+        <span class="accord-tag">amber</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/jean-paul-gaultier/">Jean Paul Gaultier</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.5/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">vanilla</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">woody</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/lolita-lempicka/">Lolita Lempicka</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">soft spicy</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/salvatore-ferragamo/">Salvatore Ferragamo</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">balsamic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/lancome/">Lancome</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">green</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">rose</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/al-haramain-perfumes/">Al Haramain Perfumes</a></h3>
+      <div class="meta">
+        <span>11 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">rose</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/nina-ricci/">Nina Ricci</a></h3>
+      <div class="meta">
+        <span>10 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">fresh spicy</span>
+        
+        <span class="accord-tag">green</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/oriflame/">Oriflame</a></h3>
+      <div class="meta">
+        <span>10 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/bortnikoff/">Bortnikoff</a></h3>
+      <div class="meta">
+        <span>9 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">oud</span>
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">floral</span>
+        
+        <span class="accord-tag">musky</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/armaf/">Armaf</a></h3>
+      <div class="meta">
+        <span>9 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">citrus</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/gucci/">Gucci</a></h3>
+      <div class="meta">
+        <span>9 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+        <span class="accord-tag">green</span>
+        
+        <span class="accord-tag">floral</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/the-spirit-of-dubai/">The Spirit of Dubai</a></h3>
+      <div class="meta">
+        <span>8 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">fruity</span>
+        
+        <span class="accord-tag">aromatic</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/lush/">Lush</a></h3>
+      <div class="meta">
+        <span>8 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">sweet</span>
+        
+        <span class="accord-tag">amber</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+        <span class="accord-tag">vanilla</span>
+        
+      </div>
+      
+    </div>
+    
+    <div class="perfume-card">
+      <h3><a href="/brands/the-body-shop/">The Body Shop</a></h3>
+      <div class="meta">
+        <span>8 perfumes</span>
+        <span class="rating">4.4/5 avg</span>
+      </div>
+      
+      <div class="accord-tags">
+        
+        <span class="accord-tag">white floral</span>
+        
+        <span class="accord-tag">woody</span>
+        
+        <span class="accord-tag">powdery</span>
+        
+        <span class="accord-tag">warm spicy</span>
+        
+      </div>
+      
+    </div>
+    
+  </div>
+</div>
+
+
+</main>
+
+<footer class="seo-footer">
+  <div class="container">
+    <div>&copy; 2026 ScentWise — AI-Powered Fragrance Advisor</div>
+    <nav class="seo-footer-links">
+      <a href="/">Home</a>
+      <a href="/perfumes/">Perfumes</a>
+      <a href="/brands/">Brands</a>
+      <a href="/notes/">Notes</a>
+      <a href="/blog/">Blog</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="/terms.html">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+<script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
+</body>
+</html>

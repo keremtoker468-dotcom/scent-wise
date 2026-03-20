@@ -1,0 +1,128 @@
+description: ScentWise AI Prompt Quality Tests
+
+prompts:
+  - file://prompts/chat.txt
+  - file://prompts/zodiac.txt
+  - file://prompts/music.txt
+  - file://prompts/style.txt
+  - file://prompts/dupe.txt
+
+providers:
+  - id: google:gemini-2.0-flash
+    config:
+      apiKey: '{{GEMINI_API_KEY}}'
+
+tests:
+  # ═══ CHAT MODE ═══
+  - vars:
+      query: 'Best fragrances under $50'
+    assert:
+      - type: contains-any
+        value: ['$', 'price', 'budget', 'affordable']
+      - type: llm-rubric
+        value: 'Response recommends at least 3 specific real perfumes with brand names'
+
+  - vars:
+      query: 'Best office fragrances for men'
+    assert:
+      - type: llm-rubric
+        value: 'Response contains at least 3 real fragrance names with brands, formatted with bold markers'
+      - type: not-contains
+        value: 'I apologize'
+
+  - vars:
+      query: 'Compare Dior Sauvage vs Bleu de Chanel'
+    assert:
+      - type: contains-all
+        value: ['Sauvage', 'Bleu de Chanel']
+      - type: llm-rubric
+        value: 'Response compares both fragrances with specific notes and differences'
+
+  # ═══ ZODIAC MODE ═══
+  - vars:
+      sign: 'Scorpio'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends exactly 5 fragrances with bold-formatted names, each with notes and Scorpio personality connections'
+      - type: contains-any
+        value: ['intense', 'mysterious', 'deep', 'dark', 'magnetic', 'passionate']
+
+  - vars:
+      sign: 'Leo'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends 5 real fragrances with brand names and price ranges'
+      - type: contains-any
+        value: ['bold', 'confident', 'warm', 'luxurious', 'dramatic', 'royal']
+
+  # ═══ MUSIC MODE ═══
+  - vars:
+      genre: 'Jazz'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends 5 fragrances with music-scent connections explained'
+      - type: contains-any
+        value: ['smoky', 'warm', 'smooth', 'woody', 'leather', 'tobacco', 'amber']
+
+  - vars:
+      genre: 'Electronic / EDM'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends 5 fragrances with bold names and price ranges'
+
+  # ═══ STYLE MODE ═══
+  - vars:
+      style: 'Minimalist'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends 5 fragrances with fashion-scent connections'
+      - type: contains-any
+        value: ['clean', 'subtle', 'understated', 'simple', 'fresh', 'musk']
+
+  - vars:
+      style: 'Streetwear / Hypebeast'
+    assert:
+      - type: llm-rubric
+        value: 'Response contains 5 fragrance recommendations with brand names and prices'
+
+  # ═══ DUPE MODE ═══
+  - vars:
+      perfume: 'Baccarat Rouge 540'
+    assert:
+      - type: contains-any
+        value: ['Cloud', 'Burberry Her', 'Extrait', 'ambroxan', 'amber', 'saffron']
+      - type: llm-rubric
+        value: 'Response identifies the original fragrance, lists 5 affordable alternatives with prices, and includes a Pro tip'
+      - type: not-contains
+        value: 'I cannot'
+
+  - vars:
+      perfume: 'Creed Aventus'
+    assert:
+      - type: contains-any
+        value: ['Club de Nuit', 'Explorer', 'pineapple', 'birch', 'smoky']
+      - type: llm-rubric
+        value: 'Response lists 5 dupes with similarity percentages and price ranges'
+
+  - vars:
+      perfume: 'Tom Ford Lost Cherry'
+    assert:
+      - type: llm-rubric
+        value: 'Response recommends 5 affordable alternatives for Tom Ford Lost Cherry with bold formatting'
+
+  # ═══ SAFETY / EDGE CASES ═══
+  - vars:
+      query: 'What perfume do you recommend?'
+    assert:
+      - type: llm-rubric
+        value: 'Response asks a clarifying question or provides general recommendations, does not say it lacks data'
+      - type: not-contains
+        value: 'under development'
+
+  - vars:
+      query: 'asdfghjkl'
+    assert:
+      - type: not-contains
+        value: 'error'
+      - type: llm-rubric
+        value: 'Response handles gibberish gracefully, either asking for clarification or providing general suggestions'
