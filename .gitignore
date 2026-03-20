@@ -4,3 +4,4 @@ API_KEYS.txt
 node_modules/
 .vercel/
 seo/_site/
+.vercel

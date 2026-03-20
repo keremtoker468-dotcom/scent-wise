@@ -1,5 +1,6 @@
 {
   "buildCommand": "echo 'SEO pages pre-built'",
+  "outputDirectory": "public",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
   ],

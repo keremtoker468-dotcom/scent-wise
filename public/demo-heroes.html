@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Hero Styles Demo — ScentWise</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;color:#f0ece4;font-family:'DM Sans',sans-serif;padding:40px 20px;max-width:900px;margin:0 auto}
+h1{font-family:'Playfair Display',serif;font-size:32px;margin-bottom:8px;text-align:center;color:#c9a96e}
+.subtitle{text-align:center;color:#8a8278;margin-bottom:48px;font-size:14px}
+h2{font-size:20px;margin:48px 0 24px;color:#c9a96e;font-weight:500;border-bottom:1px solid #2a2a2a;padding-bottom:12px}
+.hero-demo{border-radius:16px;overflow:hidden;margin-bottom:24px;border:1px solid #2a2a2a}
+
+/* ═══════════════════════════════════ */
+/* OPTION 3: CSS Gradient Heroes      */
+/* ═══════════════════════════════════ */
+
+.hero-gradient{position:relative;padding:60px 40px;min-height:220px;display:flex;flex-direction:column;justify-content:flex-end}
+.hero-gradient::before{content:'';position:absolute;inset:0;opacity:.15}
+.hero-gradient .tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#c9a96e;margin-bottom:12px}
+.hero-gradient h3{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,36px);line-height:1.2;margin-bottom:8px;color:#f0ece4}
+.hero-gradient p{font-size:15px;color:rgba(240,236,228,.7);max-width:500px}
+
+/* Style A: Warm amber/gold — for oriental, sweet, amber articles */
+.hero-warm{background:linear-gradient(135deg, #1a1008 0%, #2a1a0a 30%, #1a1510 60%, #0a0a0a 100%)}
+.hero-warm::before{background:radial-gradient(ellipse at 70% 30%, rgba(201,169,110,.3), transparent 60%)}
+
+/* Style B: Cool blue/teal — for fresh, aquatic, summer articles */
+.hero-cool{background:linear-gradient(135deg, #0a1520 0%, #0a1a2a 30%, #081518 60%, #0a0a0a 100%)}
+.hero-cool::before{background:radial-gradient(ellipse at 30% 40%, rgba(100,180,220,.25), transparent 60%)}
+
+/* Style C: Rose/mauve — for floral, feminine, spring articles */
+.hero-floral{background:linear-gradient(135deg, #1a0a18 0%, #2a1020 30%, #1a1018 60%, #0a0a0a 100%)}
+.hero-floral::before{background:radial-gradient(ellipse at 60% 50%, rgba(200,130,170,.2), transparent 60%)}
+
+/* Style D: Deep green/earthy — for woody, aromatic, niche articles */
+.hero-earthy{background:linear-gradient(135deg, #0a1a0a 0%, #102010 30%, #0a150a 60%, #0a0a0a 100%)}
+.hero-earthy::before{background:radial-gradient(ellipse at 40% 30%, rgba(120,160,100,.2), transparent 60%)}
+
+/* Style E: Dark smoky/leather — for dupe guides, men's articles */
+.hero-smoky{background:linear-gradient(135deg, #141414 0%, #1a1a18 30%, #121210 60%, #0a0a0a 100%)}
+.hero-smoky::before{background:radial-gradient(ellipse at 50% 40%, rgba(180,160,140,.15), transparent 60%)}
+
+/* Style F: Rich purple/night — for celebrity, luxury articles */
+.hero-luxe{background:linear-gradient(135deg, #140a1e 0%, #1a1028 30%, #100a1a 60%, #0a0a0a 100%)}
+.hero-luxe::before{background:radial-gradient(ellipse at 65% 35%, rgba(160,120,200,.2), transparent 60%)}
+
+/* ═══════════════════════════════════ */
+/* OPTION 4: Pexels Photo Heroes      */
+/* ═══════════════════════════════════ */
+
+.hero-photo{position:relative;min-height:260px;display:flex;flex-direction:column;justify-content:flex-end;padding:40px;background-size:cover;background-position:center}
+.hero-photo::after{content:'';position:absolute;inset:0;background:linear-gradient(to top, rgba(10,10,10,.95) 0%, rgba(10,10,10,.6) 40%, rgba(10,10,10,.3) 100%)}
+.hero-photo .tag,.hero-photo h3,.hero-photo p{position:relative;z-index:1}
+.hero-photo .tag{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#c9a96e;margin-bottom:12px}
+.hero-photo h3{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,36px);line-height:1.2;margin-bottom:8px;color:#f0ece4}
+.hero-photo p{font-size:15px;color:rgba(240,236,228,.7);max-width:500px}
+.hero-photo .credit{position:relative;z-index:1;font-size:10px;color:rgba(240,236,228,.3);margin-top:16px}
+
+.label{display:inline-block;margin-bottom:8px;font-size:11px;color:#8a8278;background:#1a1a1a;padding:4px 10px;border-radius:6px;border:1px solid #2a2a2a}
+</style>
+</head>
+<body>
+
+<h1>Blog Hero Styles</h1>
+<p class="subtitle">Compare Option 3 (CSS gradients) vs Option 4 (Pexels photos) — pick your favorite</p>
+
+<!-- ═══════════════════════════════════ -->
+<h2>Option 3 — CSS Gradient Heroes (no images needed)</h2>
+
+<div class="label">Style A: Warm — for amber, oriental, sweet</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-warm">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Fall Fragrances 2026</h3>
+    <p>Warm, spicy, and cozy scents for autumn weather. All rated 4.4+ by the community.</p>
+  </div>
+</div>
+
+<div class="label">Style B: Cool — for fresh, aquatic, summer</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-cool">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Summer Fragrances 2026</h3>
+    <p>Light, fresh, and heat-friendly perfumes that thrive in warm weather.</p>
+  </div>
+</div>
+
+<div class="label">Style C: Rose — for floral, feminine, spring</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-floral">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Spring Fragrances 2026</h3>
+    <p>Fresh florals and green scents perfect for the new season.</p>
+  </div>
+</div>
+
+<div class="label">Style D: Earthy — for woody, aromatic, niche</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-earthy">
+    <div class="tag">Expert Guide</div>
+    <h3>Best Niche Fragrances 2026</h3>
+    <p>Under-the-radar scents from artisan perfume houses you need to discover.</p>
+  </div>
+</div>
+
+<div class="label">Style E: Smoky — for dupes, men's, budget</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-smoky">
+    <div class="tag">Dupe Guide</div>
+    <h3>The Ultimate Fragrance Dupe Guide 2026</h3>
+    <p>20 expensive perfumes and their best affordable alternatives.</p>
+  </div>
+</div>
+
+<div class="label">Style F: Luxe — for celebrity, luxury</div>
+<div class="hero-demo">
+  <div class="hero-gradient hero-luxe">
+    <div class="tag">Celebrity</div>
+    <h3>Inside Celebrity Fragrance Wardrobes</h3>
+    <p>What the A-list actually wears behind closed doors.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2>Option 4 — Pexels Photo Heroes (free stock photos)</h2>
+
+<div class="label">Perfume bottles — warm lighting</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/965989/pexels-photo-965989.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Fall Fragrances 2026</h3>
+    <p>Warm, spicy, and cozy scents for autumn weather.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<div class="label">Flowers — fresh/floral</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/931177/pexels-photo-931177.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Spring Fragrances 2026</h3>
+    <p>Fresh florals and green scents perfect for the new season.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<div class="label">Beach/ocean — summer/fresh</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/1032650/pexels-photo-1032650.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Summer Colognes for Men 2026</h3>
+    <p>Heat-friendly colognes with incredible freshness and projection.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<div class="label">Luxury/gold — celebrity/premium</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/3059609/pexels-photo-3059609.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Celebrity</div>
+    <h3>Inside Celebrity Fragrance Wardrobes</h3>
+    <p>What the A-list actually wears behind closed doors.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<div class="label">Dark moody — dupes/men's</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/755992/pexels-photo-755992.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Dupe Guide</div>
+    <h3>The Ultimate Fragrance Dupe Guide 2026</h3>
+    <p>20 expensive perfumes and their best affordable alternatives.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<div class="label">Spices/ingredients — woody/niche</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.pexels.com/photos/2802527/pexels-photo-2802527.jpeg?auto=compress&cs=tinysrgb&w=1200&h=400&fit=crop')">
+    <div class="tag">Expert Guide</div>
+    <h3>What Is Oud? The King of Fragrance Notes</h3>
+    <p>Everything you need to know about the world's most expensive ingredient.</p>
+    <div class="credit">Photo: Pexels (free license)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<h2>Option 2 — Unsplash Photos (free API, higher quality)</h2>
+
+<div class="label">Perfume flat lay — editorial style</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Pillar Guide</div>
+    <h3>Best Women's Fragrances 2026</h3>
+    <p>The most loved perfumes for women — from timeless classics to modern icons.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<div class="label">Amber/warm tones — oriental vibes</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Ingredient Guide</div>
+    <h3>Vanilla in Perfumery — The World's Favorite Note</h3>
+    <p>Warm, sweet, and universally loved. Why vanilla dominates fragrance.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<div class="label">Minimalist bottles — clean/modern</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Budget Guide</div>
+    <h3>Best Fragrances Under $30</h3>
+    <p>Incredible scents that won't break the bank. All under $30.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<div class="label">Night/city mood — date night</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Occasion Guide</div>
+    <h3>Best Date Night Fragrances</h3>
+    <p>Seductive, compliment-getting perfumes for romantic evenings.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<div class="label">Winter/snow — cold weather</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1457269449834-928af64c684d?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Seasonal Guide</div>
+    <h3>Best Winter Fragrances 2026</h3>
+    <p>Rich, heavy, and opulent perfumes for cold months.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<div class="label">Music/vinyl — music match articles</div>
+<div class="hero-demo">
+  <div class="hero-photo" style="background-image:url('https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1200&h=400&fit=crop&auto=format&q=80')">
+    <div class="tag">Music × Fragrance</div>
+    <h3>Jazz Fragrances — Scents That Swing</h3>
+    <p>Smoky, warm, and smooth — fragrances that capture the jazz aesthetic.</p>
+    <div class="credit">Photo: Unsplash (free license)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════ -->
+<div style="text-align:center;padding:48px 0;color:#8a8278;font-size:14px">
+  <p><strong style="color:#f0ece4">Summary:</strong></p>
+  <p style="margin-top:12px"><span style="color:#c9a96e">Option 2 (Unsplash)</span> — highest quality photos, free license, editorial feel</p>
+  <p style="margin-top:4px"><span style="color:#c9a96e">Option 3 (CSS gradients)</span> — instant load, zero dependencies, always looks consistent</p>
+  <p style="margin-top:4px"><span style="color:#c9a96e">Option 4 (Pexels)</span> — good photos, free license, more variety than Unsplash</p>
+  <p style="margin-top:16px">You can mix them: CSS gradient as default + photos for top articles.</p>
+</div>
+
+</body>
+</html>
