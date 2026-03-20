@@ -7,7 +7,7 @@
     "dev:local": "node scripts/dev-server.js",
     "seo:build": "cd seo && npx @11ty/eleventy",
     "seo:serve": "cd seo && npx @11ty/eleventy --serve",
-    "build": "cd seo && npx @11ty/eleventy && cp -r _site/perfumes _site/brands _site/notes ../public/",
+    "seo:deploy": "cd seo && npx @11ty/eleventy && cp -r _site/perfumes _site/brands _site/notes ../public/",
     "buy-links": "node scripts/add-buy-links.js",
     "test": "jest"
   },
