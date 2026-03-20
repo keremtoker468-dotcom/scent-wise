@@ -1,4 +1,6 @@
 {
+  "installCommand": "echo 'skip install'",
+  "buildCommand": "echo 'skip build'",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" }
   ],
