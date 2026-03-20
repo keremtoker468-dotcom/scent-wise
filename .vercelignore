@@ -1,0 +1,10 @@
+seo/
+tests/
+scripts/
+prompts/
+Docs/
+*.test.js
+promptfooconfig.yaml
+.env
+.env.*
+API_KEYS.txt
