@@ -1,0 +1,48 @@
+---
+layout: base.njk
+title: "Top Perfumes — Browse 500 Highest Rated Fragrances"
+description: "Explore the 500 highest-rated perfumes from our database of 75,000+ fragrances. Find your perfect scent by brand, notes, and rating."
+permalink: "perfumes/index.html"
+---
+{% block content %}
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    Perfumes
+  </nav>
+
+  <header style="padding:2rem 0 1rem">
+    <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300">Top Rated Perfumes</h1>
+    <p style="color:var(--td);margin-top:.5rem">{{ perfumes | length }} highest-rated fragrances from our database of 75,000+ perfumes</p>
+  </header>
+
+  <nav style="margin-bottom:1.5rem">
+    <p style="color:var(--td);font-size:.85rem;margin-bottom:.5rem">Browse by:</p>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <a href="/brands/" class="accord-tag" style="text-decoration:none">Brands</a>
+      <a href="/notes/" class="accord-tag" style="text-decoration:none">Notes &amp; Accords</a>
+    </div>
+  </nav>
+
+  <div class="perfume-grid">
+    {% for p in perfumes %}
+    <div class="perfume-card">
+      <h3><a href="/perfumes/{{ p.slug }}/">{{ p.name }}</a></h3>
+      <div class="brand"><a href="/brands/{{ p.brand | slugify }}/" style="color:var(--td)">{{ p.brand }}</a></div>
+      <div class="meta">
+        {% if p.rating %}<span class="rating">{{ p.rating }}/5</span>{% endif %}
+        <span>{{ p.category }}</span>
+        <span>{{ p.gender }}</span>
+      </div>
+      {% if p.accords.length %}
+      <div class="accord-tags">
+        {% for a in p.accords | slice(0, 3) %}
+        <span class="accord-tag">{{ a }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

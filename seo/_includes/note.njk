@@ -1,0 +1,122 @@
+---
+layout: base.njk
+---
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Best {{ name }} Perfumes",
+  "description": "{{ description }}",
+  "url": "{{ site.url }}/notes/{{ slug }}/"
+}
+</script>
+
+<style>
+.note-hero{position:relative;padding:60px 24px 48px;text-align:center;overflow:hidden;margin-bottom:2rem;border-radius:0 0 16px 16px}
+.note-hero::before{content:'';position:absolute;inset:0;opacity:.15}
+
+/* Warm — amber, oriental, sweet, vanilla, caramel, honey, cinnamon, warm spicy, balsamic, rum */
+.note-warm{background:linear-gradient(135deg,#1a1008 0%,#2a1a0a 30%,#1a1510 60%,#0f0f12 100%)}
+.note-warm::before{background:radial-gradient(ellipse at 70% 30%,rgba(201,169,110,.35),transparent 60%);opacity:1}
+
+/* Cool — fresh, aquatic, citrus, ozonic, marine, green, soapy, aldehydic */
+.note-cool{background:linear-gradient(135deg,#0a1520 0%,#0a1a2a 30%,#081518 60%,#0f0f12 100%)}
+.note-cool::before{background:radial-gradient(ellipse at 30% 40%,rgba(100,180,220,.3),transparent 60%);opacity:1}
+
+/* Floral — floral, white floral, yellow floral, rose, iris, violet, tuberose */
+.note-floral{background:linear-gradient(135deg,#1a0a18 0%,#2a1020 30%,#1a1018 60%,#0f0f12 100%)}
+.note-floral::before{background:radial-gradient(ellipse at 60% 50%,rgba(200,130,170,.25),transparent 60%);opacity:1}
+
+/* Earthy — woody, oud, earthy, mossy, patchouli, herbal, conifer, aromatic */
+.note-earthy{background:linear-gradient(135deg,#0a1a0a 0%,#102010 30%,#0a150a 60%,#0f0f12 100%)}
+.note-earthy::before{background:radial-gradient(ellipse at 40% 30%,rgba(120,160,100,.25),transparent 60%);opacity:1}
+
+/* Smoky — smoky, leather, tobacco, animalic, coffee, cacao, whiskey */
+.note-smoky{background:linear-gradient(135deg,#141414 0%,#1a1a18 30%,#121210 60%,#0f0f12 100%)}
+.note-smoky::before{background:radial-gradient(ellipse at 50% 40%,rgba(180,160,140,.2),transparent 60%);opacity:1}
+
+/* Luxe — powdery, musky, lactonic, metallic, salty, nutty, almond */
+.note-luxe{background:linear-gradient(135deg,#140a1e 0%,#1a1028 30%,#100a1a 60%,#0f0f12 100%)}
+.note-luxe::before{background:radial-gradient(ellipse at 65% 35%,rgba(160,120,200,.25),transparent 60%);opacity:1}
+
+/* Fruity — fruity, cherry, tropical, coconut, chocolate */
+.note-fruity{background:linear-gradient(135deg,#1a0a0a 0%,#2a1010 30%,#1a1210 60%,#0f0f12 100%)}
+.note-fruity::before{background:radial-gradient(ellipse at 55% 35%,rgba(220,130,100,.2),transparent 60%);opacity:1}
+.note-hero .note-icon{font-size:48px;margin-bottom:16px;opacity:.7}
+.note-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,5vw,3.2rem);font-weight:300;line-height:1.2;margin-bottom:12px;position:relative}
+.note-hero .note-desc{color:var(--t2);font-size:1.05rem;max-width:600px;margin:0 auto 16px;line-height:1.7;position:relative}
+.note-hero .note-stats{display:flex;gap:24px;justify-content:center;font-size:.9rem;color:var(--td);position:relative}
+.note-hero .note-stats strong{color:var(--g);font-weight:600}
+
+.note-section-title{font-size:1.1rem;color:var(--g);font-weight:500;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+.note-section-title::after{content:'';flex:1;height:1px;background:var(--d4)}
+
+.perfume-rank{position:absolute;top:12px;right:14px;font-size:11px;color:var(--td);font-weight:600;background:var(--d2);padding:2px 8px;border-radius:6px;border:1px solid var(--d4)}
+</style>
+
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    <a href="/notes/">Notes &amp; Accords</a><span>/</span>
+    {{ name }}
+  </nav>
+
+  <div class="note-hero {% if slug == 'amber' or slug == 'vanilla' or slug == 'caramel' or slug == 'honey' or slug == 'cinnamon' or slug == 'warm-spicy' or slug == 'balsamic' or slug == 'rum' or slug == 'sweet' %}note-warm{% elif slug == 'fresh' or slug == 'aquatic' or slug == 'citrus' or slug == 'ozonic' or slug == 'marine' or slug == 'green' or slug == 'soapy' or slug == 'aldehydic' or slug == 'conifer' %}note-cool{% elif slug == 'floral' or slug == 'white-floral' or slug == 'yellow-floral' or slug == 'rose' or slug == 'iris' or slug == 'violet' or slug == 'tuberose' %}note-floral{% elif slug == 'woody' or slug == 'oud' or slug == 'earthy' or slug == 'mossy' or slug == 'patchouli' or slug == 'herbal' or slug == 'aromatic' %}note-earthy{% elif slug == 'smoky' or slug == 'leather' or slug == 'tobacco' or slug == 'animalic' or slug == 'coffee' or slug == 'cacao' or slug == 'whiskey' or slug == 'camphor' %}note-smoky{% elif slug == 'fruity' or slug == 'cherry' or slug == 'tropical' or slug == 'coconut' or slug == 'chocolate' %}note-fruity{% else %}note-luxe{% endif %}">
+    <div class="note-icon">◈</div>
+    <h1>Best {{ name }} Perfumes</h1>
+    <p class="note-desc">{{ noteDescription }}</p>
+    <div class="note-stats">
+      <span><strong>{{ count }}</strong> fragrances</span>
+      <span>Sorted by <strong>rating</strong></span>
+    </div>
+  </div>
+
+  <div class="note-section-title">Top Rated {{ name }} Fragrances</div>
+
+  <section>
+    <div class="perfume-grid">
+      {% for p in noteItems %}
+      <div class="perfume-card" data-cat="{{ p.category | lower }}" style="position:relative">
+        <div class="bottle-art">
+          {% if p.category == 'Floral' or p.category == 'Fresh' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="4" width="12" height="8" rx="2" fill="rgba(201,169,110,.3)"/><rect x="20" y="0" width="8" height="6" rx="1.5" fill="rgba(201,169,110,.2)"/><path d="M14 16C14 14 16 12 18 12h12c2 0 4 2 4 4v48c0 6-4 12-10 12h-4c-6 0-10-6-10-12V16z" fill="rgba(180,200,220,.12)" stroke="rgba(180,200,220,.25)" stroke-width="1"/><ellipse cx="24" cy="45" rx="6" ry="8" fill="rgba(180,200,220,.08)"/></svg>
+          {% elif p.category == 'Oriental' or p.category == 'Sweet' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="19" y="2" width="10" height="10" rx="2" fill="rgba(201,169,110,.3)"/><rect x="21" y="0" width="6" height="4" rx="1" fill="rgba(201,169,110,.2)"/><path d="M10 18c0-3 3-6 6-6h16c3 0 6 3 6 6v38c0 10-6 18-14 18-8 0-14-8-14-18V18z" fill="rgba(201,169,110,.1)" stroke="rgba(201,169,110,.25)" stroke-width="1"/><circle cx="24" cy="42" r="7" fill="rgba(201,169,110,.08)"/></svg>
+          {% elif p.category == 'Woody' or p.category == 'Aromatic' %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="18" y="6" width="12" height="6" rx="1" fill="rgba(160,140,120,.3)"/><rect x="22" y="0" width="4" height="8" rx="1" fill="rgba(160,140,120,.2)"/><rect x="12" y="14" width="24" height="56" rx="4" fill="rgba(160,140,120,.1)" stroke="rgba(160,140,120,.25)" stroke-width="1"/><line x1="12" y1="24" x2="36" y2="24" stroke="rgba(160,140,120,.15)" stroke-width="1"/></svg>
+          {% else %}
+          <svg viewBox="0 0 48 80" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="20" y="4" width="8" height="8" rx="1.5" fill="rgba(201,169,110,.3)"/><rect x="22" y="0" width="4" height="6" rx="1" fill="rgba(201,169,110,.2)"/><path d="M16 16h16l2 50c0 6-4 10-10 10s-10-4-10-10l2-50z" fill="rgba(201,169,110,.08)" stroke="rgba(201,169,110,.2)" stroke-width="1"/></svg>
+          {% endif %}
+        </div>
+        <div class="card-info">
+          <h3><a href="/perfumes/{{ p.slug }}/">{{ p.name }}</a></h3>
+          <div class="brand"><a href="/brands/{{ p.brand | slugify }}/" style="color:var(--td)">{{ p.brand }}</a></div>
+          {% if p.accords | length %}
+          <div class="accord-tags">
+            {% for a in p.accords | slice(0, 4) %}
+            <a href="/notes/{{ a | slugify }}/" class="accord-tag">{{ a }}</a>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="meta">
+            {% if p.rating %}<span class="rating">★ {{ p.rating }}</span>{% endif %}
+            <span>{{ p.category }}</span>
+            <span>{{ p.gender }}</span>
+          </div>
+          <div class="buy-row">
+            <a href="/api/affiliate-redirect?perfume={{ p.name | urlencode }}&brand={{ p.brand | urlencode }}&retailer=fragrancex" rel="sponsored noopener" target="_blank" class="buy-btn">FragranceX</a>
+            <a href="/api/affiliate-redirect?perfume={{ p.name | urlencode }}&brand={{ p.brand | urlencode }}&retailer=amazon" rel="sponsored noopener" target="_blank" class="buy-btn">Amazon</a>
+          </div>
+        </div>
+        <div class="perfume-rank">#{{ loop.index }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section style="margin-top:3rem;padding:2rem;background:var(--d3);border-radius:var(--r);border:1px solid var(--d4);text-align:center">
+    <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;margin-bottom:.75rem">Want {{ name | lower }} perfume recommendations?</p>
+    <p style="color:var(--td);margin-bottom:1.25rem;font-size:.9rem">Tell our AI you love {{ name | lower }} notes and get personalized matches from 75,000+ fragrances.</p>
+    <a href="/" style="display:inline-block;padding:.75rem 2rem;background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border-radius:var(--r);text-decoration:none;font-size:.95rem">Try AI Advisor Free</a>
+  </section>
+</div>

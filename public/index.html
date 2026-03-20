@@ -245,7 +245,7 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --d:#09090b;--d2:#0f0f12;--d3:#16161a;--d4:#23232a;--d5:#32323a;
-  --t:#f0ece4;--t2:#d4cfc6;--td:#8a8278;--g:#c9a96e;--gd:#b8944f;--gl:rgba(201,169,110,.08);
+  --t:#f0ece4;--t2:#d4cfc6;--td:#a8a29e;--g:#c9a96e;--gd:#b8944f;--gl:rgba(201,169,110,.08);
   --glass:rgba(22,22,26,.72);--glass-b:rgba(201,169,110,.06);
   --r:16px;--r-lg:24px;--r-sm:10px;
   --shadow:0 4px 24px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.3);
@@ -254,6 +254,7 @@
 }
 body{background:var(--d);color:var(--t);font-family:'DM Sans','DM Sans Fallback',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 0%,rgba(201,169,110,.03) 0%,transparent 50%);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 a{color:inherit;text-decoration:none}
+button.btn-reset{all:unset;cursor:pointer;display:flex;align-items:center;box-sizing:border-box}
 .fd{font-family:'Cormorant Garamond','Cormorant Garamond Fallback',Georgia,serif}.gg{color:var(--g)}
 
 /* ═══ NAVIGATION ═══ */
@@ -1073,7 +1074,8 @@ function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined
 document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
 </script>
 <!-- App logic loads first (small, renders homepage immediately), data files load lazily -->
-<script src="/app.js?v=2" defer></script>
+<script src="https://unpkg.com/orama@3.1.5/dist/browser.js" defer></script>
+<script src="/app.js?v=3" defer></script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
 setTimeout(function(){
@@ -1119,7 +1121,7 @@ setTimeout(function(){
 </script>
 <!-- Desktop Navigation -->
 <nav class="nav-w" aria-label="Main navigation"><div class="nav-i">
-  <div class="logo" onclick="go('home')" role="button" tabindex="0" aria-label="ScentWise Home" onkeydown="if(event.key==='Enter')go('home')"><div class="logo-icon" aria-hidden="true">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
+  <button class="logo btn-reset" onclick="go('home')" aria-label="ScentWise Home"><div class="logo-icon" aria-hidden="true">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></button>
   <div class="nav-s" id="nav" role="tablist"></div>
 </div></nav>
 <!-- Mobile Bottom Navigation -->
@@ -1144,11 +1146,12 @@ setTimeout(function(){
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a href="/blog/">Blog</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
-    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
+    <button class="hp-nav-toggle btn-reset" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" aria-label="Toggle navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </nav>
   <section class="hp-hero">
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
@@ -1160,8 +1163,52 @@ setTimeout(function(){
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
-      <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
-      <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
+      <div class="hp-hero-stat"><div class="num">7</div><div class="label">Discovery Modes</div></div>
+      <div class="hp-hero-stat"><div class="num" id="hp-discovery-count">2,500</div><div class="label">Curated Top Picks</div></div>
+    </div>
+    <div id="hp-testimonials" class="hp-testimonials" style="display:none;margin-top:40px;max-width:700px;margin-left:auto;margin-right:auto">
+      <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;text-align:center;margin-bottom:16px">What Users Are Saying</p>
+      <div id="hp-testimonials-list" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-demo">
+    <div class="hp-section-kicker hp-reveal visible">See It in Action</div>
+    <div class="hp-section-heading hp-reveal visible">Real recommendations from <em>real conversations</em></div>
+    <p class="hp-section-copy hp-reveal visible">Here's what a conversation with ScentWise AI actually looks like.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;margin-top:32px;max-width:960px;margin-left:auto;margin-right:auto">
+      <div class="card hp-reveal visible" style="padding:0;overflow:hidden">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1);font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">AI Advisor — Chat</div>
+        <div style="padding:18px">
+          <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px;color:var(--t);text-align:right">I need a versatile cologne for a 25-year-old — office and date nights</div>
+          <div style="background:var(--d3);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--t);line-height:1.6">
+            <div style="color:var(--g);font-size:9px;font-weight:600;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">ScentWise AI</div>
+            <strong style="color:var(--g)">Bleu de Chanel EDP</strong> — sophisticated and versatile. Cedar, sandalwood, and citrus. Works in the boardroom and on a candlelit dinner. $95–$130<br><br>
+            <strong style="color:var(--g)">Dior Homme Intense</strong> — iris and cocoa, smooth and magnetic for evenings. $90–$120
+          </div>
+        </div>
+      </div>
+      <div class="card hp-reveal visible" style="padding:0;overflow:hidden">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1);font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Zodiac Match</div>
+        <div style="padding:18px">
+          <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px;color:var(--t);text-align:center">Birthday: <strong>November 8</strong> — Scorpio ♏</div>
+          <div style="background:var(--d3);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--t);line-height:1.6">
+            <div style="color:var(--g);font-size:9px;font-weight:600;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">ScentWise AI</div>
+            Scorpios are drawn to <strong style="color:var(--g)">deep, magnetic scents</strong>. Try <strong style="color:var(--g)">Tom Ford Black Orchid</strong> — dark orchid, black truffle, and patchouli. Intense and unforgettable, like you.
+          </div>
+        </div>
+      </div>
+      <div class="card hp-reveal visible" style="padding:0;overflow:hidden">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1);font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Dupe Finder</div>
+        <div style="padding:18px">
+          <div style="background:rgba(255,255,255,.04);border-radius:12px;padding:12px 16px;margin-bottom:10px;font-size:13px;color:var(--t);text-align:right">Find me a dupe for Baccarat Rouge 540</div>
+          <div style="background:var(--d3);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--t);line-height:1.6">
+            <div style="color:var(--g);font-size:9px;font-weight:600;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase">ScentWise AI</div>
+            <strong style="color:var(--g)">Ariana Grande Cloud</strong> — sweet, dreamy, same ambroxan DNA. $30–$45<br>
+            <strong style="color:var(--g)">Lattafa Raghba</strong> — caramel, amber, saffron. 90% match. $15–$25
+          </div>
+        </div>
+      </div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
@@ -1214,6 +1261,12 @@ setTimeout(function(){
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
       </div>
+      <div class="hp-mode-item hp-reveal visible" onclick="go('dupe')">
+        <div class="hp-mode-number">07</div>
+        <div class="hp-mode-name">Dupe Finder</div>
+        <div class="hp-mode-desc">Love an expensive fragrance? Find affordable alternatives that smell just as good — with real accord matching from our database.</div>
+        <div class="hp-mode-tag">Expensive → Affordable</div>
+      </div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
@@ -1254,6 +1307,86 @@ setTimeout(function(){
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-blog">
+    <div class="hp-section-kicker hp-reveal visible">From the Blog</div>
+    <div class="hp-section-heading hp-reveal visible">Guides, dupes, and <em>fragrance intel</em></div>
+    <p class="hp-section-copy hp-reveal visible">50+ expert articles on finding your perfect scent — from budget picks to celebrity wardrobes.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:32px;max-width:960px;margin-left:auto;margin-right:auto">
+      <a href="/blog/ultimate-dupe-guide.html" class="card hp-reveal visible" style="padding:0;overflow:hidden;text-decoration:none;display:flex;flex-direction:column">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1)">
+          <span style="font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Dupes</span>
+        </div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="font-size:15px;font-weight:600;color:var(--t);margin-bottom:6px;line-height:1.4">The Ultimate Dupe Guide 2026</div>
+          <div style="font-size:13px;color:var(--td);line-height:1.5">20 expensive perfumes and their best affordable alternatives.</div>
+        </div>
+      </a>
+      <a href="/blog/best-fragrances-under-30.html" class="card hp-reveal visible" style="padding:0;overflow:hidden;text-decoration:none;display:flex;flex-direction:column">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1)">
+          <span style="font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Budget</span>
+        </div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="font-size:15px;font-weight:600;color:var(--t);margin-bottom:6px;line-height:1.4">Best Fragrances Under $30</div>
+          <div style="font-size:13px;color:var(--td);line-height:1.5">Incredible scents that won't break the bank.</div>
+        </div>
+      </a>
+      <a href="/blog/best-spring-fragrances.html" class="card hp-reveal visible" style="padding:0;overflow:hidden;text-decoration:none;display:flex;flex-direction:column">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1)">
+          <span style="font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Seasonal</span>
+        </div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="font-size:15px;font-weight:600;color:var(--t);margin-bottom:6px;line-height:1.4">Best Spring Fragrances 2026</div>
+          <div style="font-size:13px;color:var(--td);line-height:1.5">Fresh florals and green scents for the new season.</div>
+        </div>
+      </a>
+      <a href="/blog/celebrity-fragrance-wardrobes.html" class="card hp-reveal visible" style="padding:0;overflow:hidden;text-decoration:none;display:flex;flex-direction:column">
+        <div style="padding:14px 18px;background:rgba(201,169,110,.06);border-bottom:1px solid rgba(201,169,110,.1)">
+          <span style="font-size:10px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px">Celebrity</span>
+        </div>
+        <div style="padding:16px 18px;flex:1">
+          <div style="font-size:15px;font-weight:600;color:var(--t);margin-bottom:6px;line-height:1.4">Celebrity Fragrance Wardrobes</div>
+          <div style="font-size:13px;color:var(--td);line-height:1.5">What the A-list actually wears behind closed doors.</div>
+        </div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:28px" class="hp-reveal visible">
+      <a href="/blog/" style="color:var(--g);font-size:14px;font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:10px 24px;border:1px solid rgba(201,169,110,.2);border-radius:10px;transition:all .2s" onmouseover="this.style.background='rgba(201,169,110,.08)'" onmouseout="this.style.background='transparent'">Browse all 50+ articles <span style="font-size:12px">→</span></a>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-pricing">
+    <div class="hp-section-kicker hp-reveal visible">Simple Pricing</div>
+    <div class="hp-section-heading hp-reveal visible">Try free, upgrade when you're <em>hooked</em></div>
+    <p class="hp-section-copy hp-reveal visible">No hidden fees. No surprise paywalls. See exactly what you get.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:24px;margin-top:32px;max-width:700px;margin-left:auto;margin-right:auto">
+      <div class="card hp-reveal visible" style="padding:28px 24px;text-align:center">
+        <div style="font-size:11px;font-weight:600;color:var(--td);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Free</div>
+        <div style="font-size:36px;font-weight:700;margin-bottom:4px">$0</div>
+        <div style="font-size:13px;color:var(--td);margin-bottom:24px">No sign-up required</div>
+        <ul style="list-style:none;padding:0;text-align:left;font-size:14px;color:var(--t);line-height:2.2">
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> 3 AI queries to try every mode</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> Browse 75,000+ fragrances</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> All 7 discovery modes</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--td)">—</span> <span style="color:var(--td)">Limited to 3 total queries</span></li>
+        </ul>
+        <button class="hp-btn-ghost" onclick="go('chat')" style="margin-top:20px;width:100%">Start Free</button>
+      </div>
+      <div class="card hp-reveal visible" style="padding:28px 24px;text-align:center;border-color:var(--g);position:relative">
+        <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--d1);font-size:11px;font-weight:600;padding:4px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:.5px">Most Popular</div>
+        <div style="font-size:11px;font-weight:600;color:var(--g);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Premium</div>
+        <div style="font-size:36px;font-weight:700;margin-bottom:4px"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/mo</span></div>
+        <div style="font-size:13px;color:var(--td);margin-bottom:24px">Cancel anytime</div>
+        <ul style="list-style:none;padding:0;text-align:left;font-size:14px;color:var(--t);line-height:2.2">
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> 500 AI queries/month</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> Browse 75,000+ fragrances</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> All 7 discovery modes</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">✓</span> Unlimited follow-up conversations</li>
+        </ul>
+        <a href="#" onclick="unlockPaid(); return false;" class="btn" style="display:block;text-decoration:none;margin-top:20px;padding:14px;font-size:15px;text-align:center">Subscribe Now</a>
+      </div>
+    </div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-cta-section">
     <div class="hp-cta-heading hp-reveal visible">Ready to find <em>your scent?</em></div>
     <p class="hp-cta-sub hp-reveal visible">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
@@ -1282,6 +1415,7 @@ setTimeout(function(){
 <div id="page-music" class="hidden" role="region" aria-label="Music Match"></div>
 <div id="page-style" class="hidden" role="region" aria-label="Style Match"></div>
 <div id="page-celeb" class="hidden" role="region" aria-label="Celebrity Fragrances"></div>
+<div id="page-dupe" class="hidden" role="region" aria-label="Dupe Finder"></div>
 <div id="page-account" class="hidden" role="region" aria-label="Account"></div>
 <div id="page-admin" class="hidden" role="region" aria-label="Admin"></div>
 </main>

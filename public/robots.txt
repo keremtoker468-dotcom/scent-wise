@@ -39,5 +39,6 @@ Disallow: /
 User-agent: FacebookBot
 Disallow: /
 
-# Sitemap
+# Sitemaps
 Sitemap: https://scent-wise.com/sitemap.xml
+Sitemap: https://scent-wise.com/sitemap-seo.xml

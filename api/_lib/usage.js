@@ -236,4 +236,4 @@ async function writeFreeUsage(res, ip, count, secret, isProduction) {
   res.setHeader('Set-Cookie', cookies);
 }
 
-module.exports = { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies };
+module.exports = { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, makeSig, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies };

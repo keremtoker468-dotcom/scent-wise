@@ -40,7 +40,11 @@ module.exports = async function handler(req, res) {
 
   const access = verifyAccess(req);
   const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-  const subSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
+  const subSecret = process.env.SUBSCRIPTION_SECRET;
+  if (!subSecret) {
+    console.error('SUBSCRIPTION_SECRET is not configured');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
   let usageCount = 0;
   let isFreeTrialRequest = false;
 
@@ -111,26 +115,42 @@ module.exports = async function handler(req, res) {
       parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
     }
 
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: { maxOutputTokens: 1500, temperature: 0.8 }
-        })
-      }
-    );
+    // Try models in order: 2.5-flash (fast+cheap), then 2.5-pro (fallback)
+    const models = ['gemini-2.5-flash', 'gemini-2.5-pro'];
+    let response = null;
+    let lastErr = '';
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`Gemini API error: ${response.status}`, errText);
+    for (const model of models) {
+      // 2.5-pro uses thinking tokens that eat into maxOutputTokens, so give it more
+      const maxTokens = model.includes('pro') ? 8192 : 1500;
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: { maxOutputTokens: maxTokens, temperature: 0.8 }
+          })
+        }
+      );
+      if (response.ok) break;
+      lastErr = await response.text();
+      console.error(`Gemini ${model} error: ${response.status}`, lastErr);
+      // Only try next model on 429 (rate limit) or 404 (deprecated)
+      if (response.status !== 429 && response.status !== 404) break;
+    }
+
+    if (!response || !response.ok) {
+      console.error('All Gemini models failed');
       return res.status(500).json({ error: 'AI service temporarily unavailable' });
     }
 
     const data = await response.json();
-    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+    // Gemini 2.5 thinking models may return multiple parts — extract the text part (skip thought parts)
+    const parts_out = data.candidates?.[0]?.content?.parts || [];
+    const textPart = parts_out.filter(p => p.text && !p.thought).pop() || parts_out.find(p => p.text);
+    const result = textPart?.text || 'No response generated.';
 
     // Track usage after successful AI call
     if (isFreeTrialRequest && subSecret) {

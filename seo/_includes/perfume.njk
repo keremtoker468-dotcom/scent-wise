@@ -1,0 +1,110 @@
+---
+layout: base.njk
+---
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ name }}",
+  "brand": { "@type": "Brand", "name": "{{ brand }}" },
+  "description": "{{ name }} by {{ brand }} — {{ category }} fragrance for {{ gender }}{% if accords | length %}. Key notes: {{ accords | join(', ') }}{% endif %}.",
+  "category": "Fragrances",
+  {% if rating %}"aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ rating }}",
+    "bestRating": "5"
+  },{% endif %}
+  "url": "{{ site.url }}/perfumes/{{ slug }}/"
+}
+</script>
+
+<div class="container">
+  <nav class="breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    <a href="/perfumes/">Perfumes</a><span>/</span>
+    <a href="/brands/{{ brand | slugify }}/">{{ brand }}</a><span>/</span>
+    {{ name }}
+  </nav>
+
+  <article class="perfume-detail" style="padding:2rem 0">
+    <header style="margin-bottom:2rem">
+      <p style="color:var(--td);font-size:.9rem;margin-bottom:.5rem">{{ brand }}</p>
+      <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(2rem,4vw,3rem);font-weight:300;line-height:1.2">{{ name }}</h1>
+      {% if rating %}
+      <div style="margin-top:.75rem;font-size:1.1rem">
+        <span style="color:var(--g);font-weight:600">{{ rating }}/5</span>
+        <span style="color:var(--td);margin-left:.5rem">Community Rating</span>
+      </div>
+      {% endif %}
+    </header>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem" class="detail-grid">
+      <section>
+        <h2 style="font-size:1.1rem;color:var(--g);margin-bottom:1rem;font-weight:500">Details</h2>
+        <dl style="display:grid;grid-template-columns:auto 1fr;gap:.5rem 1.5rem;font-size:.95rem">
+          <dt style="color:var(--td)">Brand</dt>
+          <dd><a href="/brands/{{ brand | slugify }}/">{{ brand }}</a></dd>
+          <dt style="color:var(--td)">Category</dt>
+          <dd>{{ category }}</dd>
+          <dt style="color:var(--td)">Gender</dt>
+          <dd>{{ gender }}</dd>
+          {% if concentration %}
+          <dt style="color:var(--td)">Concentration</dt>
+          <dd>{{ concentration }}</dd>
+          {% endif %}
+          {% if longevity %}
+          <dt style="color:var(--td)">Longevity</dt>
+          <dd>{{ longevity }}</dd>
+          {% endif %}
+        </dl>
+      </section>
+
+      <section>
+        {% if accords | length %}
+        <h2 style="font-size:1.1rem;color:var(--g);margin-bottom:1rem;font-weight:500">Accords</h2>
+        <div class="accord-tags">
+          {% for accord in accords %}
+          <a href="/notes/{{ accord | slugify }}/" class="accord-tag">{{ accord }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if notes %}
+        <h2 style="font-size:1.1rem;color:var(--g);margin-bottom:1rem;margin-top:1.5rem;font-weight:500">Notes</h2>
+        <p style="font-size:.95rem;color:var(--t2);line-height:1.7">{{ notes }}</p>
+        {% endif %}
+      </section>
+    </div>
+
+    <section style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--d4)">
+      <h2 style="font-size:1.2rem;margin-bottom:.5rem">About {{ name }}</h2>
+      <p style="color:var(--t2);line-height:1.8;max-width:720px">
+        {{ name }} is a {{ category | lower }} fragrance by <a href="/brands/{{ brand | slugify }}/">{{ brand }}</a>, designed for {{ gender | lower }} wearers.
+        {% if accords | length %}It features {{ accords | join(', ') }} accords that create a {% if category == 'Oriental' %}warm and opulent{% elif category == 'Fresh' %}clean and invigorating{% elif category == 'Woody' %}grounded and sophisticated{% elif category == 'Floral' %}elegant and romantic{% elif category == 'Sweet' %}indulgent and cozy{% elif category == 'Aromatic' %}herbal and vibrant{% else %}distinctive and memorable{% endif %} character.{% endif %}
+        {% if rating %}Rated {{ rating }}/5 by the fragrance community.{% endif %}
+      </p>
+    </section>
+
+    <section style="margin-top:3rem;padding-top:2rem;border-top:1px solid var(--d4)">
+      <h2 style="font-size:1.2rem;margin-bottom:1rem;color:var(--g)">Where to Buy {{ name }}</h2>
+      <div class="buy-row" style="gap:.75rem">
+        <a href="/api/affiliate-redirect?perfume={{ name | urlencode }}&brand={{ brand | urlencode }}&retailer=fragrancex" rel="sponsored noopener" target="_blank" class="buy-btn" style="padding:.6rem 1.25rem;font-size:.9rem">Buy on FragranceX</a>
+        <a href="/api/affiliate-redirect?perfume={{ name | urlencode }}&brand={{ brand | urlencode }}&retailer=amazon" rel="sponsored noopener" target="_blank" class="buy-btn" style="padding:.6rem 1.25rem;font-size:.9rem">Buy on Amazon</a>
+        <a href="/api/affiliate-redirect?perfume={{ name | urlencode }}&brand={{ brand | urlencode }}&retailer=sephora" rel="sponsored noopener" target="_blank" class="buy-btn" style="padding:.6rem 1.25rem;font-size:.9rem">Buy on Sephora</a>
+      </div>
+      <p style="font-size:.75rem;color:var(--td);margin-top:.75rem">Prices may vary. Links may earn us a commission at no extra cost to you.</p>
+    </section>
+
+    <section style="margin-top:3rem;padding:2rem;background:var(--d3);border-radius:var(--r);border:1px solid var(--d4);text-align:center">
+      <p style="font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;margin-bottom:.75rem">Want personalized recommendations?</p>
+      <p style="color:var(--td);margin-bottom:1.25rem;font-size:.9rem">Tell our AI what you're looking for and get curated suggestions from 75,000+ fragrances.</p>
+      <a href="/" style="display:inline-block;padding:.75rem 2rem;background:linear-gradient(135deg,var(--g),var(--gd));color:var(--d);font-weight:600;border-radius:var(--r);text-decoration:none;font-size:.95rem">Try AI Advisor Free</a>
+    </section>
+  </article>
+</div>
+
+<style>
+@media(max-width:640px){
+  .detail-grid{grid-template-columns:1fr !important}
+}
+</style>
