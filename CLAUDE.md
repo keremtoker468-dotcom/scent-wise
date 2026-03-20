@@ -1,5 +1,16 @@
 # CLAUDE.md — ScentWise AI
 
+## ⚠ Branch & Code Protection Rules
+
+- **NEVER commit directly to `main`.** All work MUST happen on `dev/allianz` or other feature branches.
+- **NEVER force-push, rebase, reset, or amend commits on `main`.** The `main` branch is the protected original codebase.
+- **Tag `v1.0-original`** marks the original codebase snapshot — do NOT delete or move this tag.
+- **NEVER delete, rename, or overwrite existing files on `main`** — not even documentation.
+- Before merging anything into `main`, a pull request with review is required.
+- If something goes wrong, roll back with: `git checkout main` or `git checkout v1.0-original`.
+- When creating new features, always branch from `dev/allianz` (or from `main` for hotfixes).
+- **Do NOT modify CLAUDE.md, README.md, or any docs on `main`** without an explicit request from the repo owner.
+
 ## Project Overview
 
 ScentWise is an AI-powered fragrance advisor web application with a database of 75,000+ perfumes, 101 celebrities, and 6 AI recommendation modes. It uses a freemium model: database browsing is free, AI features require a $2.99/month subscription via Lemon Squeezy.
