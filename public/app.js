@@ -455,11 +455,65 @@ async function aiCall(mode, payload) {
   }
 }
 
+// ═══════════════ UNSPLASH IMAGE HELPER ═══════════════
+const _imgCache = {};
+async function fetchImg(query, n) {
+  n = n || 1;
+  const ck = 'img_' + query + '_' + n;
+  if (_imgCache[ck]) return _imgCache[ck];
+  try { const cached = sessionStorage.getItem(ck); if (cached) { _imgCache[ck] = JSON.parse(cached); return _imgCache[ck]; } } catch {}
+  try {
+    const r = await fetch('/api/unsplash?q=' + encodeURIComponent(query) + '&n=' + n, { headers: { 'X-Requested-With': 'ScentWise' } });
+    if (!r.ok) return [];
+    const imgs = await r.json();
+    _imgCache[ck] = imgs;
+    try { sessionStorage.setItem(ck, JSON.stringify(imgs)); } catch {}
+    return imgs;
+  } catch { return []; }
+}
+
+function injectModePhoto(pageId, query) {
+  fetchImg(query).then(imgs => {
+    if (!imgs[0]) return;
+    const hdr = document.querySelector('#page-' + pageId + ' .sec-header');
+    if (hdr && !hdr.querySelector('.mode-hero-photo')) {
+      const img = document.createElement('img');
+      img.className = 'mode-hero-photo';
+      img.src = imgs[0].url;
+      img.alt = '';
+      img.loading = 'lazy';
+      img.onload = function() { this.classList.add('loaded'); };
+      hdr.prepend(img);
+    }
+  });
+}
+
+function loadResultImages(container) {
+  if (!container) return;
+  const frags = container.querySelectorAll('strong[data-frag]');
+  frags.forEach(el => {
+    const name = el.getAttribute('data-frag');
+    if (!name || name.length > 60 || el.dataset.imgLoaded) return;
+    el.dataset.imgLoaded = '1';
+    fetchImg(name + ' perfume bottle', 1).then(imgs => {
+      if (imgs[0]) {
+        const img = document.createElement('img');
+        img.className = 'result-img';
+        img.src = imgs[0].thumb;
+        img.alt = name;
+        img.loading = 'lazy';
+        img.onload = function() { this.classList.add('loaded'); };
+        el.parentElement.insertBefore(img, el.nextSibling);
+      }
+    });
+  });
+}
+
 // ═══════════════ HELPERS ═══════════════
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
   let s = esc(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)" data-frag="$1">$1</strong>')
     .replace(/\n/g, '<br>');
   // Add retry button to error messages
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
@@ -1047,6 +1101,21 @@ function r_home(el) {
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
   </footer>
   </div>`;
+  // Load hero background photo from Unsplash
+  fetchImg('luxury perfume bottle dark background').then(imgs => {
+    if (imgs[0]) {
+      const hero = document.querySelector('.hp-hero');
+      if (hero && !hero.querySelector('.hp-hero-photo')) {
+        const div = document.createElement('div');
+        div.className = 'hp-hero-photo';
+        div.style.backgroundImage = 'url(' + imgs[0].url + ')';
+        hero.prepend(div);
+        const bgImg = new Image();
+        bgImg.onload = () => div.classList.add('loaded');
+        bgImg.src = imgs[0].url;
+      }
+    }
+  });
   // Initialize reveal animations for homepage
   setTimeout(() => {
     // Enable reveal animations (content is visible by default without .hp-anim)
@@ -1193,6 +1262,7 @@ async function cSend(text) {
   _ssw('chatMsgs', chatMsgs);
   chatLoad = false;
   r_chat(document.getElementById('page-chat'));
+  setTimeout(() => loadResultImages(document.querySelector('.chat-msgs')), 100);
 }
 
 function retryLast() {
@@ -1245,6 +1315,7 @@ function r_photo(el) {
       </div>
     </div>`}
   </div>`;
+  injectModePhoto('photo', 'perfume product photography elegant');
 }
 
 function phFile(file) {
@@ -1278,6 +1349,7 @@ async function doPhoto() {
   _ssw('photoRes', photoRes);
   photoLoad = false;
   r_photo(document.getElementById('page-photo'));
+  setTimeout(() => loadResultImages(document.querySelector('#page-photo .rbox')), 100);
 }
 
 function photoReset() { photoB64=null; photoPrev=null; photoRes=''; photoLoad=false; photoChat=[]; photoChatLoad=false; _ssw('photoRes',''); _ssw('photoChat',[]); r_photo(document.getElementById('page-photo')); }
@@ -1325,6 +1397,7 @@ function r_zodiac(el) {
     </div>
   </div>`;
   if (zodiacRes) document.getElementById('zfu-inp')?.focus();
+  injectModePhoto('zodiac', 'celestial stars night perfume');
 }
 
 function tryBday() {
@@ -1345,6 +1418,7 @@ async function pickZ(sign) {
   const prompt = `You are ScentWise, a fragrance expert specializing in zodiac-scent matching. Recommend 5 specific fragrances for ${sign}. For each: **bold** name+brand, key notes, why it matches ${sign}'s personality, approximate price. Be creative connecting zodiac traits to scent profiles.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; r_zodiac(document.getElementById('page-zodiac'));
+  setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
 }
 
 async function zFollow() {
@@ -1388,6 +1462,7 @@ function r_music(el) {
     </div>
   </div>`;
   if (musicRes) document.getElementById('mfu-inp')?.focus();
+  injectModePhoto('music', 'perfume mood atmospheric dark');
 }
 
 async function pickM(genre) {
@@ -1400,6 +1475,7 @@ async function pickM(genre) {
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances that capture the mood and aesthetic of ${genre} music. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; r_music(document.getElementById('page-music'));
+  setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
 async function customMusic() {
@@ -1413,6 +1489,7 @@ async function customMusic() {
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selM',selM); _ssw('musicRes',musicRes);
   musicLoad=false; r_music(document.getElementById('page-music'));
+  setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
 async function mFollow() {
@@ -1456,6 +1533,7 @@ function r_style(el) {
     </div>
   </div>`;
   if (styleRes) document.getElementById('sfu-inp')?.focus();
+  injectModePhoto('style', 'fashion fragrance aesthetic');
 }
 
 async function pickSt(style) {
@@ -1468,6 +1546,7 @@ async function pickSt(style) {
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances for the ${style} clothing style. For each: **bold** name+brand, explain WHY it matches this fashion style, key notes, price range. Include both premium and budget options.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; r_style(document.getElementById('page-style'));
+  setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
 async function customStyle() {
@@ -1481,6 +1560,7 @@ async function customStyle() {
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selS',selS); _ssw('styleRes',styleRes);
   styleLoad=false; r_style(document.getElementById('page-style'));
+  setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
 async function sFollow() {
@@ -1524,6 +1604,7 @@ function r_dupe(el) {
     </div>
   </div>`;
   if (dupeRes) document.getElementById('dfu-inp')?.focus();
+  injectModePhoto('dupe', 'perfume bottles collection luxury');
 }
 
 async function pickD(frag) {
@@ -1536,6 +1617,7 @@ async function pickD(frag) {
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+  setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
 async function customDupe() {
@@ -1549,6 +1631,7 @@ async function customDupe() {
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
   dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+  setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
 async function dFollow() {
