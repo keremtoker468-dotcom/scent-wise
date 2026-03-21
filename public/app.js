@@ -706,15 +706,6 @@ const DUPES = [
   {name:'Good Girl',emoji:'👠',desc:'Carolina Herrera · ~$110'}
 ];
 
-// Mode header SVG illustrations (gold line art, 64px)
-const MODE_ART = {
-  dupe: '<svg class="mode-header-art" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 14 L18 8 L28 8 L28 14" stroke="#c8a55a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 14 L14 46 C14 50 18 54 23 54 C28 54 32 50 32 46 L32 14 Z" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M36 14 L36 8 L46 8 L46 14" stroke="#c8a55a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 14 L32 46 C32 50 36 54 41 54 C46 54 50 50 50 46 L50 14 Z" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 24 L32 24" stroke="#c8a55a" stroke-width="0.7" opacity="0.4"/><path d="M32 24 L50 24" stroke="#c8a55a" stroke-width="0.7" opacity="0.4"/><path d="M24 58 L26 54 M40 58 L38 54" stroke="#c8a55a" stroke-width="0.7" opacity="0.3" stroke-linecap="round"/></svg>',
-  style: '<svg class="mode-header-art" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32 8 L32 20" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><path d="M20 20 L44 20" stroke="#c8a55a" stroke-width="1" stroke-linecap="round"/><path d="M22 20 C22 20 18 28 18 40 C18 48 20 52 20 56" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><path d="M42 20 C42 20 46 28 46 40 C46 48 44 52 44 56" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><path d="M20 56 L44 56" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.4"/><circle cx="32" cy="12" r="3" stroke="#c8a55a" stroke-width="0.8" opacity="0.5"/></svg>',
-  music: '<svg class="mode-header-art" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 32 C12 24 16 28 20 32 C24 36 28 24 32 32 C36 40 40 20 44 32 C48 44 52 28 56 32" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="50" r="5" stroke="#c8a55a" stroke-width="1" opacity="0.5"/><path d="M32 45 L32 38" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.4"/><path d="M28 14 L36 10" stroke="#c8a55a" stroke-width="0.7" stroke-linecap="round" opacity="0.3"/></svg>',
-  zodiac: '<svg class="mode-header-art" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="32" cy="32" r="22" stroke="#c8a55a" stroke-width="0.8" opacity="0.3"/><circle cx="32" cy="10" r="2.5" stroke="#c8a55a" stroke-width="1"/><circle cx="52" cy="24" r="2" stroke="#c8a55a" stroke-width="0.8"/><circle cx="48" cy="46" r="2" stroke="#c8a55a" stroke-width="0.8"/><circle cx="16" cy="46" r="2" stroke="#c8a55a" stroke-width="0.8"/><circle cx="12" cy="24" r="2" stroke="#c8a55a" stroke-width="0.8"/><path d="M32 10 L52 24 L48 46 L16 46 L12 24 Z" stroke="#c8a55a" stroke-width="0.7" opacity="0.25"/><circle cx="32" cy="32" r="4" stroke="#c8a55a" stroke-width="1" opacity="0.5"/></svg>',
-  photo: '<svg class="mode-header-art" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="18" width="44" height="32" rx="4" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="34" r="10" stroke="#c8a55a" stroke-width="1"/><circle cx="32" cy="34" r="6" stroke="#c8a55a" stroke-width="0.7" opacity="0.4"/><path d="M24 18 L28 12 L36 12 L40 18" stroke="#c8a55a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="24" r="2" stroke="#c8a55a" stroke-width="0.8" opacity="0.5"/><path d="M48 44 C50 40 52 42 54 38" stroke="#c8a55a" stroke-width="0.7" stroke-linecap="round" opacity="0.3"/></svg>'
-};
-
 // ═══════════════ STATE ═══════════════
 // sessionStorage helpers for chat persistence
 function _ss(k) { try { return JSON.parse(sessionStorage.getItem('sw_'+k)); } catch { return null; } }
@@ -926,16 +917,6 @@ document.addEventListener('touchend',function(e){
 function r_home(el) {
   const perfumeCount = SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000';
   const celebCount = CELEBS.length;
-  // Inline SVG imagery — gold stroke line art for luxury fragrance aesthetic
-  const SVG_ROSE = '<svg class="hp-hero-botanical left" width="120" height="160" viewBox="0 0 120 160" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M60 150 C60 150 60 90 60 70 C60 50 40 30 30 20 C35 35 45 45 60 50 C75 45 85 35 90 20 C80 30 60 50 60 70" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><path d="M60 70 C50 65 35 70 30 80 C40 75 55 72 60 70 C65 72 80 75 90 80 C85 70 70 65 60 70" stroke="#c8a55a" stroke-width="1" stroke-linecap="round"/><ellipse cx="60" cy="25" rx="18" ry="22" stroke="#c8a55a" stroke-width="1" opacity="0.6"/><path d="M52 18 C55 8 65 8 68 18" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/></svg>';
-  const SVG_LEAF = '<svg class="hp-hero-botanical right" width="100" height="140" viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M50 130 C50 130 50 80 50 60 C50 35 30 15 20 5 C25 25 35 40 50 50" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><path d="M50 50 C50 50 70 30 80 10 C75 30 65 45 50 55" stroke="#c8a55a" stroke-width="1" stroke-linecap="round"/><path d="M35 85 C40 75 50 72 50 80" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/><path d="M65 75 C60 65 50 65 50 72" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.6"/><circle cx="50" cy="10" r="4" stroke="#c8a55a" stroke-width="0.8" opacity="0.4"/></svg>';
-  const SVG_DROP = '<svg class="hp-hero-botanical center" width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M30 5 C30 5 10 35 10 55 C10 70 18 80 30 80 C42 80 50 70 50 55 C50 35 30 5 30 5Z" stroke="#c8a55a" stroke-width="1" stroke-linecap="round"/><path d="M22 55 C22 45 30 30 30 25" stroke="#c8a55a" stroke-width="0.7" stroke-linecap="round" opacity="0.4"/></svg>';
-  const SVG_DIVIDER = '<svg class="hp-divider-art" width="200" height="24" viewBox="0 0 200 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 12 L70 12" stroke="#c8a55a" stroke-width="0.5" opacity="0.3"/><path d="M130 12 L200 12" stroke="#c8a55a" stroke-width="0.5" opacity="0.3"/><path d="M85 12 C90 4 95 4 100 12 C105 20 110 20 115 12" stroke="#c8a55a" stroke-width="1" stroke-linecap="round"/><circle cx="80" cy="12" r="2" stroke="#c8a55a" stroke-width="0.7"/><circle cx="120" cy="12" r="2" stroke="#c8a55a" stroke-width="0.7"/></svg>';
-  const SVG_STEP1 = '<svg class="hp-step-icon" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="24" cy="24" r="18" stroke="#c8a55a" stroke-width="1" opacity="0.5"/><path d="M24 10 L24 38 M10 24 L38 24" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.4"/><path d="M24 6 L24 10 M24 38 L24 42 M6 24 L10 24 M38 24 L42 24" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round"/><circle cx="24" cy="24" r="3" stroke="#c8a55a" stroke-width="1"/></svg>';
-  const SVG_STEP2 = '<svg class="hp-step-icon" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 8 L20 4 L28 4 L28 8" stroke="#c8a55a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 8 L18 36 C18 38 20 40 24 40 C28 40 30 38 30 36 L30 8 Z" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 16 L30 16" stroke="#c8a55a" stroke-width="0.8" opacity="0.5"/><path d="M32 28 L36 24 M34 20 L38 16" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/><circle cx="36" cy="12" r="1.5" stroke="#c8a55a" stroke-width="0.7" opacity="0.4"/></svg>';
-  const SVG_STEP3 = '<svg class="hp-step-icon" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20 L24 12 L36 20 L36 38 L12 38 Z" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 38 L20 28 L28 28 L28 38" stroke="#c8a55a" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><path d="M24 8 L24 5" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" opacity="0.5"/><path d="M20 6 L24 2 L28 6" stroke="#c8a55a" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/></svg>';
-  const SVG_QUOTE_BG = '<svg class="hp-quote-bg" width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M150 280 C150 280 150 180 150 140 C150 100 120 60 90 30 C100 60 120 90 150 110 C180 90 200 60 210 30 C180 60 150 100 150 140" stroke="#c8a55a" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="150" cy="45" rx="35" ry="40" stroke="#c8a55a" stroke-width="1" opacity="0.5"/><path d="M135 30 C140 15 160 15 165 30" stroke="#c8a55a" stroke-width="0.8" opacity="0.4"/><path d="M120 180 C130 170 145 165 150 175" stroke="#c8a55a" stroke-width="0.8" opacity="0.4"/><path d="M180 170 C170 160 155 158 150 168" stroke="#c8a55a" stroke-width="0.8" opacity="0.4"/><path d="M130 220 C140 210 148 210 150 218" stroke="#c8a55a" stroke-width="0.7" opacity="0.3"/><path d="M170 215 C162 205 152 207 150 215" stroke="#c8a55a" stroke-width="0.7" opacity="0.3"/><circle cx="150" cy="25" r="6" stroke="#c8a55a" stroke-width="0.7" opacity="0.3"/></svg>';
-  const SVG_BOTTLE = '<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M26 14 L26 8 L38 8 L38 14" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 14 L22 50 C22 54 26 58 32 58 C38 58 42 54 42 50 L42 14 Z" stroke="#c8a55a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 26 L42 26" stroke="#c8a55a" stroke-width="0.8" opacity="0.4"/><path d="M28 36 C28 32 32 30 36 32" stroke="#c8a55a" stroke-width="0.7" opacity="0.3" stroke-linecap="round"/></svg>';
   el.innerHTML = `<div class="hp-grain">
   <!-- Homepage Nav -->
   <nav class="hp-nav" id="hp-nav">
@@ -952,7 +933,6 @@ function r_home(el) {
   </nav>
   <!-- Hero -->
   <section class="hp-hero">
-    ${SVG_ROSE}${SVG_LEAF}${SVG_DROP}
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of ${perfumeCount}+ scents.</p>
@@ -967,7 +947,7 @@ function r_home(el) {
     </div>
   </section>
   <!-- Divider -->
-  <div class="hp-divider">${SVG_DIVIDER}</div>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Discovery Modes -->
   <section class="hp-section" id="hp-discover">
     <div class="hp-section-kicker hp-reveal">Ways to Discover</div>
@@ -983,7 +963,7 @@ function r_home(el) {
         </div>
         <div class="hp-mode-visual">
           <div class="hp-mode-visual-circle">
-            <div class="hp-mode-visual-icon">${SVG_BOTTLE}</div>
+            <div class="hp-mode-visual-icon">✦</div>
             <div class="hp-mode-visual-ring"></div>
           </div>
         </div>
@@ -1027,7 +1007,7 @@ function r_home(el) {
     </div>
   </section>
   <!-- Divider -->
-  <div class="hp-divider">${SVG_DIVIDER}</div>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- How It Works -->
   <section class="hp-section" id="hp-how">
     <div class="hp-section-kicker hp-reveal">How It Works</div>
@@ -1035,19 +1015,16 @@ function r_home(el) {
     <p class="hp-section-copy hp-reveal">No samples, no guesswork, no department store pressure. Just intelligent recommendations.</p>
     <div class="hp-steps">
       <div class="hp-step hp-reveal">
-        ${SVG_STEP1}
         <div class="hp-step-num">01</div>
         <div class="hp-step-title">Choose Your Path</div>
         <div class="hp-step-text">Pick from six discovery modes — zodiac, music, style, photo, celebrity, or just tell us what you're in the mood for.</div>
       </div>
       <div class="hp-step hp-reveal">
-        ${SVG_STEP2}
         <div class="hp-step-num">02</div>
         <div class="hp-step-title">Get Matched</div>
         <div class="hp-step-text">Our engine cross-references your input against ${perfumeCount}+ fragrance profiles including notes, accords, seasons, and ratings.</div>
       </div>
       <div class="hp-step hp-reveal">
-        ${SVG_STEP3}
         <div class="hp-step-num">03</div>
         <div class="hp-step-title">Discover & Explore</div>
         <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
@@ -1055,15 +1032,14 @@ function r_home(el) {
     </div>
   </section>
   <!-- Quote -->
-  <div class="hp-divider">${SVG_DIVIDER}</div>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-quote-section">
-    ${SVG_QUOTE_BG}
     <div class="hp-quote-mark hp-reveal">"</div>
     <div class="hp-quote-text hp-reveal">Fragrance is the most intense form of memory. The right scent doesn't just complement who you are — it becomes part of your identity.</div>
     <div class="hp-quote-attr hp-reveal">— The Philosophy Behind ScentWise</div>
   </section>
   <!-- Celebrities -->
-  <div class="hp-divider">${SVG_DIVIDER}</div>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-celeb-section" id="hp-celebrities">
     <div class="hp-celeb-inner">
       <div class="hp-section-kicker hp-reveal">Celebrity Collections</div>
@@ -1078,7 +1054,7 @@ function r_home(el) {
     </div>
   </section>
   <!-- Final CTA -->
-  <div class="hp-divider">${SVG_DIVIDER}</div>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-cta-section">
     <div class="hp-cta-heading hp-reveal">Ready to find <em>your scent?</em></div>
     <p class="hp-cta-sub hp-reveal">Start with a free conversation. No sign-up required — just tell us what you're looking for.</p>
@@ -1281,7 +1257,6 @@ function r_photo(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
-      ${MODE_ART.photo}
       <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Scan</h2>
       <p>Upload a photo and get fragrance recommendations matched to your aesthetic.</p>
     </div>
@@ -1372,7 +1347,6 @@ function r_zodiac(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
-      ${MODE_ART.zodiac}
       <h2 class="fd"><span class="gg" style="font-weight:600">Zodiac</span> Match</h2>
       <p>Select your sign or type your birthday to discover your cosmic scent match.</p>
     </div>
@@ -1439,7 +1413,6 @@ function r_music(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
-      ${MODE_ART.music}
       <h2 class="fd"><span class="gg" style="font-weight:600">Music</span> → Fragrance</h2>
       <p>Your music taste reveals your scent identity. Pick a genre or describe your taste below.</p>
     </div>
@@ -1510,7 +1483,6 @@ function r_style(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
-      ${MODE_ART.style}
       <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Match</h2>
       <p>Your clothing style says everything about your ideal scent. Pick a style or describe yours.</p>
     </div>
@@ -1581,7 +1553,6 @@ function r_dupe(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
     <div class="sec-header">
-      ${MODE_ART.dupe}
       <h2 class="fd"><span class="gg" style="font-weight:600">Dupe</span> Finder</h2>
       <p>Find affordable alternatives that smell just like your favorite expensive fragrances.</p>
     </div>
