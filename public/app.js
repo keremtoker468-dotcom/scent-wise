@@ -543,7 +543,8 @@ function perfCard(p) {
   if (!p) return '';
   const cat = esc(p.category||p.c||'');
   const name = esc(p.name||p.n);
-  return `<div class="pcard" data-cat="${cat}" data-name="${name}">
+  const brand = esc(p.brand||p.b||'');
+  return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
     <div style="display:flex;gap:14px">
       <div class="pc-thumb"></div>
       <div style="flex:1">
@@ -566,8 +567,11 @@ function perfCard(p) {
 function loadExploreImages() {
   document.querySelectorAll('.pcard[data-cat]:not([data-img-loaded])').forEach(el => {
     el.dataset.imgLoaded = '1';
+    const name = el.dataset.name || '';
+    const brand = el.dataset.brand || '';
     const cat = el.dataset.cat;
-    const q = CAT_IMG_QUERIES[cat] || 'perfume bottle luxury';
+    // Use name + brand for specific results; fall back to category-based query
+    const q = (name && brand) ? name + ' ' + brand + ' perfume' : (CAT_IMG_QUERIES[cat] || 'perfume bottle luxury');
     fetchImg(q).then(imgs => {
       if (imgs[0]) {
         const thumb = el.querySelector('.pc-thumb');
@@ -1124,7 +1128,7 @@ function r_home(el) {
   </footer>
   </div>`;
   // Load hero background photo from Unsplash
-  fetchImg('luxury perfume bottle dark elegant gold').then(imgs => {
+  fetchImg('luxury perfume bottle dark background').then(imgs => {
     if (imgs[0]) {
       const hero = document.querySelector('.hp-hero');
       if (hero && !hero.querySelector('.hp-hero-photo')) {
