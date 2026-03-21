@@ -47,6 +47,7 @@ function openModeSwitcher() {
     {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
     {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
     {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
+    {id:'dupe',name:'Dupe Finder',desc:'Find affordable alternatives to pricey scents',i:'🔄'},
     {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
   ];
   optionsEl.innerHTML = allModes.map(m =>
@@ -723,7 +724,7 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI Advisor',i:'💬'},
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
-  {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'style',l:'Style',i:'🪞'},{id:'dupe',l:'Dupes',i:'🔄'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
@@ -937,8 +938,14 @@ function r_home(el) {
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+      <div class="hp-mode-item hp-reveal" onclick="go('dupe')">
         <div class="hp-mode-number">06</div>
+        <div class="hp-mode-name">Dupe Finder</div>
+        <div class="hp-mode-desc">Love an expensive fragrance? We'll find affordable alternatives that smell just like the original.</div>
+        <div class="hp-mode-tag">Fragrance → Dupes</div>
+      </div>
+      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+        <div class="hp-mode-number">07</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
