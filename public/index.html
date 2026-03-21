@@ -990,6 +990,29 @@ input::placeholder{color:var(--td);opacity:.7}
     animation-fill-mode: both;
   }
 }
+/* ═══ FRAGRANCE IMAGERY ═══ */
+.hp-hero{position:relative}
+.hp-hero-botanical{position:absolute;pointer-events:none;z-index:0}
+.hp-hero-botanical.left{left:3%;top:18%;opacity:0.07;animation:float 8s ease-in-out infinite}
+.hp-hero-botanical.right{right:3%;bottom:22%;opacity:0.06;animation:float 8s ease-in-out infinite 2s}
+.hp-hero-botanical.center{left:50%;top:8%;transform:translateX(-50%);opacity:0.04;animation:float 10s ease-in-out infinite 4s}
+@media(max-width:900px){.hp-hero-botanical{display:none}}
+.hp-divider-art{display:block;margin:0 auto;opacity:0.15}
+.hp-step-icon{display:block;margin:0 auto 14px;opacity:0.22}
+.hp-quote-section{position:relative;overflow:hidden}
+.hp-quote-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.035;pointer-events:none;z-index:0}
+.hp-quote-mark,.hp-quote-text,.hp-quote-attr{position:relative;z-index:1}
+.mode-header-art{display:block;margin:0 auto 16px;opacity:0.18}
+@media(max-width:768px){.hp-step-icon{width:36px;height:36px;margin-bottom:10px}.hp-quote-bg{width:200px;height:200px}.mode-header-art{width:48px;height:48px}}
+/* Unsplash photo imagery */
+.hp-hero-photo{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;opacity:0;pointer-events:none;transition:opacity 1.5s ease}
+.hp-hero-photo.loaded{opacity:0.08}
+.hp-hero>*:not(.hp-hero-photo):not(.hp-hero-botanical){position:relative;z-index:1}
+.mode-hero-photo{width:100%;height:180px;object-fit:cover;border-radius:16px;opacity:0;margin-bottom:24px;border:1px solid var(--d4);transition:opacity .8s ease}
+.mode-hero-photo.loaded{opacity:0.7}
+.result-img{width:80px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;border:1px solid rgba(201,169,110,.15);display:block;margin:8px 0;opacity:0;transition:opacity .5s ease}
+.result-img.loaded{opacity:1}
+@media(max-width:768px){.hp-hero-photo.loaded{opacity:0.05}.mode-hero-photo{height:120px}.result-img{width:60px;height:60px}}
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.04);padding:8px 0}
 .mode-bar-inner{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
