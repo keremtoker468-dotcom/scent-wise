@@ -47,6 +47,7 @@ function openModeSwitcher() {
     {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
     {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
     {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
+    {id:'dupe',name:'Dupe Finder',desc:'Find affordable alternatives to pricey scents',i:'🔄'},
     {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
   ];
   optionsEl.innerHTML = allModes.map(m =>
@@ -636,6 +637,20 @@ const STYLES = [
   {name:'Techwear / Futuristic',emoji:'🤖',desc:'Modern, functional, sci-fi'}
 ];
 
+const DUPES = [
+  {name:'Baccarat Rouge 540',emoji:'🌹',desc:'MFK · ~$325'},
+  {name:'Aventus',emoji:'🍍',desc:'Creed · ~$445'},
+  {name:'Lost Cherry',emoji:'🍒',desc:'Tom Ford · ~$390'},
+  {name:'Oud Wood',emoji:'🪵',desc:'Tom Ford · ~$285'},
+  {name:'Bleu de Chanel',emoji:'💎',desc:'Chanel · ~$165'},
+  {name:'Black Opium',emoji:'☕',desc:'YSL · ~$140'},
+  {name:'Delina',emoji:'🌸',desc:'Parfums de Marly · ~$335'},
+  {name:'Santal 33',emoji:'🪘',desc:'Le Labo · ~$310'},
+  {name:'La Vie Est Belle',emoji:'✨',desc:'Lancôme · ~$105'},
+  {name:'Sauvage',emoji:'🌵',desc:'Dior · ~$115'},
+  {name:'Tobacco Vanille',emoji:'🍂',desc:'Tom Ford · ~$285'},
+  {name:'Good Girl',emoji:'👠',desc:'Carolina Herrera · ~$110'}
+];
 
 // ═══════════════ STATE ═══════════════
 // sessionStorage helpers for chat persistence
@@ -648,6 +663,7 @@ let photoB64 = null, photoPrev = null, photoRes = _ss('photoRes') || '', photoLo
 let selZ = _ss('selZ'), zodiacRes = _ss('zodiacRes') || '', zodiacLoad = false, zodiacChat = _ss('zodiacChat') || [], zodiacChatLoad = false;
 let selM = _ss('selM'), musicRes = _ss('musicRes') || '', musicLoad = false, musicChat = _ss('musicChat') || [], musicChatLoad = false;
 let selS = _ss('selS'), styleRes = _ss('styleRes') || '', styleLoad = false, styleChat = _ss('styleChat') || [], styleChatLoad = false;
+let selD = _ss('selD'), dupeRes = _ss('dupeRes') || '', dupeLoad = false, dupeChat = _ss('dupeChat') || [], dupeChatLoad = false;
 let photoChat = _ss('photoChat') || [], photoChatLoad = false;
 let celebQ = '';
 let expQ = '', expFilter = 'all', expResults = [];
@@ -708,7 +724,7 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI Advisor',i:'💬'},
   {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
-  {id:'style',l:'Style',i:'🪞'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'style',l:'Style',i:'🪞'},{id:'dupe',l:'Dupes',i:'🔄'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
@@ -720,7 +736,7 @@ const MODES = [
   {id:'chat',l:'AI Advisor',i:'💬'},{id:'explore',l:'Explore',i:'🧪'},
   {id:'photo',l:'Photo Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},
   {id:'music',l:'Music',i:'🎶'},{id:'style',l:'Style',i:'🪞'},
-  {id:'celeb',l:'Celebs',i:'💫'}
+  {id:'dupe',l:'Dupe Finder',i:'🔄'},{id:'celeb',l:'Celebs',i:'💫'}
 ];
 
 function rNav() {
@@ -729,7 +745,7 @@ function rNav() {
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
-    const modePages = ['photo','zodiac','music','style','celeb'];
+    const modePages = ['photo','zodiac','music','style','dupe','celeb'];
     mobEl.innerHTML = MNI.map(n => {
       if (n.id === '_modes') {
         const isOnMode = modePages.includes(CP);
@@ -766,6 +782,7 @@ const PAGE_TITLES = {
   zodiac: 'Zodiac Fragrance Match — ScentWise',
   music: 'Music to Fragrance Match — ScentWise',
   style: 'Style Match — ScentWise',
+  dupe: 'Dupe Finder — ScentWise',
   celeb: 'Celebrity Fragrances — ScentWise',
   account: 'Account — ScentWise',
   admin: 'Admin — ScentWise'
@@ -921,8 +938,14 @@ function r_home(el) {
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+      <div class="hp-mode-item hp-reveal" onclick="go('dupe')">
         <div class="hp-mode-number">06</div>
+        <div class="hp-mode-name">Dupe Finder</div>
+        <div class="hp-mode-desc">Love an expensive fragrance? We'll find affordable alternatives that smell just like the original.</div>
+        <div class="hp-mode-tag">Fragrance → Dupes</div>
+      </div>
+      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+        <div class="hp-mode-number">07</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
@@ -1443,6 +1466,73 @@ async function sFollow() {
   styleChat.push({role:'assistant',content:reply});
   _ssw('styleChat', styleChat);
   styleChatLoad = false; r_style(document.getElementById('page-style'));
+}
+
+// ═══════════════ DUPE FINDER (PAID) ═══════════════
+function r_dupe(el) {
+  if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
+  el.innerHTML = `<div class="sec fi">
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Dupe</span> Finder</h2>
+      <p>Find affordable alternatives that smell just like your favorite expensive fragrances.</p>
+    </div>
+    <div class="glass-panel" style="margin-bottom:24px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <input type="text" id="dupe-inp" placeholder="Type any fragrance name (e.g. Baccarat Rouge 540)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customDupe()">
+        <button class="btn btn-sm" onclick="customDupe()">Find Dupes</button>
+      </div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+      ${DUPES.map((d,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickD('${d.name.replace(/'/g,"\\'")}')" style="padding:18px;${selD===d.name?'border-color:var(--g);background:var(--gl)':''}">
+        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${d.emoji}</span><div><div style="font-weight:600;font-size:14px">${d.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${d.desc}</div></div></div>
+      </div>`).join('')}
+    </div>
+    <div id="d-res" style="margin-top:28px">
+      ${dupeLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding affordable alternatives...</span></div>':''}
+      ${dupeRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">DUPES FOR ${esc((selD||'').toUpperCase())}</div><div style="line-height:1.8;font-size:14px">${fmt(dupeRes)}</div>
+        ${followUpHTML(dupeChat, dupeChatLoad, 'dfu-inp', 'dFollow', 'Ask more about these dupes...')}
+      </div>`:''}
+    </div>
+  </div>`;
+  if (dupeRes) document.getElementById('dfu-inp')?.focus();
+}
+
+async function pickD(frag) {
+  if (dupeLoad) return;
+  if (frag !== selD) { dupeChat = []; dupeChatLoad = false; }
+  selD = frag;
+  const ck = 'd_'+frag;
+  if (cache[ck]) { dupeRes=cache[ck]; r_dupe(document.getElementById('page-dupe')); return; }
+  dupeRes=''; dupeLoad=true; r_dupe(document.getElementById('page-dupe'));
+  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.`;
+  dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
+  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+}
+
+async function customDupe() {
+  const inp = document.getElementById('dupe-inp');
+  if (!inp || !inp.value.trim() || dupeLoad) return;
+  const frag = inp.value.trim(); inp.value = '';
+  dupeChat = []; dupeChatLoad = false;
+  selD = frag;
+  dupeRes=''; dupeLoad=true; r_dupe(document.getElementById('page-dupe'));
+  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.`;
+  dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
+  _ssw('selD',selD); _ssw('dupeRes',dupeRes);
+  dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+}
+
+async function dFollow() {
+  const inp = document.getElementById('dfu-inp');
+  if (!inp || !inp.value.trim() || dupeChatLoad) return;
+  const text = inp.value.trim(); inp.value = '';
+  dupeChat.push({role:'user',content:text});
+  dupeChatLoad = true; r_dupe(document.getElementById('page-dupe'));
+  const msgs = [{role:'user',content:`Context: I asked for dupes/alternatives for "${selD}" and got this:\n${dupeRes}\n\nFollow-up question: ${text}`}];
+  const reply = await aiCall('chat', {messages: msgs});
+  dupeChat.push({role:'assistant',content:reply});
+  _ssw('dupeChat', dupeChat);
+  dupeChatLoad = false; r_dupe(document.getElementById('page-dupe'));
 }
 
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
