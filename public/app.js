@@ -475,21 +475,6 @@ async function fetchImg(query, n, name, brand) {
   } catch { return []; }
 }
 
-function injectModePhoto(pageId, query) {
-  fetchImg(query).then(imgs => {
-    if (!imgs[0]) return;
-    const hdr = document.querySelector('#page-' + pageId + ' .sec-header');
-    if (hdr && !hdr.querySelector('.mode-hero-photo')) {
-      const img = document.createElement('img');
-      img.className = 'mode-hero-photo';
-      img.src = imgs[0].url;
-      img.alt = '';
-      img.loading = 'lazy';
-      img.onload = function() { this.classList.add('loaded'); };
-      hdr.prepend(img);
-    }
-  });
-}
 
 function loadResultImages(container) {
   if (!container) return;
@@ -1347,7 +1332,6 @@ function r_photo(el) {
       </div>
     </div>`}
   </div>`;
-  injectModePhoto('photo', 'perfume flatlay product photography elegant');
 }
 
 function phFile(file) {
@@ -1428,7 +1412,6 @@ function r_zodiac(el) {
     </div>
   </div>`;
   if (zodiacRes) document.getElementById('zfu-inp')?.focus();
-  injectModePhoto('zodiac', 'celestial night sky stars mystical');
 }
 
 function tryBday() {
@@ -1492,7 +1475,6 @@ function r_music(el) {
     </div>
   </div>`;
   if (musicRes) document.getElementById('mfu-inp')?.focus();
-  injectModePhoto('music', 'dark moody perfume atmospheric night');
 }
 
 async function pickM(genre) {
@@ -1562,7 +1544,6 @@ function r_style(el) {
     </div>
   </div>`;
   if (styleRes) document.getElementById('sfu-inp')?.focus();
-  injectModePhoto('style', 'fashion editorial perfume aesthetic');
 }
 
 async function pickSt(style) {
@@ -1632,7 +1613,6 @@ function r_dupe(el) {
     </div>
   </div>`;
   if (dupeRes) document.getElementById('dfu-inp')?.focus();
-  injectModePhoto('dupe', 'luxury designer perfume bottles gold');
 }
 
 async function pickD(frag) {
