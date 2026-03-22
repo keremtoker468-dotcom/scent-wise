@@ -40,7 +40,45 @@ async function redisSet(key, value) {
   } catch {}
 }
 
-// Brave Image Search (free tier: 2000 queries/month)
+// Monthly Brave API quota cap (free tier: 1000 queries/month)
+const BRAVE_MONTHLY_LIMIT = 1000;
+
+function braveCountKey() {
+  const d = new Date();
+  return `brave_count:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+async function braveQuotaCheck() {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return true; // no Redis = no quota enforcement
+  try {
+    const r = await fetch(`${url}/GET/${encodeURIComponent(braveCountKey())}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!r.ok) return true;
+    const body = await r.json();
+    const count = parseInt(body.result) || 0;
+    return count < BRAVE_MONTHLY_LIMIT;
+  } catch { return true; }
+}
+
+async function braveIncrement() {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return;
+  const key = braveCountKey();
+  try {
+    // INCR + set 35-day TTL for auto-cleanup
+    await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['INCR', key], ['EXPIRE', key, 3024000]])
+    });
+  } catch {}
+}
+
+// Brave Image Search (free tier: 1000 queries/month with quota cap)
 async function searchBrave(query) {
   const key = process.env.BRAVE_SEARCH_KEY;
   if (!key) return null;
@@ -117,14 +155,17 @@ module.exports = async function handler(req, res) {
       return res.status(200).json([{ url: cached.u, thumb: cached.t, alt: cached.a }]);
     }
 
-    // Try Brave Image Search
-    const braveQuery = name + (brand ? ' ' + brand : '') + ' perfume bottle';
-    const braveResult = await searchBrave(braveQuery);
-    if (braveResult && braveResult.t) {
-      // Cache permanently in Redis
-      await redisSet(redisKey, braveResult);
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-      return res.status(200).json([{ url: braveResult.u, thumb: braveResult.t, alt: braveResult.a }]);
+    // Try Brave Image Search (with monthly quota cap)
+    const underQuota = await braveQuotaCheck();
+    if (underQuota) {
+      const braveQuery = name + (brand ? ' ' + brand : '') + ' perfume bottle';
+      const braveResult = await searchBrave(braveQuery);
+      if (braveResult && braveResult.t) {
+        await braveIncrement();
+        await redisSet(redisKey, braveResult);
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        return res.status(200).json([{ url: braveResult.u, thumb: braveResult.t, alt: braveResult.a }]);
+      }
     }
 
     // Fallback to Unsplash

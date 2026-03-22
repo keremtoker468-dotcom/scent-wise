@@ -7,8 +7,8 @@
 //   UPSTASH_REDIS_REST_URL    - Upstash Redis REST URL
 //   UPSTASH_REDIS_REST_TOKEN  - Upstash Redis auth token
 //
-// Free tier: 2000 Brave queries/month. Use --batch 500 --offset 0, then
-// --offset 500, to fill 1000 in two runs.
+// Free tier: 1000 Brave queries/month (capped via Redis counter).
+// Script auto-stops when monthly quota is reached.
 
 const fs = require('fs');
 const path = require('path');
@@ -68,6 +68,32 @@ async function searchBrave(query) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// Monthly quota tracking (matches api/img.js logic)
+const BRAVE_MONTHLY_LIMIT = 1000;
+
+function braveCountKey() {
+  const d = new Date();
+  return `brave_count:${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+async function getBraveCount() {
+  const r = await fetch(`${REDIS_URL}/GET/${encodeURIComponent(braveCountKey())}`, {
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}` }
+  });
+  if (!r.ok) return 0;
+  const body = await r.json();
+  return parseInt(body.result) || 0;
+}
+
+async function braveIncrement() {
+  const key = braveCountKey();
+  await fetch(`${REDIS_URL}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([['INCR', key], ['EXPIRE', key, 3024000]])
+  });
+}
+
 async function main() {
   if (!BRAVE_KEY) { console.error('Missing BRAVE_SEARCH_KEY'); process.exit(1); }
   if (!DRY_RUN && (!REDIS_URL || !REDIS_TOKEN)) { console.error('Missing Redis credentials'); process.exit(1); }
@@ -95,6 +121,17 @@ async function main() {
   const batch = sorted.slice(OFFSET, OFFSET + BATCH);
   console.log(`Processing ${batch.length} fragrances (offset=${OFFSET}, batch=${BATCH}, top=${TOP_N})`);
 
+  // Show monthly quota status
+  if (!DRY_RUN) {
+    const currentCount = await getBraveCount();
+    const remaining = Math.max(0, BRAVE_MONTHLY_LIMIT - currentCount);
+    console.log(`Brave API quota: ${currentCount}/${BRAVE_MONTHLY_LIMIT} used this month (${remaining} remaining)`);
+    if (remaining === 0) {
+      console.error('Monthly Brave API quota exhausted. Exiting.');
+      process.exit(1);
+    }
+  }
+
   let success = 0, skipped = 0, failed = 0;
 
   for (let i = 0; i < batch.length; i++) {
@@ -117,12 +154,20 @@ async function main() {
       continue;
     }
 
+    // Check monthly quota before each call
+    const count = await getBraveCount();
+    if (count >= BRAVE_MONTHLY_LIMIT) {
+      console.error(`  Monthly quota reached (${count}/${BRAVE_MONTHLY_LIMIT}). Stopping.`);
+      break;
+    }
+
     try {
       const query = frag.name + (frag.brand ? ' ' + frag.brand : '') + ' perfume bottle';
       const result = await searchBrave(query);
       if (result && result.t) {
+        await braveIncrement();
         await redisSet(redisKey, result);
-        console.log(`  [${OFFSET + i}] OK: ${frag.name} | ${frag.brand}`);
+        console.log(`  [${OFFSET + i}] OK: ${frag.name} | ${frag.brand} (quota: ${count + 1}/${BRAVE_MONTHLY_LIMIT})`);
         success++;
       } else {
         console.log(`  [${OFFSET + i}] NO RESULT: ${frag.name} | ${frag.brand}`);
