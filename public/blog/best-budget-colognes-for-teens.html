@@ -444,7 +444,7 @@ p{margin-bottom:20px;font-size:15px;color:var(--t);line-height:1.8}
     var thumb=document.createElement("div");
     thumb.className="frag-thumb blog-frag-img";
     card.insertBefore(thumb,card.querySelector(".frag-info"));
-    fetch("/api/unsplash?q="+encodeURIComponent(q)+"\u0026n=1").then(function(r){return r.json()}).then(function(d){
+    fetch("/api/img?name="+encodeURIComponent(name)+"\u0026brand="+encodeURIComponent(brand)).then(function(r){return r.json()}).then(function(d){
       if(d&&d[0]){var img=document.createElement("img");img.src=d[0].thumb;img.alt=name;img.loading="lazy";img.onload=function(){this.classList.add("loaded")};thumb.appendChild(img)}
     }).catch(function(){});
   });

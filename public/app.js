@@ -455,15 +455,18 @@ async function aiCall(mode, payload) {
   }
 }
 
-// ═══════════════ UNSPLASH IMAGE HELPER ═══════════════
+// ═══════════════ IMAGE HELPER (Bing + Unsplash) ═══════════════
 const _imgCache = {};
-async function fetchImg(query, n) {
+async function fetchImg(query, n, name, brand) {
   n = n || 1;
-  const ck = 'img_' + query + '_' + n;
+  const ck = name ? 'img_' + name + '_' + (brand || '') : 'img_' + query + '_' + n;
   if (_imgCache[ck]) return _imgCache[ck];
   try { const cached = sessionStorage.getItem(ck); if (cached) { _imgCache[ck] = JSON.parse(cached); return _imgCache[ck]; } } catch {}
   try {
-    const r = await fetch('/api/unsplash?q=' + encodeURIComponent(query) + '&n=' + n, { headers: { 'X-Requested-With': 'ScentWise' } });
+    const url = name
+      ? '/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand || '')
+      : '/api/img?q=' + encodeURIComponent(query) + '&n=' + n;
+    const r = await fetch(url, { headers: { 'X-Requested-With': 'ScentWise' } });
     if (!r.ok) return [];
     const imgs = await r.json();
     _imgCache[ck] = imgs;
@@ -505,7 +508,8 @@ function loadResultImages(container) {
       if (brand) query = name + ' ' + brand + ' fragrance';
       else if (cat && CAT_IMG_QUERIES[cat]) query = CAT_IMG_QUERIES[cat];
     }
-    fetchImg(query, 1).then(imgs => {
+    const brand = match ? (match.brand || match.b || '') : '';
+    fetchImg(query, 1, name, brand).then(imgs => {
       if (imgs[0]) {
         const img = document.createElement('img');
         img.className = 'result-img';
@@ -513,6 +517,7 @@ function loadResultImages(container) {
         img.alt = name;
         img.loading = 'lazy';
         img.onload = function() { this.classList.add('loaded'); };
+        img.onerror = function() { this.remove(); };
         el.parentElement.insertBefore(img, el.nextSibling);
       }
     });
@@ -572,7 +577,7 @@ function loadExploreImages() {
     const cat = el.dataset.cat;
     // Use name + brand for specific results; fall back to category-based query
     const q = (name && brand) ? name + ' ' + brand + ' perfume' : (CAT_IMG_QUERIES[cat] || 'perfume bottle luxury');
-    fetchImg(q).then(imgs => {
+    fetchImg(q, 1, name, brand).then(imgs => {
       if (imgs[0]) {
         const thumb = el.querySelector('.pc-thumb');
         if (thumb) {
@@ -582,6 +587,7 @@ function loadExploreImages() {
           img.className = 'pc-thumb-img';
           img.loading = 'lazy';
           img.onload = function() { this.classList.add('loaded'); };
+          img.onerror = function() { this.remove(); };
           thumb.appendChild(img);
         }
       }
