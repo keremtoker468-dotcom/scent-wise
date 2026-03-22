@@ -12,7 +12,7 @@ function cleanUnsplashCache() {
   }
 }
 
-// Redis helpers for Bing image cache (persistent, no TTL)
+// Redis helpers for image cache (persistent, no TTL)
 async function redisGet(key) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -40,23 +40,27 @@ async function redisSet(key, value) {
   } catch {}
 }
 
-// Bing Image Search
-async function searchBing(query) {
-  const key = process.env.BING_SEARCH_KEY;
+// Brave Image Search (free tier: 2000 queries/month)
+async function searchBrave(query) {
+  const key = process.env.BRAVE_SEARCH_KEY;
   if (!key) return null;
   try {
-    const url = `https://api.bing.microsoft.com/v7.0/images/search?q=${encodeURIComponent(query)}&count=1&safeSearch=Strict&imageType=Photo`;
+    const url = `https://api.search.brave.com/res/v1/images/search?q=${encodeURIComponent(query)}&count=1&safesearch=strict&spellcheck=false`;
     const r = await fetch(url, {
-      headers: { 'Ocp-Apim-Subscription-Key': key }
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip',
+        'X-Subscription-Token': key
+      }
     });
     if (!r.ok) return null;
     const body = await r.json();
-    const img = body.value && body.value[0];
+    const img = body.results && body.results[0];
     if (!img) return null;
     return {
-      u: img.contentUrl,
-      t: img.thumbnailUrl,
-      a: img.name || ''
+      u: (img.properties && img.properties.url) || img.url || '',
+      t: (img.thumbnail && img.thumbnail.src) || '',
+      a: img.title || ''
     };
   } catch { return null; }
 }
@@ -100,7 +104,7 @@ module.exports = async function handler(req, res) {
   const q = (req.query.q || '').trim();
   const n = Math.min(Math.max(parseInt(req.query.n) || 1, 1), 5);
 
-  // Mode 1: Fragrance-specific lookup (Bing → Unsplash fallback)
+  // Mode 1: Fragrance-specific lookup (Brave → Unsplash fallback)
   if (name) {
     if (name.length > 200) return res.status(400).json([]);
 
@@ -113,14 +117,14 @@ module.exports = async function handler(req, res) {
       return res.status(200).json([{ url: cached.u, thumb: cached.t, alt: cached.a }]);
     }
 
-    // Try Bing Image Search
-    const bingQuery = name + (brand ? ' ' + brand : '') + ' perfume bottle';
-    const bingResult = await searchBing(bingQuery);
-    if (bingResult) {
+    // Try Brave Image Search
+    const braveQuery = name + (brand ? ' ' + brand : '') + ' perfume bottle';
+    const braveResult = await searchBrave(braveQuery);
+    if (braveResult && braveResult.t) {
       // Cache permanently in Redis
-      await redisSet(redisKey, bingResult);
+      await redisSet(redisKey, braveResult);
       res.setHeader('Cache-Control', 'public, max-age=86400');
-      return res.status(200).json([{ url: bingResult.u, thumb: bingResult.t, alt: bingResult.a }]);
+      return res.status(200).json([{ url: braveResult.u, thumb: braveResult.t, alt: braveResult.a }]);
     }
 
     // Fallback to Unsplash

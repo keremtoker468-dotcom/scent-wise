@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// Seed Redis with Bing Image Search results for top-rated fragrances.
+// Seed Redis with Brave Image Search results for top-rated fragrances.
 // Usage: node scripts/seed-images.js [--offset N] [--batch N] [--dry-run]
 //
 // Environment variables required:
-//   BING_SEARCH_KEY           - Bing Image Search API key
+//   BRAVE_SEARCH_KEY          - Brave Search API key
 //   UPSTASH_REDIS_REST_URL    - Upstash Redis REST URL
 //   UPSTASH_REDIS_REST_TOKEN  - Upstash Redis auth token
 //
-// Free tier: 1000 Bing queries/month. Use --batch 100 --offset 0, then
-// --offset 100, etc. to spread across days.
+// Free tier: 2000 Brave queries/month. Use --batch 500 --offset 0, then
+// --offset 500, to fill 1000 in two runs.
 
 const fs = require('fs');
 const path = require('path');
 
-const BING_KEY = process.env.BING_SEARCH_KEY;
+const BRAVE_KEY = process.env.BRAVE_SEARCH_KEY;
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
 
@@ -46,34 +46,37 @@ async function redisGet(key) {
   return body.result ? JSON.parse(body.result) : null;
 }
 
-async function searchBing(query) {
-  const url = `https://api.bing.microsoft.com/v7.0/images/search?q=${encodeURIComponent(query)}&count=1&safeSearch=Strict&imageType=Photo`;
+async function searchBrave(query) {
+  const url = `https://api.search.brave.com/res/v1/images/search?q=${encodeURIComponent(query)}&count=1&safesearch=strict&spellcheck=false`;
   const r = await fetch(url, {
-    headers: { 'Ocp-Apim-Subscription-Key': BING_KEY }
+    headers: {
+      'Accept': 'application/json',
+      'Accept-Encoding': 'gzip',
+      'X-Subscription-Token': BRAVE_KEY
+    }
   });
-  if (!r.ok) throw new Error(`Bing search failed: ${r.status}`);
+  if (!r.ok) throw new Error(`Brave search failed: ${r.status}`);
   const body = await r.json();
-  const img = body.value && body.value[0];
+  const img = body.results && body.results[0];
   if (!img) return null;
-  return { u: img.contentUrl, t: img.thumbnailUrl, a: img.name || '' };
+  return {
+    u: (img.properties && img.properties.url) || img.url || '',
+    t: (img.thumbnail && img.thumbnail.src) || '',
+    a: img.title || ''
+  };
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function main() {
-  if (!BING_KEY) { console.error('Missing BING_SEARCH_KEY'); process.exit(1); }
+  if (!BRAVE_KEY) { console.error('Missing BRAVE_SEARCH_KEY'); process.exit(1); }
   if (!DRY_RUN && (!REDIS_URL || !REDIS_TOKEN)) { console.error('Missing Redis credentials'); process.exit(1); }
 
   // Load perfume data
   const richPath = path.join(__dirname, '..', 'public', 'perfumes-rich.js');
   const richSrc = fs.readFileSync(richPath, 'utf8');
 
-  // Extract arrays using eval in a sandboxed scope
-  const sandbox = {};
-  const fn = new Function('_RB', '_RA', '_RD',
-    richSrc.replace(/^var /gm, '') // strip var declarations so assignments go to params
-  );
-  // Actually, the file uses var declarations. Let's eval carefully.
+  // Extract arrays using eval
   const extracted = {};
   const evalSrc = richSrc + '\nextracted._RB=_RB;extracted._RA=_RA;extracted._RD=_RD;';
   eval(evalSrc);
@@ -116,8 +119,8 @@ async function main() {
 
     try {
       const query = frag.name + (frag.brand ? ' ' + frag.brand : '') + ' perfume bottle';
-      const result = await searchBing(query);
-      if (result) {
+      const result = await searchBrave(query);
+      if (result && result.t) {
         await redisSet(redisKey, result);
         console.log(`  [${OFFSET + i}] OK: ${frag.name} | ${frag.brand}`);
         success++;
@@ -130,8 +133,8 @@ async function main() {
       failed++;
     }
 
-    // Rate limit: ~3 req/sec to stay well within Bing limits
-    await sleep(350);
+    // Brave free tier: 1 req/sec limit
+    await sleep(1100);
   }
 
   console.log(`\nDone. Success: ${success}, Skipped: ${skipped}, Failed: ${failed}`);
