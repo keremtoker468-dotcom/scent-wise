@@ -87,7 +87,7 @@ Required in Vercel dashboard:
 - **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (subscription cookie signed with HMAC), `free` (3 trial queries tracked by IP via Redis + in-memory + cookie).
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
 - **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get 3 trial queries (IP-tracked via Redis to prevent incognito bypass).
-- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v3`.
+- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v5`.
 
 ## Conventions
 
