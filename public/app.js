@@ -455,15 +455,18 @@ async function aiCall(mode, payload) {
   }
 }
 
-// ═══════════════ UNSPLASH IMAGE HELPER ═══════════════
+// ═══════════════ IMAGE HELPER (Bing + Unsplash) ═══════════════
 const _imgCache = {};
-async function fetchImg(query, n) {
+async function fetchImg(query, n, name, brand) {
   n = n || 1;
-  const ck = 'img_' + query + '_' + n;
+  const ck = name ? 'img_' + name + '_' + (brand || '') : 'img_' + query + '_' + n;
   if (_imgCache[ck]) return _imgCache[ck];
   try { const cached = sessionStorage.getItem(ck); if (cached) { _imgCache[ck] = JSON.parse(cached); return _imgCache[ck]; } } catch {}
   try {
-    const r = await fetch('/api/unsplash?q=' + encodeURIComponent(query) + '&n=' + n, { headers: { 'X-Requested-With': 'ScentWise' } });
+    const url = name
+      ? '/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand || '')
+      : '/api/img?q=' + encodeURIComponent(query) + '&n=' + n;
+    const r = await fetch(url, { headers: { 'X-Requested-With': 'ScentWise' } });
     if (!r.ok) return [];
     const imgs = await r.json();
     _imgCache[ck] = imgs;
@@ -495,7 +498,18 @@ function loadResultImages(container) {
     const name = el.getAttribute('data-frag');
     if (!name || name.length > 60 || el.dataset.imgLoaded) return;
     el.dataset.imgLoaded = '1';
-    fetchImg(name + ' perfume bottle', 1).then(imgs => {
+    // Build a smarter query: look up the fragrance in the database for brand/category
+    let query = name + ' fragrance';
+    const key = name.toLowerCase().trim();
+    const match = typeof _SI !== 'undefined' && _SI.find(p => (p.name || p.n || '').toLowerCase() === key);
+    if (match) {
+      const brand = match.brand || match.b || '';
+      const cat = match.category || match.c || '';
+      if (brand) query = name + ' ' + brand + ' fragrance';
+      else if (cat && CAT_IMG_QUERIES[cat]) query = CAT_IMG_QUERIES[cat];
+    }
+    const brand = match ? (match.brand || match.b || '') : '';
+    fetchImg(query, 1, name, brand).then(imgs => {
       if (imgs[0]) {
         const img = document.createElement('img');
         img.className = 'result-img';
@@ -503,6 +517,7 @@ function loadResultImages(container) {
         img.alt = name;
         img.loading = 'lazy';
         img.onload = function() { this.classList.add('loaded'); };
+        img.onerror = function() { this.remove(); };
         el.parentElement.insertBefore(img, el.nextSibling);
       }
     });
@@ -522,21 +537,62 @@ function fmt(text) {
   return s;
 }
 
+const CAT_IMG_QUERIES = {
+  'Fresh':'fresh citrus perfume light','Floral':'floral rose perfume elegant','Oriental':'oriental amber perfume luxury',
+  'Woody':'woody dark perfume oud','Sweet':'sweet vanilla perfume warm','Aromatic':'aromatic herbs perfume green',
+  'Aquatic':'aquatic ocean perfume blue','Fruity':'fruity colorful perfume bright','Musky':'musky sensual perfume dark',
+  'Warm Spicy':'spicy cinnamon perfume warm'
+};
+
 function perfCard(p) {
   if (!p) return '';
-  return `<div class="pcard">
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
-      <span style="font-weight:600;font-size:14px">${esc(p.name||p.n)}</span>
-      <span style="color:var(--td);font-size:12px;flex-shrink:0;margin-left:8px">${esc(p.brand||p.b)}</span>
+  const cat = esc(p.category||p.c||'');
+  const name = esc(p.name||p.n);
+  const brand = esc(p.brand||p.b||'');
+  return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
+    <div style="display:flex;gap:14px">
+      <div class="pc-thumb"></div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+          <span style="font-weight:600;font-size:14px">${name}</span>
+          <span style="color:var(--td);font-size:12px;flex-shrink:0;margin-left:8px">${esc(p.brand||p.b)}</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          ${cat ? `<span class="tag" style="font-size:10px;padding:3px 10px">${cat}</span>` : ''}
+          ${p.gender||p.g ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(133,193,233,.06);color:#85c1e9;border-color:rgba(133,193,233,.1)">${esc(p.gender||p.g)}</span>` : ''}
+          ${p.rating||p.r ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(232,168,124,.06);color:#e8a87c;border-color:rgba(232,168,124,.1)">★ ${p.rating||p.r}</span>` : ''}
+        </div>
+        ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
+        ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
+      </div>
     </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-      ${p.category||p.c ? `<span class="tag" style="font-size:10px;padding:3px 10px">${esc(p.category||p.c)}</span>` : ''}
-      ${p.gender||p.g ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(133,193,233,.06);color:#85c1e9;border-color:rgba(133,193,233,.1)">${esc(p.gender||p.g)}</span>` : ''}
-      ${p.rating||p.r ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(232,168,124,.06);color:#e8a87c;border-color:rgba(232,168,124,.1)">★ ${p.rating||p.r}</span>` : ''}
-    </div>
-    ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
-    ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
   </div>`;
+}
+
+function loadExploreImages() {
+  document.querySelectorAll('.pcard[data-cat]:not([data-img-loaded])').forEach(el => {
+    el.dataset.imgLoaded = '1';
+    const name = el.dataset.name || '';
+    const brand = el.dataset.brand || '';
+    const cat = el.dataset.cat;
+    // Use name + brand for specific results; fall back to category-based query
+    const q = (name && brand) ? name + ' ' + brand + ' perfume' : (CAT_IMG_QUERIES[cat] || 'perfume bottle luxury');
+    fetchImg(q, 1, name, brand).then(imgs => {
+      if (imgs[0]) {
+        const thumb = el.querySelector('.pc-thumb');
+        if (thumb) {
+          const img = document.createElement('img');
+          img.src = imgs[0].thumb;
+          img.alt = el.dataset.name || '';
+          img.className = 'pc-thumb-img';
+          img.loading = 'lazy';
+          img.onload = function() { this.classList.add('loaded'); };
+          img.onerror = function() { this.remove(); };
+          thumb.appendChild(img);
+        }
+      }
+    });
+  });
 }
 
 
@@ -1179,6 +1235,7 @@ function doExp() {
   if (expFilter !== 'all') results = results.filter(r => r.gender === expFilter);
   expResults = results;
   r_explore(document.getElementById('page-explore'));
+  setTimeout(loadExploreImages, 100);
 }
 
 // ═══════════════ CHAT (PAID) ═══════════════
@@ -1290,7 +1347,7 @@ function r_photo(el) {
       </div>
     </div>`}
   </div>`;
-  injectModePhoto('photo', 'perfume product photography elegant');
+  injectModePhoto('photo', 'perfume flatlay product photography elegant');
 }
 
 function phFile(file) {
@@ -1371,7 +1428,7 @@ function r_zodiac(el) {
     </div>
   </div>`;
   if (zodiacRes) document.getElementById('zfu-inp')?.focus();
-  injectModePhoto('zodiac', 'celestial stars night perfume');
+  injectModePhoto('zodiac', 'celestial night sky stars mystical');
 }
 
 function tryBday() {
@@ -1435,7 +1492,7 @@ function r_music(el) {
     </div>
   </div>`;
   if (musicRes) document.getElementById('mfu-inp')?.focus();
-  injectModePhoto('music', 'perfume mood atmospheric dark');
+  injectModePhoto('music', 'dark moody perfume atmospheric night');
 }
 
 async function pickM(genre) {
@@ -1505,7 +1562,7 @@ function r_style(el) {
     </div>
   </div>`;
   if (styleRes) document.getElementById('sfu-inp')?.focus();
-  injectModePhoto('style', 'fashion fragrance aesthetic');
+  injectModePhoto('style', 'fashion editorial perfume aesthetic');
 }
 
 async function pickSt(style) {
@@ -1575,7 +1632,7 @@ function r_dupe(el) {
     </div>
   </div>`;
   if (dupeRes) document.getElementById('dfu-inp')?.focus();
-  injectModePhoto('dupe', 'perfume bottles collection luxury');
+  injectModePhoto('dupe', 'luxury designer perfume bottles gold');
 }
 
 async function pickD(frag) {
