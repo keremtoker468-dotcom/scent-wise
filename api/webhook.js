@@ -68,11 +68,8 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ received: true }); // ACK but ignore
   }
 
-  // Log the event for monitoring
+  // Log the event for monitoring (no PII — omit emails and customer IDs)
   console.log(`[LS Webhook] ${eventName}`, {
-    orderId: payload.data?.id,
-    customerId: attrs.customer_id,
-    email: attrs.user_email,
     status: attrs.status,
     storeId: attrs.store_id
   });
@@ -80,35 +77,35 @@ module.exports = async function handler(req, res) {
   // Handle relevant events
   switch (eventName) {
     case 'order_created':
-      console.log(`[LS Webhook] New order: #${payload.data?.id} by ${attrs.user_email}`);
+      console.log(`[LS Webhook] New order received`);
       break;
 
     case 'subscription_updated':
-      console.log(`[LS Webhook] Subscription updated: customer ${attrs.customer_id}, status=${attrs.status}`);
+      console.log(`[LS Webhook] Subscription updated: status=${attrs.status}`);
       break;
 
     case 'subscription_cancelled':
-      console.log(`[LS Webhook] Subscription cancelled: customer ${attrs.customer_id}`);
+      console.log(`[LS Webhook] Subscription cancelled`);
       break;
 
     case 'subscription_expired':
-      console.log(`[LS Webhook] Subscription expired: customer ${attrs.customer_id}`);
+      console.log(`[LS Webhook] Subscription expired`);
       break;
 
     case 'subscription_paused':
-      console.log(`[LS Webhook] Subscription paused: customer ${attrs.customer_id}`);
+      console.log(`[LS Webhook] Subscription paused`);
       break;
 
     case 'subscription_unpaused':
-      console.log(`[LS Webhook] Subscription unpaused: customer ${attrs.customer_id}`);
+      console.log(`[LS Webhook] Subscription unpaused`);
       break;
 
     case 'subscription_resumed':
-      console.log(`[LS Webhook] Subscription resumed: customer ${attrs.customer_id}`);
+      console.log(`[LS Webhook] Subscription resumed`);
       break;
 
     case 'order_refunded':
-      console.log(`[LS Webhook] Order refunded: #${payload.data?.id}`);
+      console.log(`[LS Webhook] Order refunded`);
       break;
 
     default:
