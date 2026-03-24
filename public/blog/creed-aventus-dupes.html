@@ -347,11 +347,24 @@ p{margin-bottom:20px;font-size:15px;color:var(--t);line-height:1.8}
   <a href="/refund.html">Refunds</a>
   <p style="margin-top:8px">&copy; 2026 ScentWise. All rights reserved.</p>
 </footer>
-<style>.frag-thumb{width:52px;height:66px;flex-shrink:0;border-radius:10px;overflow:hidden;background:rgba(201,169,110,.04)}.frag-thumb img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}.frag-thumb img.loaded{opacity:1}@media(max-width:768px){.frag-thumb{width:40px;height:52px}}</style>
+<style>.frag-thumb{width:52px;height:66px;flex-shrink:0;border-radius:10px;overflow:hidden;background:rgba(201,169,110,.07);display:flex;align-items:center;justify-content:center}.frag-thumb img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}.frag-thumb img.loaded{opacity:1}.frag-thumb svg{width:100%;height:100%}@media(max-width:768px){.frag-thumb{width:40px;height:52px}}</style>
 <script>
 (function(){
+  var colors=["#8B4513","#6B3A2A","#4A6741","#2E4057","#5B3256","#7A5C3E","#3D5A6E","#6E4B3A","#4B3D2A","#3A4F5C"];
+  function makePlaceholder(name,brand){
+    var letter=(name||"?").charAt(0).toUpperCase();
+    var hash=0;for(var i=0;i<(name+brand).length;i++){hash=((hash<<5)-hash)+(name+brand).charCodeAt(i);hash|=0}
+    var bg=colors[Math.abs(hash)%colors.length];
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 66"><rect width="52" height="66" rx="4" fill="'+bg+'"/><text x="26" y="38" text-anchor="middle" font-family="Playfair Display,serif" font-size="22" font-weight="600" fill="rgba(255,255,255,.7)">'+letter+'</text></svg>';
+  }
+  function loadImage(thumb,name,brand){
+    return fetch("/api/img?name="+encodeURIComponent(name)+"\u0026brand="+encodeURIComponent(brand)).then(function(r){return r.json()}).then(function(d){
+      if(d&&d[0]&&d[0].thumb){var img=document.createElement("img");img.src=d[0].thumb;img.alt=name;img.loading="lazy";img.onload=function(){thumb.innerHTML="";thumb.appendChild(this);this.classList.add("loaded")};thumb.appendChild(img)}
+    }).catch(function(){});
+  }
   var cards=document.querySelectorAll(".frag-card");
   if(!cards.length)return;
+  var queue=[];
   cards.forEach(function(card){
     if(card.querySelector(".frag-thumb"))return;
     var nameEl=card.querySelector(".frag-name");
@@ -359,14 +372,20 @@ p{margin-bottom:20px;font-size:15px;color:var(--t);line-height:1.8}
     var name=nameEl?nameEl.textContent.trim():"";
     var brand=brandEl?brandEl.textContent.trim():"";
     if(!name)return;
-    var q=name+(brand?" "+brand:"")+" fragrance";
     var thumb=document.createElement("div");
     thumb.className="frag-thumb blog-frag-img";
+    thumb.innerHTML=makePlaceholder(name,brand);
     card.insertBefore(thumb,card.querySelector(".frag-info"));
-    fetch("/api/img?name="+encodeURIComponent(name)+"\u0026brand="+encodeURIComponent(brand)).then(function(r){return r.json()}).then(function(d){
-      if(d&&d[0]){var img=document.createElement("img");img.src=d[0].thumb;img.alt=name;img.loading="lazy";img.onload=function(){this.classList.add("loaded")};thumb.appendChild(img)}
-    }).catch(function(){});
+    queue.push({thumb:thumb,name:name,brand:brand});
   });
+  function processQueue(i){
+    if(i>=queue.length)return;
+    var item=queue[i];
+    loadImage(item.thumb,item.name,item.brand).then(function(){
+      setTimeout(function(){processQueue(i+1)},300);
+    });
+  }
+  processQueue(0);
 })();
 </script>
 </body>

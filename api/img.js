@@ -134,7 +134,7 @@ module.exports = async function handler(req, res) {
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
 
   const ip = getClientIp(req);
-  const rl = await rateLimit(`img:${ip}`, 15, 60000);
+  const rl = await rateLimit(`img:${ip}`, 30, 60000);
   if (!rl.allowed) return res.status(429).json([]);
 
   const name = (req.query.name || '').trim();
