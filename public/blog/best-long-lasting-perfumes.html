@@ -179,8 +179,14 @@ p{margin-bottom:20px;font-size:15px;color:var(--t);line-height:1.8}
     var bg=colors[Math.abs(hash)%colors.length];
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 66"><rect width="52" height="66" rx="4" fill="'+bg+'"/><text x="26" y="38" text-anchor="middle" font-family="Playfair Display,serif" font-size="22" font-weight="600" fill="rgba(255,255,255,.7)">'+letter+'</text></svg>';
   }
+  function loadImage(thumb,name,brand){
+    return fetch("/api/img?name="+encodeURIComponent(name)+"\u0026brand="+encodeURIComponent(brand)).then(function(r){return r.json()}).then(function(d){
+      if(d&&d[0]&&d[0].thumb){var img=document.createElement("img");img.src=d[0].thumb;img.alt=name;img.loading="lazy";img.onload=function(){thumb.innerHTML="";thumb.appendChild(this);this.classList.add("loaded")};thumb.appendChild(img)}
+    }).catch(function(){});
+  }
   var cards=document.querySelectorAll(".frag-card");
   if(!cards.length)return;
+  var queue=[];
   cards.forEach(function(card){
     if(card.querySelector(".frag-thumb"))return;
     var nameEl=card.querySelector(".frag-name");
@@ -192,10 +198,16 @@ p{margin-bottom:20px;font-size:15px;color:var(--t);line-height:1.8}
     thumb.className="frag-thumb blog-frag-img";
     thumb.innerHTML=makePlaceholder(name,brand);
     card.insertBefore(thumb,card.querySelector(".frag-info"));
-    fetch("/api/img?name="+encodeURIComponent(name)+"\u0026brand="+encodeURIComponent(brand)).then(function(r){return r.json()}).then(function(d){
-      if(d&&d[0]){var img=document.createElement("img");img.src=d[0].thumb;img.alt=name;img.loading="lazy";img.onload=function(){thumb.innerHTML="";thumb.appendChild(this);this.classList.add("loaded")};thumb.appendChild(img)}
-    }).catch(function(){});
+    queue.push({thumb:thumb,name:name,brand:brand});
   });
+  function processQueue(i){
+    if(i>=queue.length)return;
+    var item=queue[i];
+    loadImage(item.thumb,item.name,item.brand).then(function(){
+      setTimeout(function(){processQueue(i+1)},300);
+    });
+  }
+  processQueue(0);
 })();
 </script>
 </body>
