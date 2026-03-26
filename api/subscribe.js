@@ -8,7 +8,7 @@ module.exports = async function handler(req, res) {
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
 
   const ip = getClientIp(req);
-  const rl = await rateLimit(`subscribe:${ip}`, 3, 60000); // 3 attempts/min per IP
+  const rl = await rateLimit(`subscribe:${ip}`, 3, 60000);
   if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Please wait a moment.' });
 
   const { email } = req.body || {};
@@ -17,45 +17,50 @@ module.exports = async function handler(req, res) {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  const apiKey = process.env.RESEND_API_KEY;
 
-  if (!apiKey) {
-    // Graceful fallback: log and return success so UX isn't broken
+  // ── 1. Add to Beehiiv audience ──────────────────────────────────────────
+  const beehiivKey = process.env.BEEHIIV_API_KEY;
+  const beehiivPub = process.env.BEEHIIV_PUBLICATION_ID;
+
+  if (beehiivKey && beehiivPub) {
+    try {
+      const r = await fetch(`https://api.beehiiv.com/v2/publications/${beehiivPub}/subscriptions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${beehiivKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: cleanEmail,
+          reactivate_existing: false,
+          send_welcome_email: false, // we send our own below
+          utm_source: 'website',
+          utm_medium: 'organic'
+        })
+      });
+      if (!r.ok) {
+        const err = await r.text();
+        console.error('Beehiiv subscribe error:', r.status, err);
+        // Don't block — still send welcome email
+      }
+    } catch (err) {
+      console.error('Beehiiv error:', err);
+    }
+  }
+
+  // ── 2. Send welcome email via Resend ────────────────────────────────────
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
     console.error('RESEND_API_KEY not configured');
     return res.status(200).json({ ok: true });
   }
 
   try {
-    // Add contact to Resend Audience
-    const audienceId = process.env.RESEND_AUDIENCE_ID;
-
-    if (audienceId) {
-      // Add to audience (for newsletters/broadcasts)
-      const r = await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: cleanEmail,
-          unsubscribed: false
-        })
-      });
-
-      if (!r.ok && r.status !== 409) { // 409 = already exists, that's fine
-        const err = await r.text();
-        console.error('Resend audience error:', r.status, err);
-        return res.status(502).json({ error: 'Could not subscribe. Please try again.' });
-      }
-    }
-
-    // Send welcome email via Resend
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'ScentWise <newsletter@scent-wise.com>';
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${resendKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -98,7 +103,6 @@ module.exports = async function handler(req, res) {
 </html>`
       })
     });
-    // We don't fail if welcome email errors — contact is already saved
 
     return res.status(200).json({ ok: true });
   } catch (err) {
