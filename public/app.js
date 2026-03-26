@@ -35,6 +35,31 @@ function showToast(message, type = 'info', duration = 4000) {
 const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
+// ═══════════════ EMAIL CAPTURE ═══════════════
+function captureEmail(e) {
+  e.preventDefault();
+  const input = document.getElementById('hp-email-input');
+  const btn = document.getElementById('hp-email-btn');
+  const email = input ? input.value.trim() : '';
+  if (!email) return false;
+  // Store email in localStorage
+  const emails = JSON.parse(localStorage.getItem('sw_emails') || '[]');
+  if (!emails.includes(email)) emails.push(email);
+  localStorage.setItem('sw_emails', JSON.stringify(emails));
+  if (typeof gtag === 'function') gtag('event', 'email_captured', { method: 'newsletter' });
+  if (btn) btn.textContent = 'Subscribed!';
+  if (input) { input.value = ''; input.placeholder = 'Thank you!'; input.disabled = true; }
+  showToast('You\'re on the list! We\'ll send you fragrance tips and picks.', 'success');
+  setTimeout(() => { if (btn) btn.textContent = 'Subscribe Free'; if (input) { input.disabled = false; input.placeholder = 'Enter your email'; } }, 5000);
+  return false;
+}
+
+// ═══════════════ FUNNEL ANALYTICS ═══════════════
+function trackFunnel(step, data) {
+  if (typeof gtag !== 'function') return;
+  gtag('event', step, data || {});
+}
+
 // ═══════════════ MOBILE MODE SWITCHER ═══════════════
 function openModeSwitcher() {
   const overlay = document.getElementById('mode-switcher-overlay');
@@ -247,6 +272,7 @@ function trackUsage(serverUsage) {
 function trackFreeUsage(used) {
   if (typeof used === 'number') freeUsed = used;
   else freeUsed++;
+  trackFunnel('free_trial_used', { queries_used: freeUsed, queries_remaining: FREE_LIMIT - freeUsed });
 }
 
 async function unlockPaid() {
@@ -262,7 +288,7 @@ async function unlockPaid() {
     const d = await r.json();
     if (d.url) {
       LEMON_URL = d.url;
-      if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
+      if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 7, items: [{ item_name: 'ScentWise Premium', price: 7 }] });
       window.location.href = d.url;
     } else {
       showToast(d.error || 'Could not start checkout. Please try again.', 'error');
@@ -320,6 +346,7 @@ async function activateSubscription(orderId, silent) {
 }
 
 function showPaywall() {
+  trackFunnel('paywall_shown', { trial_remaining: FREE_LIMIT - freeUsed, tier: currentTier || 'free' });
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
     ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(201,169,110,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
@@ -331,7 +358,7 @@ function showPaywall() {
       AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
     </p>
     ${trialBanner}
-    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
+    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
     <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
     <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
@@ -398,7 +425,7 @@ function setupLemonSqueezy() {
     window.LemonSqueezy.Setup({
       eventHandler: async function(event) {
         if (event.event === 'Checkout.Success') {
-          if (typeof gtag === 'function') gtag('event', 'purchase', { currency: 'USD', value: 2.99, transaction_id: event.data?.order?.data?.id || event.data?.order?.id || event.data?.id || '', items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
+          if (typeof gtag === 'function') gtag('event', 'purchase', { currency: 'USD', value: 7, transaction_id: event.data?.order?.data?.id || event.data?.order?.id || event.data?.id || '', items: [{ item_name: 'ScentWise Premium', price: 7 }] });
           const orderId = event.data?.order?.data?.id || event.data?.order?.id || event.data?.id;
           if (orderId) {
             let ok = await activateSubscription(String(orderId), true);
@@ -965,6 +992,7 @@ function r_home(el) {
     <div class="hp-nav-links">
       <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
     </div>
@@ -1071,6 +1099,54 @@ function r_home(el) {
         <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
       </div>
     </div>
+  </section>
+  <!-- Pricing -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-pricing">
+    <div class="hp-section-kicker hp-reveal">Simple Pricing</div>
+    <div class="hp-section-heading hp-reveal">Start free. <em>Upgrade when you're ready.</em></div>
+    <p class="hp-section-copy hp-reveal">Browse 75,000+ fragrances and celebrity collections for free. Unlock AI-powered recommendations when you want more.</p>
+    <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:40px;max-width:720px;margin-left:auto;margin-right:auto">
+      <div class="hp-reveal" style="flex:1;min-width:280px;max-width:340px;border:1px solid var(--d4);border-radius:var(--r);padding:36px 28px;background:rgba(255,255,255,.02);text-align:center">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--td);margin-bottom:12px">Free</div>
+        <div style="font-size:36px;font-weight:700;margin-bottom:6px">$0</div>
+        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Forever free</div>
+        <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Search 75,000+ fragrances</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Celebrity collections (101 icons)</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 3 free AI queries to try</li>
+          <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> AI Chat, Photo, Zodiac, Music, Style</li>
+          <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> Dupe Finder</li>
+        </ul>
+        <button class="hp-btn-ghost" onclick="go('explore')" style="width:100%;padding:14px">Explore Database</button>
+      </div>
+      <div class="hp-reveal" style="flex:1;min-width:280px;max-width:340px;border:2px solid var(--g);border-radius:var(--r);padding:36px 28px;background:var(--gl);text-align:center;position:relative">
+        <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:4px 16px;border-radius:20px">Most Popular</div>
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--g);margin-bottom:12px">Premium</div>
+        <div style="font-size:36px;font-weight:700;margin-bottom:6px"><span class="gg">$7</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
+        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime</div>
+        <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Everything in Free</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> AI Chat Advisor</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Photo, Zodiac, Music & Style Match</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Dupe Finder</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 500 AI queries/month</li>
+        </ul>
+        <button class="hp-btn-primary" onclick="unlockPaid()" data-subscribe-btn style="width:100%;padding:14px">Get Premium</button>
+      </div>
+    </div>
+  </section>
+  <!-- Email Capture -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-newsletter">
+    <div class="hp-section-kicker hp-reveal">Stay in the Loop</div>
+    <div class="hp-section-heading hp-reveal">Get fragrance tips & <em>exclusive picks</em></div>
+    <p class="hp-section-copy hp-reveal">Join our newsletter for weekly scent recommendations, new release alerts, and subscriber-only content.</p>
+    <form id="hp-email-form" class="hp-reveal" onsubmit="return captureEmail(event)" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px;max-width:520px;margin-left:auto;margin-right:auto">
+      <input type="email" id="hp-email-input" placeholder="Enter your email" required style="flex:1;min-width:220px;padding:14px 18px;background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:var(--r);font-family:'DM Sans';font-size:14px;outline:none">
+      <button type="submit" class="hp-btn-primary" id="hp-email-btn" style="padding:14px 28px;white-space:nowrap">Subscribe Free</button>
+    </form>
+    <p class="hp-reveal" style="color:var(--d5);font-size:11px;margin-top:12px;text-align:center">No spam. Unsubscribe anytime.</p>
   </section>
   <!-- Quote -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
@@ -1262,7 +1338,7 @@ function r_chat(el) {
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($7/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($7/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
@@ -1752,7 +1828,7 @@ function r_account(el) {
         <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
       </div>
       <div style="text-align:center">
-        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $2.99/month</a></p>
+        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $7/month</a></p>
       </div>
     </div>`;
     document.getElementById('login-email')?.focus();
