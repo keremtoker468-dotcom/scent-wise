@@ -301,6 +301,59 @@ function buildProfilePrompt(profile) {
   return parts.join('\n');
 }
 
+// Apply explicit user feedback (like/dislike) on a fragrance recommendation.
+// fragranceName: the bold name from the AI response (e.g. "Bleu de Chanel")
+// aiText: the full AI response text that contained this fragrance
+// liked: true = user liked it, false = user disliked it
+function applyFeedback(profile, fragranceName, aiText, liked) {
+  if (!fragranceName) return profile;
+
+  // Extract notes mentioned near this fragrance in the AI response
+  const nameLower = fragranceName.toLowerCase();
+  const aiLower = (aiText || '').toLowerCase();
+
+  // Find the section about this fragrance (look for text around the bold name)
+  const idx = aiLower.indexOf(nameLower);
+  let section = aiText || '';
+  if (idx >= 0) {
+    // Grab ~300 chars around the fragrance mention
+    const start = Math.max(0, idx - 50);
+    const end = Math.min(aiLower.length, idx + 300);
+    section = aiLower.slice(start, end);
+  }
+
+  // Extract notes from the section
+  const notes = extractNoteWords(section);
+  // Extract brand (pattern: "by Brand")
+  const brandMatch = new RegExp('\\*\\*' + fragranceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\*\\*\\s*by\\s+([A-Z][a-zA-Zé&\'. -]+)', 'i').exec(aiText || '');
+  const brand = brandMatch ? brandMatch[1].trim() : null;
+
+  if (liked) {
+    // Boost liked notes and brand
+    if (notes.length) profile.likedNotes = addUnique(profile.likedNotes, notes, MAX_LIKED);
+    if (brand) profile.likedBrands = addUnique(profile.likedBrands, [brand], 15);
+    // Remove from disliked if user now likes these notes
+    if (notes.length) {
+      const likedSet = new Set(notes.map(n => n.toLowerCase()));
+      profile.dislikedNotes = profile.dislikedNotes.filter(n => !likedSet.has(n.toLowerCase()));
+    }
+  } else {
+    // Add notes to disliked
+    if (notes.length) profile.dislikedNotes = addUnique(profile.dislikedNotes, notes, MAX_DISLIKED);
+    // Remove from liked if user now dislikes
+    if (notes.length) {
+      const dislikedSet = new Set(notes.map(n => n.toLowerCase()));
+      profile.likedNotes = profile.likedNotes.filter(n => !dislikedSet.has(n.toLowerCase()));
+    }
+    // Remove brand from liked if disliked
+    if (brand) {
+      profile.likedBrands = profile.likedBrands.filter(b => b.toLowerCase() !== brand.toLowerCase());
+    }
+  }
+
+  return profile;
+}
+
 module.exports = {
   getProfile,
   saveProfile,
@@ -308,5 +361,6 @@ module.exports = {
   extractPreferences,
   updateProfile,
   buildProfilePrompt,
+  applyFeedback,
   emptyProfile
 };
