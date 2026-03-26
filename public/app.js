@@ -36,21 +36,41 @@ const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
 // ═══════════════ EMAIL CAPTURE ═══════════════
-function captureEmail(e) {
+async function captureEmail(e) {
   e.preventDefault();
   const input = document.getElementById('hp-email-input');
   const btn = document.getElementById('hp-email-btn');
   const email = input ? input.value.trim() : '';
   if (!email) return false;
-  // Store email in localStorage
-  const emails = JSON.parse(localStorage.getItem('sw_emails') || '[]');
-  if (!emails.includes(email)) emails.push(email);
-  localStorage.setItem('sw_emails', JSON.stringify(emails));
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Subscribing...'; }
+  if (input) input.disabled = true;
+
+  try {
+    const r = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      showToast(d.error || 'Could not subscribe. Please try again.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Subscribe Free'; }
+      if (input) input.disabled = false;
+      return false;
+    }
+  } catch {
+    showToast('Network error — please check your connection.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Subscribe Free'; }
+    if (input) input.disabled = false;
+    return false;
+  }
+
   if (typeof gtag === 'function') gtag('event', 'email_captured', { method: 'newsletter' });
   if (btn) btn.textContent = 'Subscribed!';
-  if (input) { input.value = ''; input.placeholder = 'Thank you!'; input.disabled = true; }
-  showToast('You\'re on the list! We\'ll send you fragrance tips and picks.', 'success');
-  setTimeout(() => { if (btn) btn.textContent = 'Subscribe Free'; if (input) { input.disabled = false; input.placeholder = 'Enter your email'; } }, 5000);
+  if (input) { input.value = ''; input.placeholder = 'Thank you!'; }
+  showToast('You\'re on the list! Check your inbox for a welcome email.', 'success');
   return false;
 }
 
