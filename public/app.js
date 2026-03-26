@@ -576,14 +576,19 @@ const CAT_IMG_QUERIES = {
   'Warm Spicy':'spicy cinnamon perfume warm'
 };
 
+const _PC_PALETTE = ['#1e2d40','#2d1e40','#1e402d','#402d1e','#401e2d','#2d401e','#1e3840','#38201e'];
+function _pcBg(n) { return _PC_PALETTE[(n||' ').charCodeAt(0) % _PC_PALETTE.length]; }
+
 function perfCard(p) {
   if (!p) return '';
   const cat = esc(p.category||p.c||'');
   const name = esc(p.name||p.n);
   const brand = esc(p.brand||p.b||'');
+  const letter = (p.name||p.n||'?').charAt(0).toUpperCase();
+  const bg = _pcBg(p.name||p.n||'');
   return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
     <div style="display:flex;gap:14px">
-      <div class="pc-thumb"></div>
+      <div class="pc-thumb" style="background:${bg}"><span class="pc-letter">${letter}</span></div>
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
           <span style="font-weight:600;font-size:14px">${name}</span>
