@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
-const { getProfile, deleteProfile, emptyProfile } = require('./_lib/user-profile');
+const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -19,7 +19,7 @@ function verifySubToken(cookieValue, secret) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'GET' && req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'GET' && req.method !== 'DELETE' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
@@ -56,6 +56,26 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to reset profile.' });
       }
     }
+    // POST feedback (like/dislike a recommendation)
+    if (req.method === 'POST') {
+      try {
+        const { fragranceName, aiText, liked } = req.body || {};
+        if (!fragranceName || typeof fragranceName !== 'string' || fragranceName.length > 200) {
+          return res.status(400).json({ error: 'Invalid fragrance name' });
+        }
+        if (typeof liked !== 'boolean') {
+          return res.status(400).json({ error: 'Missing liked field' });
+        }
+        // Limit aiText to prevent abuse
+        const safeAiText = typeof aiText === 'string' ? aiText.slice(0, 3000) : '';
+        const profile = await getProfile(profileUserId);
+        applyFeedback(profile, fragranceName, safeAiText, liked);
+        await saveProfile(profileUserId, profile);
+        return res.status(200).json({ success: true, profile });
+      } catch {
+        return res.status(500).json({ error: 'Failed to save feedback.' });
+      }
+    }
     // GET profile
     try {
       const profile = await getProfile(profileUserId);
@@ -64,6 +84,9 @@ module.exports = async function handler(req, res) {
       return res.status(200).json({ profile: emptyProfile(), hasProfile: false });
     }
   }
+
+  // POST and DELETE only valid for profile actions
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   // Only allow cookie mutations (clearing invalid subscriptions, setting revalidation)
   // when the request comes from our own origin. This prevents cross-site requests

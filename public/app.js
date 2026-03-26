@@ -298,9 +298,11 @@ function trackFreeUsage(used) {
 // ═══════════════ USER SCENT PROFILE ═══════════════
 let scentProfile = null;
 let profileLoading = false;
+let profileLoaded = false;
 
-async function loadScentProfile() {
+async function loadScentProfile(force) {
   if (profileLoading) return scentProfile;
+  if (profileLoaded && !force) return scentProfile;
   profileLoading = true;
   try {
     const r = await fetch('/api/check-tier?action=profile', { credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
@@ -310,6 +312,7 @@ async function loadScentProfile() {
     }
   } catch { scentProfile = null; }
   profileLoading = false;
+  profileLoaded = true;
   return scentProfile;
 }
 
@@ -322,6 +325,7 @@ async function resetScentProfile() {
     });
     if (r.ok) {
       scentProfile = null;
+      profileLoaded = false;
       showToast('Scent profile reset successfully.', 'success');
       const el = document.getElementById('page-account');
       if (el) r_account(el);
@@ -331,6 +335,116 @@ async function resetScentProfile() {
   } catch {
     showToast('Failed to reset profile.', 'error');
   }
+}
+
+// ═══════════════ SCENT FEEDBACK (Like/Dislike) ═══════════════
+const _ratedMsgs = new Set(); // track rated message indices to prevent double-rating
+
+async function rateScentMsg(msgIdx, liked) {
+  const msg = chatMsgs[msgIdx];
+  if (!msg || msg.role !== 'assistant') return;
+  const key = msgIdx + '_' + (liked ? 'up' : 'down');
+  if (_ratedMsgs.has(msgIdx + '_up') || _ratedMsgs.has(msgIdx + '_down')) return; // already rated
+  _ratedMsgs.add(key);
+
+  // Extract all bold fragrance names from this message
+  const names = [];
+  const re = /\*\*([^*]+)\*\*/g;
+  let m;
+  while ((m = re.exec(msg.content)) !== null) {
+    const name = m[1].trim();
+    if (name.length > 2 && name.length < 80 && !name.startsWith('Oops') && !name.startsWith('Something')) names.push(name);
+  }
+  if (!names.length) { _ratedMsgs.delete(key); return; }
+
+  // Update UI immediately
+  const btnWrap = document.getElementById('fb-' + msgIdx);
+  if (btnWrap) btnWrap.innerHTML = `<span style="color:var(--td);font-size:11px">${liked ? 'Noted — you liked these!' : 'Got it — noted your preference'}</span>`;
+
+  // Send each fragrance as feedback
+  for (const name of names) {
+    try {
+      await fetch('/api/check-tier?action=profile', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+        body: JSON.stringify({ fragranceName: name, aiText: msg.content, liked })
+      });
+    } catch {}
+  }
+  // Refresh profile data
+  profileLoaded = false;
+  loadScentProfile();
+}
+
+function feedbackHTML(msgIdx) {
+  // Only show on assistant messages that contain fragrance recommendations (bold names)
+  const msg = chatMsgs[msgIdx];
+  if (!msg || msg.role !== 'assistant') return '';
+  if (!/\*\*[^*]{3,}\*\*/.test(msg.content)) return ''; // no bold fragrance names
+  if (msg.content.startsWith('**Oops!**') || msg.content.startsWith('**Something went wrong') || msg.content.startsWith('**Connection issue')) return '';
+  if (_ratedMsgs.has(msgIdx + '_up') || _ratedMsgs.has(msgIdx + '_down')) {
+    const liked = _ratedMsgs.has(msgIdx + '_up');
+    return `<div id="fb-${msgIdx}" style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><span style="color:var(--td);font-size:11px">${liked ? 'Noted — you liked these!' : 'Got it — noted your preference'}</span></div>`;
+  }
+  return `<div id="fb-${msgIdx}" style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:10px">
+    <span style="color:var(--td);font-size:11px">Did you like these recommendations?</span>
+    <button onclick="rateScentMsg(${msgIdx},true)" style="background:none;border:1px solid rgba(201,169,110,.2);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--g);display:flex;align-items:center;gap:4px" title="I liked these">&#128077; Yes</button>
+    <button onclick="rateScentMsg(${msgIdx},false)" style="background:none;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--td);display:flex;align-items:center;gap:4px" title="Not for me">&#128078; No</button>
+  </div>`;
+}
+
+// Mode feedback for non-chat AI results (photo, zodiac, music, style, dupe)
+const _ratedModes = new Set();
+
+function _getModeRes(modeId) {
+  if (modeId === 'photo') return photoRes;
+  if (modeId === 'zodiac') return zodiacRes;
+  if (modeId === 'music') return musicRes;
+  if (modeId === 'style') return styleRes;
+  if (modeId === 'dupe') return dupeRes;
+  return '';
+}
+
+async function rateScentMode(modeId, liked) {
+  if (_ratedModes.has(modeId)) return;
+  _ratedModes.add(modeId);
+  const resultText = _getModeRes(modeId);
+
+  const btnWrap = document.getElementById('mfb-' + modeId);
+  if (btnWrap) btnWrap.innerHTML = `<span style="color:var(--td);font-size:11px">${liked ? 'Noted — you liked these!' : 'Got it — noted your preference'}</span>`;
+
+  const names = [];
+  const re = /\*\*([^*]+)\*\*/g;
+  let m;
+  while ((m = re.exec(resultText)) !== null) {
+    const name = m[1].trim();
+    if (name.length > 2 && name.length < 80 && !name.startsWith('Oops') && !name.startsWith('Something')) names.push(name);
+  }
+  for (const name of names) {
+    try {
+      await fetch('/api/check-tier?action=profile', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+        body: JSON.stringify({ fragranceName: name, aiText: resultText, liked })
+      });
+    } catch {}
+  }
+  profileLoaded = false;
+  loadScentProfile();
+}
+
+function modeFeedbackHTML(modeId, resultText) {
+  if (!resultText || !/\*\*[^*]{3,}\*\*/.test(resultText)) return '';
+  if (_ratedModes.has(modeId)) {
+    return `<div id="mfb-${modeId}" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><span style="color:var(--td);font-size:11px">Thanks for your feedback!</span></div>`;
+  }
+  return `<div id="mfb-${modeId}" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:10px">
+    <span style="color:var(--td);font-size:11px">Like these picks?</span>
+    <button onclick="rateScentMode('${modeId}',true)" style="background:none;border:1px solid rgba(201,169,110,.2);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--g);display:flex;align-items:center;gap:4px">&#128077; Yes</button>
+    <button onclick="rateScentMode('${modeId}',false)" style="background:none;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--td);display:flex;align-items:center;gap:4px">&#128078; No</button>
+  </div>`;
 }
 
 function renderProfileCard() {
@@ -1415,9 +1529,10 @@ function r_chat(el) {
         <p style="color:var(--td);font-size:13px;margin-bottom:4px;font-weight:500">Try asking:</p>
         ${sugg.map((s,i)=>`<div class="card fi stagger-${i+1}" onclick="cSend('${s}')" style="padding:14px 18px;cursor:pointer;font-size:14px">${s}</div>`).join('')}
       </div>`:''}
-      ${chatMsgs.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
+      ${chatMsgs.map((m,i)=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
         ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
         ${fmt(m.content)}
+        ${m.role==='assistant'?feedbackHTML(i):''}
       </div>`).join('')}
       ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
       <div id="c-end"></div>
@@ -1498,6 +1613,7 @@ function r_photo(el) {
           <div class="rbox" style="flex-direction:column;align-items:stretch">
             <div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">Your Style Matches</div>
             <div style="line-height:1.8;font-size:14px">${fmt(photoRes)}</div>
+            ${modeFeedbackHTML('photo', photoRes)}
             ${followUpHTML(photoChat, photoChatLoad, 'pfu-inp', 'pFollow', 'Ask more about your style matches...')}
           </div>
           <div style="margin-top:18px"><button class="btn-o btn-sm" onclick="photoReset()">Try Another Photo</button></div>
@@ -1580,6 +1696,7 @@ function r_zodiac(el) {
     <div id="z-res" style="margin-top:28px">
       ${zodiacLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding your cosmic scents...</span></div>':''}
       ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selZ||'').toUpperCase())} Fragrance Matches</div><div style="line-height:1.8;font-size:14px">${fmt(zodiacRes)}</div>
+        ${modeFeedbackHTML('zodiac', zodiacRes)}
         ${followUpHTML(zodiacChat, zodiacChatLoad, 'zfu-inp', 'zFollow', 'Ask more about zodiac fragrances...')}
       </div>`:''}
     </div>
@@ -1643,6 +1760,7 @@ function r_music(el) {
     <div id="m-res" style="margin-top:28px">
       ${musicLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Matching your vibe...</span></div>':''}
       ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selM||'').toUpperCase())} Scent Profile</div><div style="line-height:1.8;font-size:14px">${fmt(musicRes)}</div>
+        ${modeFeedbackHTML('music', musicRes)}
         ${followUpHTML(musicChat, musicChatLoad, 'mfu-inp', 'mFollow', 'Ask more about music-inspired fragrances...')}
       </div>`:''}
     </div>
@@ -1712,6 +1830,7 @@ function r_style(el) {
     <div id="s-res" style="margin-top:28px">
       ${styleLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Curating your scent wardrobe...</span></div>':''}
       ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selS||'').toUpperCase())} Fragrance Picks</div><div style="line-height:1.8;font-size:14px">${fmt(styleRes)}</div>
+        ${modeFeedbackHTML('style', styleRes)}
         ${followUpHTML(styleChat, styleChatLoad, 'sfu-inp', 'sFollow', 'Ask more about style-matched fragrances...')}
       </div>`:''}
     </div>
@@ -1781,6 +1900,7 @@ function r_dupe(el) {
     <div id="d-res" style="margin-top:28px">
       ${dupeLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding affordable alternatives...</span></div>':''}
       ${dupeRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">DUPES FOR ${esc((selD||'').toUpperCase())}</div><div style="line-height:1.8;font-size:14px">${fmt(dupeRes)}</div>
+        ${modeFeedbackHTML('dupe', dupeRes)}
         ${followUpHTML(dupeChat, dupeChatLoad, 'dfu-inp', 'dFollow', 'Ask more about these dupes...')}
       </div>`:''}
     </div>
@@ -1900,8 +2020,8 @@ function r_account(el) {
       ${renderProfileCard()}
       <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center">Log Out</button>
     </div>`;
-    // Load profile asynchronously and re-render the profile card
-    if (!scentProfile && !profileLoading) {
+    // Load profile asynchronously and re-render once
+    if (!profileLoaded && !profileLoading) {
       loadScentProfile().then(() => {
         const profEl = document.getElementById('page-account');
         if (profEl && CP === 'account') r_account(profEl);
