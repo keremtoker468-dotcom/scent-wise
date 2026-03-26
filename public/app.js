@@ -1468,6 +1468,7 @@ async function doPhoto() {
   _ssw('photoRes', photoRes);
   photoLoad = false;
   r_photo(document.getElementById('page-photo'));
+  setTimeout(() => loadResultImages(document.querySelector('#page-photo .rbox')), 100);
 }
 
 function photoReset() { photoB64=null; photoPrev=null; photoRes=''; photoLoad=false; photoChat=[]; photoChatLoad=false; _ssw('photoRes',''); _ssw('photoChat',[]); r_photo(document.getElementById('page-photo')); }
