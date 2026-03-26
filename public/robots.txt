@@ -39,5 +39,9 @@ Disallow: /
 User-agent: FacebookBot
 Disallow: /
 
+# LLM Documentation
+# llms.txt: https://scent-wise.com/llms.txt
+# llms-full.txt: https://scent-wise.com/llms-full.txt
+
 # Sitemap
 Sitemap: https://scent-wise.com/sitemap.xml

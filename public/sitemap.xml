@@ -15,6 +15,13 @@
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <!-- AI Perfume Recommendation (high-priority) -->
+  <url>
+    <loc>https://scent-wise.com/blog/ai-perfume-recommendations.html</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
   <!-- High-traffic blog articles -->
   <url>
     <loc>https://scent-wise.com/blog/best-mens-fragrances.html</loc>
