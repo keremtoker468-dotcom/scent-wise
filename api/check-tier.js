@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { getProfile, deleteProfile, emptyProfile } = require('./_lib/user-profile');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -18,11 +19,51 @@ function verifySubToken(cookieValue, secret) {
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== 'GET' && req.method !== 'DELETE') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
   if (!rl.allowed) return res.status(429).json({ error: 'Too many requests' });
+
+  // Handle scent profile actions via ?action=profile
+  const url = new URL(req.url, `http://${req.headers.host}`);
+  const action = url.searchParams.get('action');
+
+  // Handle scent profile requests
+  if (action === 'profile') {
+    const isSameOriginProfile = req.headers['sec-fetch-site'] === 'same-origin'
+      || req.headers['x-requested-with'] === 'ScentWise';
+    if (!isSameOriginProfile) return res.status(403).json({ error: 'Forbidden' });
+
+    // Determine profile user ID from auth cookies
+    const profileCookies = parseCookies(req.headers.cookie || '');
+    const profileSubSecret = process.env.SUBSCRIPTION_SECRET;
+    const profileOwnerKey = process.env.OWNER_KEY;
+    let profileUserId = ip; // default: IP for free users
+
+    if (profileOwnerKey && profileCookies.sw_owner && verifyOwnerToken(profileCookies.sw_owner, profileOwnerKey)) {
+      profileUserId = 'owner';
+    } else if (profileSubSecret && profileCookies.sw_sub) {
+      const sub = verifySubToken(profileCookies.sw_sub, profileSubSecret);
+      if (sub) profileUserId = sub.custId;
+    }
+
+    if (req.method === 'DELETE') {
+      try {
+        await deleteProfile(profileUserId);
+        return res.status(200).json({ success: true, message: 'Scent profile reset successfully.' });
+      } catch {
+        return res.status(500).json({ error: 'Failed to reset profile.' });
+      }
+    }
+    // GET profile
+    try {
+      const profile = await getProfile(profileUserId);
+      return res.status(200).json({ profile, hasProfile: profile.queryCount > 0 });
+    } catch {
+      return res.status(200).json({ profile: emptyProfile(), hasProfile: false });
+    }
+  }
 
   // Only allow cookie mutations (clearing invalid subscriptions, setting revalidation)
   // when the request comes from our own origin. This prevents cross-site requests

@@ -295,6 +295,74 @@ function trackFreeUsage(used) {
   trackFunnel('free_trial_used', { queries_used: freeUsed, queries_remaining: FREE_LIMIT - freeUsed });
 }
 
+// ═══════════════ USER SCENT PROFILE ═══════════════
+let scentProfile = null;
+let profileLoading = false;
+
+async function loadScentProfile() {
+  if (profileLoading) return scentProfile;
+  profileLoading = true;
+  try {
+    const r = await fetch('/api/check-tier?action=profile', { credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
+    if (r.ok) {
+      const d = await r.json();
+      scentProfile = d.hasProfile ? d.profile : null;
+    }
+  } catch { scentProfile = null; }
+  profileLoading = false;
+  return scentProfile;
+}
+
+async function resetScentProfile() {
+  try {
+    const r = await fetch('/api/check-tier?action=profile', {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'ScentWise' }
+    });
+    if (r.ok) {
+      scentProfile = null;
+      showToast('Scent profile reset successfully.', 'success');
+      const el = document.getElementById('page-account');
+      if (el) r_account(el);
+    } else {
+      showToast('Failed to reset profile.', 'error');
+    }
+  } catch {
+    showToast('Failed to reset profile.', 'error');
+  }
+}
+
+function renderProfileCard() {
+  if (!scentProfile || scentProfile.queryCount === 0) {
+    return `<div class="glass-panel" style="margin-bottom:18px">
+      <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:10px;text-transform:uppercase">Scent Profile</p>
+      <p style="color:var(--td);font-size:13px;line-height:1.6">Your scent profile will build automatically as you use ScentWise. The AI learns your preferences from your conversations and recommends accordingly.</p>
+    </div>`;
+  }
+  const p = scentProfile;
+  let tags = '';
+  if (p.likedNotes && p.likedNotes.length) tags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Favorite Notes</span><div style="display:flex;flex-wrap:wrap;gap:6px">${p.likedNotes.map(n => `<span class="tag" style="font-size:11px">${esc(n)}</span>`).join('')}</div></div>`;
+  if (p.dislikedNotes && p.dislikedNotes.length) tags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Dislikes</span><div style="display:flex;flex-wrap:wrap;gap:6px">${p.dislikedNotes.map(n => `<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(220,80,80,.12);color:#e88;border:1px solid rgba(220,80,80,.15)">${esc(n)}</span>`).join('')}</div></div>`;
+  if (p.likedBrands && p.likedBrands.length) tags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Preferred Brands</span><div style="display:flex;flex-wrap:wrap;gap:6px">${p.likedBrands.map(b => `<span class="tag" style="font-size:11px">${esc(b)}</span>`).join('')}</div></div>`;
+  if (p.preferredCategories && p.preferredCategories.length) tags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Categories</span><div style="display:flex;flex-wrap:wrap;gap:6px">${p.preferredCategories.map(c => `<span class="tag" style="font-size:11px">${esc(c)}</span>`).join('')}</div></div>`;
+  let meta = '';
+  if (p.genderPref) meta += `<span style="color:var(--td);font-size:12px">Gender: <strong style="color:var(--t)">${esc(p.genderPref)}</strong></span> `;
+  if (p.priceRange) meta += `<span style="color:var(--td);font-size:12px">Budget: <strong style="color:var(--t)">${esc(p.priceRange)}</strong></span> `;
+  if (p.occasions && p.occasions.length) meta += `<span style="color:var(--td);font-size:12px">Occasions: <strong style="color:var(--t)">${p.occasions.map(esc).join(', ')}</strong></span>`;
+
+  return `<div class="glass-panel" style="margin-bottom:18px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin:0">Scent Profile</p>
+      <span style="color:var(--td);font-size:11px">${p.queryCount} interaction${p.queryCount !== 1 ? 's' : ''} learned</span>
+    </div>
+    ${tags}
+    ${meta ? `<div style="display:flex;flex-wrap:wrap;gap:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">${meta}</div>` : ''}
+    ${p.recentRecs && p.recentRecs.length ? `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Recently Recommended</span><p style="color:var(--t);font-size:12px;line-height:1.6;margin:0">${p.recentRecs.slice(0, 8).map(esc).join(' &middot; ')}</p></div>` : ''}
+    <button class="btn-o btn-sm" onclick="resetScentProfile()" style="margin-top:14px;width:100%;text-align:center;font-size:12px">Reset Scent Profile</button>
+  </div>`;
+}
+
 async function unlockPaid() {
   if (LEMON_URL) {
     window.location.href = LEMON_URL;
@@ -492,6 +560,7 @@ async function aiCall(mode, payload) {
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
     else if (typeof d.usage === 'number') trackUsage(d.usage);
     else if (isPaid) trackUsage();
+    if (d.profileActive) scentProfile = scentProfile || { queryCount: d.profileQueryCount };
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
     return d.result || 'No response. Try again.';
   } catch (e) {
@@ -1336,6 +1405,7 @@ function r_chat(el) {
       <div>
         <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
         <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000'}+ perfumes with real notes, accords & ratings</p>
+        ${scentProfile && scentProfile.queryCount > 0 ? `<p style="color:var(--g);font-size:11px;margin-top:4px;opacity:.7">Personalized from ${scentProfile.queryCount} interaction${scentProfile.queryCount !== 1 ? 's' : ''}</p>` : ''}
       </div>
       ${chatMsgs.length > 0 ? `<button class="btn-o btn-sm" onclick="chatMsgs=[];_ssw('chatMsgs',[]);r_chat(document.getElementById('page-chat'))" aria-label="Start a new conversation" style="flex-shrink:0;white-space:nowrap">New Chat</button>` : ''}
     </div>
@@ -1827,8 +1897,16 @@ function r_account(el) {
           <span style="font-size:14px">${isOwner ? 'Unlimited' : aiUsage + ' / ' + MAX_PAID + ' this month'}</span>
         </div>
       </div>
+      ${renderProfileCard()}
       <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center">Log Out</button>
     </div>`;
+    // Load profile asynchronously and re-render the profile card
+    if (!scentProfile && !profileLoading) {
+      loadScentProfile().then(() => {
+        const profEl = document.getElementById('page-account');
+        if (profEl && CP === 'account') r_account(profEl);
+      });
+    }
   } else {
     // Show login form for non-premium users
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:48px auto">
@@ -1953,6 +2031,8 @@ go(_wantAdmin ? 'admin' : 'home');
 (async function() {
   const prevTier = currentTier;
   await checkTier();
+  // Load scent profile in background (non-blocking)
+  loadScentProfile();
   // Handle payment return — verify order with retry for LS API propagation delay
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get('order_id') || params.get('orderId');

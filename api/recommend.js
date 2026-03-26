@@ -3,6 +3,7 @@ const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
 
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);
@@ -93,22 +94,33 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid image type' });
     }
 
+    // Load user scent profile for personalized recommendations
+    const profileUserId = access.authorized ? access.userId : ip;
+    let profile = null;
+    try {
+      profile = await getProfile(profileUserId);
+    } catch { /* profile loading is non-blocking */ }
+    const profileContext = profile ? buildProfilePrompt(profile) : '';
+
     let parts = [];
     let systemText = '';
+    let userTextForProfile = ''; // track user input for profile extraction
 
     if (mode === 'photo') {
-      systemText = 'You are ScentWise — an expert fragrance consultant who matches scents to personal style. Analyze the uploaded photo focusing on clothing style, color palette, accessories and overall aesthetic. Recommend exactly 5 fragrances that match. For each include: **Fragrance Name** by Brand, key notes (top/heart/base), price range ($, $$, $$$), and why it matches. End with 2 budget alternatives.';
+      systemText = 'You are ScentWise — an expert fragrance consultant who matches scents to personal style. Analyze the uploaded photo focusing on clothing style, color palette, accessories and overall aesthetic. Recommend exactly 5 fragrances that match. For each include: **Fragrance Name** by Brand, key notes (top/heart/base), price range ($, $$, $$$), and why it matches. End with 2 budget alternatives.' + profileContext;
       parts = [
         { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
         { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
       ];
+      userTextForProfile = 'photo style scan';
     } else {
-      systemText = 'You are ScentWise AI — a world-class fragrance advisor with encyclopedic knowledge of perfumery including designer, niche, and artisanal fragrances. Provide specific, confident recommendations with fragrance names, brands, key notes, price ranges, and reasons. Format with **bold** for fragrance names. Be conversational and knowledgeable.';
+      systemText = 'You are ScentWise AI — a world-class fragrance advisor with encyclopedic knowledge of perfumery including designer, niche, and artisanal fragrances. Provide specific, confident recommendations with fragrance names, brands, key notes, price ranges, and reasons. Format with **bold** for fragrance names. Be conversational and knowledgeable.' + profileContext;
       const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
       const history = messages && messages.length > 1
         ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
         : '';
       parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
+      userTextForProfile = lastMsg;
     }
 
     const response = await fetch(
@@ -131,6 +143,15 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
     const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+
+    // Update user scent profile with preferences from this interaction (non-blocking)
+    if (profile) {
+      try {
+        const prefs = extractPreferences(userTextForProfile, result);
+        updateProfile(profile, prefs);
+        saveProfile(profileUserId, profile).catch(() => {});
+      } catch { /* profile update is non-blocking */ }
+    }
 
     // Track usage after successful AI call
     if (isFreeTrialRequest && subSecret) {
@@ -156,6 +177,11 @@ module.exports = async function handler(req, res) {
     } else if (access.tier === 'premium') {
       responseData.usage = usageCount;
       responseData.limit = MAX_MONTHLY_QUERIES;
+    }
+    // Include profile learning status
+    if (profile && profile.queryCount > 0) {
+      responseData.profileActive = true;
+      responseData.profileQueryCount = profile.queryCount;
     }
     return res.status(200).json(responseData);
 
