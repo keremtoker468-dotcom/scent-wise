@@ -819,34 +819,36 @@ const cache = {};
 // Birthday to zodiac sign converter
 function bdayToZodiac(input) {
   const s = input.trim().toLowerCase();
-  // Try parsing various date formats
   let m, d;
+
   // DD/MM, DD.MM, DD-MM
-  let p = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})/);
+  const p = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})/);
   if (p) { d = parseInt(p[1]); m = parseInt(p[2]); }
-  // Month name + day
+
+  // Month name + day (e.g. "March 15", "15 March", "15 march 1995")
   if (!m) {
     const months = {jan:1,january:1,feb:2,february:2,mar:3,march:3,apr:4,april:4,may:5,jun:6,june:6,jul:7,july:7,aug:8,august:8,sep:9,september:9,oct:10,october:10,nov:11,november:11,dec:12,december:12};
     for (const [k,v] of Object.entries(months)) {
       if (s.includes(k)) { m = v; const dm = s.match(/\d+/); if (dm) d = parseInt(dm[0]); break; }
     }
   }
+
   if (!m || !d || d < 1 || d > 31 || m < 1 || m > 12) return null;
-  const signs = [
-    [1,20,'Capricorn'],[2,19,'Aquarius'],[3,20,'Pisces'],[4,20,'Aries'],[5,21,'Taurus'],
-    [6,21,'Gemini'],[7,22,'Cancer'],[8,23,'Leo'],[9,23,'Virgo'],[10,23,'Libra'],
-    [11,22,'Scorpio'],[12,22,'Sagittarius'],[12,32,'Capricorn']
-  ];
-  for (let i = 0; i < signs.length - 1; i++) {
-    const [sm,sd] = signs[i], [nm] = signs[i+1];
-    if (m === sm && d >= sd) return signs[i][2];
-    if (m === sm && d < sd) return signs[i-1]?.[2] || 'Capricorn';
-  }
-  // Fallback
-  if (m===1 && d<=20) return 'Capricorn';
-  if (m===1) return 'Aquarius';
-  const z2 = [[1,20,'Aquarius'],[2,19,'Pisces'],[3,20,'Aries'],[4,20,'Taurus'],[5,21,'Gemini'],[6,21,'Cancer'],[7,22,'Leo'],[8,23,'Virgo'],[9,23,'Libra'],[10,23,'Scorpio'],[11,22,'Sagittarius'],[12,21,'Capricorn']];
-  for (const [zm,zd,zn] of z2) { if (m===zm && d<=zd) return z2[z2.indexOf([zm,zd,zn])-1]?.[2]||zn; if (m===zm) return zn; }
+
+  // Use m*100+d for clean range comparisons
+  const n = m * 100 + d;
+  if (n >= 321 && n <= 419) return 'Aries';
+  if (n >= 420 && n <= 520) return 'Taurus';
+  if (n >= 521 && n <= 620) return 'Gemini';
+  if (n >= 621 && n <= 722) return 'Cancer';
+  if (n >= 723 && n <= 822) return 'Leo';
+  if (n >= 823 && n <= 922) return 'Virgo';
+  if (n >= 923 && n <= 1022) return 'Libra';
+  if (n >= 1023 && n <= 1121) return 'Scorpio';
+  if (n >= 1122 && n <= 1221) return 'Sagittarius';
+  if (n >= 1222 || n <= 119) return 'Capricorn';
+  if (n >= 120 && n <= 218) return 'Aquarius';
+  if (n >= 219 && n <= 320) return 'Pisces';
   return null;
 }
 
