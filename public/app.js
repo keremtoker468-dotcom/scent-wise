@@ -36,21 +36,41 @@ const API_URL = '/api/recommend';
 let LEMON_URL = ''; // Dynamically created via /api/create-checkout
 
 // ═══════════════ EMAIL CAPTURE ═══════════════
-function captureEmail(e) {
+async function captureEmail(e) {
   e.preventDefault();
   const input = document.getElementById('hp-email-input');
   const btn = document.getElementById('hp-email-btn');
   const email = input ? input.value.trim() : '';
   if (!email) return false;
-  // Store email in localStorage
-  const emails = JSON.parse(localStorage.getItem('sw_emails') || '[]');
-  if (!emails.includes(email)) emails.push(email);
-  localStorage.setItem('sw_emails', JSON.stringify(emails));
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Subscribing...'; }
+  if (input) input.disabled = true;
+
+  try {
+    const r = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      showToast(d.error || 'Could not subscribe. Please try again.', 'error');
+      if (btn) { btn.disabled = false; btn.textContent = 'Subscribe Free'; }
+      if (input) input.disabled = false;
+      return false;
+    }
+  } catch {
+    showToast('Network error — please check your connection.', 'error');
+    if (btn) { btn.disabled = false; btn.textContent = 'Subscribe Free'; }
+    if (input) input.disabled = false;
+    return false;
+  }
+
   if (typeof gtag === 'function') gtag('event', 'email_captured', { method: 'newsletter' });
   if (btn) btn.textContent = 'Subscribed!';
-  if (input) { input.value = ''; input.placeholder = 'Thank you!'; input.disabled = true; }
-  showToast('You\'re on the list! We\'ll send you fragrance tips and picks.', 'success');
-  setTimeout(() => { if (btn) btn.textContent = 'Subscribe Free'; if (input) { input.disabled = false; input.placeholder = 'Enter your email'; } }, 5000);
+  if (input) { input.value = ''; input.placeholder = 'Thank you!'; }
+  showToast('You\'re on the list! Check your inbox for a welcome email.', 'success');
   return false;
 }
 
@@ -556,14 +576,19 @@ const CAT_IMG_QUERIES = {
   'Warm Spicy':'spicy cinnamon perfume warm'
 };
 
+const _PC_PALETTE = ['#1e2d40','#2d1e40','#1e402d','#402d1e','#401e2d','#2d401e','#1e3840','#38201e'];
+function _pcBg(n) { return _PC_PALETTE[(n||' ').charCodeAt(0) % _PC_PALETTE.length]; }
+
 function perfCard(p) {
   if (!p) return '';
   const cat = esc(p.category||p.c||'');
   const name = esc(p.name||p.n);
   const brand = esc(p.brand||p.b||'');
+  const letter = (p.name||p.n||'?').charAt(0).toUpperCase();
+  const bg = _pcBg(p.name||p.n||'');
   return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
     <div style="display:flex;gap:14px">
-      <div class="pc-thumb"></div>
+      <div class="pc-thumb" style="background:${bg}"><span class="pc-letter">${letter}</span></div>
       <div style="flex:1">
         <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
           <span style="font-weight:600;font-size:14px">${name}</span>
