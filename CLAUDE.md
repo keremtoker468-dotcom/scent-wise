@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-ScentWise is an AI-powered fragrance advisor web application with a database of 75,000+ perfumes, 101 celebrities, and 6 AI recommendation modes. It uses a freemium model: database browsing is free, AI features require a $7/month subscription via Lemon Squeezy.
+ScentWise is an AI-powered fragrance advisor web application with a database of 75,000+ perfumes, 101 celebrities, and 6 AI recommendation modes. It uses a freemium model: database browsing is free, AI features require a $2.99/month subscription via Lemon Squeezy.
 
 ## Tech Stack
 
