@@ -303,7 +303,7 @@ async function loadScentProfile() {
   if (profileLoading) return scentProfile;
   profileLoading = true;
   try {
-    const r = await fetch('/api/user-profile', { credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
+    const r = await fetch('/api/check-tier?action=profile', { credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
     if (r.ok) {
       const d = await r.json();
       scentProfile = d.hasProfile ? d.profile : null;
@@ -315,7 +315,7 @@ async function loadScentProfile() {
 
 async function resetScentProfile() {
   try {
-    const r = await fetch('/api/user-profile', {
+    const r = await fetch('/api/check-tier?action=profile', {
       method: 'DELETE',
       credentials: 'same-origin',
       headers: { 'X-Requested-With': 'ScentWise' }
