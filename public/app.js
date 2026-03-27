@@ -343,16 +343,35 @@ const _likedFrags = new Set(); // track individually liked/disliked fragrances
 
 async function likeFragrance(name, liked, btnEl) {
   const key = name.toLowerCase();
-  if (_likedFrags.has(key + '_up') || _likedFrags.has(key + '_down')) return;
-  _likedFrags.add(key + (liked ? '_up' : '_down'));
 
-  // Update heart icon visually
-  if (btnEl) {
-    btnEl.style.color = liked ? '#f56565' : 'var(--td)';
-    btnEl.style.opacity = '1';
-    btnEl.title = liked ? 'You loved this!' : 'Not for you';
-    btnEl.innerHTML = liked ? '&#9829;' : '&#9825;';
-    btnEl.style.pointerEvents = 'none';
+  // Toggle: if already liked/disliked in the same way, undo it
+  const currentState = _likedFrags.has(key + '_up') ? 'up' : _likedFrags.has(key + '_down') ? 'down' : null;
+  const newAction = liked ? 'up' : 'down';
+
+  if (currentState === newAction) {
+    // Undo — remove the like/dislike
+    _likedFrags.delete(key + '_' + currentState);
+    if (btnEl) {
+      btnEl.style.color = 'rgba(201,169,110,.4)';
+      btnEl.innerHTML = '&#9825;';
+      btnEl.title = 'Love this fragrance';
+      // Re-show the X button if it was hidden
+      const xBtn = btnEl.nextElementSibling;
+      if (xBtn && xBtn.tagName === 'BUTTON') xBtn.style.display = '';
+    }
+    // Send opposite feedback to undo in the profile
+    liked = !liked;
+  } else {
+    // Clear any previous state
+    _likedFrags.delete(key + '_up');
+    _likedFrags.delete(key + '_down');
+    _likedFrags.add(key + '_' + newAction);
+    if (btnEl) {
+      btnEl.style.color = liked ? '#f56565' : 'rgba(201,169,110,.4)';
+      btnEl.style.opacity = '1';
+      btnEl.title = liked ? 'Click again to unlike' : 'Not for you';
+      btnEl.innerHTML = liked ? '&#9829;' : '&#9825;';
+    }
   }
 
   // Find the AI text context — search all assistant messages for this fragrance
@@ -384,16 +403,26 @@ async function likeFragrance(name, liked, btnEl) {
 
 async function likeFragranceCard(name, brand, btnEl) {
   const key = name.toLowerCase();
-  if (_likedFrags.has(key + '_up')) return;
-  _likedFrags.add(key + '_up');
+  const wasLiked = _likedFrags.has(key + '_up');
 
-  // Animate the heart
-  if (btnEl) {
-    btnEl.innerHTML = '&#9829;';
-    btnEl.style.color = '#f56565';
-    btnEl.style.transform = 'scale(1.3)';
-    btnEl.style.pointerEvents = 'none';
-    setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 200);
+  if (wasLiked) {
+    // Toggle off — unlike
+    _likedFrags.delete(key + '_up');
+    if (btnEl) {
+      btnEl.innerHTML = '&#9825;';
+      btnEl.style.color = 'rgba(201,169,110,.35)';
+      btnEl.style.transform = 'scale(1.3)';
+      setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 200);
+    }
+  } else {
+    // Like
+    _likedFrags.add(key + '_up');
+    if (btnEl) {
+      btnEl.innerHTML = '&#9829;';
+      btnEl.style.color = '#f56565';
+      btnEl.style.transform = 'scale(1.3)';
+      setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 200);
+    }
   }
 
   // Build context from the card's perfume data (notes, accords, category)
@@ -412,7 +441,7 @@ async function likeFragranceCard(name, brand, btnEl) {
       method: 'POST',
       credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
-      body: JSON.stringify({ fragranceName: name, aiText, liked: true })
+      body: JSON.stringify({ fragranceName: name, aiText, liked: !wasLiked })
     });
   } catch {}
   profileLoaded = false;
@@ -980,13 +1009,12 @@ function fmt(text) {
         return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
       }
       const key = name.toLowerCase();
-      const alreadyLiked = _likedFrags.has(key + '_up');
-      const alreadyDisliked = _likedFrags.has(key + '_down');
-      const heartColor = alreadyLiked ? '#f56565' : 'rgba(201,169,110,.4)';
-      const heartChar = alreadyLiked ? '&#9829;' : '&#9825;';
-      const inactive = alreadyLiked || alreadyDisliked;
+      const isLiked = _likedFrags.has(key + '_up');
+      const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.4)';
+      const heartChar = isLiked ? '&#9829;' : '&#9825;';
+      const heartTitle = isLiked ? 'Click to unlike' : 'Love this fragrance';
       const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="Love this fragrance" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;${inactive ? 'pointer-events:none;opacity:1' : 'opacity:.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${inactive ? '1' : '.6'}'">${heartChar}</button>${!inactive ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span>`;
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span>`;
     })
     .replace(/\n/g, '<br>');
 
@@ -1048,10 +1076,8 @@ function perfCard(p) {
   const safeName = name.replace(/'/g, "\\'");
   const key = name.toLowerCase();
   const isLiked = _likedFrags.has(key + '_up');
-  const isDisliked = _likedFrags.has(key + '_down');
   const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.35)';
   const heartChar = isLiked ? '&#9829;' : '&#9825;';
-  const inactive = isLiked || isDisliked;
   return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
     <div style="display:flex;gap:14px">
       <div class="pc-thumb" style="background:${bg}"><span class="pc-letter">${letter}</span></div>
@@ -1060,7 +1086,7 @@ function perfCard(p) {
           <span style="font-weight:600;font-size:14px">${name}</span>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
             <span style="color:var(--td);font-size:12px">${esc(p.brand||p.b)}</span>
-            <button onclick="event.stopPropagation();likeFragranceCard('${safeName}','${brand.replace(/'/g, "\\'")}',this)" title="${isLiked ? 'You loved this!' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s;${inactive ? 'pointer-events:none' : ''}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
+            <button onclick="event.stopPropagation();likeFragranceCard('${safeName}','${brand.replace(/'/g, "\\'")}',this)" title="${isLiked ? 'Click to unlike' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
           </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
