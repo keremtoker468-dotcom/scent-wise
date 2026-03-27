@@ -339,6 +339,48 @@ async function resetScentProfile() {
 
 // ═══════════════ SCENT FEEDBACK (Like/Dislike) ═══════════════
 const _ratedMsgs = new Set(); // track rated message indices to prevent double-rating
+const _likedFrags = new Set(); // track individually liked/disliked fragrances
+
+async function likeFragrance(name, liked, btnEl) {
+  const key = name.toLowerCase();
+  if (_likedFrags.has(key + '_up') || _likedFrags.has(key + '_down')) return;
+  _likedFrags.add(key + (liked ? '_up' : '_down'));
+
+  // Update heart icon visually
+  if (btnEl) {
+    btnEl.style.color = liked ? '#f56565' : 'var(--td)';
+    btnEl.style.opacity = '1';
+    btnEl.title = liked ? 'You loved this!' : 'Not for you';
+    btnEl.innerHTML = liked ? '&#9829;' : '&#9825;';
+    btnEl.style.pointerEvents = 'none';
+  }
+
+  // Find the AI text context — search all assistant messages for this fragrance
+  let aiText = '';
+  for (let i = chatMsgs.length - 1; i >= 0; i--) {
+    if (chatMsgs[i].role === 'assistant' && chatMsgs[i].content.includes('**' + name + '**')) {
+      aiText = chatMsgs[i].content;
+      break;
+    }
+  }
+  // Fallback: check mode results
+  if (!aiText) {
+    for (const r of [photoRes, zodiacRes, musicRes, styleRes, dupeRes]) {
+      if (r && r.includes('**' + name + '**')) { aiText = r; break; }
+    }
+  }
+
+  try {
+    await fetch('/api/check-tier?action=profile', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      body: JSON.stringify({ fragranceName: name, aiText: aiText.slice(0, 3000), liked })
+    });
+  } catch {}
+  profileLoaded = false;
+  loadScentProfile();
+}
 
 async function rateScentMsg(msgIdx, liked) {
   const msg = chatMsgs[msgIdx];
@@ -896,7 +938,19 @@ function loadResultImages(container) {
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
   let s = esc(text)
-    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)" data-frag="$1">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, function(_, name) {
+      if (name.startsWith('Oops') || name.startsWith('Something') || name.startsWith('Connection')) {
+        return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
+      }
+      const key = name.toLowerCase();
+      const alreadyLiked = _likedFrags.has(key + '_up');
+      const alreadyDisliked = _likedFrags.has(key + '_down');
+      const heartColor = alreadyLiked ? '#f56565' : 'rgba(201,169,110,.4)';
+      const heartChar = alreadyLiked ? '&#9829;' : '&#9825;';
+      const inactive = alreadyLiked || alreadyDisliked;
+      const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="Love this fragrance" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;${inactive ? 'pointer-events:none;opacity:1' : 'opacity:.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${inactive ? '1' : '.6'}'">${heartChar}</button>${!inactive ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span>`;
+    })
     .replace(/\n/g, '<br>');
 
   // Render blind buy risk badges
