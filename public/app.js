@@ -1829,14 +1829,18 @@ function r_chat(el) {
       <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''} aria-label="Send message">Send</button>
     </div>
   </div>`;
-  document.getElementById('c-end')?.scrollIntoView({behavior:'smooth'});
+  // Auto-scroll the messages container to the bottom after DOM paints
+  requestAnimationFrame(() => {
+    const msgsEl = document.getElementById('c-msgs');
+    if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+  });
   document.getElementById('c-inp')?.focus();
 }
 
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); _chatShouldScroll = true; r_chat(document.getElementById('page-chat')); return; }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
