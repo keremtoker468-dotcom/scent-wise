@@ -56,10 +56,40 @@ module.exports = async function handler(req, res) {
         return res.status(500).json({ error: 'Failed to reset profile.' });
       }
     }
-    // POST feedback (like/dislike a recommendation)
+    // POST feedback (like/dislike) or quiz data
     if (req.method === 'POST') {
       try {
-        const { fragranceName, aiText, liked } = req.body || {};
+        const body = req.body || {};
+
+        // Handle scent profile quiz submission
+        if (body.quiz && typeof body.quiz === 'object') {
+          const quiz = body.quiz;
+          const profile = await getProfile(profileUserId);
+          // Validate and apply quiz fields
+          const validTendencies = ['sweeter', 'sharper', 'powdery', 'stay-true', 'disappear-quickly'];
+          const validClimates = ['hot-humid', 'hot-dry', 'temperate', 'cold'];
+          const validLongevity = ['2-4-hours', '4-8-hours', '8-plus-hours', 'varies'];
+          const validWearContext = ['compliment-getter', 'office-safe', 'date-night', 'signature-scent', 'everyday-casual'];
+          const validIntensity = ['soft', 'moderate', 'strong'];
+
+          const sc = {};
+          if (validTendencies.includes(quiz.tendency)) sc.tendency = quiz.tendency;
+          if (validClimates.includes(quiz.climate)) sc.climate = quiz.climate;
+          if (validLongevity.includes(quiz.longevityOnSkin)) sc.longevityOnSkin = quiz.longevityOnSkin;
+          if (Object.keys(sc).length) profile.skinChemistry = { ...(profile.skinChemistry || {}), ...sc };
+
+          if (Array.isArray(quiz.wearContext)) {
+            profile.wearContext = quiz.wearContext.filter(w => validWearContext.includes(w)).slice(0, 5);
+          }
+          if (validIntensity.includes(quiz.projectionPref)) {
+            profile.intensityPref = quiz.projectionPref;
+          }
+          await saveProfile(profileUserId, profile);
+          return res.status(200).json({ success: true, profile });
+        }
+
+        // Handle like/dislike feedback
+        const { fragranceName, aiText, liked } = body;
         if (!fragranceName || typeof fragranceName !== 'string' || fragranceName.length > 200) {
           return res.status(400).json({ error: 'Invalid fragrance name' });
         }
