@@ -306,7 +306,12 @@ function updateProfile(profile, prefs) {
 
 // Build a profile context string to inject into the system prompt
 function buildProfilePrompt(profile) {
-  if (!profile || profile.queryCount === 0) return '';
+  if (!profile) return '';
+  // Check if profile has any actual data (not just queryCount)
+  const hasData = profile.queryCount > 0 || profile.likedNotes.length || profile.dislikedNotes.length
+    || profile.likedBrands.length || profile.preferredCategories.length || profile.skinChemistry
+    || (profile.wearContext && profile.wearContext.length) || profile.intensityPref;
+  if (!hasData) return '';
 
   const parts = [];
   parts.push('\n\n[User Scent Profile — learned from previous interactions]');
@@ -361,6 +366,9 @@ function buildProfilePrompt(profile) {
 // liked: true = user liked it, false = user disliked it
 function applyFeedback(profile, fragranceName, aiText, liked) {
   if (!fragranceName) return profile;
+
+  // Count feedback interactions so the profile is recognized as active
+  profile.queryCount = (profile.queryCount || 0) + 1;
 
   // Extract notes mentioned near this fragrance in the AI response
   const nameLower = fragranceName.toLowerCase();
