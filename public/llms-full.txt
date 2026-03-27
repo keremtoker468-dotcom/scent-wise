@@ -80,7 +80,7 @@ Browse actual fragrance collections of 101 celebrities including:
 - **2,500 curated top picks** with expert ratings
 - Instant client-side search (no server load, zero latency)
 
-### Expert Guides (35+ Articles)
+### Expert Guides (36+ Articles)
 Comprehensive fragrance guides covering:
 - Best-of lists (men's, women's, niche, budget, seasonal, occasion-based)
 - Dupe guides for 6+ luxury fragrances
