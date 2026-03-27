@@ -451,7 +451,8 @@ function renderProfileCard() {
   if (!scentProfile || scentProfile.queryCount === 0) {
     return `<div class="glass-panel" style="margin-bottom:18px">
       <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:10px;text-transform:uppercase">Scent Profile</p>
-      <p style="color:var(--td);font-size:13px;line-height:1.6">Your scent profile will build automatically as you use ScentWise. The AI learns your preferences from your conversations and recommends accordingly.</p>
+      <p style="color:var(--td);font-size:13px;line-height:1.6;margin-bottom:14px">Your scent profile will build automatically as you use ScentWise. The AI learns your preferences from your conversations and recommends accordingly.</p>
+      <button class="btn-o btn-sm" onclick="openScentQuiz()" style="width:100%;text-align:center;font-size:12px">Take Scent Profile Quiz</button>
     </div>`;
   }
   const p = scentProfile;
@@ -463,7 +464,28 @@ function renderProfileCard() {
   let meta = '';
   if (p.genderPref) meta += `<span style="color:var(--td);font-size:12px">Gender: <strong style="color:var(--t)">${esc(p.genderPref)}</strong></span> `;
   if (p.priceRange) meta += `<span style="color:var(--td);font-size:12px">Budget: <strong style="color:var(--t)">${esc(p.priceRange)}</strong></span> `;
+  if (p.intensityPref) meta += `<span style="color:var(--td);font-size:12px">Intensity: <strong style="color:var(--t)">${esc(p.intensityPref)}</strong></span> `;
   if (p.occasions && p.occasions.length) meta += `<span style="color:var(--td);font-size:12px">Occasions: <strong style="color:var(--t)">${p.occasions.map(esc).join(', ')}</strong></span>`;
+
+  // Skin chemistry & wearability section
+  let skinSection = '';
+  if (p.skinChemistry || (p.wearContext && p.wearContext.length)) {
+    let skinTags = '';
+    if (p.skinChemistry) {
+      const sc = p.skinChemistry;
+      const skinLabels = [];
+      if (sc.tendency) skinLabels.push({ label: sc.tendency.replace(/-/g, ' '), color: 'var(--g)' });
+      if (sc.climate) skinLabels.push({ label: sc.climate.replace(/-/g, ' '), color: 'var(--t)' });
+      if (sc.longevityOnSkin) skinLabels.push({ label: sc.longevityOnSkin.replace(/-/g, ' '), color: 'var(--t)' });
+      if (skinLabels.length) {
+        skinTags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Skin Chemistry</span><div style="display:flex;flex-wrap:wrap;gap:6px">${skinLabels.map(s => `<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,169,110,.08);color:${s.color};border:1px solid rgba(201,169,110,.12)">${esc(s.label)}</span>`).join('')}</div></div>`;
+      }
+    }
+    if (p.wearContext && p.wearContext.length) {
+      skinTags += `<div style="margin-bottom:10px"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Wear Context</span><div style="display:flex;flex-wrap:wrap;gap:6px">${p.wearContext.map(w => `<span class="tag" style="font-size:11px">${esc(w.replace(/-/g, ' '))}</span>`).join('')}</div></div>`;
+    }
+    skinSection = `<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">${skinTags}</div>`;
+  }
 
   return `<div class="glass-panel" style="margin-bottom:18px">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
@@ -472,9 +494,140 @@ function renderProfileCard() {
     </div>
     ${tags}
     ${meta ? `<div style="display:flex;flex-wrap:wrap;gap:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">${meta}</div>` : ''}
+    ${skinSection}
     ${p.recentRecs && p.recentRecs.length ? `<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04)"><span style="color:var(--td);font-size:11px;display:block;margin-bottom:6px">Recently Recommended</span><p style="color:var(--t);font-size:12px;line-height:1.6;margin:0">${p.recentRecs.slice(0, 8).map(esc).join(' &middot; ')}</p></div>` : ''}
-    <button class="btn-o btn-sm" onclick="resetScentProfile()" style="margin-top:14px;width:100%;text-align:center;font-size:12px">Reset Scent Profile</button>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-o btn-sm" onclick="openScentQuiz()" style="flex:1;text-align:center;font-size:12px">${p.skinChemistry ? 'Update Quiz' : 'Take Quiz'}</button>
+      <button class="btn-o btn-sm" onclick="resetScentProfile()" style="flex:1;text-align:center;font-size:12px">Reset Profile</button>
+    </div>
   </div>`;
+}
+
+// ═══════════════ SCENT PROFILE QUIZ ═══════════════
+function openScentQuiz() {
+  // Pre-fill from existing profile if available
+  const sc = scentProfile?.skinChemistry || {};
+  const wc = scentProfile?.wearContext || [];
+  const ip = scentProfile?.intensityPref || '';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'scent-quiz-overlay';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)';
+  overlay.innerHTML = `<div style="background:var(--d2);border:1px solid rgba(201,169,110,.12);border-radius:20px;max-width:460px;width:100%;max-height:90vh;overflow-y:auto;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <h3 style="color:var(--g);font-size:16px;font-weight:600;margin:0">Scent Profile Quiz</h3>
+      <button onclick="closeScentQuiz()" style="background:none;border:none;color:var(--td);font-size:20px;cursor:pointer;padding:4px">&times;</button>
+    </div>
+    <p style="color:var(--td);font-size:13px;line-height:1.6;margin-bottom:20px">Help the AI understand your skin and style. This takes 30 seconds and makes recommendations much more accurate.</p>
+
+    <div style="margin-bottom:18px">
+      <p style="color:var(--t);font-size:13px;font-weight:500;margin-bottom:8px">How do perfumes usually change on your skin?</p>
+      <div id="sq-tendency" style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['sweeter','sharper','powdery','stay-true','disappear-quickly'].map(v => `<button class="sq-pill${sc.tendency === v ? ' sq-sel' : ''}" data-val="${v}" onclick="sqSelect('sq-tendency','${v}',false)" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(201,169,110,.15);background:${sc.tendency === v ? 'rgba(201,169,110,.15)' : 'transparent'};color:${sc.tendency === v ? 'var(--g)' : 'var(--td)'};cursor:pointer">${v.replace(/-/g, ' ')}</button>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <p style="color:var(--t);font-size:13px;font-weight:500;margin-bottom:8px">What's your typical climate?</p>
+      <div id="sq-climate" style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['hot-humid','hot-dry','temperate','cold'].map(v => `<button class="sq-pill${sc.climate === v ? ' sq-sel' : ''}" data-val="${v}" onclick="sqSelect('sq-climate','${v}',false)" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(201,169,110,.15);background:${sc.climate === v ? 'rgba(201,169,110,.15)' : 'transparent'};color:${sc.climate === v ? 'var(--g)' : 'var(--td)'};cursor:pointer">${v.replace(/-/g, ' ')}</button>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <p style="color:var(--t);font-size:13px;font-weight:500;margin-bottom:8px">How long do perfumes typically last on you?</p>
+      <div id="sq-longevity" style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['2-4-hours','4-8-hours','8-plus-hours','varies'].map(v => `<button class="sq-pill${sc.longevityOnSkin === v ? ' sq-sel' : ''}" data-val="${v}" onclick="sqSelect('sq-longevity','${v}',false)" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(201,169,110,.15);background:${sc.longevityOnSkin === v ? 'rgba(201,169,110,.15)' : 'transparent'};color:${sc.longevityOnSkin === v ? 'var(--g)' : 'var(--td)'};cursor:pointer">${v.replace(/-/g, ' ').replace('plus', '+')}</button>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:18px">
+      <p style="color:var(--t);font-size:13px;font-weight:500;margin-bottom:8px">What do you want from your fragrance? <span style="color:var(--td);font-weight:400">(pick all that apply)</span></p>
+      <div id="sq-wear" style="display:flex;flex-wrap:wrap;gap:6px">
+        ${['compliment-getter','office-safe','date-night','signature-scent','everyday-casual'].map(v => `<button class="sq-pill${wc.includes(v) ? ' sq-sel' : ''}" data-val="${v}" onclick="sqSelect('sq-wear','${v}',true)" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(201,169,110,.15);background:${wc.includes(v) ? 'rgba(201,169,110,.15)' : 'transparent'};color:${wc.includes(v) ? 'var(--g)' : 'var(--td)'};cursor:pointer">${v.replace(/-/g, ' ')}</button>`).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:22px">
+      <p style="color:var(--t);font-size:13px;font-weight:500;margin-bottom:8px">How strong do you want your scent?</p>
+      <div id="sq-intensity" style="display:flex;flex-wrap:wrap;gap:6px">
+        ${[{v:'soft',l:'Intimate (close to skin)'},{v:'moderate',l:'Moderate'},{v:'strong',l:'Room-filler'}].map(o => `<button class="sq-pill${ip === o.v ? ' sq-sel' : ''}" data-val="${o.v}" onclick="sqSelect('sq-intensity','${o.v}',false)" style="font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid rgba(201,169,110,.15);background:${ip === o.v ? 'rgba(201,169,110,.15)' : 'transparent'};color:${ip === o.v ? 'var(--g)' : 'var(--td)'};cursor:pointer">${o.l}</button>`).join('')}
+      </div>
+    </div>
+
+    <button class="btn" onclick="submitScentQuiz()" style="width:100%;font-size:14px">Save Profile</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeScentQuiz(); });
+}
+
+function sqSelect(groupId, val, multi) {
+  const group = document.getElementById(groupId);
+  if (!group) return;
+  const btns = group.querySelectorAll('.sq-pill');
+  if (multi) {
+    // Toggle the clicked button
+    btns.forEach(b => {
+      if (b.dataset.val === val) {
+        const selected = b.classList.toggle('sq-sel');
+        b.style.background = selected ? 'rgba(201,169,110,.15)' : 'transparent';
+        b.style.color = selected ? 'var(--g)' : 'var(--td)';
+      }
+    });
+  } else {
+    // Single select — deselect others
+    btns.forEach(b => {
+      const isSel = b.dataset.val === val;
+      b.classList.toggle('sq-sel', isSel);
+      b.style.background = isSel ? 'rgba(201,169,110,.15)' : 'transparent';
+      b.style.color = isSel ? 'var(--g)' : 'var(--td)';
+    });
+  }
+}
+
+function getQuizSelection(groupId, multi) {
+  const group = document.getElementById(groupId);
+  if (!group) return multi ? [] : null;
+  const selected = group.querySelectorAll('.sq-sel');
+  if (multi) return Array.from(selected).map(b => b.dataset.val);
+  return selected.length ? selected[0].dataset.val : null;
+}
+
+async function submitScentQuiz() {
+  const quiz = {
+    tendency: getQuizSelection('sq-tendency', false),
+    climate: getQuizSelection('sq-climate', false),
+    longevityOnSkin: getQuizSelection('sq-longevity', false),
+    wearContext: getQuizSelection('sq-wear', true),
+    projectionPref: getQuizSelection('sq-intensity', false)
+  };
+
+  try {
+    const r = await fetch('/api/check-tier?action=profile', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      body: JSON.stringify({ quiz })
+    });
+    if (r.ok) {
+      const d = await r.json();
+      if (d.profile) scentProfile = d.profile;
+      showToast('Scent profile updated!', 'success');
+      closeScentQuiz();
+      // Re-render account page if visible
+      const el = document.getElementById('page-account');
+      if (el && CP === 'account') r_account(el);
+    } else {
+      showToast('Failed to save quiz.', 'error');
+    }
+  } catch {
+    showToast('Failed to save quiz.', 'error');
+  }
+}
+
+function closeScentQuiz() {
+  const overlay = document.getElementById('scent-quiz-overlay');
+  if (overlay) overlay.remove();
 }
 
 async function unlockPaid() {
@@ -745,6 +898,38 @@ function fmt(text) {
   let s = esc(text)
     .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--g)" data-frag="$1">$1</strong>')
     .replace(/\n/g, '<br>');
+
+  // Render blind buy risk badges
+  s = s.replace(/(?:BLIND BUY RISK|Blind Buy Risk|Risk)[:\s]*(?:<br>)?[\s]*(Low[- ]risk blind buy)/gi,
+    '<span style="display:inline-block;margin:4px 0;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(72,187,120,.12);color:#48bb78;border:1px solid rgba(72,187,120,.18)">$1</span>');
+  s = s.replace(/(?:BLIND BUY RISK|Blind Buy Risk|Risk)[:\s]*(?:<br>)?[\s]*((?:Medium risk|Only buy if)[^<]{0,80})/gi,
+    '<span style="display:inline-block;margin:4px 0;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(236,201,75,.12);color:#ecc94b;border:1px solid rgba(236,201,75,.18)">$1</span>');
+  s = s.replace(/(?:BLIND BUY RISK|Blind Buy Risk|Risk)[:\s]*(?:<br>)?[\s]*(Test first[^<]{0,60})/gi,
+    '<span style="display:inline-block;margin:4px 0;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(245,101,101,.12);color:#f56565;border:1px solid rgba(245,101,101,.18)">$1</span>');
+
+  // Render score lines as visual badges
+  s = s.replace(/(?:SCORES|Scores)?[:\s]*(?:<br>)?[\s]*(?:Longevity[:\s]*(\d)\/5\s*\|?\s*Projection[:\s]*(\d)\/5\s*\|?\s*Uniqueness[:\s]*(\d)\/5\s*\|?\s*Versatility[:\s]*(\d)\/5)/gi,
+    function(_, lon, proj, uniq, vers) {
+      const badge = (label, score) => {
+        const pct = (parseInt(score) / 5) * 100;
+        const color = parseInt(score) >= 4 ? '#48bb78' : parseInt(score) >= 3 ? '#ecc94b' : '#f56565';
+        return `<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);margin:2px">
+          <span style="color:var(--td)">${label}</span>
+          <span style="display:inline-block;width:32px;height:4px;border-radius:2px;background:rgba(255,255,255,.08);position:relative;overflow:hidden"><span style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:2px"></span></span>
+          <span style="color:${color};font-weight:600">${score}</span>
+        </span>`;
+      };
+      return `<div style="display:flex;flex-wrap:wrap;gap:2px;margin:6px 0">${badge('Longevity',lon)}${badge('Projection',proj)}${badge('Uniqueness',uniq)}${badge('Versatility',vers)}</div>`;
+    });
+
+  // Style "WHY IT MATCHES YOU" / "MATCHES YOUR PROFILE" sections
+  s = s.replace(/(?:WHY IT MATCHES YOU|WHY THIS MATCHES|MATCHES YOUR PROFILE|Why it matches you)[:\s]*(?:<br>)?[\s]*([^<]{10,200}?)(?=<br><br>|<br>(?:BLIND|SIMILAR|SCORES|Blind|Similar|Scores|\d\.))/gi,
+    '<div style="margin:4px 0;padding:6px 10px;border-left:2px solid rgba(201,169,110,.3);background:rgba(201,169,110,.04);border-radius:0 8px 8px 0;font-size:12px;color:var(--t);line-height:1.5">$1</div>');
+
+  // Style "SIMILAR TO" comparisons
+  s = s.replace(/(?:SIMILAR TO|Similar to|Comparable to)[:\s]*(?:<br>)?[\s]*([^<]{10,150}?)(?=<br>|$)/gi,
+    '<span style="display:inline-block;margin:2px 0;font-size:12px;color:var(--td);font-style:italic">$1</span>');
+
   // Add retry button to error messages
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
     s += '<br><button onclick="retryLast()" class="btn-o btn-sm" style="margin-top:10px">Try Again</button>';

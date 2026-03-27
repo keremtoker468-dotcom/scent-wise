@@ -15,7 +15,7 @@ function profileKey(userId) {
 // Default empty profile structure
 function emptyProfile() {
   return {
-    v: 1, // schema version
+    v: 2, // schema version
     likedNotes: [],      // e.g. ["vanilla", "oud", "bergamot"]
     dislikedNotes: [],   // e.g. ["patchouli"]
     likedBrands: [],     // e.g. ["Dior", "Tom Ford"]
@@ -24,6 +24,9 @@ function emptyProfile() {
     priceRange: null,    // "$", "$$", "$$$", or null
     occasions: [],       // e.g. ["date night", "office", "summer"]
     recentRecs: [],      // last N recommended fragrance names (avoid repeats)
+    intensityPref: null, // "soft", "moderate", "strong" — from feedback or quiz
+    skinChemistry: null, // { tendency, climate, longevityOnSkin } — from quiz
+    wearContext: [],     // ["compliment-getter", "office-safe", "signature-scent", "date-night", "everyday-casual"]
     queryCount: 0,
     lastUpdated: null
   };
@@ -137,6 +140,7 @@ function extractPreferences(userMsg, aiResponse) {
     genderPref: null,
     priceRange: null,
     occasions: [],
+    intensityPref: null,
     recommendedFragrances: []
   };
 
@@ -157,6 +161,39 @@ function extractPreferences(userMsg, aiResponse) {
   while ((match = dislikePatterns.exec(userMsg)) !== null) {
     const fragment = match[1].toLowerCase();
     const noteWords = extractNoteWords(fragment);
+    prefs.dislikedNotes.push(...noteWords);
+  }
+
+  // "too X" feedback — maps qualities to disliked notes/categories
+  const tooMapping = {
+    sweet: 'sweet', strong: null, heavy: null, light: null, mature: 'powdery',
+    powdery: 'powdery', spicy: 'spicy', floral: 'floral', woody: 'woody',
+    fresh: 'fresh', sharp: 'citrus', musky: 'musky', loud: null, subtle: null,
+    feminine: null, masculine: null, cloying: 'sweet', synthetic: null, soapy: 'clean'
+  };
+  const tooPatterns = /\btoo\s+(sweet|strong|heavy|light|mature|powdery|spicy|floral|woody|fresh|sharp|musky|loud|subtle|feminine|masculine|cloying|synthetic|soapy)\b/gi;
+  while ((match = tooPatterns.exec(userMsg)) !== null) {
+    const quality = match[1].toLowerCase();
+    const note = tooMapping[quality];
+    if (note) prefs.dislikedNotes.push(note);
+    // Infer intensity preference from "too strong/loud" vs "too light/subtle"
+    if (quality === 'strong' || quality === 'heavy' || quality === 'loud') prefs.intensityPref = 'soft';
+    if (quality === 'light' || quality === 'subtle') prefs.intensityPref = 'strong';
+  }
+
+  // "love/like the dry-down/projection/longevity" — positive feature feedback
+  const posFeaturePatterns = /\b(?:love|like|great|amazing|perfect|excellent)\s+(?:the\s+|this\s+|that\s+)?(?:dry.?down|opening|sillage|projection|longevity|performance|scent\s*trail|lasting\s*power)\b/gi;
+  // (captured for context — Gemini uses this via profile prompt but no direct profile field needed)
+
+  // "hate/dislike the dry-down/opening" — negative feature feedback
+  const negFeaturePatterns = /\b(?:hate|dislike|bad|terrible|weak|poor)\s+(?:the\s+|this\s+|that\s+)?(?:dry.?down|opening|sillage|projection|longevity|performance)\b/gi;
+
+  // Negative implicit feedback — "smells old/cheap/generic"
+  const negImplicit = /\b(?:smells?\s+(?:old|cheap|generic|dated|like grandma|like old lady|like cologne)|not\s+my\s+style|way\s+too\s+(?:heavy|sweet|strong)|gives?\s+me\s+(?:a\s+)?headache)\b/gi;
+  while ((match = negImplicit.exec(userMsg)) !== null) {
+    // Extract any note words from the surrounding context
+    const ctx = userMsg.substring(Math.max(0, match.index - 30), Math.min(userMsg.length, match.index + match[0].length + 30));
+    const noteWords = extractNoteWords(ctx.toLowerCase());
     prefs.dislikedNotes.push(...noteWords);
   }
 
@@ -257,6 +294,9 @@ function updateProfile(profile, prefs) {
   if (prefs.occasions.length) {
     profile.occasions = addUnique(profile.occasions, prefs.occasions, 8);
   }
+  if (prefs.intensityPref) {
+    profile.intensityPref = prefs.intensityPref;
+  }
   if (prefs.recommendedFragrances.length) {
     profile.recentRecs = addUnique(profile.recentRecs, prefs.recommendedFragrances, MAX_HISTORY);
   }
@@ -292,11 +332,25 @@ function buildProfilePrompt(profile) {
   if (profile.occasions.length) {
     parts.push(`Common occasions: ${profile.occasions.join(', ')}`);
   }
+  if (profile.intensityPref) {
+    parts.push(`Projection/intensity preference: ${profile.intensityPref}`);
+  }
+  if (profile.skinChemistry) {
+    const sc = profile.skinChemistry;
+    let skinDesc = 'Skin chemistry:';
+    if (sc.tendency) skinDesc += ` Perfumes tend to turn ${sc.tendency} on their skin.`;
+    if (sc.climate) skinDesc += ` Climate: ${sc.climate}.`;
+    if (sc.longevityOnSkin) skinDesc += ` Typical longevity on skin: ${sc.longevityOnSkin}.`;
+    parts.push(skinDesc);
+  }
+  if (profile.wearContext && profile.wearContext.length) {
+    parts.push(`Wear context priorities: ${profile.wearContext.join(', ')}`);
+  }
   if (profile.recentRecs.length) {
     parts.push(`Previously recommended (try to suggest new options): ${profile.recentRecs.slice(0, 10).join(', ')}`);
   }
 
-  parts.push('Use this profile to personalize recommendations. Prioritize their preferred notes and avoid disliked ones. Suggest new fragrances they haven\'t seen before when possible.');
+  parts.push('Use this profile to personalize every recommendation. For each fragrance, explain WHY it matches this user\'s specific profile. Prioritize their preferred notes and avoid disliked ones. Factor in their skin chemistry and wear context when available. Suggest new fragrances they haven\'t seen before when possible.');
 
   return parts.join('\n');
 }
