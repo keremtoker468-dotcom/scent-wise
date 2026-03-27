@@ -382,6 +382,43 @@ async function likeFragrance(name, liked, btnEl) {
   loadScentProfile();
 }
 
+async function likeFragranceCard(name, brand, btnEl) {
+  const key = name.toLowerCase();
+  if (_likedFrags.has(key + '_up')) return;
+  _likedFrags.add(key + '_up');
+
+  // Animate the heart
+  if (btnEl) {
+    btnEl.innerHTML = '&#9829;';
+    btnEl.style.color = '#f56565';
+    btnEl.style.transform = 'scale(1.3)';
+    btnEl.style.pointerEvents = 'none';
+    setTimeout(() => { btnEl.style.transform = 'scale(1)'; }, 200);
+  }
+
+  // Build context from the card's perfume data (notes, accords, category)
+  let aiText = `**${name}** by ${brand}`;
+  // Look up rich data from the decoded RL map
+  const rlKey = (name + '|' + brand).toLowerCase();
+  if (typeof RL !== 'undefined' && RL[rlKey]) {
+    const d = RL[rlKey];
+    if (d.t) aiText += `. Notes: ${d.t}`;
+    if (d.a) aiText += `. Accords: ${d.a}`;
+    if (d.c) aiText += `. Category: ${d.c}`;
+  }
+
+  try {
+    await fetch('/api/check-tier?action=profile', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      body: JSON.stringify({ fragranceName: name, aiText, liked: true })
+    });
+  } catch {}
+  profileLoaded = false;
+  loadScentProfile();
+}
+
 async function rateScentMsg(msgIdx, liked) {
   const msg = chatMsgs[msgIdx];
   if (!msg || msg.role !== 'assistant') return;
@@ -1008,13 +1045,23 @@ function perfCard(p) {
   const brand = esc(p.brand||p.b||'');
   const letter = (p.name||p.n||'?').charAt(0).toUpperCase();
   const bg = _pcBg(p.name||p.n||'');
+  const safeName = name.replace(/'/g, "\\'");
+  const key = name.toLowerCase();
+  const isLiked = _likedFrags.has(key + '_up');
+  const isDisliked = _likedFrags.has(key + '_down');
+  const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.35)';
+  const heartChar = isLiked ? '&#9829;' : '&#9825;';
+  const inactive = isLiked || isDisliked;
   return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
     <div style="display:flex;gap:14px">
       <div class="pc-thumb" style="background:${bg}"><span class="pc-letter">${letter}</span></div>
       <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <span style="font-weight:600;font-size:14px">${name}</span>
-          <span style="color:var(--td);font-size:12px;flex-shrink:0;margin-left:8px">${esc(p.brand||p.b)}</span>
+          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
+            <span style="color:var(--td);font-size:12px">${esc(p.brand||p.b)}</span>
+            <button onclick="event.stopPropagation();likeFragranceCard('${safeName}','${brand.replace(/'/g, "\\'")}',this)" title="${isLiked ? 'You loved this!' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s;${inactive ? 'pointer-events:none' : ''}" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
+          </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
           ${cat ? `<span class="tag" style="font-size:10px;padding:3px 10px">${cat}</span>` : ''}
