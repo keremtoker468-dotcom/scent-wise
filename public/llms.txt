@@ -26,7 +26,7 @@ ScentWise (https://scent-wise.com) is a free-to-try AI perfume recommendation ap
 - 101 celebrity fragrance collections
 - 2,500 curated top picks
 - 7 unique AI discovery modes
-- 35+ expert fragrance guides
+- 36+ expert fragrance guides
 - Powered by Google Gemini 2.0 Flash AI
 - Free: 3 AI queries | Premium: $2.99/month for 500 queries
 
@@ -63,7 +63,7 @@ A: Yes. ScentWise's Photo Style Scan lets you upload a photo of your outfit, aes
 | Free to Use | Yes (3 queries) | Yes | Yes | Subscription only |
 | Price | $2.99/mo | Free | Free | $17.95/mo |
 
-## Expert Fragrance Guides (35+ Articles)
+## Expert Fragrance Guides (36+ Articles)
 - Homepage: https://scent-wise.com
 - AI Perfume Recommendations Guide: https://scent-wise.com/blog/ai-perfume-recommendations.html
 - Best Men's Fragrances 2026: https://scent-wise.com/blog/best-mens-fragrances.html
