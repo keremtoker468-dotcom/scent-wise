@@ -35,12 +35,15 @@
   }
 
   function loadCard(card) {
-    if (card.querySelector('.frag-thumb')) return;
     var nameEl = card.querySelector('.frag-name');
     if (!nameEl) return;
     var name = nameEl.textContent.trim();
     var brandEl = card.querySelector('.frag-brand');
     var brand = brandEl ? cleanBrand(brandEl.textContent) : '';
+
+    addAmazonBtn(card, name, brand);
+
+    if (card.querySelector('.frag-thumb')) return;
 
     var thumb = document.createElement('div');
     thumb.className = 'frag-thumb';
@@ -52,8 +55,6 @@
 
     var rank = card.querySelector('.frag-rank');
     if (rank) rank.after(thumb); else card.insertBefore(thumb, card.firstChild);
-
-    addAmazonBtn(card, name, brand);
 
     fetch('/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand))
       .then(function (r) { return r.ok ? r.json() : []; })
