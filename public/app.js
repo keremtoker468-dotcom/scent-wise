@@ -1716,21 +1716,6 @@ function r_home(el) {
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
   </footer>
   </div>`;
-  // Load hero background photo from Unsplash
-  fetchImg('luxury perfume bottle dark background').then(imgs => {
-    if (imgs[0]) {
-      const hero = document.querySelector('.hp-hero');
-      if (hero && !hero.querySelector('.hp-hero-photo')) {
-        const div = document.createElement('div');
-        div.className = 'hp-hero-photo';
-        div.style.backgroundImage = 'url(' + imgs[0].url + ')';
-        hero.prepend(div);
-        const bgImg = new Image();
-        bgImg.onload = () => div.classList.add('loaded');
-        bgImg.src = imgs[0].url;
-      }
-    }
-  });
   // Initialize reveal animations for homepage
   setTimeout(() => {
     // Enable reveal animations (content is visible by default without .hp-anim)
