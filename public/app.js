@@ -1023,7 +1023,7 @@ function fmt(text) {
       const fragName = byMatch ? byMatch[1] : name;
       const fragBrand = byMatch ? byMatch[2] : '';
       const amzUrl = amazonLink(fragName, fragBrand);
-      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}<a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;font-size:11px;color:#f90;padding:0 4px;text-decoration:none;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">&#128722; Amazon</a></span>`;
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}<a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#f90;padding:2px 8px;margin-left:2px;border-radius:6px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s" onmouseover="this.style.background='rgba(255,153,0,.18)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Amazon</a></span>`;
     })
     .replace(/\n/g, '<br>');
 
@@ -1310,7 +1310,7 @@ function _ss(k) { try { return JSON.parse(sessionStorage.getItem('sw_'+k)); } ca
 function _ssw(k,v) { try { sessionStorage.setItem('sw_'+k, JSON.stringify(v)); } catch {} }
 
 let CP = 'home';
-let chatMsgs = _ss('chatMsgs') || [], chatLoad = false;
+let chatMsgs = _ss('chatMsgs') || [], chatLoad = false, _chatShouldScroll = false, _chatScrollToLast = false;
 let photoB64 = null, photoPrev = null, photoRes = _ss('photoRes') || '', photoLoad = false;
 let selZ = _ss('selZ'), zodiacRes = _ss('zodiacRes') || '', zodiacLoad = false, zodiacChat = _ss('zodiacChat') || [], zodiacChatLoad = false;
 let selM = _ss('selM'), musicRes = _ss('musicRes') || '', musicLoad = false, musicChat = _ss('musicChat') || [], musicChatLoad = false;
@@ -1850,11 +1850,20 @@ function r_chat(el) {
       <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''} aria-label="Send message">Send</button>
     </div>
   </div>`;
-  // Auto-scroll the messages container to the bottom after DOM paints
-  requestAnimationFrame(() => {
-    const msgsEl = document.getElementById('c-msgs');
-    if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
-  });
+  // Auto-scroll: to bottom when user sends, to last message when AI responds
+  if (_chatShouldScroll) {
+    _chatShouldScroll = false;
+    requestAnimationFrame(() => {
+      const msgsEl = document.getElementById('c-msgs');
+      if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+    });
+  } else if (_chatScrollToLast) {
+    _chatScrollToLast = false;
+    requestAnimationFrame(() => {
+      const lastMsg = document.getElementById('c-msgs')?.querySelector('.cb-a:last-of-type');
+      if (lastMsg) lastMsg.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
   document.getElementById('c-inp')?.focus();
 }
 
@@ -1866,6 +1875,7 @@ async function cSend(text) {
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
   chatLoad = true;
+  _chatShouldScroll = true;
   r_chat(document.getElementById('page-chat'));
 
   // Build context from local DB (ensure loaded)
@@ -1878,6 +1888,7 @@ async function cSend(text) {
   chatMsgs.push({role:'assistant',content:reply});
   _ssw('chatMsgs', chatMsgs);
   chatLoad = false;
+  _chatScrollToLast = true;
   r_chat(document.getElementById('page-chat'));
   setTimeout(() => loadResultImages(document.querySelector('.chat-msgs')), 100);
 }
