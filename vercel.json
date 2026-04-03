@@ -65,6 +65,13 @@
       ]
     },
     {
+      "source": "/ads.txt",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400" },
+        { "key": "Content-Type", "value": "text/plain" }
+      ]
+    },
+    {
       "source": "/llms.txt",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400" },
