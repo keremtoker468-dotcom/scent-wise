@@ -15,6 +15,25 @@
 
   function cleanBrand(s) { return s.replace(/[\u2014\-].*$/, '').replace(/~?\$[\d.]+.*$/, '').trim(); }
 
+  var AMZ_TAG = 'scentwise20-20';
+  function amzLink(name, brand) {
+    return 'https://www.amazon.com/s?k=' + encodeURIComponent(name + ' ' + brand + ' perfume') + '&tag=' + AMZ_TAG;
+  }
+  function addAmazonBtn(card, name, brand) {
+    if (card.querySelector('.amz-btn')) return;
+    var a = document.createElement('a');
+    a.href = amzLink(name, brand);
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.className = 'amz-btn';
+    a.textContent = 'Shop on Amazon';
+    a.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin-top:8px;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:background .2s';
+    a.onmouseover = function() { a.style.background = 'rgba(255,153,0,.15)'; };
+    a.onmouseout = function() { a.style.background = 'rgba(255,153,0,.08)'; };
+    var info = card.querySelector('.frag-info');
+    if (info) info.appendChild(a);
+  }
+
   function loadCard(card) {
     if (card.querySelector('.frag-thumb')) return;
     var nameEl = card.querySelector('.frag-name');
@@ -33,6 +52,8 @@
 
     var rank = card.querySelector('.frag-rank');
     if (rank) rank.after(thumb); else card.insertBefore(thumb, card.firstChild);
+
+    addAmazonBtn(card, name, brand);
 
     fetch('/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand))
       .then(function (r) { return r.ok ? r.json() : []; })

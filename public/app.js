@@ -1001,6 +1001,11 @@ function loadResultImages(container) {
 }
 
 // ═══════════════ HELPERS ═══════════════
+const AMAZON_TAG = 'scentwise20-20';
+function amazonLink(name, brand) {
+  const q = encodeURIComponent((name || '') + ' ' + (brand || '') + ' perfume');
+  return 'https://www.amazon.com/s?k=' + q + '&tag=' + AMAZON_TAG;
+}
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
   let s = esc(text)
@@ -1014,7 +1019,11 @@ function fmt(text) {
       const heartChar = isLiked ? '&#9829;' : '&#9825;';
       const heartTitle = isLiked ? 'Click to unlike' : 'Love this fragrance';
       const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span>`;
+      const byMatch = name.match(/^(.+?)\s+by\s+(.+)$/i);
+      const fragName = byMatch ? byMatch[1] : name;
+      const fragBrand = byMatch ? byMatch[2] : '';
+      const amzUrl = amazonLink(fragName, fragBrand);
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:14px;color:${heartColor};padding:0 2px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:12px;color:rgba(255,255,255,.25);padding:0 2px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}<a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;font-size:11px;color:#f90;padding:0 4px;text-decoration:none;opacity:.7;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">&#128722; Amazon</a></span>`;
     })
     .replace(/\n/g, '<br>');
 
@@ -1096,6 +1105,7 @@ function perfCard(p) {
         </div>
         ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
         ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
+        <a href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
       </div>
     </div>
   </div>`;
