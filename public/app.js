@@ -1058,6 +1058,13 @@ function fmt(text) {
   s = s.replace(/(?:SIMILAR TO|Similar to|Comparable to)[:\s]*(?:<br>)?[\s]*([^<]{10,150}?)(?=<br>|$)/gi,
     '<span style="display:inline-block;margin:2px 0;font-size:12px;color:var(--td);font-style:italic">$1</span>');
 
+  // Fallback: Add Amazon links for numbered recommendations without bold formatting
+  // Matches patterns like: "1. Fragrance Name by Brand —" or "1. Fragrance Name by Brand -"
+  s = s.replace(/(\d+\.\s+)(?!<strong)([A-Z][^<\n—\-]{2,60}?)\s+by\s+([A-Z][^<\n—\-]{2,40}?)(\s*[—\-])/g, function(_, num, fragName, brand, dash) {
+    const url = amazonLink(fragName.trim(), brand.trim());
+    return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#f90;padding:2px 8px;margin-left:2px;border-radius:6px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s" onmouseover="this.style.background=\'rgba(255,153,0,.18)\'" onmouseout="this.style.background=\'rgba(255,153,0,.08)\'">Amazon</a>' + dash;
+  });
+
   // Add retry button to error messages
   if (text.startsWith('**Oops!**') || text.startsWith('**Something went wrong') || text.startsWith('**Connection issue')) {
     s += '<br><button onclick="retryLast()" class="btn-o btn-sm" style="margin-top:10px">Try Again</button>';
