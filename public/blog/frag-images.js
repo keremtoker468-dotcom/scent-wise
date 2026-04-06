@@ -21,6 +21,8 @@
     if (lang.indexOf('fr') === 0) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
     if (lang.indexOf('es') === 0) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
     if (lang.indexOf('it') === 0) return { domain: 'amazon.it', tag: 'scentwisede09-21' };
+    if (lang === 'nl-be' || lang === 'fr-be') return { domain: 'amazon.com.be', tag: 'scentwisebe-21' };
+    if (lang.indexOf('nl') === 0) return { domain: 'amazon.com.be', tag: 'scentwisebe-21' };
     if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' };
     return { domain: 'amazon.com', tag: 'scentwise20-20' };
   })();
