@@ -31,9 +31,15 @@ module.exports = async function handler(req, res) {
 
   // Handle scent profile requests
   if (action === 'profile') {
-    const isSameOriginProfile = req.headers['sec-fetch-site'] === 'same-origin'
-      || req.headers['x-requested-with'] === 'ScentWise';
-    if (!isSameOriginProfile) return res.status(403).json({ error: 'Forbidden' });
+    // Use full CSRF validation for mutating profile requests
+    if (req.method === 'POST' || req.method === 'DELETE') {
+      const { validateOrigin } = require('./_lib/csrf');
+      if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+    } else {
+      const isSameOriginProfile = req.headers['sec-fetch-site'] === 'same-origin'
+        || req.headers['x-requested-with'] === 'ScentWise';
+      if (!isSameOriginProfile) return res.status(403).json({ error: 'Forbidden' });
+    }
 
     // Determine profile user ID from auth cookies
     const profileCookies = parseCookies(req.headers.cookie || '');
@@ -121,8 +127,16 @@ module.exports = async function handler(req, res) {
   // Only allow cookie mutations (clearing invalid subscriptions, setting revalidation)
   // when the request comes from our own origin. This prevents cross-site requests
   // from triggering subscription cookie clearing via <img> or other GET vectors.
-  const isSameOrigin = req.headers['sec-fetch-site'] === 'same-origin'
+  // Check both sec-fetch-site and referer/origin for broader browser support.
+  const originHeader = req.headers['origin'];
+  const refererHeader = req.headers['referer'];
+  const hostHeader = req.headers['host'];
+  let isSameOrigin = req.headers['sec-fetch-site'] === 'same-origin'
     || req.headers['x-requested-with'] === 'ScentWise';
+  if (!isSameOrigin && hostHeader) {
+    try { if (originHeader && new URL(originHeader).host === hostHeader) isSameOrigin = true; } catch {}
+    try { if (!isSameOrigin && refererHeader && new URL(refererHeader).host === hostHeader) isSameOrigin = true; } catch {}
+  }
 
   const cookies = parseCookies(req.headers.cookie || '');
   const subSecret = process.env.SUBSCRIPTION_SECRET;

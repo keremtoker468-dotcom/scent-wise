@@ -749,7 +749,7 @@ async function unlockPaid() {
   try {
     const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
     const d = await r.json();
-    if (d.url) {
+    if (d.url && /^https:\/\/[^/]*lemonsqueezy\.com(\/|$)/.test(d.url)) {
       LEMON_URL = d.url;
       if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
       window.location.href = d.url;
