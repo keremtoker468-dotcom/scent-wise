@@ -15,9 +15,17 @@
 
   function cleanBrand(s) { return s.replace(/[\u2014\-].*$/, '').replace(/~?\$[\d.]+.*$/, '').trim(); }
 
-  var AMZ_TAG = 'scentwise20-20';
+  var _amzGeo = (function() {
+    var lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+    if (lang.indexOf('de') === 0) return { domain: 'amazon.de', tag: 'scentwisede20-21' };
+    if (lang.indexOf('fr') === 0) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
+    if (lang.indexOf('es') === 0) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
+    if (lang.indexOf('it') === 0) return { domain: 'amazon.it', tag: 'scentwisede01-21' };
+    if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwisede0f-21' };
+    return { domain: 'amazon.com', tag: 'scentwise20-20' };
+  })();
   function amzLink(name, brand) {
-    return 'https://www.amazon.com/s?k=' + encodeURIComponent(name + ' ' + brand + ' perfume') + '&tag=' + AMZ_TAG;
+    return 'https://www.' + _amzGeo.domain + '/s?k=' + encodeURIComponent(name + ' ' + brand + ' perfume') + '&tag=' + _amzGeo.tag;
   }
   function addAmazonBtn(card, name, brand) {
     if (card.querySelector('.amz-btn')) return;
