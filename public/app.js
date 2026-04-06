@@ -1006,7 +1006,7 @@ const _AMZ_GEO = (function() {
   if (lang.startsWith('de')) return { domain: 'amazon.de', tag: 'scentwisede20-21' };
   if (lang.startsWith('fr')) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
   if (lang.startsWith('es')) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
-  if (lang.startsWith('it')) return { domain: 'amazon.it', tag: 'scentwisede01-21' };
+  if (lang.startsWith('it')) return { domain: 'amazon.it', tag: 'scentwisede09-21' };
   if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' };
   return { domain: 'amazon.com', tag: 'scentwise20-20' };
 })();
