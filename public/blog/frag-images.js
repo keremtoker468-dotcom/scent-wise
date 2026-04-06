@@ -21,7 +21,7 @@
     if (lang.indexOf('fr') === 0) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
     if (lang.indexOf('es') === 0) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
     if (lang.indexOf('it') === 0) return { domain: 'amazon.it', tag: 'scentwisede01-21' };
-    if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwisede0f-21' };
+    if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' };
     return { domain: 'amazon.com', tag: 'scentwise20-20' };
   })();
   function amzLink(name, brand) {
