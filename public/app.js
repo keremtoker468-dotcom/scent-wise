@@ -1935,7 +1935,7 @@ function r_photo(el) {
       <p style="font-size:17px;margin-bottom:8px;font-weight:500">Drop a photo here or click to upload</p>
       <p style="color:var(--td);font-size:13px">We'll analyze your style and match fragrances to your vibe</p>
     </div>`:`<div class="glass-panel" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
-      <img src="${photoPrev}" style="width:200px;height:260px;object-fit:cover;border-radius:var(--r);border:1px solid var(--d4);box-shadow:var(--shadow)">
+      <img src="${photoPrev}" alt="Your uploaded photo for style analysis" style="width:200px;max-width:100%;height:260px;object-fit:cover;border-radius:var(--r);border:1px solid var(--d4);box-shadow:var(--shadow)">
       <div style="flex:1;min-width:250px">
         ${!photoRes&&!photoLoad?`
           <p style="margin-bottom:18px;color:var(--td);font-size:14px">Photo uploaded. Ready to analyze your style.</p>
