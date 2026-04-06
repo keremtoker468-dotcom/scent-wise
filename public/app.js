@@ -1001,10 +1001,18 @@ function loadResultImages(container) {
 }
 
 // ═══════════════ HELPERS ═══════════════
-const AMAZON_TAG = 'scentwise20-20';
+const _AMZ_GEO = (function() {
+  const lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  if (lang.startsWith('de')) return { domain: 'amazon.de', tag: 'scentwisede20-21' };
+  if (lang.startsWith('fr')) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
+  if (lang.startsWith('es')) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
+  if (lang.startsWith('it')) return { domain: 'amazon.it', tag: 'scentwisede01-21' };
+  if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwisede0f-21' };
+  return { domain: 'amazon.com', tag: 'scentwise20-20' };
+})();
 function amazonLink(name, brand) {
   const q = encodeURIComponent((name || '') + ' ' + (brand || '') + ' perfume');
-  return 'https://www.amazon.com/s?k=' + q + '&tag=' + AMAZON_TAG;
+  return 'https://www.' + _AMZ_GEO.domain + '/s?k=' + q + '&tag=' + _AMZ_GEO.tag;
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function fmt(text) {
