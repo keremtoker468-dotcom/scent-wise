@@ -29,8 +29,9 @@ module.exports = async function handler(req, res) {
   } else if (typeof req.body === 'string') {
     rawBody = req.body;
   } else if (req.body && typeof req.body === 'object') {
-    // Body was pre-parsed by middleware — re-serialize (less reliable, but functional)
-    rawBody = JSON.stringify(req.body);
+    // Body was pre-parsed — reject since re-serialization may differ from original
+    console.error('Webhook received pre-parsed body — signature verification unreliable');
+    return res.status(400).json({ error: 'Invalid request body format' });
   } else {
     // Body parser is disabled — read from stream
     const chunks = [];
