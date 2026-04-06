@@ -13,6 +13,7 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 - **Hosting**: Vercel
 - **Rate Limiting / Free Usage Tracking**: Upstash Redis (with in-memory fallback)
 - **PWA**: Service Worker (`public/sw.js`) with offline support
+- **Monetization**: Amazon Associates (affiliate links), Google AdSense (display ads), CJ Affiliate (FragranceX)
 
 ## Project Structure
 
@@ -22,30 +23,37 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   │   ├── csrf.js             # CSRF protection via Origin/Referer validation
 │   │   ├── owner-token.js      # Owner auth with weekly rotating HMAC tokens
 │   │   ├── rate-limit.js       # Rate limiter (Upstash Redis + in-memory fallback)
-│   │   └── usage.js            # Usage tracking (premium cookie-based, free IP-based via Redis)
+│   │   ├── usage.js            # Usage tracking (premium cookie-based, free IP-based via Redis)
+│   │   └── user-profile.js     # User fragrance profile storage (Upstash Redis)
 │   ├── check-tier.js           # Check user subscription tier
 │   ├── create-checkout.js      # Create Lemon Squeezy checkout session
 │   ├── debug-config.js         # Debug endpoint for config verification
+│   ├── img.js                  # Image proxy endpoint
 │   ├── login.js                # Login endpoint
 │   ├── owner-auth.js           # Owner authentication
 │   ├── perfumes.js             # Perfume data API
 │   ├── recommend.js            # Main AI recommendation endpoint (Gemini API)
+│   ├── subscribe.js            # Subscription management endpoint
+│   ├── unsplash.js             # Unsplash image API proxy
 │   ├── verify-subscription.js  # Verify order via Lemon Squeezy API, set auth cookie
 │   └── webhook.js              # Lemon Squeezy webhook handler (signature-verified)
 ├── public/                     # Static frontend files (served by Vercel)
 │   ├── index.html              # Main SPA (~61KB, contains all UI)
-│   ├── app.js                  # Main application JavaScript (~94KB)
+│   ├── app.js                  # Main application JavaScript (~100KB)
 │   ├── perfumes.js             # Full perfume database (~2MB, client-side search)
 │   ├── perfumes-rich.js        # Extended perfume data (~1.1MB)
 │   ├── sw.js                   # Service Worker (offline caching)
 │   ├── manifest.json           # PWA manifest
+│   ├── ads.txt                 # Google AdSense domain verification
 │   ├── blog/                   # SEO blog articles (static HTML)
+│   │   └── frag-images.js      # Shared blog script (perfume images + Amazon links)
 │   ├── privacy.html            # Privacy policy
 │   ├── terms.html              # Terms of service
 │   ├── refund.html             # Refund policy
 │   ├── sitemap.xml             # SEO sitemap
 │   ├── robots.txt              # Crawler directives
-│   └── llms.txt                # LLM-friendly site description
+│   ├── llms.txt                # LLM-friendly site description
+│   └── llms-full.txt           # Extended LLM site description
 ├── package.json                # Project metadata (minimal — no build step)
 ├── vercel.json                 # Vercel config (rewrites, security headers, caching)
 └── README.md                   # Deployment guide
@@ -89,6 +97,21 @@ Required in Vercel dashboard:
 - **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get 3 trial queries (IP-tracked via Redis to prevent incognito bypass).
 - **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v5`.
 
+## Amazon Affiliate Integration
+
+- **Geo-targeting**: `_AMZ_GEO` in `app.js` detects browser language and routes to the nearest Amazon store (US, DE, FR, ES, IT, UK, BE).
+- **OneLink**: Amazon OneLink is configured server-side for automatic redirection across 10 countries (US, FR, DE, IT, ES, UK, CA, NL, PL, SE). No client-side script needed.
+- **Affiliate tags**: US `scentwise20-20`, DE `scentwisede20-21`, FR `scentwisede0e-21`, ES `scentwised09f-21`, IT `scentwisede09-21`, UK `scentwiseuk-21`, BE `scentwisebe-21`.
+- **Placement**: "Shop on Amazon" buttons appear on perfume cards (`perfCard()`), AI recommendation responses (`fmt()`), celebrity fragrance lists (`r_celeb()`), and blog articles (`frag-images.js`).
+- **`amazonLink(name, brand)`**: Helper function that builds a search URL with the correct regional domain and affiliate tag.
+
+## Google AdSense
+
+- **Publisher ID**: `ca-pub-9709272849743576`
+- **ads.txt**: Located at `public/ads.txt` for domain verification.
+- **CSP headers**: `vercel.json` includes `googlesyndication.com`, `doubleclick.net`, `adservice.google.com` in script-src, connect-src, img-src, and frame-src.
+- **AdSense script**: Added to `index.html` and all blog HTML files.
+
 ## Conventions
 
 - All server code uses **CommonJS** (`require`/`module.exports`), not ESM.
@@ -96,4 +119,4 @@ Required in Vercel dashboard:
 - API endpoints return JSON and use standard HTTP status codes (400, 403, 405, 413, 429, 500).
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_owner` (owner auth).
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
-- Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline.
+- Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.
