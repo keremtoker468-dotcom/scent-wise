@@ -949,6 +949,17 @@ async function aiCall(mode, payload) {
 
 // ═══════════════ IMAGE HELPER (Bing + Unsplash) ═══════════════
 const _imgCache = {};
+const _imgCacheKeys = []; // Track insertion order for eviction
+const _IMG_CACHE_MAX = 200;
+
+function _evictImgCache() {
+  while (_imgCacheKeys.length > _IMG_CACHE_MAX) {
+    const old = _imgCacheKeys.shift();
+    delete _imgCache[old];
+    try { sessionStorage.removeItem(old); } catch {}
+  }
+}
+
 async function fetchImg(query, n, name, brand) {
   n = n || 1;
   const ck = name ? 'img_' + name + '_' + (brand || '') : 'img_' + query + '_' + n;
@@ -962,6 +973,8 @@ async function fetchImg(query, n, name, brand) {
     if (!r.ok) return [];
     const imgs = await r.json();
     _imgCache[ck] = imgs;
+    _imgCacheKeys.push(ck);
+    _evictImgCache();
     try { sessionStorage.setItem(ck, JSON.stringify(imgs)); } catch {}
     return imgs;
   } catch { return []; }
