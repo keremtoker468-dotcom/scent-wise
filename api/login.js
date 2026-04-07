@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin, validateContentType } = require('./_lib/csrf');
+const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 
 function makeToken(subscriptionId, customerId, secret) {
   return crypto.createHmac('sha256', secret).update(subscriptionId + ':' + customerId).digest('hex');
@@ -11,6 +11,7 @@ module.exports = async function handler(req, res) {
 
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
   if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+  if (isBodyTooLarge(req)) return res.status(413).json({ error: 'Request too large' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`login:${ip}`, 5, 60000); // 5 attempts/min

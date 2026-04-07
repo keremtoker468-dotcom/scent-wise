@@ -35,4 +35,13 @@ function validateContentType(req) {
   return ct.includes('application/json');
 }
 
-module.exports = { validateOrigin, validateContentType };
+// Returns true if body size exceeds limit. Default 1MB.
+function isBodyTooLarge(req, maxBytes = 1048576) {
+  const cl = parseInt(req.headers['content-length'], 10);
+  if (!isNaN(cl) && cl > maxBytes) return true;
+  if (typeof req.body === 'string' && Buffer.byteLength(req.body) > maxBytes) return true;
+  if (Buffer.isBuffer(req.body) && req.body.length > maxBytes) return true;
+  return false;
+}
+
+module.exports = { validateOrigin, validateContentType, isBodyTooLarge };

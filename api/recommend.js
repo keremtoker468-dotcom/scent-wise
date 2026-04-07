@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin, validateContentType } = require('./_lib/csrf');
+const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
@@ -35,6 +35,7 @@ module.exports = async function handler(req, res) {
 
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
   if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+  if (isBodyTooLarge(req, 10 * 1024 * 1024)) return res.status(413).json({ error: 'Request too large' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
