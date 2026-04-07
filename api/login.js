@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
+const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 
 function makeToken(subscriptionId, customerId, secret) {
   return crypto.createHmac('sha256', secret).update(subscriptionId + ':' + customerId).digest('hex');
@@ -10,6 +10,8 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+  if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+  if (isBodyTooLarge(req)) return res.status(413).json({ error: 'Request too large' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`login:${ip}`, 5, 60000); // 5 attempts/min
@@ -59,7 +61,7 @@ module.exports = async function handler(req, res) {
         let detail = '';
         try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
         if (custRes.status === 401 || custRes.status === 403) {
-          return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
+          return res.status(502).json({ error: 'Subscription service temporarily unavailable. Please try again later.' });
         }
         return res.status(502).json({ error: 'Could not look up subscription. Please try again later.' });
       }
@@ -92,7 +94,7 @@ module.exports = async function handler(req, res) {
     if (!ordersRes.ok) {
       const errBody = await ordersRes.text().catch(() => '');
       console.error(`LS customer orders API error: ${ordersRes.status} — ${errBody}`);
-      return res.status(502).json({ error: `Could not retrieve orders (upstream HTTP ${ordersRes.status}). Please try again later.` });
+      return res.status(502).json({ error: 'Could not retrieve subscription details. Please try again later.' });
     }
 
     const ordersData = await ordersRes.json();

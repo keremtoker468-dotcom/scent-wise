@@ -4,6 +4,10 @@ const crypto = require('crypto');
 // This endpoint logs events for monitoring; actual auth uses cookie-based verification.
 // Set LEMONSQUEEZY_WEBHOOK_SECRET in Vercel env vars (from LS dashboard > Webhooks).
 
+// In-memory idempotency cache (event_id → timestamp). TTL: 10 minutes.
+const _processedEvents = new Map();
+const IDEMPOTENCY_TTL = 10 * 60 * 1000;
+
 function verifySignature(rawBody, signature, secret) {
   if (!signature || !secret) return false;
   const hmac = crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
@@ -54,8 +58,25 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
   const eventName = payload.meta?.event_name;
+  const eventId = payload.meta?.webhook_id || payload.data?.id;
   const customData = payload.meta?.custom_data || {};
   const attrs = payload.data?.attributes || {};
+
+  // Idempotency: skip already-processed events
+  if (eventId) {
+    const idempKey = `${eventName}:${eventId}`;
+    if (_processedEvents.has(idempKey)) {
+      return res.status(200).json({ received: true, duplicate: true });
+    }
+    _processedEvents.set(idempKey, Date.now());
+    // Prune old entries
+    if (_processedEvents.size > 500) {
+      const now = Date.now();
+      for (const [k, t] of _processedEvents) {
+        if (now - t > IDEMPOTENCY_TTL) _processedEvents.delete(k);
+      }
+    }
+  }
 
   const expectedStoreId = process.env.LEMONSQUEEZY_STORE_ID;
   if (expectedStoreId && String(attrs.store_id) !== expectedStoreId) {

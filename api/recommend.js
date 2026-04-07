@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
+const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
@@ -34,6 +34,8 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+  if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+  if (isBodyTooLarge(req, 10 * 1024 * 1024)) return res.status(413).json({ error: 'Request too large' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
@@ -145,17 +147,30 @@ If the user hasn't stated preferences yet, infer from their questions and still 
       userTextForProfile = lastMsg;
     }
 
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: { maxOutputTokens: 2500, temperature: 0.8 }
-        })
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    let response;
+    try {
+      response = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: { maxOutputTokens: 2500, temperature: 0.8 }
+          }),
+          signal: controller.signal
+        }
+      );
+    } catch (fetchErr) {
+      clearTimeout(timeout);
+      if (fetchErr.name === 'AbortError') {
+        return res.status(504).json({ error: 'AI service took too long to respond. Please try again.' });
       }
-    );
+      throw fetchErr;
+    }
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errText = await response.text();

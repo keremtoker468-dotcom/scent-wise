@@ -29,4 +29,19 @@ function validateOrigin(req) {
   return false;
 }
 
-module.exports = { validateOrigin };
+function validateContentType(req) {
+  if (['GET', 'HEAD', 'OPTIONS', 'DELETE'].includes(req.method)) return true;
+  const ct = (req.headers['content-type'] || '').toLowerCase();
+  return ct.includes('application/json');
+}
+
+// Returns true if body size exceeds limit. Default 1MB.
+function isBodyTooLarge(req, maxBytes = 1048576) {
+  const cl = parseInt(req.headers['content-length'], 10);
+  if (!isNaN(cl) && cl > maxBytes) return true;
+  if (typeof req.body === 'string' && Buffer.byteLength(req.body) > maxBytes) return true;
+  if (Buffer.isBuffer(req.body) && req.body.length > maxBytes) return true;
+  return false;
+}
+
+module.exports = { validateOrigin, validateContentType, isBodyTooLarge };
