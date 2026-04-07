@@ -2217,6 +2217,71 @@ async function sFollow() {
   styleChatLoad = false; r_style(document.getElementById('page-style'));
 }
 
+// ═══════════════ DUPE FINDER — DB SIMILARITY ═══════════════
+function _parseNoteWords(noteStr) {
+  if (!noteStr) return new Set();
+  return new Set(noteStr.toLowerCase().replace(/[;,()]/g,' ').split(/\s+/).filter(w => w.length > 2 && !['and','the','with','for','des','top','mid','base','from','note','notes'].includes(w)));
+}
+
+function findDbDupes(fragName) {
+  if (!_dbLoaded || RD.length === 0) return null;
+  // Find target in RD by best name match
+  const fl = fragName.toLowerCase().trim();
+  if (fl.length < 3) return null;
+  let target = null, bestScore = 0;
+  for (const p of RD) {
+    const nl = p.n.toLowerCase();
+    let s = 0;
+    if (nl === fl) { s = 100; }
+    else if (nl.startsWith(fl + ' ')) { s = 90 - (nl.length - fl.length); } // "Aventus" -> "Aventus 10th Anniversary"
+    else if (nl.startsWith(fl)) { s = 70 - (nl.length - fl.length); }
+    else if (fl.length >= 5 && nl.includes(fl)) { s = 60 - (nl.length - fl.length); }
+    if (s > bestScore) { bestScore = s; target = p; }
+    if (s === 100) break;
+  }
+  if (!target || bestScore < 40 || !target.a) return null;
+  // Parse target accords and notes
+  const tAccords = new Set(target.a.split(', ').filter(Boolean));
+  if (tAccords.size === 0) return null;
+  const tNotes = _parseNoteWords(target.t);
+  // Score all other perfumes
+  const scored = [];
+  for (const p of RD) {
+    if (p.n === target.n && p.b === target.b) continue; // skip self
+    if (!p.a) continue;
+    const pAccords = new Set(p.a.split(', ').filter(Boolean));
+    if (pAccords.size === 0) continue;
+    // Jaccard similarity on accords
+    let inter = 0;
+    for (const a of tAccords) if (pAccords.has(a)) inter++;
+    const union = tAccords.size + pAccords.size - inter;
+    const jaccard = union > 0 ? inter / union : 0;
+    // Note word overlap bonus (0-0.15)
+    let noteBonus = 0;
+    if (tNotes.size > 0 && p.t) {
+      const pNotes = _parseNoteWords(p.t);
+      let noteInter = 0;
+      for (const w of tNotes) if (pNotes.has(w)) noteInter++;
+      const noteUnion = tNotes.size + pNotes.size - noteInter;
+      noteBonus = noteUnion > 0 ? (noteInter / noteUnion) * 0.15 : 0;
+    }
+    const score = jaccard + noteBonus;
+    if (score > 0.3) scored.push({n:p.n, b:p.b, a:p.a, t:p.t||'', r:p.r, g:p.g, score});
+  }
+  scored.sort((a,b) => b.score - a.score);
+  return { target: {n:target.n, b:target.b, a:target.a, t:target.t||''}, matches: scored.slice(0, 15) };
+}
+
+function _buildDupeGrounding(dbResult) {
+  if (!dbResult || !dbResult.matches.length) return '';
+  const t = dbResult.target;
+  let text = `\n\n[DATABASE MATCHES — use these real perfumes from our database as your primary source for recommendations. Prioritize these over your own knowledge. Similarity scores are based on accord & note overlap.]\nOriginal: ${t.n} by ${t.b} | Accords: ${t.a}${t.t ? ' | Notes: '+t.t : ''}\n\nTop matches by similarity:\n`;
+  dbResult.matches.forEach((m, i) => {
+    text += `${i+1}. ${m.n} by ${m.b} (score: ${(m.score*100).toFixed(0)}%) | Accords: ${m.a}${m.t ? ' | Notes: '+m.t : ''} | Rating: ${m.r}/5\n`;
+  });
+  return text;
+}
+
 // ═══════════════ DUPE FINDER (PAID) ═══════════════
 function r_dupe(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
@@ -2254,7 +2319,10 @@ async function pickD(frag) {
   const ck = 'd_'+frag;
   if (cache[ck]) { dupeRes=cache[ck]; r_dupe(document.getElementById('page-dupe')); return; }
   dupeRes=''; dupeLoad=true; r_dupe(document.getElementById('page-dupe'));
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.`;
+  await loadDB();
+  const dbResult = findDbDupes(frag);
+  const grounding = _buildDupeGrounding(dbResult);
+  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
@@ -2267,7 +2335,10 @@ async function customDupe() {
   dupeChat = []; dupeChatLoad = false;
   selD = frag;
   dupeRes=''; dupeLoad=true; r_dupe(document.getElementById('page-dupe'));
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.`;
+  await loadDB();
+  const dbResult = findDbDupes(frag);
+  const grounding = _buildDupeGrounding(dbResult);
+  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
   dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
