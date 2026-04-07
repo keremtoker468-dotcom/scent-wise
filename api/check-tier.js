@@ -33,8 +33,9 @@ module.exports = async function handler(req, res) {
   if (action === 'profile') {
     // Use full CSRF validation for mutating profile requests
     if (req.method === 'POST' || req.method === 'DELETE') {
-      const { validateOrigin } = require('./_lib/csrf');
+      const { validateOrigin, validateContentType } = require('./_lib/csrf');
       if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+      if (req.method === 'POST' && !validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
     } else {
       const isSameOriginProfile = req.headers['sec-fetch-site'] === 'same-origin'
         || req.headers['x-requested-with'] === 'ScentWise';

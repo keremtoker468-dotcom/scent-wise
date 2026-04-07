@@ -1,12 +1,13 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
-const { validateOrigin } = require('./_lib/csrf');
+const { validateOrigin, validateContentType } = require('./_lib/csrf');
 const { makeOwnerToken } = require('./_lib/owner-token');
 
 module.exports = async function handler(req, res) {
   // --- Login ---
   if (req.method === 'POST') {
     if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+    if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
 
     const ip = getClientIp(req);
     const rl = await rateLimit(`owner-auth:${ip}`, 5, 60000); // 5 attempts/min

@@ -29,4 +29,10 @@ function validateOrigin(req) {
   return false;
 }
 
-module.exports = { validateOrigin };
+function validateContentType(req) {
+  if (['GET', 'HEAD', 'OPTIONS', 'DELETE'].includes(req.method)) return true;
+  const ct = (req.headers['content-type'] || '').toLowerCase();
+  return ct.includes('application/json');
+}
+
+module.exports = { validateOrigin, validateContentType };
