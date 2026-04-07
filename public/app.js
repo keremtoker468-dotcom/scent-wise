@@ -1136,7 +1136,10 @@ function perfCard(p) {
         </div>
         ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
         ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
-        <a href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:all .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <a href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:all .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
+          <button class="cmp-btn" data-cmp-name="${safeName}" data-cmp-brand="${brand.replace(/'/g, "&#39;")}" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--g);background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.15);cursor:pointer;transition:all .2s;min-height:36px" onmouseover="this.style.background='rgba(201,169,110,.15)'" onmouseout="this.style.background='rgba(201,169,110,.08)'">+ Compare</button>
+        </div>
       </div>
     </div>
   </div>`;
@@ -1350,6 +1353,7 @@ let selD = _ss('selD'), dupeRes = _ss('dupeRes') || '', dupeLoad = false, dupeCh
 let photoChat = _ss('photoChat') || [], photoChatLoad = false;
 let celebQ = '';
 let expQ = '', expFilter = 'all', expResults = [];
+let _compareList = []; // max 3 perfumes for comparison
 const cache = {};
 
 // Birthday to zodiac sign converter
@@ -1544,15 +1548,112 @@ document.addEventListener('touchend',function(e){
   if(dx>0&&ci>0)go(MODES[ci-1].id);
 },{passive:true});
 
-// Delegated click handler for heart buttons on perfume cards
+// Delegated click handler for heart buttons and compare buttons on perfume cards
 document.addEventListener('click', function(e) {
-  const btn = e.target.closest('.heart-btn');
-  if (!btn) return;
-  e.stopPropagation();
-  const name = btn.dataset.heartName;
-  const brand = (btn.dataset.heartBrand || '').replace(/&#39;/g, "'");
-  if (name) likeFragranceCard(name, brand, btn);
+  const heart = e.target.closest('.heart-btn');
+  if (heart) {
+    e.stopPropagation();
+    const name = heart.dataset.heartName;
+    const brand = (heart.dataset.heartBrand || '').replace(/&#39;/g, "'");
+    if (name) likeFragranceCard(name, brand, heart);
+    return;
+  }
+  const cmp = e.target.closest('.cmp-btn');
+  if (cmp) {
+    e.stopPropagation();
+    const name = cmp.dataset.cmpName;
+    const brand = (cmp.dataset.cmpBrand || '').replace(/&#39;/g, "'");
+    if (name) addToCompare(name, brand);
+    return;
+  }
 });
+
+// ═══════════════ FRAGRANCE COMPARISON ═══════════════
+function addToCompare(name, brand) {
+  const key = (name + '|' + brand).toLowerCase();
+  if (_compareList.some(c => (c.name + '|' + c.brand).toLowerCase() === key)) {
+    showToast('Already in compare list', 'info');
+    return;
+  }
+  if (_compareList.length >= 3) {
+    showToast('Max 3 fragrances — remove one first', 'info');
+    return;
+  }
+  const p = find(name, brand);
+  _compareList.push({ name, brand, data: p });
+  _renderCompareBar();
+  showToast(`${name} added to compare`, 'success');
+}
+
+function removeFromCompare(idx) {
+  _compareList.splice(idx, 1);
+  _renderCompareBar();
+}
+
+function clearCompare() {
+  _compareList = [];
+  _renderCompareBar();
+}
+
+function _renderCompareBar() {
+  let bar = document.getElementById('compare-bar');
+  if (_compareList.length === 0) {
+    if (bar) bar.remove();
+    return;
+  }
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'compare-bar';
+    bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--c2);border:1px solid var(--b);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:90vw;backdrop-filter:blur(12px)';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = _compareList.map((c, i) =>
+    `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--c3);border-radius:8px;font-size:12px">
+      <span style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
+      <button onclick="removeFromCompare(${i})" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">&times;</button>
+    </div>`
+  ).join('') +
+  `<button onclick="showComparison()" class="btn btn-sm" style="font-size:12px;padding:8px 16px;white-space:nowrap" ${_compareList.length < 2 ? 'disabled style="opacity:.5;font-size:12px;padding:8px 16px;white-space:nowrap"' : ''}>Compare ${_compareList.length}/3</button>
+   <button onclick="clearCompare()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:18px;padding:0 4px;line-height:1" title="Clear all">&times;</button>`;
+}
+
+function showComparison() {
+  if (_compareList.length < 2) return;
+  const items = _compareList.map(c => c.data || { n: c.name, b: c.brand });
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  const cols = items.map(p => {
+    const name = esc(p.n || p.name || '');
+    const brand = esc(p.b || p.brand || '');
+    const cat = esc(p.c || p.category || '—');
+    const gender = esc(p.g || p.gender || '—');
+    const rating = p.r || p.rating || '—';
+    const notes = esc(p.t || p.notes || '—');
+    const accords = esc(p.a || p.accords || '—');
+    const conc = esc(p.c || p.concentration || '—');
+    return `<div style="flex:1;min-width:200px;max-width:320px">
+      <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--g)">${name}</div>
+      <div style="font-size:12px;color:var(--td);margin-bottom:16px">${brand}</div>
+      <div class="cmp-row"><span class="cmp-label">Rating</span><span>${rating !== '—' ? '★ ' + rating : '—'}</span></div>
+      <div class="cmp-row"><span class="cmp-label">Gender</span><span>${gender}</span></div>
+      <div class="cmp-row"><span class="cmp-label">Type</span><span>${conc}</span></div>
+      <div class="cmp-row"><span class="cmp-label">Accords</span><span style="font-size:11px;line-height:1.5">${accords}</span></div>
+      <div class="cmp-row"><span class="cmp-label">Notes</span><span style="font-size:11px;line-height:1.5">${notes}</span></div>
+      <a href="${amazonLink(p.n||p.name, p.b||p.brand)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none">Shop on Amazon</a>
+    </div>`;
+  }).join('<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>');
+
+  overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:28px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <h3 style="font-size:18px;font-weight:600">Fragrance Comparison</h3>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px">&times;</button>
+    </div>
+    <div style="display:flex;gap:20px;overflow-x:auto">${cols}</div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
 
 // ═══════════════ HOME ═══════════════
 function r_home(el) {
