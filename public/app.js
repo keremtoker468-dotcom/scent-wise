@@ -2734,8 +2734,9 @@ rNav();
 // Check if ?admin is in URL before first render
 const _initParams = new URLSearchParams(window.location.search);
 const _wantAdmin = _initParams.has('admin');
+const _initMode = _initParams.get('mode');
 
-go(_wantAdmin ? 'admin' : 'home');
+go(_wantAdmin ? 'admin' : (_initMode && ['dupe','chat','explore','photo','zodiac','music','style','celeb'].includes(_initMode) ? _initMode : 'home'));
 
 // Database loads on-demand when user navigates to explore/chat/celeb pages
 

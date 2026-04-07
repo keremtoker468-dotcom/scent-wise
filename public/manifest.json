@@ -28,5 +28,25 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dupe Finder",
+      "short_name": "Dupes",
+      "url": "/?mode=dupe",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AI Chat Advisor",
+      "short_name": "Chat",
+      "url": "/?mode=chat",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Explore Fragrances",
+      "short_name": "Explore",
+      "url": "/?mode=explore",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
