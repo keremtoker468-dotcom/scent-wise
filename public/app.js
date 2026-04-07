@@ -341,6 +341,56 @@ async function resetScentProfile() {
 // ═══════════════ SCENT FEEDBACK (Like/Dislike) ═══════════════
 const _ratedMsgs = new Set(); // track rated message indices to prevent double-rating
 const _likedFrags = new Set(); // track individually liked/disliked fragrances
+// Persist liked fragrances to localStorage
+function _saveCollection() {
+  try { localStorage.setItem('sw_collection', JSON.stringify([..._likedFrags])); } catch {}
+}
+function _loadCollection() {
+  try { const d = JSON.parse(localStorage.getItem('sw_collection')); if (Array.isArray(d)) d.forEach(k => _likedFrags.add(k)); } catch {}
+}
+_loadCollection();
+
+function _getCollectionItems() {
+  const items = [];
+  for (const k of _likedFrags) {
+    if (!k.endsWith('_up')) continue;
+    const name = k.slice(0, -3);
+    // Try to find rich data
+    const p = find(name, '');
+    items.push({ name: p ? p.n : name, brand: p ? p.b : '', data: p });
+  }
+  return items;
+}
+
+function removeFromCollection(name) {
+  const key = name.toLowerCase() + '_up';
+  _likedFrags.delete(key);
+  _saveCollection();
+  const el = document.getElementById('page-account');
+  if (el && CP === 'account') r_account(el);
+}
+
+function _renderCollection() {
+  const items = _getCollectionItems();
+  if (items.length === 0) return '';
+  return `<div class="glass-panel" style="margin-top:18px">
+    <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">My Collection (${items.length})</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${items.map(item => {
+        const safeName = esc(item.name).replace(/'/g, "\\'");
+        return `<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--c3);border-radius:10px">
+          <span style="color:#f56565;font-size:16px">&#9829;</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(item.name)}</div>
+            ${item.brand ? `<div style="font-size:11px;color:var(--td)">${esc(item.brand)}</div>` : ''}
+          </div>
+          <a href="${amazonLink(item.name, item.brand)}" target="_blank" rel="noopener noreferrer" style="color:#f90;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">Amazon</a>
+          <button onclick="removeFromCollection('${safeName}')" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:16px;padding:0 4px" title="Remove">&times;</button>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
 
 async function likeFragrance(name, liked, btnEl) {
   const key = name.toLowerCase();
@@ -352,6 +402,7 @@ async function likeFragrance(name, liked, btnEl) {
   if (currentState === newAction) {
     // Undo — remove the like/dislike
     _likedFrags.delete(key + '_' + currentState);
+    _saveCollection();
     if (btnEl) {
       btnEl.style.color = 'rgba(201,169,110,.4)';
       btnEl.innerHTML = '&#9825;';
@@ -367,6 +418,7 @@ async function likeFragrance(name, liked, btnEl) {
     _likedFrags.delete(key + '_up');
     _likedFrags.delete(key + '_down');
     _likedFrags.add(key + '_' + newAction);
+    _saveCollection();
     if (btnEl) {
       btnEl.style.color = liked ? '#f56565' : 'rgba(201,169,110,.4)';
       btnEl.style.opacity = '1';
@@ -409,6 +461,7 @@ async function likeFragranceCard(name, brand, btnEl) {
   if (wasLiked) {
     // Toggle off — unlike
     _likedFrags.delete(key + '_up');
+    _saveCollection();
     if (btnEl) {
       btnEl.innerHTML = '&#9825;';
       btnEl.style.color = 'rgba(201,169,110,.35)';
@@ -418,6 +471,7 @@ async function likeFragranceCard(name, brand, btnEl) {
   } else {
     // Like
     _likedFrags.add(key + '_up');
+    _saveCollection();
     if (btnEl) {
       btnEl.innerHTML = '&#9829;';
       btnEl.style.color = '#f56565';
@@ -2554,7 +2608,8 @@ function r_account(el) {
         </div>
       </div>
       ${renderProfileCard()}
-      <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center">Log Out</button>
+      ${_renderCollection()}
+      <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center;margin-top:18px">Log Out</button>
     </div>`;
     // Load profile asynchronously and re-render once
     if (!profileLoaded && !profileLoading) {
@@ -2588,6 +2643,7 @@ function r_account(el) {
         </div>
         <div id="order-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
       </div>
+      ${_renderCollection()}
       <div style="text-align:center">
         <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $2.99/month</a></p>
       </div>
