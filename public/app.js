@@ -1126,7 +1126,7 @@ function perfCard(p) {
           <span style="font-weight:600;font-size:14px">${name}</span>
           <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
             <span style="color:var(--td);font-size:12px">${esc(p.brand||p.b)}</span>
-            <button onclick="event.stopPropagation();likeFragranceCard('${safeName}','${brand.replace(/'/g, "\\'")}',this)" title="${isLiked ? 'Click to unlike' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
+            <button class="heart-btn" data-heart-name="${safeName}" data-heart-brand="${brand.replace(/'/g, "&#39;")}" title="${isLiked ? 'Click to unlike' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
           </div>
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
@@ -1543,6 +1543,16 @@ document.addEventListener('touchend',function(e){
   if(dx<0&&ci<MODES.length-1)go(MODES[ci+1].id);
   if(dx>0&&ci>0)go(MODES[ci-1].id);
 },{passive:true});
+
+// Delegated click handler for heart buttons on perfume cards
+document.addEventListener('click', function(e) {
+  const btn = e.target.closest('.heart-btn');
+  if (!btn) return;
+  e.stopPropagation();
+  const name = btn.dataset.heartName;
+  const brand = (btn.dataset.heartBrand || '').replace(/&#39;/g, "'");
+  if (name) likeFragranceCard(name, brand, btn);
+});
 
 // ═══════════════ HOME ═══════════════
 function r_home(el) {
