@@ -128,6 +128,7 @@ let RD = [];
 const RL = {};
 let _dbLoaded = false;
 let _dbLoadPromise = null;
+let _expDebounce = null;
 
 function _decodeDB() {
   return new Promise(resolve => {
@@ -1799,8 +1800,8 @@ function r_explore(el) {
     <div class="glass-panel" style="margin-bottom:24px">
       <div class="inp-row" style="margin-bottom:14px">
         <label for="exp-inp" class="sr-only">Search fragrances</label>
-        <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter')doExp()" autocomplete="off">
-        <button class="btn btn-sm" onclick="doExp()" aria-label="Search fragrances">Search</button>
+        <input type="text" id="exp-inp" placeholder="Search by name, brand, category..." value="${esc(expQ)}" onkeydown="if(event.key==='Enter'){clearTimeout(_expDebounce);doExp()}" oninput="clearTimeout(_expDebounce);_expDebounce=setTimeout(doExp,300)" autocomplete="off">
+        <button class="btn btn-sm" onclick="clearTimeout(_expDebounce);doExp()" aria-label="Search fragrances">Search</button>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         ${filters.map(f => `<button class="fbtn ${expFilter===f?'ac':''}" onclick="expFilter='${f}';doExp()">${f==='all'?'All':f}</button>`).join('')}
