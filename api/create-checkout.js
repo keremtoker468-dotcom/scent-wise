@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`checkout:${ip}`, 5, 60000); // 5 attempts/min
-  if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
 
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;

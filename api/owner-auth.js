@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
 
     const ip = getClientIp(req);
     const rl = await rateLimit(`owner-auth:${ip}`, 5, 60000); // 5 attempts/min
-    if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
+    if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
 
     const { key } = req.body || {};
     const ownerKey = process.env.OWNER_KEY;

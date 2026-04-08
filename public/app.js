@@ -370,11 +370,28 @@ function removeFromCollection(name) {
   if (el && CP === 'account') r_account(el);
 }
 
+function exportCollection() {
+  const items = _getCollectionItems();
+  if (items.length === 0) { showToast('Collection is empty', 'info'); return; }
+  const text = 'My ScentWise Collection\n' + '='.repeat(30) + '\n\n'
+    + items.map((item, i) => `${i + 1}. ${item.name}${item.brand ? ' by ' + item.brand : ''}`).join('\n')
+    + '\n\nDiscover your perfect scent at scent-wise.com';
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('Collection copied to clipboard!', 'success'));
+  } else {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    showToast('Collection copied to clipboard!', 'success');
+  }
+}
+
 function _renderCollection() {
   const items = _getCollectionItems();
   if (items.length === 0) return '';
   return `<div class="glass-panel" style="margin-top:18px">
-    <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">My Collection (${items.length})</p>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;margin:0">My Collection (${items.length})</p>
+      <button onclick="exportCollection()" style="background:var(--gl,rgba(201,169,110,.08));border:1px solid rgba(201,169,110,.15);color:var(--g);padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s" title="Copy collection to clipboard">Export</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       ${items.map(item => {
         const safeName = esc(item.name).replace(/'/g, "\\'");
@@ -2034,7 +2051,7 @@ function r_chat(el) {
       ${chatMsgs.length > 0 ? `<button class="btn-o btn-sm" onclick="chatMsgs=[];_ssw('chatMsgs',[]);r_chat(document.getElementById('page-chat'))" aria-label="Start a new conversation" style="flex-shrink:0;white-space:nowrap">New Chat</button>` : ''}
     </div>
     ${trialBanner}
-    <div class="msgs" id="c-msgs">
+    <div class="msgs" id="c-msgs" role="log" aria-live="polite" aria-label="Chat messages">
       ${chatMsgs.length===0?`<div style="display:flex;flex-direction:column;gap:10px;margin-top:24px">
         <p style="color:var(--td);font-size:13px;margin-bottom:4px;font-weight:500">Try asking:</p>
         ${sugg.map((s,i)=>`<div class="card fi stagger-${i+1}" onclick="cSend('${s}')" style="padding:14px 18px;cursor:pointer;font-size:14px">${s}</div>`).join('')}
@@ -2053,18 +2070,22 @@ function r_chat(el) {
       <button class="btn btn-sm" onclick="cSend()" ${chatLoad?'disabled':''} aria-label="Send message">Send</button>
     </div>
   </div>`;
-  // Auto-scroll: to bottom when user sends, to last message when AI responds
+  // Auto-scroll within chat container only (never scroll the outer page)
   if (_chatShouldScroll) {
     _chatShouldScroll = false;
     requestAnimationFrame(() => {
       const msgsEl = document.getElementById('c-msgs');
-      if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
+      if (msgsEl) msgsEl.scrollTo({top: msgsEl.scrollHeight, behavior: 'smooth'});
     });
   } else if (_chatScrollToLast) {
     _chatScrollToLast = false;
     requestAnimationFrame(() => {
-      const lastMsg = document.getElementById('c-msgs')?.querySelector('.cb-a:last-of-type');
-      if (lastMsg) lastMsg.scrollIntoView({behavior:'smooth',block:'start'});
+      const msgsEl = document.getElementById('c-msgs');
+      const lastMsg = msgsEl?.querySelector('.cb-a:last-of-type');
+      if (msgsEl && lastMsg) {
+        const offset = lastMsg.offsetTop - msgsEl.offsetTop;
+        msgsEl.scrollTo({top: offset, behavior: 'smooth'});
+      }
     });
   }
   document.getElementById('c-inp')?.focus();
@@ -2218,7 +2239,7 @@ function r_zodiac(el) {
         <div style="font-size:11px;color:var(--td);margin-top:2px">${z.dates}</div>
       </div>`).join('')}
     </div>
-    <div id="z-res" style="margin-top:28px">
+    <div id="z-res" role="region" aria-live="polite" aria-label="Zodiac fragrance results" style="margin-top:28px">
       ${zodiacLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding your cosmic scents...</span></div>':''}
       ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selZ||'').toUpperCase())} Fragrance Matches</div><div style="line-height:1.8;font-size:14px">${fmt(zodiacRes)}</div>
         ${modeFeedbackHTML('zodiac', zodiacRes)}
@@ -2282,7 +2303,7 @@ function r_music(el) {
         <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${g.emoji}</span><div><div style="font-weight:600;font-size:14px">${g.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${g.desc}</div></div></div>
       </div>`).join('')}
     </div>
-    <div id="m-res" style="margin-top:28px">
+    <div id="m-res" role="region" aria-live="polite" aria-label="Music fragrance results" style="margin-top:28px">
       ${musicLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Matching your vibe...</span></div>':''}
       ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selM||'').toUpperCase())} Scent Profile</div><div style="line-height:1.8;font-size:14px">${fmt(musicRes)}</div>
         ${modeFeedbackHTML('music', musicRes)}
@@ -2352,7 +2373,7 @@ function r_style(el) {
         <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${s.emoji}</span><div><div style="font-weight:600;font-size:14px">${s.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${s.desc}</div></div></div>
       </div>`).join('')}
     </div>
-    <div id="s-res" style="margin-top:28px">
+    <div id="s-res" role="region" aria-live="polite" aria-label="Style match results" style="margin-top:28px">
       ${styleLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Curating your scent wardrobe...</span></div>':''}
       ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selS||'').toUpperCase())} Fragrance Picks</div><div style="line-height:1.8;font-size:14px">${fmt(styleRes)}</div>
         ${modeFeedbackHTML('style', styleRes)}
@@ -2487,7 +2508,7 @@ function r_dupe(el) {
         <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${d.emoji}</span><div><div style="font-weight:600;font-size:14px">${d.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${d.desc}</div></div></div>
       </div>`).join('')}
     </div>
-    <div id="d-res" style="margin-top:28px">
+    <div id="d-res" role="region" aria-live="polite" aria-label="Dupe finder results" style="margin-top:28px">
       ${dupeLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding affordable alternatives...</span></div>':''}
       ${dupeRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">DUPES FOR ${esc((selD||'').toUpperCase())}</div><div style="line-height:1.8;font-size:14px">${fmt(dupeRes)}</div>
         ${modeFeedbackHTML('dupe', dupeRes)}

@@ -135,7 +135,7 @@ module.exports = async function handler(req, res) {
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`img:${ip}`, 30, 60000);
-  if (!rl.allowed) return res.status(429).json([]);
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json([]); }
 
   const name = (req.query.name || '').trim();
   const brand = (req.query.brand || '').trim();

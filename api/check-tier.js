@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`check-tier:${ip}`, 30, 60000); // 30 requests/min
-  if (!rl.allowed) return res.status(429).json({ error: 'Too many requests' });
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many requests' }); }
 
   // Handle scent profile actions via ?action=profile
   const url = new URL(req.url, `http://${req.headers.host}`);
