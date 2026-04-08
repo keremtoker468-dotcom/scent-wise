@@ -1027,15 +1027,18 @@ function _scrollToRes(sel) {
   requestAnimationFrame(() => {
     const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
     if (!el) return;
-    // Calculate element position relative to viewport and scroll only the window
-    // with an offset so the result appears below the nav bar, not at the very top
     const rect = el.getBoundingClientRect();
-    const navHeight = 70; // approximate nav + mode bar height
+    const navHeight = 70;
     const targetY = window.scrollY + rect.top - navHeight;
-    // Only scroll down to results, never scroll up (prevents jumping to bottom)
-    if (rect.top > 0 && rect.top < window.innerHeight * 0.85) return; // already visible, skip
+    if (rect.top > 0 && rect.top < window.innerHeight * 0.85) return;
     window.scrollTo({top: Math.max(0, targetY), behavior: 'smooth'});
   });
+}
+
+function _renderKeepScroll(renderFn) {
+  const y = window.scrollY;
+  renderFn();
+  window.scrollTo({top: y, behavior: 'instant'});
 }
 
 function _evictImgCache() {
@@ -2195,7 +2198,7 @@ async function cSend(text) {
   _ssw('chatMsgs', chatMsgs);
   chatLoad = false;
   _chatScrollToLast = true;
-  r_chat(document.getElementById('page-chat'));
+  _renderKeepScroll(() => r_chat(document.getElementById('page-chat')));
   setTimeout(() => loadResultImages(document.querySelector('.chat-msgs')), 100);
 }
 
@@ -2281,7 +2284,7 @@ async function doPhoto() {
   photoRes = await aiCall('photo', {imageBase64: photoB64, imageMime: 'image/jpeg'});
   _ssw('photoRes', photoRes);
   photoLoad = false;
-  r_photo(document.getElementById('page-photo'));
+  _renderKeepScroll(() => r_photo(document.getElementById('page-photo')));
   setTimeout(() => loadResultImages(document.querySelector('#page-photo .rbox')), 100);
 }
 
@@ -2297,7 +2300,7 @@ async function pFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   photoChat.push({role:'assistant',content:reply});
   _ssw('photoChat', photoChat);
-  photoChatLoad = false; r_photo(document.getElementById('page-photo'));
+  photoChatLoad = false; _renderKeepScroll(() => r_photo(document.getElementById('page-photo')));
 }
 
 // ═══════════════ ZODIAC (PAID) ═══════════════
@@ -2349,7 +2352,7 @@ async function pickZ(sign) {
   zodiacRes=''; zodiacLoad=true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
   const prompt = `You are ScentWise, a fragrance expert specializing in zodiac-scent matching. Recommend 5 specific fragrances for ${sign}. For each: **bold** name+brand, key notes, why it matches ${sign}'s personality, approximate price. Be creative connecting zodiac traits to scent profiles.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; r_zodiac(document.getElementById('page-zodiac'));
+  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
   setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
 }
 
@@ -2363,7 +2366,7 @@ async function zFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   zodiacChat.push({role:'assistant',content:reply});
   _ssw('zodiacChat', zodiacChat);
-  zodiacChatLoad = false; r_zodiac(document.getElementById('page-zodiac'));
+  zodiacChatLoad = false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
 }
 
 // ═══════════════ MUSIC (PAID) ═══════════════
@@ -2405,7 +2408,7 @@ async function pickM(genre) {
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances that capture the mood and aesthetic of ${genre} music. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; r_music(document.getElementById('page-music'));
+  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
@@ -2419,7 +2422,7 @@ async function customMusic() {
   const prompt = `You are ScentWise, a fragrance expert. The user describes their music taste as: "${taste}". Recommend 5 fragrances that capture this musical vibe. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative and specific to their taste.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selM',selM); _ssw('musicRes',musicRes);
-  musicLoad=false; r_music(document.getElementById('page-music'));
+  musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
@@ -2433,7 +2436,7 @@ async function mFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   musicChat.push({role:'assistant',content:reply});
   _ssw('musicChat', musicChat);
-  musicChatLoad = false; r_music(document.getElementById('page-music'));
+  musicChatLoad = false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
 }
 
 // ═══════════════ STYLE (PAID) ═══════════════
@@ -2475,7 +2478,7 @@ async function pickSt(style) {
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances for the ${style} clothing style. For each: **bold** name+brand, explain WHY it matches this fashion style, key notes, price range. Include both premium and budget options.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; r_style(document.getElementById('page-style'));
+  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
@@ -2489,7 +2492,7 @@ async function customStyle() {
   const prompt = `You are ScentWise, a fragrance expert. The user describes their personal style as: "${desc}". Recommend 5 fragrances that perfectly match this aesthetic. For each: **bold** name+brand, explain WHY it matches their style, key notes, price range. Include both premium and budget options.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selS',selS); _ssw('styleRes',styleRes);
-  styleLoad=false; r_style(document.getElementById('page-style'));
+  styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
@@ -2503,7 +2506,7 @@ async function sFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   styleChat.push({role:'assistant',content:reply});
   _ssw('styleChat', styleChat);
-  styleChatLoad = false; r_style(document.getElementById('page-style'));
+  styleChatLoad = false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
 }
 
 // ═══════════════ DUPE FINDER — DB SIMILARITY ═══════════════
@@ -2613,7 +2616,7 @@ async function pickD(frag) {
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
@@ -2630,7 +2633,7 @@ async function customDupe() {
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
-  dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
+  dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
@@ -2644,7 +2647,7 @@ async function dFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   dupeChat.push({role:'assistant',content:reply});
   _ssw('dupeChat', dupeChat);
-  dupeChatLoad = false; r_dupe(document.getElementById('page-dupe'));
+  dupeChatLoad = false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
 }
 
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
