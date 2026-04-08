@@ -2219,7 +2219,7 @@ async function doPhoto() {
   photoRes = await aiCall('photo', {imageBase64: photoB64, imageMime: 'image/jpeg'});
   _ssw('photoRes', photoRes);
   photoLoad = false;
-  r_photo(document.getElementById('page-photo')); _scrollToRes('#page-photo .rbox');
+  r_photo(document.getElementById('page-photo'));
   setTimeout(() => loadResultImages(document.querySelector('#page-photo .rbox')), 100);
 }
 
@@ -2235,7 +2235,7 @@ async function pFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   photoChat.push({role:'assistant',content:reply});
   _ssw('photoChat', photoChat);
-  photoChatLoad = false; r_photo(document.getElementById('page-photo')); _scrollToRes('#page-photo .rbox');
+  photoChatLoad = false; r_photo(document.getElementById('page-photo'));
 }
 
 // ═══════════════ ZODIAC (PAID) ═══════════════
@@ -2287,7 +2287,7 @@ async function pickZ(sign) {
   zodiacRes=''; zodiacLoad=true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
   const prompt = `You are ScentWise, a fragrance expert specializing in zodiac-scent matching. Recommend 5 specific fragrances for ${sign}. For each: **bold** name+brand, key notes, why it matches ${sign}'s personality, approximate price. Be creative connecting zodiac traits to scent profiles.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
+  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; r_zodiac(document.getElementById('page-zodiac'));
   setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
 }
 
@@ -2301,7 +2301,7 @@ async function zFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   zodiacChat.push({role:'assistant',content:reply});
   _ssw('zodiacChat', zodiacChat);
-  zodiacChatLoad = false; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
+  zodiacChatLoad = false; r_zodiac(document.getElementById('page-zodiac'));
 }
 
 // ═══════════════ MUSIC (PAID) ═══════════════
@@ -2343,7 +2343,7 @@ async function pickM(genre) {
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances that capture the mood and aesthetic of ${genre} music. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
+  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; r_music(document.getElementById('page-music'));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
@@ -2357,7 +2357,7 @@ async function customMusic() {
   const prompt = `You are ScentWise, a fragrance expert. The user describes their music taste as: "${taste}". Recommend 5 fragrances that capture this musical vibe. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative and specific to their taste.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selM',selM); _ssw('musicRes',musicRes);
-  musicLoad=false; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
+  musicLoad=false; r_music(document.getElementById('page-music'));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
@@ -2371,7 +2371,7 @@ async function mFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   musicChat.push({role:'assistant',content:reply});
   _ssw('musicChat', musicChat);
-  musicChatLoad = false; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
+  musicChatLoad = false; r_music(document.getElementById('page-music'));
 }
 
 // ═══════════════ STYLE (PAID) ═══════════════
@@ -2413,7 +2413,7 @@ async function pickSt(style) {
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
   const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances for the ${style} clothing style. For each: **bold** name+brand, explain WHY it matches this fashion style, key notes, price range. Include both premium and budget options.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
+  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; r_style(document.getElementById('page-style'));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
@@ -2427,7 +2427,7 @@ async function customStyle() {
   const prompt = `You are ScentWise, a fragrance expert. The user describes their personal style as: "${desc}". Recommend 5 fragrances that perfectly match this aesthetic. For each: **bold** name+brand, explain WHY it matches their style, key notes, price range. Include both premium and budget options.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selS',selS); _ssw('styleRes',styleRes);
-  styleLoad=false; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
+  styleLoad=false; r_style(document.getElementById('page-style'));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
@@ -2441,7 +2441,7 @@ async function sFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   styleChat.push({role:'assistant',content:reply});
   _ssw('styleChat', styleChat);
-  styleChatLoad = false; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
+  styleChatLoad = false; r_style(document.getElementById('page-style'));
 }
 
 // ═══════════════ DUPE FINDER — DB SIMILARITY ═══════════════
@@ -2551,7 +2551,7 @@ async function pickD(frag) {
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe')); _scrollToRes('#d-res');
+  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
@@ -2568,7 +2568,7 @@ async function customDupe() {
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
-  dupeLoad=false; r_dupe(document.getElementById('page-dupe')); _scrollToRes('#d-res');
+  dupeLoad=false; r_dupe(document.getElementById('page-dupe'));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
@@ -2582,7 +2582,7 @@ async function dFollow() {
   const reply = await aiCall('chat', {messages: msgs});
   dupeChat.push({role:'assistant',content:reply});
   _ssw('dupeChat', dupeChat);
-  dupeChatLoad = false; r_dupe(document.getElementById('page-dupe')); _scrollToRes('#d-res');
+  dupeChatLoad = false; r_dupe(document.getElementById('page-dupe'));
 }
 
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
