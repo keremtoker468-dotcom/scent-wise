@@ -2035,7 +2035,7 @@ function r_explore(el) {
         </div>`}
     </div>
   </div>`;
-  if (!expQ) document.getElementById('exp-inp')?.focus();
+  if (!expQ) document.getElementById('exp-inp')?.focus({preventScroll: true});
 }
 
 function doExp() {
@@ -2108,7 +2108,7 @@ function r_chat(el) {
       }
     });
   }
-  document.getElementById('c-inp')?.focus();
+  document.getElementById('c-inp')?.focus({preventScroll: true});
 }
 
 async function cSend(text) {
@@ -2267,7 +2267,7 @@ function r_zodiac(el) {
       </div>`:''}
     </div>
   </div>`;
-  if (zodiacRes) document.getElementById('zfu-inp')?.focus();
+  if (zodiacRes) document.getElementById('zfu-inp')?.focus({preventScroll: true});
 }
 
 function tryBday() {
@@ -2331,7 +2331,7 @@ function r_music(el) {
       </div>`:''}
     </div>
   </div>`;
-  if (musicRes) document.getElementById('mfu-inp')?.focus();
+  if (musicRes) document.getElementById('mfu-inp')?.focus({preventScroll: true});
 }
 
 async function pickM(genre) {
@@ -2401,7 +2401,7 @@ function r_style(el) {
       </div>`:''}
     </div>
   </div>`;
-  if (styleRes) document.getElementById('sfu-inp')?.focus();
+  if (styleRes) document.getElementById('sfu-inp')?.focus({preventScroll: true});
 }
 
 async function pickSt(style) {
@@ -2536,7 +2536,7 @@ function r_dupe(el) {
       </div>`:''}
     </div>
   </div>`;
-  if (dupeRes) document.getElementById('dfu-inp')?.focus();
+  if (dupeRes) document.getElementById('dfu-inp')?.focus({preventScroll: true});
 }
 
 async function pickD(frag) {
