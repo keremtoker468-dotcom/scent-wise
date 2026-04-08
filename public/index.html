@@ -35,6 +35,7 @@
 <meta name="twitter:image:alt" content="ScentWise — AI-Powered Fragrance Advisor">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.json">
+<link rel="alternate" type="application/rss+xml" title="ScentWise Blog RSS" href="/blog/feed.xml">
 <meta name="theme-color" content="#c8a55a">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1261,6 +1262,45 @@ input::placeholder{color:var(--td);opacity:.7}
       });
     }
   }
+  // PWA Install Prompt
+  var _deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    _deferredInstall = e;
+    // Show install banner after 30s if user hasn't installed
+    setTimeout(function() {
+      if (!_deferredInstall) return;
+      var banner = document.createElement('div');
+      banner.id = 'pwa-install-banner';
+      banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--d3,#16161a);border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:90vw;backdrop-filter:blur(12px)';
+      banner.innerHTML = '<span style="font-size:24px">📱</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f0ece4">Install ScentWise</div><div style="font-size:12px;color:#8a8278;margin-top:2px">Add to home screen for quick access</div></div><button onclick="swInstall()" style="padding:8px 18px;border-radius:12px;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#09090b;border:none;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Install</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8a8278;cursor:pointer;font-size:18px;padding:4px">✕</button>';
+      document.body.appendChild(banner);
+    }, 30000);
+  });
+  window.swInstall = function() {
+    if (_deferredInstall) {
+      _deferredInstall.prompt();
+      _deferredInstall.userChoice.then(function() { _deferredInstall = null; });
+      var b = document.getElementById('pwa-install-banner');
+      if (b) b.remove();
+    }
+  };
+  // Offline/Online indicator
+  function showOfflineStatus(isOffline) {
+    var existing = document.getElementById('offline-indicator');
+    if (isOffline && !existing) {
+      var ind = document.createElement('div');
+      ind.id = 'offline-indicator';
+      ind.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#b45309;color:white;text-align:center;padding:6px;font-size:13px;font-weight:500;z-index:9999;font-family:inherit';
+      ind.textContent = 'You are offline — some features may be unavailable';
+      document.body.prepend(ind);
+    } else if (!isOffline && existing) {
+      existing.remove();
+    }
+  }
+  window.addEventListener('offline', function() { showOfflineStatus(true); });
+  window.addEventListener('online', function() { showOfflineStatus(false); });
+  if (!navigator.onLine) showOfflineStatus(true);
 </script>
 <!-- Cookie consent -->
 <script>

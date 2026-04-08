@@ -35,11 +35,11 @@ module.exports = async function handler(req, res) {
 
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
   if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
-  if (isBodyTooLarge(req, 10 * 1024 * 1024)) return res.status(413).json({ error: 'Request too large' });
+  if (isBodyTooLarge(req, 1024 * 1024)) return res.status(413).json({ error: 'Request too large' });
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
-  if (!rl.allowed) return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' });
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' }); }
 
   const access = verifyAccess(req);
   const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';

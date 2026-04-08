@@ -20,15 +20,16 @@ function memoryRateLimit(key, max, windowMs) {
 
   if (!entry || now - entry.start > windowMs) {
     store.set(key, { count: 1, start: now });
-    return { allowed: true, remaining: max - 1 };
+    return { allowed: true, remaining: max - 1, retryAfter: 0 };
   }
 
   entry.count++;
   if (entry.count > max) {
-    return { allowed: false, remaining: 0 };
+    const retryAfter = Math.ceil((entry.start + windowMs - now) / 1000);
+    return { allowed: false, remaining: 0, retryAfter };
   }
 
-  return { allowed: true, remaining: max - entry.count };
+  return { allowed: true, remaining: max - entry.count, retryAfter: 0 };
 }
 
 // Upstash Redis REST API rate limiter (sliding window)
@@ -59,9 +60,10 @@ async function redisRateLimit(key, max, windowMs) {
     const count = results[0]?.result || 0;
 
     if (count > max) {
-      return { allowed: false, remaining: 0 };
+      const retryAfter = Math.ceil(windowMs / 1000);
+      return { allowed: false, remaining: 0, retryAfter };
     }
-    return { allowed: true, remaining: max - count };
+    return { allowed: true, remaining: max - count, retryAfter: 0 };
   } catch (e) {
     // Fall back to in-memory on Redis failure
     console.warn('Redis rate limit failed, using in-memory:', e.message);

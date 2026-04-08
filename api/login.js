@@ -15,7 +15,7 @@ module.exports = async function handler(req, res) {
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`login:${ip}`, 5, 60000); // 5 attempts/min
-  if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Try again later.' });
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
 
   const { email } = req.body;
   if (!email || typeof email !== 'string') return res.status(400).json({ error: 'Missing email' });

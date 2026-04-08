@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
 
   const ip = getClientIp(req);
   const rl = await rateLimit(`subscribe:${ip}`, 3, 60000);
-  if (!rl.allowed) return res.status(429).json({ error: 'Too many attempts. Please wait a moment.' });
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Please wait a moment.' }); }
 
   const { email } = req.body || {};
   if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim()) || email.length > 254) {
