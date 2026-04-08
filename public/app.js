@@ -1781,18 +1781,22 @@ function showComparison() {
     }
   });
 
-  const cols = items.map((p, i) => _cmpColHTML(p, i))
-    .join('<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>');
+  const isMobileCmp = window.innerWidth < 640;
+  const separator = isMobileCmp
+    ? '<div style="height:1px;background:var(--b);width:100%"></div>'
+    : '<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>';
+  const cols = items.map((p, i) => _cmpColHTML(p, i)).join(separator);
 
   const loadingBar = hasMissing ? '<div id="cmp-ai-status" style="text-align:center;padding:10px;font-size:12px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:8px">Fetching missing fragrance info via AI...</span></div>' : '';
 
-  overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:28px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
-      <h3 style="font-size:18px;font-weight:600">Fragrance Comparison</h3>
+  const isMobile = window.innerWidth < 640;
+  overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isMobile ? '16px' : '24px'}">
+      <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600">Fragrance Comparison</h3>
       <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px">&times;</button>
     </div>
     ${loadingBar}
-    <div style="display:flex;gap:20px;overflow-x:auto">${cols}</div>
+    <div style="display:flex;gap:${isMobile ? '16px' : '20px'};${isMobile ? 'flex-direction:column' : 'overflow-x:auto'}">${cols}</div>
   </div>`;
   document.body.appendChild(overlay);
 
@@ -2306,7 +2310,7 @@ function r_zodiac(el) {
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="bday-inp" placeholder="Type your birthday (e.g. March 15, 15/03)..." style="max-width:320px" onkeydown="if(event.key==='Enter')tryBday()">
+        <input type="text" id="bday-inp" placeholder="Type your birthday (e.g. March 15, 15/03)..." style="max-width:min(320px,100%);flex:1" onkeydown="if(event.key==='Enter')tryBday()">
         <button class="btn btn-sm" onclick="tryBday()">Find My Sign</button>
       </div>
     </div>
@@ -2372,7 +2376,7 @@ function r_music(el) {
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="music-inp" placeholder="Or type your music taste (e.g. lo-fi beats, 90s grunge)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customMusic()">
+        <input type="text" id="music-inp" placeholder="Or type your music taste (e.g. lo-fi beats, 90s grunge)..." style="max-width:min(400px,100%);flex:1" onkeydown="if(event.key==='Enter')customMusic()">
         <button class="btn btn-sm" onclick="customMusic()">Match</button>
       </div>
     </div>
@@ -2442,7 +2446,7 @@ function r_style(el) {
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="style-inp" placeholder="Describe your style (e.g. dark academia, Y2K, cottagecore)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customStyle()">
+        <input type="text" id="style-inp" placeholder="Describe your style (e.g. dark academia, Y2K, cottagecore)..." style="max-width:min(400px,100%);flex:1" onkeydown="if(event.key==='Enter')customStyle()">
         <button class="btn btn-sm" onclick="customStyle()">Match</button>
       </div>
     </div>
@@ -2577,7 +2581,7 @@ function r_dupe(el) {
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <input type="text" id="dupe-inp" placeholder="Type any fragrance name (e.g. Baccarat Rouge 540)..." style="max-width:400px" onkeydown="if(event.key==='Enter')customDupe()">
+        <input type="text" id="dupe-inp" placeholder="Type any fragrance name (e.g. Baccarat Rouge 540)..." style="max-width:min(400px,100%);flex:1" onkeydown="if(event.key==='Enter')customDupe()">
         <button class="btn btn-sm" onclick="customDupe()">Find Dupes</button>
       </div>
     </div>
@@ -2658,7 +2662,7 @@ function r_celeb(el) {
       <p>Discover what ${CELEBS.length} celebrities actually wear.</p>
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
-      <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;r_celeb(document.getElementById('page-celeb'))" style="max-width:400px">
+      <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;r_celeb(document.getElementById('page-celeb'))" style="max-width:min(400px,100%);flex:1">
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
       ${f.map(c=>`<div class="pcard" style="padding:22px">
