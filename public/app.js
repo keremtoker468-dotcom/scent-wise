@@ -1708,6 +1708,63 @@ function _renderCompareBar() {
    <button onclick="clearCompare()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:18px;padding:0 4px;line-height:1" title="Clear all">&times;</button>`;
 }
 
+function _cmpHasMissing(p) {
+  return !p.a && !p.t;
+}
+
+function _cmpColHTML(p, idx) {
+  const name = esc(p.n || p.name || '');
+  const brand = esc(p.b || p.brand || '');
+  const gender = esc(p.g || p.gender || '—');
+  const rating = p.r || p.rating || '—';
+  const notes = esc(p.t || p.notes || '—');
+  const accords = esc(p.a || p.accords || '—');
+  const conc = esc(p.c || p.concentration || '—');
+  return `<div style="flex:1;min-width:200px;max-width:320px" id="cmp-col-${idx}">
+    <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--g)">${name}</div>
+    <div style="font-size:12px;color:var(--td);margin-bottom:16px">${brand}</div>
+    <div class="cmp-row"><span class="cmp-label">Rating</span><span>${rating !== '—' ? '★ ' + rating : '—'}</span></div>
+    <div class="cmp-row"><span class="cmp-label">Gender</span><span>${gender}</span></div>
+    <div class="cmp-row"><span class="cmp-label">Type</span><span>${conc}</span></div>
+    <div class="cmp-row"><span class="cmp-label">Accords</span><span style="font-size:11px;line-height:1.5" id="cmp-accords-${idx}">${accords}</span></div>
+    <div class="cmp-row"><span class="cmp-label">Notes</span><span style="font-size:11px;line-height:1.5" id="cmp-notes-${idx}">${notes}</span></div>
+    <a href="${amazonLink(p.n||p.name, p.b||p.brand)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none">Shop on Amazon</a>
+  </div>`;
+}
+
+async function _cmpFillMissing(items) {
+  const missing = items.map((p, i) => _cmpHasMissing(p) ? i : -1).filter(i => i >= 0);
+  if (!missing.length) return;
+  const names = missing.map(i => `"${items[i].n || items[i].name}${items[i].b || items[i].brand ? ' by ' + (items[i].b || items[i].brand) : ''}"`).join(', ');
+  const prompt = `For the following fragrance(s): ${names}
+
+Return ONLY a JSON array (no markdown, no code fences) with one object per fragrance in the same order. Each object must have these exact keys:
+{"gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated main accords","notes":"comma separated key notes","rating":"number 1-5 or null if unknown"}
+
+Example: [{"gender":"Male","concentration":"EDP","accords":"woody, amber, fresh","notes":"bergamot, cedar, musk","rating":4.2}]`;
+  try {
+    const raw = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
+    const jsonStr = raw.replace(/```json?\s*/g,'').replace(/```/g,'').trim();
+    const arr = JSON.parse(jsonStr);
+    if (!Array.isArray(arr)) return;
+    missing.forEach((itemIdx, arrIdx) => {
+      const info = arr[arrIdx];
+      if (!info) return;
+      const p = items[itemIdx];
+      if (info.gender && !p.g) p.g = info.gender;
+      if (info.concentration && !p.c) p.c = info.concentration;
+      if (info.accords && !p.a) p.a = info.accords;
+      if (info.notes && !p.t) p.t = info.notes;
+      if (info.rating && !p.r) p.r = info.rating;
+      // Update the compare list cache too
+      if (_compareList[itemIdx]) _compareList[itemIdx].data = p;
+      // Update DOM in-place
+      const col = document.getElementById('cmp-col-' + itemIdx);
+      if (col) col.outerHTML = _cmpColHTML(p, itemIdx);
+    });
+  } catch {}
+}
+
 function showComparison() {
   if (_compareList.length < 2) return;
   const items = _compareList.map(c => c.data || { n: c.name, b: c.brand });
@@ -1715,35 +1772,36 @@ function showComparison() {
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)';
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 
-  const cols = items.map(p => {
-    const name = esc(p.n || p.name || '');
-    const brand = esc(p.b || p.brand || '');
-    const cat = esc(p.c || p.category || '—');
-    const gender = esc(p.g || p.gender || '—');
-    const rating = p.r || p.rating || '—';
-    const notes = esc(p.t || p.notes || '—');
-    const accords = esc(p.a || p.accords || '—');
-    const conc = esc(p.c || p.concentration || '—');
-    return `<div style="flex:1;min-width:200px;max-width:320px">
-      <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--g)">${name}</div>
-      <div style="font-size:12px;color:var(--td);margin-bottom:16px">${brand}</div>
-      <div class="cmp-row"><span class="cmp-label">Rating</span><span>${rating !== '—' ? '★ ' + rating : '—'}</span></div>
-      <div class="cmp-row"><span class="cmp-label">Gender</span><span>${gender}</span></div>
-      <div class="cmp-row"><span class="cmp-label">Type</span><span>${conc}</span></div>
-      <div class="cmp-row"><span class="cmp-label">Accords</span><span style="font-size:11px;line-height:1.5">${accords}</span></div>
-      <div class="cmp-row"><span class="cmp-label">Notes</span><span style="font-size:11px;line-height:1.5">${notes}</span></div>
-      <a href="${amazonLink(p.n||p.name, p.b||p.brand)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none">Shop on Amazon</a>
-    </div>`;
-  }).join('<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>');
+  // Show loading indicators for items with missing data
+  const hasMissing = items.some(p => _cmpHasMissing(p));
+  items.forEach((p, i) => {
+    if (_cmpHasMissing(p)) {
+      if (!p.a) p.a = '';
+      if (!p.t) p.t = '';
+    }
+  });
+
+  const cols = items.map((p, i) => _cmpColHTML(p, i))
+    .join('<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>');
+
+  const loadingBar = hasMissing ? '<div id="cmp-ai-status" style="text-align:center;padding:10px;font-size:12px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:8px">Fetching missing fragrance info via AI...</span></div>' : '';
 
   overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:28px;max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
       <h3 style="font-size:18px;font-weight:600">Fragrance Comparison</h3>
       <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px">&times;</button>
     </div>
+    ${loadingBar}
     <div style="display:flex;gap:20px;overflow-x:auto">${cols}</div>
   </div>`;
   document.body.appendChild(overlay);
+
+  if (hasMissing) {
+    _cmpFillMissing(items).then(() => {
+      const status = document.getElementById('cmp-ai-status');
+      if (status) status.remove();
+    });
+  }
 }
 
 // ═══════════════ HOME ═══════════════
