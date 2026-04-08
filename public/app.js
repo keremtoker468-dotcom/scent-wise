@@ -1026,7 +1026,15 @@ const _IMG_CACHE_MAX = 200;
 function _scrollToRes(sel) {
   requestAnimationFrame(() => {
     const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
-    if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+    if (!el) return;
+    // Calculate element position relative to viewport and scroll only the window
+    // with an offset so the result appears below the nav bar, not at the very top
+    const rect = el.getBoundingClientRect();
+    const navHeight = 70; // approximate nav + mode bar height
+    const targetY = window.scrollY + rect.top - navHeight;
+    // Only scroll down to results, never scroll up (prevents jumping to bottom)
+    if (rect.top > 0 && rect.top < window.innerHeight * 0.85) return; // already visible, skip
+    window.scrollTo({top: Math.max(0, targetY), behavior: 'smooth'});
   });
 }
 
@@ -1534,10 +1542,15 @@ function rModeBar() {
   inner.innerHTML = MODES.map(m =>
     `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
   ).join('');
-  // Auto-scroll active pill into view
+  // Auto-scroll active pill into view (horizontal only, no vertical page scroll)
   setTimeout(() => {
     const active = inner.querySelector('.mp-active');
-    if (active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    if (active && inner.scrollTo) {
+      const pillLeft = active.offsetLeft;
+      const pillWidth = active.offsetWidth;
+      const containerWidth = inner.offsetWidth;
+      inner.scrollTo({left: pillLeft - containerWidth / 2 + pillWidth / 2, behavior: 'smooth'});
+    }
   }, 50);
 }
 
@@ -2071,20 +2084,27 @@ function r_chat(el) {
     </div>
   </div>`;
   // Auto-scroll within chat container only (never scroll the outer page)
-  if (_chatShouldScroll) {
+  if (_chatShouldScroll || _chatScrollToLast) {
+    const scrollToEnd = _chatShouldScroll;
     _chatShouldScroll = false;
-    requestAnimationFrame(() => {
-      const msgsEl = document.getElementById('c-msgs');
-      if (msgsEl) msgsEl.scrollTo({top: msgsEl.scrollHeight, behavior: 'smooth'});
-    });
-  } else if (_chatScrollToLast) {
     _chatScrollToLast = false;
     requestAnimationFrame(() => {
       const msgsEl = document.getElementById('c-msgs');
-      const lastMsg = msgsEl?.querySelector('.cb-a:last-of-type');
-      if (msgsEl && lastMsg) {
-        const offset = lastMsg.offsetTop - msgsEl.offsetTop;
-        msgsEl.scrollTo({top: offset, behavior: 'smooth'});
+      if (!msgsEl) return;
+      if (scrollToEnd) {
+        msgsEl.scrollTop = msgsEl.scrollHeight;
+      } else {
+        // AI responded — scroll the last AI bubble into view within the container
+        const allAi = msgsEl.querySelectorAll('.cb-a');
+        const lastAi = allAi.length > 0 ? allAi[allAi.length - 1] : null;
+        if (lastAi) {
+          const containerRect = msgsEl.getBoundingClientRect();
+          const msgRect = lastAi.getBoundingClientRect();
+          const scrollOffset = msgRect.top - containerRect.top + msgsEl.scrollTop;
+          msgsEl.scrollTop = scrollOffset;
+        } else {
+          msgsEl.scrollTop = msgsEl.scrollHeight;
+        }
       }
     });
   }
