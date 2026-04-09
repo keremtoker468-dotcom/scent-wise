@@ -1120,11 +1120,31 @@ function amazonLink(name, brand) {
   return 'https://www.' + _AMZ_GEO.domain + '/s?k=' + q + '&tag=' + _AMZ_GEO.tag;
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function _isLikelyFragrance(name) {
+  const lower = name.toLowerCase();
+  // Has "by Brand" pattern — almost certainly a fragrance
+  if (/\sby\s/i.test(name)) return true;
+  // Common non-fragrance keywords (clothing, accessories, body parts, general items)
+  const nonFrag = /\b(jacket|shirt|jeans|pants|dress|skirt|shoes|boots|sneakers|belt|bag|hat|cap|scarf|sunglasses|watch|ring|necklace|bracelet|earrings|coat|sweater|hoodie|blazer|cardigan|flats|heels|sandals|socks|shorts|leggings|vest|tie|gloves|trousers|blouse|tank top|t-shirt|tee|polo|denim|chinos|loafers|oxfords|mules|clutch|tote|backpack|wallet|beanie|hair|makeup|lipstick|eyeshadow|mascara|foundation|concealer|eyeliner|blush)\b/i;
+  if (nonFrag.test(lower)) return false;
+  // Check local DB for match
+  if (typeof RL !== 'undefined') {
+    for (const k in RL) {
+      if (k.startsWith(lower + '|') || k.includes('|') && k.split('|')[0] === lower) return true;
+    }
+  }
+  // Default: treat as fragrance (bold items in AI responses are usually fragrances)
+  return true;
+}
+
 function fmt(text) {
   let s = esc(text)
     .replace(/\*\*(.+?)\*\*/g, function(_, name) {
       if (name.startsWith('Oops') || name.startsWith('Something') || name.startsWith('Connection')) {
-        return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
+        return `<strong style="color:var(--g)">${name}</strong>`;
+      }
+      if (!_isLikelyFragrance(name)) {
+        return `<strong style="color:var(--g)">${name}</strong>`;
       }
       const key = name.toLowerCase();
       const isLiked = _likedFrags.has(key + '_up');
