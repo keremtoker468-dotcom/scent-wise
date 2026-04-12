@@ -1865,6 +1865,16 @@ function r_home(el) {
       <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
     </div>
   </section>
+  <!-- As Featured In -->
+  <div style="text-align:center;padding:2.5rem 1.25rem .5rem">
+    <div style="display:inline-flex;align-items:center;gap:14px;opacity:.6">
+      <span style="font-size:8px;color:var(--hp-gold2);letter-spacing:4px">&#10022;&#10022;</span>
+      <span style="font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--hp-gold2);font-family:var(--hp-sans);font-weight:500">As featured in</span>
+      <span style="width:1px;height:16px;background:var(--hp-gold2);opacity:.35"></span>
+      <a href="https://cosmeticsbusiness.com/what-are-the-top-ai-fragrance-recommendation-platforms" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:var(--hp-gold);font-family:var(--hp-serif);font-size:17px;font-weight:600;letter-spacing:.5px;transition:opacity .2s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">Cosmetics Business</a>
+      <span style="font-size:8px;color:var(--hp-gold2);letter-spacing:4px">&#10022;&#10022;</span>
+    </div>
+  </div>
   <!-- Divider -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Discovery Modes -->
