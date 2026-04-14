@@ -45,7 +45,7 @@
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"></noscript>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576" crossorigin="anonymous"></script>
+<!-- AdSense: loaded only after cookie consent (see cookie consent script at bottom) -->
 <style>
 /* Font fallback metrics to reduce CLS from font swap */
 @font-face {
@@ -1141,13 +1141,20 @@ input::placeholder{color:var(--td);opacity:.7}
 <div id="page-account" class="hidden" role="region" aria-label="Account"></div>
 <div id="page-admin" class="hidden" role="region" aria-label="Admin"></div>
 </main>
-<!-- Cookie Banner -->
-<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,15,18,.95);border-top:1px solid rgba(255,255,255,.06);padding:16px 20px;padding-bottom:max(16px, env(safe-area-inset-bottom));font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:bottom .2s">
-  <div style="max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
-    <p style="flex:1;min-width:200px;line-height:1.6;margin:0">We use essential cookies to keep the site running, track your free trial, and authenticate subscriptions. No advertising or tracking cookies. <a href="/privacy.html" style="color:var(--g)">Privacy Policy</a></p>
-    <div style="display:flex;gap:8px;flex-shrink:0">
-      <button onclick="acceptCookies()" class="btn btn-sm">Accept</button>
-      <button onclick="declineCookies()" class="btn-o btn-sm">Decline</button>
+<!-- Cookie Banner (GDPR-compliant with granular consent) -->
+<div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(15,15,18,.97);border-top:1px solid rgba(255,255,255,.06);padding:16px 20px;padding-bottom:max(16px, env(safe-area-inset-bottom));font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:bottom .2s">
+  <div style="max-width:960px;margin:0 auto">
+    <p style="line-height:1.6;margin:0 0 12px 0">We use <strong style="color:var(--t)">essential cookies</strong> (authentication, free trial tracking) plus optional <strong style="color:var(--t)">analytics</strong> (Google Analytics, Vercel) and <strong style="color:var(--t)">advertising</strong> (Google AdSense) cookies. <a href="/privacy.html" style="color:var(--g)">Privacy Policy</a></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button onclick="acceptAllCookies()" class="btn btn-sm">Accept All</button>
+      <button onclick="acceptEssentialOnly()" class="btn-o btn-sm">Essential Only</button>
+      <button onclick="toggleCookieSettings()" class="btn-o btn-sm" style="font-size:11px;opacity:.7">Customize</button>
+    </div>
+    <div id="cookie-settings" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)">
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:default"><input type="checkbox" checked disabled> <span>Essential cookies (required)</span></label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="ck-analytics"> <span>Analytics cookies (Google Analytics, Vercel)</span></label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="ck-ads"> <span>Advertising cookies (Google AdSense)</span></label>
+      <button onclick="saveCustomCookies()" class="btn btn-sm" style="margin-top:4px">Save Preferences</button>
     </div>
   </div>
 </div>
@@ -1307,12 +1314,16 @@ input::placeholder{color:var(--td);opacity:.7}
   window.addEventListener('online', function() { showOfflineStatus(false); });
   if (!navigator.onLine) showOfflineStatus(true);
 </script>
-<!-- Cookie consent -->
+<!-- Cookie consent (GDPR-compliant: GA and AdSense only load after explicit consent) -->
 <script>
-function getCookieConsent(){try{return localStorage.getItem('sw_cookie_consent')}catch(e){return null}}
-function acceptCookies(){try{localStorage.setItem('sw_cookie_consent','accepted')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
-function declineCookies(){try{localStorage.setItem('sw_cookie_consent','declined')}catch(e){}document.getElementById('cookie-banner').style.display='none'}
-document.addEventListener('DOMContentLoaded',function(){if(!getCookieConsent())document.getElementById('cookie-banner').style.display='block'});
+function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
+function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
+function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';loadConsentedScripts()}
+function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none'}
+function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
+function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';loadConsentedScripts()}
+function loadConsentedScripts(){var c=getCookieConsent();if(!c)return;if(c.analytics&&!document.getElementById('sw-ga')){var g=document.createElement('script');g.id='sw-ga';g.src='https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6';document.head.appendChild(g)}if(c.ads&&!document.getElementById('sw-ads')){var a=document.createElement('script');a.id='sw-ads';a.async=true;a.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576';a.crossOrigin='anonymous';document.head.appendChild(a)}}
+document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{loadConsentedScripts()}});
 </script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
@@ -1357,17 +1368,12 @@ setTimeout(function(){
 {"@context":"https://schema.org","@type":"ItemList","name":"ScentWise Discovery Modes","numberOfItems":6,"itemListElement":[{"@type":"ListItem","position":1,"name":"AI Chat Advisor","url":"https://scent-wise.com/"},{"@type":"ListItem","position":2,"name":"Zodiac Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":3,"name":"Photo Style Scan","url":"https://scent-wise.com/"},{"@type":"ListItem","position":4,"name":"Music to Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":5,"name":"Style Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":6,"name":"Celebrity Fragrance Collections","url":"https://scent-wise.com/"}]}
 </script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
-<!-- Google Analytics (deferred to avoid blocking render) -->
+<!-- Google Analytics (only initialized if user consented to analytics cookies) -->
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'G-769WY8EYH6');
-(window.requestIdleCallback || function(cb){setTimeout(cb,3000)})(function(){
-  var s = document.createElement('script');
-  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6';
-  document.head.appendChild(s);
-});
+gtag('config', 'G-769WY8EYH6', { 'anonymize_ip': true });
 </script>
 </body>
 </html>
