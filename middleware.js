@@ -11,17 +11,35 @@ const API_WINDOW_MS = 60_000;
 // Known malicious/scanner User-Agent patterns
 const BAD_UA_PATTERNS = [
   /sqlmap/i, /nikto/i, /nmap/i, /masscan/i, /dirbuster/i, /gobuster/i,
-  /wpscan/i, /joomla/i, /drupal/i, /nuclei/i, /zgrab/i, /httpx/i,
-  /(?:python-requests|python-urllib|aiohttp|httpx)\/?\d/i,
-  /curl\/\d/i, /wget\/\d/i,
+  /wpscan/i, /joomla/i, /drupal/i, /nuclei/i, /zgrab/i,
+  /(?:python-requests|python-urllib|aiohttp)\/?\d/i,
   /scrapy/i, /colly/i, /phantomjs/i, /headlesschrome/i,
-  /ahrefsbot/i, /semrushbot/i, /dotbot/i, /mj12bot/i,
-  /^$/  // Empty UA
+  /ahrefsbot/i, /semrushbot/i, /dotbot/i, /mj12bot/i
+];
+
+// Google & legitimate bot User-Agents that must NEVER be blocked
+const GOOD_BOT_PATTERNS = [
+  /googlebot/i, /adsbot-google/i, /mediapartners-google/i, /google-inspectiontool/i,
+  /bingbot/i, /slurp/i, /duckduckbot/i, /baiduspider/i, /yandexbot/i,
+  /facebookexternalhit/i, /twitterbot/i, /linkedinbot/i, /whatsapp/i,
+  /telegrambot/i, /discordbot/i, /slackbot/i,
+  /vercel/i, /uptime/i, /pingdom/i, /uptimerobot/i
+];
+
+// Paths that should always pass through without any middleware processing
+const BYPASS_PATHS = [
+  /^\/ads\.txt$/,
+  /^\/robots\.txt$/,
+  /^\/sitemap\.xml$/,
+  /^\/llms\.txt$/,
+  /^\/llms-full\.txt$/,
+  /^\/manifest\.json$/,
+  /^\/\.well-known\//
 ];
 
 // Paths that should never be rate-limited aggressively (static assets)
 const STATIC_PATTERNS = [
-  /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|avif)$/,
+  /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|webp|avif|txt|xml|json)$/,
   /^\/_vercel\//,
   /^\/sw\.js$/
 ];
@@ -64,6 +82,11 @@ export default function middleware(request) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  // Always bypass critical crawl/verification files (ads.txt, robots.txt, sitemap, etc.)
+  if (BYPASS_PATHS.some(p => p.test(pathname))) {
+    return; // Pass through immediately — never block these
+  }
+
   // Skip rate limiting for static assets
   if (STATIC_PATTERNS.some(p => p.test(pathname))) {
     return; // Pass through
@@ -75,15 +98,20 @@ export default function middleware(request) {
 
   const ua = request.headers.get('user-agent') || '';
 
-  // 1. Block known malicious User-Agents
-  if (BAD_UA_PATTERNS.some(p => p.test(ua))) {
+  // 1. Never block legitimate bots (Google, Bing, social media crawlers, etc.)
+  if (GOOD_BOT_PATTERNS.some(p => p.test(ua))) {
+    return; // Always allow through
+  }
+
+  // 2. Block known malicious User-Agents (only if not a legitimate bot)
+  if (ua === '' || BAD_UA_PATTERNS.some(p => p.test(ua))) {
     return new Response(JSON.stringify({ error: 'Forbidden' }), {
       status: 403,
       headers: { 'Content-Type': 'application/json' }
     });
   }
 
-  // 2. Global rate limit (all non-static requests)
+  // 3. Global rate limit (all non-static requests)
   const globalCheck = checkRate(ip, 'g', GLOBAL_RATE_LIMIT, GLOBAL_WINDOW_MS);
   if (!globalCheck.allowed) {
     return new Response(JSON.stringify({ error: 'Too many requests. Please slow down.' }), {
@@ -95,7 +123,7 @@ export default function middleware(request) {
     });
   }
 
-  // 3. Stricter rate limit for API routes
+  // 4. Stricter rate limit for API routes
   if (pathname.startsWith('/api/')) {
     const apiCheck = checkRate(ip, 'a', API_RATE_LIMIT, API_WINDOW_MS);
     if (!apiCheck.allowed) {
@@ -109,7 +137,7 @@ export default function middleware(request) {
     }
   }
 
-  // 4. Block requests with suspiciously many query parameters (scanner behavior)
+  // 5. Block requests with suspiciously many query parameters (scanner behavior)
   if (url.searchParams.toString().length > 2000) {
     return new Response(JSON.stringify({ error: 'Request URI too long' }), {
       status: 414,
@@ -117,7 +145,7 @@ export default function middleware(request) {
     });
   }
 
-  // 5. Block common path traversal / scanner probes
+  // 6. Block common path traversal / scanner probes
   if (/\.\.|\/etc\/|\/proc\/|\.env|\.git|wp-admin|wp-login|\.php|cgi-bin|\.asp/i.test(pathname)) {
     return new Response('', { status: 404 });
   }
