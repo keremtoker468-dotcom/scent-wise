@@ -4,6 +4,9 @@ const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
+const { validateSecrets } = require('./_lib/validate-secrets');
+
+validateSecrets();
 
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);
