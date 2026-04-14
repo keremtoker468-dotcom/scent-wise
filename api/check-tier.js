@@ -31,15 +31,28 @@ module.exports = async function handler(req, res) {
 
   // Handle scent profile requests
   if (action === 'profile') {
-    // Use full CSRF validation for mutating profile requests
+    // Use full CSRF validation for all profile requests (GET included — profile data is personal)
+    const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
     if (req.method === 'POST' || req.method === 'DELETE') {
-      const { validateOrigin, validateContentType } = require('./_lib/csrf');
       if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
       if (req.method === 'POST' && !validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+      if (req.method === 'POST' && isBodyTooLarge(req)) return res.status(413).json({ error: 'Request too large' });
     } else {
+      // GET profile: require same-origin via sec-fetch-site, X-Requested-With, or Origin/Referer match
       const isSameOriginProfile = req.headers['sec-fetch-site'] === 'same-origin'
         || req.headers['x-requested-with'] === 'ScentWise';
-      if (!isSameOriginProfile) return res.status(403).json({ error: 'Forbidden' });
+      if (!isSameOriginProfile) {
+        // Fall back to Origin/Referer validation for broader browser support
+        const profileOrigin = req.headers['origin'];
+        const profileReferer = req.headers['referer'];
+        const profileHost = req.headers['host'];
+        let originMatch = false;
+        if (profileHost) {
+          try { if (profileOrigin && new URL(profileOrigin).host === profileHost) originMatch = true; } catch {}
+          try { if (!originMatch && profileReferer && new URL(profileReferer).host === profileHost) originMatch = true; } catch {}
+        }
+        if (!originMatch) return res.status(403).json({ error: 'Forbidden' });
+      }
     }
 
     // Determine profile user ID from auth cookies

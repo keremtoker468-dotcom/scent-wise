@@ -32,10 +32,14 @@ async function redisSet(key, value) {
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
   try {
-    await fetch(`${url}/SET/${encodeURIComponent(key)}`, {
+    // Set with 30-day TTL to avoid serving stale/broken image URLs indefinitely
+    await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify(JSON.stringify(value))
+      body: JSON.stringify([
+        ['SET', key, JSON.stringify(value)],
+        ['EXPIRE', key, 2592000]
+      ])
     });
   } catch {}
 }
@@ -51,16 +55,16 @@ function braveCountKey() {
 async function braveQuotaCheck() {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return true; // no Redis = no quota enforcement
+  if (!url || !token) return false; // no Redis = deny to prevent untracked API costs
   try {
     const r = await fetch(`${url}/GET/${encodeURIComponent(braveCountKey())}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    if (!r.ok) return true;
+    if (!r.ok) return false; // quota check failed = deny
     const body = await r.json();
     const count = parseInt(body.result) || 0;
     return count < BRAVE_MONTHLY_LIMIT;
-  } catch { return true; }
+  } catch { return false; }
 }
 
 async function braveIncrement() {

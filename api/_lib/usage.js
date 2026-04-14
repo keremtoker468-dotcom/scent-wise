@@ -202,18 +202,16 @@ async function readFreeUsage(req, ip, secret) {
   // 1. Try Redis (persistent, survives across function instances and deploys)
   const redisCount = await redisGetFreeUsage(ip, month);
   if (redisCount !== null) {
-    return { count: redisCount, month };
+    return { count: redisCount, month, source: 'redis' };
   }
 
   // 2. Fallback to in-memory store (survives within a warm function instance)
+  // Use the maximum of in-memory and cookie counts to prevent bypass
   const memCount = memoryGetFreeUsage(ip, month);
-  if (memCount > 0) {
-    return { count: memCount, month };
-  }
-
-  // 3. Final fallback: cookie (can be bypassed by incognito, but better than nothing)
   const cookieCount = readCookieFreeUsage(req, ip, secret);
-  return { count: cookieCount, month };
+  const maxCount = Math.max(memCount, cookieCount);
+
+  return { count: maxCount, month, source: maxCount > 0 ? 'fallback' : 'none' };
 }
 
 async function writeFreeUsage(res, ip, count, secret, isProduction) {

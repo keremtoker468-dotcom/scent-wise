@@ -217,26 +217,29 @@
 
 <main>
     <h1>Privacy Policy</h1>
-    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: February 19, 2026</p>
+    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: April 14, 2026</p>
 
     <p>At ScentWise ("we," "our," or "us"), we respect your privacy. This Privacy Policy explains what information we collect, how we use it, and the choices you have. By using our website at <a href="https://scent-wise.com">scent-wise.com</a> (the "Service"), you agree to the practices described here.</p>
 
     <h2>1. Information We Collect</h2>
-    <p>We collect minimal information needed to provide the Service:</p>
+    <p>We collect the following information to provide and improve the Service:</p>
 
     <div class="highlight-box">
         <strong>What we collect:</strong><br>
-        &mdash; <strong>IP address:</strong> Used for rate limiting, free trial tracking, and abuse prevention.<br>
-        &mdash; <strong>Subscription details:</strong> Order ID, customer ID, and email from Lemon Squeezy when you subscribe.<br>
-        &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features, processed in real-time and not stored beyond your session.<br>
-        &mdash; <strong>Analytics:</strong> Anonymous page-view data via Plausible.io (no cookies, no personal identifiers).
+        &mdash; <strong>IP address:</strong> Used for rate limiting, free trial tracking, abuse prevention, and user profile identification (for free users). Stored in our server infrastructure (Upstash Redis) with automatic expiration.<br>
+        &mdash; <strong>Subscription details:</strong> Order ID, customer ID, and email address from Lemon Squeezy when you subscribe. Email is stored in your authentication cookie.<br>
+        &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features. These are sent to Google's Gemini API for processing. Google may retain this data for up to 30 days for abuse detection per their policies.<br>
+        &mdash; <strong>Scent profile data:</strong> Your fragrance preferences (liked/disliked notes, favorite brands, occasions, skin chemistry, etc.) are automatically extracted from your AI interactions and stored in our database to personalize future recommendations. See Section 5 for retention details.<br>
+        &mdash; <strong>Analytics data:</strong> We use Google Analytics (GA4) to collect page-view and usage data, which includes cookies and may associate data with your Google account. We also use Vercel Analytics and Speed Insights for performance monitoring.<br>
+        &mdash; <strong>Advertising data:</strong> Google AdSense displays personalized ads on our site and may set cookies for ad targeting and behavioral advertising. See Section 2 for details.
     </div>
 
-    <p>We do <strong>not</strong> collect names, physical addresses, phone numbers, or any information beyond what is listed above. We do not use browser fingerprinting or third-party tracking pixels.</p>
+    <p>We do <strong>not</strong> collect names, physical addresses, or phone numbers beyond what is listed above. We do not use browser fingerprinting.</p>
 
     <h2>2. Cookies We Use</h2>
-    <p>ScentWise uses a small number of strictly functional cookies. We do not use advertising or tracking cookies.</p>
+    <p>ScentWise uses the following categories of cookies:</p>
 
+    <p><strong>Essential cookies</strong> (required for the Service to function):</p>
     <table>
         <tr><th>Cookie</th><th>Purpose</th><th>Duration</th></tr>
         <tr><td><code>sw_free</code></td><td>Tracks free trial query count for anonymous users</td><td>32 days</td></tr>
@@ -246,51 +249,94 @@
         <tr><td><code>sw_revalidated</code></td><td>Throttles subscription re-verification checks</td><td>24 hours</td></tr>
     </table>
 
-    <p>All cookies are <strong>HttpOnly</strong> (inaccessible to JavaScript), <strong>SameSite=Strict</strong> (not sent in cross-site requests), and <strong>Secure</strong> (HTTPS-only in production). Each cookie is cryptographically signed with HMAC-SHA256 to prevent tampering.</p>
+    <p>Our essential cookies are <strong>HttpOnly</strong> (inaccessible to JavaScript), <strong>SameSite=Lax</strong>, and <strong>Secure</strong> (HTTPS-only in production). Each cookie is cryptographically signed with HMAC-SHA256 to prevent tampering.</p>
+
+    <p><strong>Analytics cookies</strong> (used to understand how visitors use the site):</p>
+    <table>
+        <tr><th>Provider</th><th>Purpose</th><th>More Info</th></tr>
+        <tr><td>Google Analytics (GA4)</td><td>Page views, user engagement, traffic sources. Sets persistent cookies (_ga, _ga_*) for visitor identification.</td><td><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></td></tr>
+        <tr><td>Vercel Analytics</td><td>Web vitals and performance monitoring. No personally identifiable information collected.</td><td><a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener">Vercel Analytics Privacy</a></td></tr>
+    </table>
+
+    <p><strong>Advertising cookies</strong> (used to display relevant ads):</p>
+    <table>
+        <tr><th>Provider</th><th>Purpose</th><th>More Info</th></tr>
+        <tr><td>Google AdSense</td><td>Displays personalized ads. Sets cookies for ad targeting, frequency capping, and behavioral profiling across websites.</td><td><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads Privacy</a></td></tr>
+    </table>
+
+    <p>You can manage your cookie preferences via our cookie consent banner. Analytics and advertising cookies are only loaded with your consent. You can also opt out of Google's personalized ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
 
     <h2>3. How We Use Your Information</h2>
     <p>We use the information we collect to:</p>
-    <p>&mdash; Provide and improve the Service, including AI-powered fragrance recommendations.<br>
+    <p>&mdash; Provide and improve the Service, including AI-powered fragrance recommendations personalized to your scent profile.<br>
+    &mdash; Build and maintain your scent preference profile for increasingly personalized recommendations.<br>
     &mdash; Enforce usage limits and prevent abuse (rate limiting, free trial enforcement).<br>
     &mdash; Process and verify subscription payments through Lemon Squeezy.<br>
+    &mdash; Analyze usage patterns and site performance to improve the Service.<br>
+    &mdash; Display relevant advertisements via Google AdSense.<br>
     &mdash; Respond to your support inquiries.</p>
 
     <h2>4. Data Sharing</h2>
-    <p>We do not sell, rent, or trade your personal information. We share data only with the following service providers, strictly as needed to operate the Service:</p>
+    <p>We do <strong>not</strong> sell, rent, or trade your personal information to third parties for their own marketing purposes. We share data with the following service providers, strictly as needed to operate the Service:</p>
 
     <div class="highlight-box">
         <strong>Service providers:</strong><br>
-        &mdash; <strong>Google (Gemini API):</strong> Processes AI queries. Subject to Google's privacy policy.<br>
-        &mdash; <strong>Lemon Squeezy:</strong> Processes subscription payments. Subject to Lemon Squeezy's privacy policy.<br>
-        &mdash; <strong>Vercel:</strong> Hosts the Service. Subject to Vercel's privacy policy.<br>
-        &mdash; <strong>Plausible.io:</strong> Privacy-respecting analytics. No personal data is collected or shared.
+        &mdash; <strong>Google (Gemini API):</strong> Processes AI queries. Your text queries, uploaded photos, and scent profile data are sent to Google's Generative AI API for processing. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a> and <a href="https://ai.google.dev/terms" target="_blank" rel="noopener">Generative AI Terms</a>.<br>
+        &mdash; <strong>Google Analytics &amp; AdSense:</strong> Collects analytics and advertising data. Subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>.<br>
+        &mdash; <strong>Lemon Squeezy:</strong> Processes subscription payments and stores billing details. Subject to <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">Lemon Squeezy's Privacy Policy</a>.<br>
+        &mdash; <strong>Vercel:</strong> Hosts the Service and provides analytics/speed insights. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel's Privacy Policy</a>.<br>
+        &mdash; <strong>Upstash:</strong> Provides server-side data storage (Redis) for rate limiting, usage tracking, and user profiles. Subject to <a href="https://upstash.com/trust/privacy.html" target="_blank" rel="noopener">Upstash's Privacy Policy</a>.<br>
+        &mdash; <strong>Amazon Associates:</strong> Affiliate product links. Clicking "Shop on Amazon" links may set Amazon tracking cookies. Subject to <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ" target="_blank" rel="noopener">Amazon's Privacy Notice</a>.
     </div>
 
     <h2>5. Data Retention</h2>
     <p>We retain data only as long as necessary:</p>
-    <p>&mdash; <strong>AI inputs (text and photos):</strong> Processed in real-time and not stored beyond your browser session.<br>
+    <p>&mdash; <strong>Scent profile data:</strong> Stored for up to <strong>1 year</strong> from your last interaction. Includes your fragrance preferences, liked/disliked notes, and AI recommendation history. You can delete your profile at any time from the Settings menu or by contacting us.<br>
+    &mdash; <strong>AI inputs (text and photos):</strong> Not stored on our servers beyond the request. Google may retain data for up to 30 days per their API terms.<br>
     &mdash; <strong>Cookies:</strong> Expire automatically as listed in Section 2 above.<br>
     &mdash; <strong>Subscription data:</strong> Retained while your subscription is active and for a reasonable period afterward for billing purposes.<br>
-    &mdash; <strong>Rate-limit data:</strong> Automatically purged after 10 minutes (in-memory) or at end of the rate-limit window (Redis).</p>
+    &mdash; <strong>Free trial usage data:</strong> IP-based usage records are stored in Redis with a 33-day automatic expiration.<br>
+    &mdash; <strong>Rate-limit data:</strong> Automatically purged after 10 minutes (in-memory) or at end of the rate-limit window.</p>
 
     <h2>6. Your Rights</h2>
-    <p>Depending on your jurisdiction, you may have the right to:</p>
+    <p>Depending on your jurisdiction, you may have the following rights:</p>
+
+    <p><strong>For all users:</strong></p>
     <p>&mdash; Access the personal data we hold about you.<br>
-    &mdash; Request deletion of your data.<br>
-    &mdash; Withdraw consent for cookie use at any time (by clearing cookies in your browser or declining the consent banner).<br>
+    &mdash; Request deletion of your data (including your scent profile — use the "Reset Profile" option in Settings, or contact us).<br>
+    &mdash; Withdraw consent for analytics and advertising cookies at any time via the cookie consent banner or by clearing cookies in your browser.<br>
     &mdash; Object to processing of your data.</p>
-    <p>To exercise any of these rights, contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. We will respond within 30 days.</p>
 
-    <h2>7. Security</h2>
-    <p>We implement industry-standard security measures to protect your data, including HMAC-SHA256 signed cookies, HTTPS enforcement, Content Security Policy headers, CSRF protection, and rate limiting. However, no method of transmission or storage is 100% secure, and we cannot guarantee absolute security.</p>
+    <p><strong>For EU/EEA residents (GDPR):</strong></p>
+    <p>&mdash; Right to data portability.<br>
+    &mdash; Right to restrict processing.<br>
+    &mdash; Right to lodge a complaint with your local data protection authority.<br>
+    &mdash; We process your data on the basis of: (a) consent for analytics and advertising cookies, (b) legitimate interest for security and abuse prevention, and (c) contract performance for subscription services.</p>
 
-    <h2>8. Children's Privacy</h2>
-    <p>ScentWise is not intended for users under 16 years of age. We do not knowingly collect information from children. If you believe a child has provided us with personal data, please contact us and we will promptly delete it.</p>
+    <p><strong>For California residents (CCPA/CPRA):</strong></p>
+    <p>&mdash; <strong>Right to Know:</strong> You may request details about the categories of personal information we collect, the purposes for collection, and the categories of third parties with whom we share it.<br>
+    &mdash; <strong>Right to Delete:</strong> You may request deletion of your personal data. Use the "Reset Profile" option or contact us.<br>
+    &mdash; <strong>Right to Opt-Out of Sale:</strong> We do not sell your personal information in the traditional sense. However, the use of Google AdSense may constitute a "sale" or "sharing" under CCPA. You can opt out of personalized ads via <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a> or by declining advertising cookies in our consent banner.<br>
+    &mdash; <strong>Non-Discrimination:</strong> We will not discriminate against you for exercising your privacy rights.</p>
 
-    <h2>9. Changes to This Policy</h2>
-    <p>We may update this Privacy Policy from time to time. Material changes will be communicated through the Service. Your continued use of the Service after changes are posted constitutes acceptance of the updated policy.</p>
+    <p>To exercise any of these rights, contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. We will respond within 30 days (45 days for complex CCPA requests).</p>
 
-    <h2>10. Contact</h2>
+    <h2>7. International Data Transfers</h2>
+    <p>Your data may be transferred to and processed in the United States and other countries where our service providers operate (Google, Vercel, Upstash, Lemon Squeezy). These transfers are necessary to provide the Service. Where required, we rely on appropriate safeguards including standard contractual clauses.</p>
+
+    <h2>8. Security</h2>
+    <p>We implement industry-standard security measures to protect your data, including HMAC-SHA256 signed cookies, HTTPS enforcement, Content Security Policy headers, CSRF protection, rate limiting, and timing-safe token comparisons. However, no method of transmission or storage is 100% secure, and we cannot guarantee absolute security.</p>
+
+    <h2>9. Data Breach Notification</h2>
+    <p>In the event of a data breach that affects your personal information, we will notify affected users and relevant authorities as required by applicable law (within 72 hours under GDPR). Notification will be provided via email (for subscribers) or through a notice on the Service.</p>
+
+    <h2>10. Children's Privacy</h2>
+    <p>ScentWise is not intended for users under 16 years of age. We do not knowingly collect information from children under 16 (or under 13 under COPPA). If you believe a child has provided us with personal data, please contact us and we will promptly delete it.</p>
+
+    <h2>11. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Material changes will be communicated through the Service and, where required, we will seek renewed consent. The "Last Updated" date at the top indicates when this policy was last revised. Your continued use of the Service after changes are posted constitutes acceptance of the updated policy.</p>
+
+    <h2>12. Contact</h2>
     <p>If you have questions about this Privacy Policy or how we handle your data, please contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.</p>
 </main>
 

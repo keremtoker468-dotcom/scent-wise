@@ -197,10 +197,12 @@ If the user hasn't stated preferences yet, infer from their questions and still 
       if (atomicCount !== null) {
         usageCount = atomicCount;
       } else {
-        // Fallback: non-atomic increment when Redis is unavailable
+        // Redis unavailable: still increment via in-memory + cookie layers
+        // This is less persistent but prevents completely untracked usage
         usageCount++;
-        await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
       }
+      // Always write to all fallback layers for defense in depth
+      await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
     } else if (access.tier === 'premium' && subSecret) {
       usageCount++;
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);

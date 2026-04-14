@@ -21,9 +21,11 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Checkout not configured' });
   }
 
-  // Determine redirect URL from request origin
-  const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || 'https://scent-wise.com';
-  const siteUrl = origin.replace(/\/+$/, '');
+  // Determine redirect URL — only allow our own domains to prevent open redirect
+  const ALLOWED_ORIGINS = ['https://scent-wise.com', 'https://www.scent-wise.com'];
+  if (process.env.VERCEL_URL) ALLOWED_ORIGINS.push(`https://${process.env.VERCEL_URL}`);
+  const rawOrigin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || '';
+  const siteUrl = ALLOWED_ORIGINS.includes(rawOrigin.replace(/\/+$/, '')) ? rawOrigin.replace(/\/+$/, '') : 'https://scent-wise.com';
 
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {

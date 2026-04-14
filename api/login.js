@@ -56,10 +56,9 @@ module.exports = async function handler(req, res) {
       const custRes = await fetch(pageUrl, { headers: lsHeaders });
 
       if (!custRes.ok) {
-        const errBody = await custRes.text().catch(() => '');
-        console.error(`LS customers API error: ${custRes.status} — ${errBody}`);
+        console.error(`LS customers API error: ${custRes.status}`);
         let detail = '';
-        try { detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
+        try { const errBody = await custRes.text().catch(() => ''); detail = JSON.parse(errBody).errors?.[0]?.detail || ''; } catch {}
         if (custRes.status === 401 || custRes.status === 403) {
           return res.status(502).json({ error: 'Subscription service temporarily unavailable. Please try again later.' });
         }
@@ -77,6 +76,8 @@ module.exports = async function handler(req, res) {
       if (customers.length > 0) break;
       const nextUrl = custData.links?.next;
       if (!nextUrl) break;
+      // Validate pagination URL to prevent SSRF via compromised API responses
+      if (!nextUrl.startsWith('https://api.lemonsqueezy.com/')) break;
       pageUrl = nextUrl;
     }
 
@@ -92,8 +93,7 @@ module.exports = async function handler(req, res) {
     });
 
     if (!ordersRes.ok) {
-      const errBody = await ordersRes.text().catch(() => '');
-      console.error(`LS customer orders API error: ${ordersRes.status} — ${errBody}`);
+      console.error(`LS customer orders API error: ${ordersRes.status}`);
       return res.status(502).json({ error: 'Could not retrieve subscription details. Please try again later.' });
     }
 

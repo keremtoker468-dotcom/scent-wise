@@ -1,10 +1,16 @@
 const path = require('path');
 const fs = require('fs');
+const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 
 let cachedData = null;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Rate limit to prevent scraping (5 requests/min per IP)
+  const ip = getClientIp(req);
+  const rl = await rateLimit(`perfumes:${ip}`, 5, 60000);
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many requests' }); }
 
   // Cache the file read in memory across warm invocations
   if (!cachedData) {
