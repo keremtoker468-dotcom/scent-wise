@@ -33,9 +33,9 @@ module.exports = defineConfig({
     },
   ],
   webServer: {
-    command: 'npx vercel dev --listen 3000',
+    command: 'npx serve public -l 3000 --no-clipboard',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 30000,
+    timeout: 15000,
   },
 });
