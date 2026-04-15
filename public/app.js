@@ -2097,7 +2097,7 @@ function r_home(el) {
 // ═══════════════ EXPLORE (FREE — uses local DB) ═══════════════
 function r_explore(el) {
   if (!_dbLoaded) {
-    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td)">Loading fragrance database...</p></div>';
+    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="margin-left:4px">Loading fragrance database...</span></div></div>';
     loadDB().then(() => { if (CP === 'explore') r_explore(el); });
     return;
   }
@@ -2683,7 +2683,7 @@ async function dFollow() {
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
 function r_celeb(el) {
   if (!_dbLoaded) {
-    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td)">Loading fragrance data...</p></div>';
+    el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="margin-left:4px">Loading fragrance data...</span></div></div>';
     loadDB().then(() => { if (CP === 'celeb') r_celeb(el); });
     return;
   }
@@ -2881,14 +2881,20 @@ const _initMode = _initParams.get('mode');
 
 go(_wantAdmin ? 'admin' : (_initMode && ['dupe','chat','explore','photo','zodiac','music','style','celeb'].includes(_initMode) ? _initMode : 'home'));
 
-// Database loads on-demand when user navigates to explore/chat/celeb pages
+// Prefetch DB files during idle time so explore/chat/celeb load instantly
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => { loadDB(); }, { timeout: 5000 });
+} else {
+  setTimeout(() => { loadDB(); }, 3000);
+}
 
 // Initialize auth from server-side cookies
 (async function() {
   const prevTier = currentTier;
+  // Load auth and scent profile in parallel (profile is non-blocking)
+  const profileP = loadScentProfile();
   await checkTier();
-  // Load scent profile in background (non-blocking)
-  loadScentProfile();
+  // profileP continues in background — no need to await
   // Handle payment return — verify order with retry for LS API propagation delay
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get('order_id') || params.get('orderId');

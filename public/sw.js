@@ -1,4 +1,4 @@
-const CACHE = 'sw-v5';
+const CACHE = 'sw-v6';
 const SHELL = [
   '/',
   '/app.js',
@@ -6,7 +6,8 @@ const SHELL = [
   '/icon-192.png',
   '/icon-512.png'
 ];
-// perfumes.js and perfumes-rich.js are cached on-demand when lazily loaded by app.js
+// Large DB files — prefetched after install to speed up first explore/chat navigation
+const DB_FILES = ['/perfumes.js', '/perfumes-rich.js'];
 
 // Install: cache app shell
 self.addEventListener('install', e => {
@@ -14,12 +15,22 @@ self.addEventListener('install', e => {
   self.skipWaiting();
 });
 
-// Activate: clean ALL old caches aggressively, then claim clients
+// After activation, prefetch DB files in background (non-blocking)
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
+    .then(() => {
+      // Prefetch DB files after claim — low priority, doesn't block activation
+      caches.open(CACHE).then(c => {
+        DB_FILES.forEach(url => {
+          c.match(url).then(cached => {
+            if (!cached) c.add(url).catch(() => {});
+          });
+        });
+      });
+    })
   );
 });
 
