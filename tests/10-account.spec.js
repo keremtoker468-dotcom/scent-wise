@@ -89,7 +89,7 @@ test.describe('Account & Subscription', () => {
       await page.locator('#login-btn').click();
 
       // Button should show loading dots
-      await expect(page.locator('#login-btn .dot')).toBeVisible();
+      await expect(page.locator('#login-btn .dot').first()).toBeVisible();
       // Progress bar should appear
       await expect(page.locator('#login-progress')).toBeVisible();
     });
@@ -322,7 +322,7 @@ test.describe('Admin/Owner Login', () => {
 
 test.describe('Subscription Checkout', () => {
   test('subscribe button calls create-checkout API', async ({ page }) => {
-    await mockCheckTier(page, 'free');
+    await mockCheckTier(page, 'free', 3);
     await mockImages(page);
     await mockCreateCheckout(page);
     await gotoHome(page);

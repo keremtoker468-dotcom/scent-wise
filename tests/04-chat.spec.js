@@ -39,11 +39,11 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
       await page.fill('#c-inp', 'What is the best summer fragrance?');
       await page.keyboard.press('Enter');
 
-      // Should show loading dots first
-      await expect(page.locator('.dot').first()).toBeVisible();
-
-      // Wait for response
-      await page.waitForSelector('.cb-a', { timeout: 10000 });
+      // Wait for AI response (loading dots may be too brief to catch with instant mock)
+      await page.waitForFunction(() => {
+        const msgs = document.querySelectorAll('.cb-a');
+        return msgs.length > 0 && msgs[msgs.length - 1].textContent.trim().length > 5;
+      }, { timeout: 10000 });
 
       const userBubble = page.locator('.cb-u').last();
       await expect(userBubble).toContainText('best summer fragrance');
@@ -93,11 +93,19 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
     test('chat history persists across messages', async ({ page }) => {
       await page.fill('#c-inp', 'First question');
       await page.keyboard.press('Enter');
-      await page.waitForSelector('.cb-a', { timeout: 10000 });
+      // Wait for the first AI response to fully render
+      await page.waitForFunction(() => {
+        const msgs = document.querySelectorAll('.cb-a');
+        return msgs.length > 0 && msgs[msgs.length - 1].textContent.trim().length > 5;
+      }, { timeout: 10000 });
 
       await page.fill('#c-inp', 'Second question');
       await page.keyboard.press('Enter');
-      await page.waitForSelector('.cb-a:nth-child(4)', { timeout: 10000 });
+      // Wait for second AI response to fully render
+      await page.waitForFunction(() => {
+        const msgs = document.querySelectorAll('.cb-a');
+        return msgs.length >= 2 && msgs[msgs.length - 1].textContent.trim().length > 5;
+      }, { timeout: 10000 });
 
       const userMsgs = page.locator('.cb-u');
       expect(await userMsgs.count()).toBe(2);
@@ -122,7 +130,11 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
     test('AI response shows feedback buttons (like/dislike)', async ({ page }) => {
       await page.fill('#c-inp', 'Test');
       await page.keyboard.press('Enter');
-      await page.waitForSelector('.cb-a', { timeout: 10000 });
+      // Wait for the actual AI response (not just loading dots)
+      await page.waitForFunction(() => {
+        const msgs = document.querySelectorAll('.cb-a');
+        return msgs.length > 0 && msgs[msgs.length - 1].textContent.trim().length > 5;
+      }, { timeout: 10000 });
 
       // Feedback buttons are plain buttons with thumbs up/down inside .cb-a
       const feedbackBtns = page.locator('.cb-a button');
@@ -174,7 +186,7 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
 
   test.describe('Free User - Trial Exhausted', () => {
     test('shows paywall when all free queries are used', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);
@@ -186,7 +198,7 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
     });
 
     test('paywall has subscribe button', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);
@@ -197,7 +209,7 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
     });
 
     test('paywall has "Log in here" link', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);

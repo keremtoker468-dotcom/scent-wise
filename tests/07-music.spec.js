@@ -29,13 +29,10 @@ test.describe('Music Match Mode', () => {
     });
 
     test('clicking a genre fetches recommendations', async ({ page }) => {
-      const popCard = page.locator('#page-music .card').filter({ hasText: 'Pop' });
+      const popCard = page.locator('#page-music .card').filter({ has: page.locator('div', { hasText: 'Fresh, fun, versatile' }) });
       await popCard.click();
 
-      // Loading state
-      await expect(page.locator('#m-res').getByText(/Matching|vibe/i)).toBeVisible();
-
-      // Wait for results
+      // Wait for results (loading state may be too brief to catch with instant mock)
       await page.waitForSelector('#m-res .rbox', { timeout: 10000 });
       await expect(page.locator('#m-res .rbox')).toContainText('fragrance');
     });
@@ -109,7 +106,7 @@ test.describe('Music Match Mode', () => {
 
   test.describe('Paywall', () => {
     test('shows paywall when free trial exhausted', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);

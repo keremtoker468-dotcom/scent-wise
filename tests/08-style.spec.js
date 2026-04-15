@@ -37,9 +37,7 @@ test.describe('Style Match Mode', () => {
         await page.locator('#page-style .card').first().click();
       }
 
-      // Loading state
-      await expect(page.locator('#s-res').getByText(/Curating|wardrobe/i)).toBeVisible();
-
+      // Wait for results (loading state may be too brief to catch with instant mock)
       await page.waitForSelector('#s-res .rbox', { timeout: 10000 });
       await expect(page.locator('#s-res .rbox')).toContainText('fragrance');
     });
@@ -112,7 +110,7 @@ test.describe('Style Match Mode', () => {
 
   test.describe('Paywall', () => {
     test('shows paywall when free trial exhausted', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);

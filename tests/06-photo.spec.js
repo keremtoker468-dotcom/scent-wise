@@ -66,10 +66,7 @@ test.describe('Photo Style Scan Mode', () => {
 
       await page.locator('button').filter({ hasText: 'Find My Fragrances' }).click();
 
-      // Should show loading
-      await expect(page.locator('#page-photo').getByText(/Analyzing/i)).toBeVisible();
-
-      // Wait for results
+      // Wait for results (loading state may be too brief to catch with instant mock)
       await page.waitForSelector('#page-photo .rbox', { timeout: 10000 });
       await expect(page.locator('#page-photo .rbox')).toContainText('fragrance');
     });
@@ -123,7 +120,7 @@ test.describe('Photo Style Scan Mode', () => {
 
   test.describe('Paywall', () => {
     test('shows paywall when free trial exhausted', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);

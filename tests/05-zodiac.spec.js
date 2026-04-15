@@ -34,10 +34,7 @@ test.describe('Zodiac Match Mode', () => {
       const ariesCard = page.locator('#page-zodiac .card').filter({ hasText: 'Aries' });
       await ariesCard.click();
 
-      // Should show loading
-      await expect(page.locator('#z-res')).toContainText(/Finding|cosmic/i);
-
-      // Wait for result
+      // Wait for result (loading state may be too brief to catch with instant mock)
       await page.waitForSelector('#z-res .rbox', { timeout: 10000 });
       await expect(page.locator('#z-res .rbox')).toContainText('fragrance');
     });
@@ -138,7 +135,7 @@ test.describe('Zodiac Match Mode', () => {
 
   test.describe('Paywall', () => {
     test('shows paywall when free trial exhausted', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);

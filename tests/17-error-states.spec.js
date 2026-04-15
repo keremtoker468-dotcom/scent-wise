@@ -15,6 +15,7 @@ test.describe('Error States & Edge Cases', () => {
 
   test.describe('Free Trial Exhaustion', () => {
     test('chat shows paywall after 3 free queries', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'chat');
@@ -24,6 +25,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('zodiac shows paywall after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'zodiac');
@@ -32,6 +34,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('photo shows paywall after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'photo');
@@ -40,6 +43,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('music shows paywall after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'music');
@@ -48,6 +52,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('style shows paywall after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'style');
@@ -56,6 +61,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('dupe shows paywall after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'dupe');
@@ -64,6 +70,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('explore remains accessible after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'explore');
@@ -74,6 +81,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('celebrity remains accessible after trial exhausted', async ({ page }) => {
+      await mockCheckTier(page, 'free', 3);
       await gotoHome(page);
       await setFreeUser(page, 3);
       await goToPage(page, 'celeb');
@@ -215,6 +223,7 @@ test.describe('Error States & Edge Cases', () => {
     });
 
     test('free tier tracking works across modes', async ({ page }) => {
+      await mockCheckTier(page, 'free', 2);
       await mockAIResponse(page);
       await gotoHome(page);
       await setFreeUser(page, 2);

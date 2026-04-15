@@ -10,6 +10,12 @@ test.describe('Compare Feature', () => {
     await mockCheckTier(page, 'free');
     await mockImages(page);
     await gotoHome(page);
+    // Dismiss cookie banner so it doesn't intercept clicks on compare bar
+    const banner = page.locator('#cookie-banner');
+    if (await banner.isVisible().catch(() => false)) {
+      await banner.getByRole('button', { name: /Accept All/i }).click();
+      await page.waitForTimeout(300);
+    }
     await goToPage(page, 'explore');
     await waitForDB(page);
   });
@@ -183,8 +189,11 @@ test.describe('Compare Feature', () => {
 
       // Comparison overlay/modal should appear
       await page.waitForFunction(() => {
-        const overlay = document.querySelector('[style*="position:fixed"]');
-        return overlay && overlay.textContent.includes('Compare');
+        const overlays = document.querySelectorAll('body > div[style]');
+        for (const el of overlays) {
+          if (el.style.position === 'fixed' && el.textContent.includes('Fragrance Comparison')) return true;
+        }
+        return false;
       }, { timeout: 5000 });
     });
   });

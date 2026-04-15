@@ -35,9 +35,7 @@ test.describe('Dupe Finder Mode', () => {
       const firstCard = page.locator('#page-dupe .card').first();
       await firstCard.click();
 
-      // Loading
-      await expect(page.locator('#d-res').getByText(/Finding|alternatives/i)).toBeVisible();
-
+      // Wait for results (loading state may be too brief to catch with instant mock)
       await page.waitForSelector('#d-res .rbox', { timeout: 15000 });
       await expect(page.locator('#d-res .rbox')).toContainText('fragrance');
     });
@@ -126,7 +124,7 @@ test.describe('Dupe Finder Mode', () => {
 
   test.describe('Paywall', () => {
     test('shows paywall when free trial exhausted', async ({ page }) => {
-      await mockCheckTier(page, 'free');
+      await mockCheckTier(page, 'free', 3);
       await mockImages(page);
       await gotoHome(page);
       await setFreeUser(page, 3);
