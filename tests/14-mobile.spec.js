@@ -3,8 +3,9 @@ const { test, expect, devices } = require('@playwright/test');
 const { gotoHome, goToPage, mockCheckTier, mockImages, setPremiumUser, mockAIResponse } = require('./helpers');
 
 // Only run mobile tests on mobile projects
+test.use(devices['Pixel 7']);
+
 test.describe('Mobile Navigation & Responsive', () => {
-  test.use(devices['Pixel 7']);
 
   test.beforeEach(async ({ page }) => {
     await mockCheckTier(page, 'free');
