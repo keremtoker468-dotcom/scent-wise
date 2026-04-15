@@ -61,7 +61,7 @@ async function mockAIResponse(page, response = 'Here are your fragrance recommen
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ result: response, usage: 1 }),
+      body: JSON.stringify({ result: response, freeUsed: 1, usage: 1 }),
     });
   });
 }
