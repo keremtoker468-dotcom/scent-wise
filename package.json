@@ -3,7 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "vercel dev",
+    "test": "npx playwright test",
+    "test:mobile": "npx playwright test --project=mobile"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
 }
