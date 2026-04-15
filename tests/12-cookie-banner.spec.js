@@ -29,8 +29,8 @@ test.describe('Cookie Banner & Consent', () => {
       const banner = page.locator('#cookie-banner');
 
       // Check for buttons (they exist even if banner is hidden)
-      const acceptAll = banner.getByText(/Accept All/i);
-      const essentialOnly = banner.getByText(/Essential/i);
+      const acceptAll = banner.getByRole('button', { name: /Accept All/i });
+      const essentialOnly = banner.getByRole('button', { name: /Essential Only/i });
       await expect(acceptAll).toBeAttached();
       await expect(essentialOnly).toBeAttached();
     });
@@ -85,7 +85,7 @@ test.describe('Cookie Banner & Consent', () => {
       const isVisible = await banner.isVisible();
 
       if (isVisible) {
-        await banner.getByText(/Essential/i).click();
+        await banner.getByRole('button', { name: /Essential Only/i }).click();
         await page.waitForTimeout(500);
         await expect(banner).toBeHidden();
       }

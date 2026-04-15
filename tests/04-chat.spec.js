@@ -233,7 +233,12 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
 
       await page.fill('#c-inp', 'Test');
       await page.keyboard.press('Enter');
-      await page.waitForSelector('.cb-a', { timeout: 10000 });
+
+      // Wait for the AI response to render (not just the loading dots)
+      await page.waitForFunction(() => {
+        const msgs = document.querySelectorAll('.cb-a');
+        return msgs.length > 0 && msgs[msgs.length - 1].textContent.trim().length > 5;
+      }, { timeout: 10000 });
 
       const lastMsg = page.locator('.cb-a').last();
       const text = await lastMsg.textContent();

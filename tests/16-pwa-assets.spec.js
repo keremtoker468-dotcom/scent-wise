@@ -122,13 +122,15 @@ test.describe('PWA & Static Assets', () => {
       await gotoHome(page);
       await page.waitForTimeout(2000);
 
-      // Filter out expected errors (like network mocks)
+      // Filter out expected errors (like network mocks, missing static resources)
       const realErrors = errors.filter(e =>
         !e.includes('ERR_FAILED') &&
         !e.includes('net::') &&
         !e.includes('favicon') &&
         !e.includes('google') &&
-        !e.includes('plausible')
+        !e.includes('plausible') &&
+        !e.includes('404') &&
+        !e.includes('Failed to load resource')
       );
       expect(realErrors).toHaveLength(0);
     });

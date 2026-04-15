@@ -64,7 +64,7 @@ test.describe('Explore Database', () => {
       await page.waitForTimeout(500);
 
       // Click Male filter
-      await page.locator('.fbtn').filter({ hasText: 'Male' }).click();
+      await page.locator('.fbtn').filter({ hasText: /^Male$/ }).click();
       await page.waitForTimeout(500);
       await expect(page.locator('.fbtn.ac')).toContainText('Male');
     });

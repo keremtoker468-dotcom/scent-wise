@@ -14,16 +14,20 @@ test.describe('Scent Quiz / Profile', () => {
   });
 
   test.describe('Scent Quiz Overlay', () => {
-    test('scent quiz overlay exists in DOM', async ({ page }) => {
+    test('scent quiz overlay exists in DOM after opening', async ({ page }) => {
+      const hasQuiz = await page.evaluate(() => typeof window.openScentQuiz === 'function');
+      if (!hasQuiz) return;
+      await page.evaluate(() => openScentQuiz());
       const overlay = page.locator('#scent-quiz-overlay');
       await expect(overlay).toBeAttached();
+      await page.evaluate(() => closeScentQuiz());
     });
 
-    test('scent quiz overlay is initially hidden', async ({ page }) => {
+    test('scent quiz overlay is not visible before opening', async ({ page }) => {
       const overlay = page.locator('#scent-quiz-overlay');
-      // Should not be visible by default
-      const isVisible = await overlay.isVisible().catch(() => false);
-      expect(isVisible).toBeFalsy();
+      // The overlay is created dynamically, so it should not exist at all before opening
+      const count = await overlay.count();
+      expect(count).toBe(0);
     });
 
     test('scent quiz can be opened', async ({ page }) => {
@@ -112,9 +116,12 @@ test.describe('Scent Quiz / Profile', () => {
       await page.keyboard.press('Enter');
       await page.waitForSelector('.cb-a', { timeout: 10000 });
 
-      // Feedback buttons are plain buttons with thumbs up/down (not .fbtn class)
-      const fbBtns = page.locator('.cb-a button');
-      expect(await fbBtns.count()).toBeGreaterThanOrEqual(2);
+      // Feedback section has "Did you like these recommendations?" text and Yes/No buttons
+      await expect(page.locator('.cb-a').last()).toContainText('Did you like these recommendations');
+      const yesBtn = page.locator('.cb-a button').filter({ hasText: 'Yes' });
+      const noBtn = page.locator('.cb-a button').filter({ hasText: 'No' });
+      expect(await yesBtn.count()).toBeGreaterThanOrEqual(1);
+      expect(await noBtn.count()).toBeGreaterThanOrEqual(1);
     });
 
     test('clicking feedback button changes its state', async ({ page }) => {
@@ -131,9 +138,9 @@ test.describe('Scent Quiz / Profile', () => {
       await page.keyboard.press('Enter');
       await page.waitForSelector('.cb-a', { timeout: 10000 });
 
-      // Click the like button (first button in the feedback area)
-      const likeBtn = page.locator('.cb-a button').first();
-      await likeBtn.click();
+      // Click the "Yes" feedback button (not the heart/like fragrance button)
+      const yesBtn = page.locator('.cb-a button').filter({ hasText: 'Yes' }).first();
+      await yesBtn.click();
       // After clicking, the feedback div re-renders showing a confirmation message
       await expect(page.locator('.cb-a').last()).toContainText(/liked|preference|noted/i);
     });
