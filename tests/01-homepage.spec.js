@@ -94,17 +94,18 @@ test.describe('Homepage & Navigation', () => {
   });
 
   test.describe('Discovery Modes Section', () => {
-    test('displays all 6 discovery modes', async ({ page }) => {
+    test('displays all 7 discovery modes', async ({ page }) => {
       await gotoHome(page);
       const modes = page.locator('.hp-mode-item');
-      await expect(modes).toHaveCount(6);
+      await expect(modes).toHaveCount(7);
 
       await expect(modes.nth(0)).toContainText('Ask the Expert');
       await expect(modes.nth(1)).toContainText('Zodiac Match');
       await expect(modes.nth(2)).toContainText('Photo Style Scan');
       await expect(modes.nth(3)).toContainText('Music Match');
       await expect(modes.nth(4)).toContainText('Style Match');
-      await expect(modes.nth(5)).toContainText('Celebrity Collections');
+      await expect(modes.nth(5)).toContainText('Dupe Finder');
+      await expect(modes.nth(6)).toContainText('Celebrity Collections');
     });
 
     test('clicking each mode card navigates to the correct page', async ({ page }) => {
@@ -114,7 +115,8 @@ test.describe('Homepage & Navigation', () => {
         { index: 2, page: 'photo' },
         { index: 3, page: 'music' },
         { index: 4, page: 'style' },
-        { index: 5, page: 'celeb' },
+        { index: 5, page: 'dupe' },
+        { index: 6, page: 'celeb' },
       ];
 
       for (const m of modeMap) {
@@ -214,7 +216,7 @@ test.describe('Homepage & Navigation', () => {
     test('bottom CTA has heading and button', async ({ page }) => {
       await gotoHome(page);
       const cta = page.locator('.hp-cta-section');
-      await expect(cta).toContainText('ready');
+      await expect(cta).toContainText('Ready');
       await expect(cta.locator('.hp-btn-primary')).toBeVisible();
     });
   });

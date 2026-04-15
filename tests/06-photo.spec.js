@@ -102,7 +102,8 @@ test.describe('Photo Style Scan Mode', () => {
       await page.locator('button').filter({ hasText: 'Find My Fragrances' }).click();
       await page.waitForSelector('#page-photo .rbox', { timeout: 10000 });
 
-      const feedback = page.locator('#page-photo .rbox .fbtn');
+      // Feedback buttons are plain buttons with thumbs up/down
+      const feedback = page.locator('#page-photo .rbox button');
       expect(await feedback.count()).toBeGreaterThanOrEqual(2);
     });
   });

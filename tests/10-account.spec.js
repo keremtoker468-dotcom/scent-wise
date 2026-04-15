@@ -176,22 +176,6 @@ test.describe('Account & Subscription', () => {
     test.beforeEach(async ({ page }) => {
       await mockCheckTier(page, 'premium');
       await mockImages(page);
-      await page.route('**/api/check-tier*', async (route) => {
-        const url = route.request().url();
-        if (url.includes('action=profile')) {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({ profile: null }),
-          });
-        } else {
-          await route.fulfill({
-            status: 200,
-            contentType: 'application/json',
-            body: JSON.stringify({ tier: 'premium', isPaid: true }),
-          });
-        }
-      });
       await gotoHome(page);
       await setPremiumUser(page);
       await page.evaluate(() => { window.userEmail = 'test@example.com'; });
@@ -230,13 +214,6 @@ test.describe('Account & Subscription', () => {
     test('shows owner status with crown emoji', async ({ page }) => {
       await mockCheckTier(page, 'owner');
       await mockImages(page);
-      await page.route('**/api/check-tier*', async (route) => {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ tier: 'owner', isPaid: true }),
-        });
-      });
       await gotoHome(page);
       await setOwnerUser(page);
       await goToPage(page, 'account');

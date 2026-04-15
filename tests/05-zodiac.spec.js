@@ -55,7 +55,8 @@ test.describe('Zodiac Match Mode', () => {
       await page.locator('#page-zodiac .card').filter({ hasText: 'Virgo' }).click();
       await page.waitForSelector('#z-res .rbox', { timeout: 10000 });
 
-      const feedbackBtns = page.locator('#z-res .fbtn');
+      // Feedback buttons are plain buttons with thumbs up/down
+      const feedbackBtns = page.locator('#z-res .rbox button');
       expect(await feedbackBtns.count()).toBeGreaterThanOrEqual(2);
     });
 

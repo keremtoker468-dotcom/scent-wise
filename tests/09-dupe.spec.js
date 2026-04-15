@@ -87,7 +87,8 @@ test.describe('Dupe Finder Mode', () => {
       await page.locator('#page-dupe .card').first().click();
       await page.waitForSelector('#d-res .rbox', { timeout: 15000 });
 
-      expect(await page.locator('#d-res .fbtn').count()).toBeGreaterThanOrEqual(2);
+      // Feedback buttons are plain buttons with thumbs up/down
+      expect(await page.locator('#d-res .rbox button').count()).toBeGreaterThanOrEqual(2);
     });
 
     test('results area has ARIA attributes', async ({ page }) => {

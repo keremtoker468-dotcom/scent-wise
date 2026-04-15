@@ -84,7 +84,8 @@ test.describe('Style Match Mode', () => {
       await page.locator('#page-style .card').first().click();
       await page.waitForSelector('#s-res .rbox', { timeout: 10000 });
 
-      expect(await page.locator('#s-res .fbtn').count()).toBeGreaterThanOrEqual(2);
+      // Feedback buttons are plain buttons with thumbs up/down
+      expect(await page.locator('#s-res .rbox button').count()).toBeGreaterThanOrEqual(2);
     });
 
     test('results area has ARIA attributes', async ({ page }) => {

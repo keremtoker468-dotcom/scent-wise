@@ -124,7 +124,8 @@ test.describe('AI Chat Mode (Ask the Expert)', () => {
       await page.keyboard.press('Enter');
       await page.waitForSelector('.cb-a', { timeout: 10000 });
 
-      const feedbackBtns = page.locator('.cb-a .fbtn');
+      // Feedback buttons are plain buttons with thumbs up/down inside .cb-a
+      const feedbackBtns = page.locator('.cb-a button');
       expect(await feedbackBtns.count()).toBeGreaterThanOrEqual(2);
     });
 

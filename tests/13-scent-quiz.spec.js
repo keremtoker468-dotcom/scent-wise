@@ -9,30 +9,6 @@ test.describe('Scent Quiz / Profile', () => {
   test.beforeEach(async ({ page }) => {
     await mockCheckTier(page, 'premium');
     await mockImages(page);
-    // Mock profile endpoint
-    await page.route('**/api/check-tier*', async (route) => {
-      const url = route.request().url();
-      const method = route.request().method();
-      if (url.includes('action=profile') && method === 'POST') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ success: true, profile: { tendency: 'sweeter', climate: 'temperate', longevity: '4-8-hours', context: ['office-safe'], intensity: 'moderate' } }),
-        });
-      } else if (url.includes('action=profile') && method === 'GET') {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ profile: null }),
-        });
-      } else {
-        await route.fulfill({
-          status: 200,
-          contentType: 'application/json',
-          body: JSON.stringify({ tier: 'premium', isPaid: true }),
-        });
-      }
-    });
     await gotoHome(page);
     await setPremiumUser(page);
   });
@@ -127,7 +103,7 @@ test.describe('Scent Quiz / Profile', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ result: 'Test recommendation', usage: 1 }),
+          body: JSON.stringify({ result: 'Here are your recommendations:\n\n1. **Dior Sauvage** — fresh\n2. **Bleu de Chanel** — woody', freeUsed: 1, usage: 1 }),
         });
       });
 
@@ -136,8 +112,8 @@ test.describe('Scent Quiz / Profile', () => {
       await page.keyboard.press('Enter');
       await page.waitForSelector('.cb-a', { timeout: 10000 });
 
-      // Should have feedback buttons (like/dislike)
-      const fbBtns = page.locator('.cb-a .fbtn');
+      // Feedback buttons are plain buttons with thumbs up/down (not .fbtn class)
+      const fbBtns = page.locator('.cb-a button');
       expect(await fbBtns.count()).toBeGreaterThanOrEqual(2);
     });
 
@@ -146,7 +122,7 @@ test.describe('Scent Quiz / Profile', () => {
         await route.fulfill({
           status: 200,
           contentType: 'application/json',
-          body: JSON.stringify({ result: 'Test recommendation', usage: 1 }),
+          body: JSON.stringify({ result: 'Here are your recommendations:\n\n1. **Dior Sauvage** — fresh\n2. **Bleu de Chanel** — woody', freeUsed: 1, usage: 1 }),
         });
       });
 
@@ -155,10 +131,11 @@ test.describe('Scent Quiz / Profile', () => {
       await page.keyboard.press('Enter');
       await page.waitForSelector('.cb-a', { timeout: 10000 });
 
-      const likeBtn = page.locator('.cb-a .fbtn').first();
+      // Click the like button (first button in the feedback area)
+      const likeBtn = page.locator('.cb-a button').first();
       await likeBtn.click();
-      // Button should get active class
-      await expect(likeBtn).toHaveClass(/ac/);
+      // After clicking, the feedback div re-renders showing a confirmation message
+      await expect(page.locator('.cb-a').last()).toContainText(/liked|preference|noted/i);
     });
   });
 });
