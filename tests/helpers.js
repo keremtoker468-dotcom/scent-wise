@@ -108,12 +108,31 @@ async function mockAIServerError(page) {
 /**
  * Mock the /api/check-tier endpoint.
  */
-async function mockCheckTier(page, tier = 'free') {
+async function mockCheckTier(page, tier = 'free', freeUsed = 0) {
   await page.route('**/api/check-tier*', async (route) => {
+    const url = route.request().url();
+    const method = route.request().method();
+
+    // Handle profile requests
+    if (url.includes('action=profile')) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(method === 'GET' ? { hasProfile: false, profile: null } : { success: true }),
+      });
+      return;
+    }
+
+    // Regular tier check
     await route.fulfill({
       status: 200,
       contentType: 'application/json',
-      body: JSON.stringify({ tier, isPaid: tier !== 'free' }),
+      body: JSON.stringify({
+        tier,
+        freeUsed: tier === 'free' ? freeUsed : 0,
+        email: tier !== 'free' ? 'test@example.com' : '',
+        usage: 0,
+      }),
     });
   });
 }

@@ -141,7 +141,8 @@ test.describe('Celebrity Collections', () => {
       await waitForDB(page);
       const grid = page.locator('#page-celeb .grid');
       await expect(grid).toBeVisible();
-      const gridStyle = await grid.getAttribute('style');
+      // Grid has inline style with grid-template-columns
+      const gridStyle = await grid.evaluate(el => el.getAttribute('style'));
       expect(gridStyle).toContain('grid-template-columns');
     });
   });

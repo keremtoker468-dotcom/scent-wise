@@ -19,20 +19,20 @@ test.describe('Homepage & Navigation', () => {
       await expect(page.locator('.hp-hero-stat .num').nth(1)).toContainText('6');
       await expect(page.locator('.hp-hero-stat .num').nth(2)).toContainText('2,500');
       // CTA buttons
-      await expect(page.locator('.hp-btn-primary')).toContainText('Start Discovering');
-      await expect(page.locator('.hp-btn-ghost')).toContainText('See How It Works');
+      await expect(page.locator('.hp-hero .hp-btn-primary')).toContainText('Start Discovering');
+      await expect(page.locator('.hp-hero .hp-btn-ghost')).toContainText('See How It Works');
     });
 
     test('"Start Discovering" navigates to chat mode', async ({ page }) => {
       await gotoHome(page);
-      await page.locator('.hp-btn-primary').click();
+      await page.locator('.hp-hero .hp-btn-primary').click();
       await expect(page.locator('#page-chat')).not.toHaveClass(/hidden/);
     });
 
     test('"See How It Works" scrolls to how-it-works section', async ({ page }) => {
       await gotoHome(page);
-      await page.locator('.hp-btn-ghost').click();
-      const section = page.locator('#hp-how');
+      await page.locator('.hp-hero .hp-btn-ghost').click();
+      const section = page.locator('#hp-discover');
       await expect(section).toBeVisible();
     });
   });
@@ -182,7 +182,7 @@ test.describe('Homepage & Navigation', () => {
       await gotoHome(page);
       await page.locator('#hp-email-btn').click();
       // No toast should appear, button text stays the same
-      await expect(page.locator('#hp-email-btn')).toContainText('Subscribe');
+      await expect(page.locator('#hp-email-btn')).toContainText('Subscribe Free');
     });
 
     test('newsletter submission error shows error toast', async ({ page }) => {
