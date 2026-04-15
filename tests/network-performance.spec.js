@@ -56,14 +56,23 @@ test.describe('Network Performance', () => {
 
     test('no render-blocking scripts in head', async ({ page }) => {
       await mockAPIs(page);
-      await page.goto('/');
+      // Check raw HTML source — not the DOM, which includes dynamically-loaded
+      // scripts (perfumes.js, perfumes-rich.js) added by _loadScript() at idle time.
+      const html = await page.goto('/').then(r => r.text());
+      const headMatch = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+      expect(headMatch).toBeTruthy();
+      const headHtml = headMatch[1];
 
-      const blockingScripts = await page.evaluate(() => {
-        const scripts = document.querySelectorAll('head script[src]');
-        return Array.from(scripts)
-          .filter(s => !s.hasAttribute('defer') && !s.hasAttribute('async'))
-          .map(s => s.getAttribute('src'));
-      });
+      // Find all <script src="..."> in the static head HTML
+      const scriptRegex = /<script\b([^>]*)src="([^"]*)"([^>]*)>/gi;
+      const blockingScripts = [];
+      let match;
+      while ((match = scriptRegex.exec(headHtml)) !== null) {
+        const attrs = match[1] + match[3];
+        if (!attrs.includes('defer') && !attrs.includes('async')) {
+          blockingScripts.push(match[2]);
+        }
+      }
       expect(blockingScripts).toHaveLength(0);
     });
   });
