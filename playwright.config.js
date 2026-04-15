@@ -16,6 +16,7 @@ module.exports = defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['**/14-mobile.spec.js'],
     },
     {
       name: 'mobile',

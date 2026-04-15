@@ -2,3 +2,6 @@
 .env.*
 node_modules/
 .vercel/
+test-results/
+playwright-report/
+tests/test-image.png

@@ -126,7 +126,7 @@ const _GM = {M:'Male',F:'Female',U:'Unisex','':''};
 let SI = [];
 let RD = [];
 const RL = {};
-let _dbLoaded = false;
+var _dbLoaded = false;
 let _dbLoadPromise = null;
 let _expDebounce = null;
 
@@ -252,12 +252,12 @@ function getContext(query) {
 }
 
 // ═══════════════ SUBSCRIPTION (cookie-based) ═══════════════
-let isOwner = false;
-let isPaid = false;
-let currentTier = 'free';
-let userEmail = '';
-let aiUsage = 0;
-let freeUsed = 0;
+var isOwner = false;
+var isPaid = false;
+var currentTier = 'free';
+var userEmail = '';
+var aiUsage = 0;
+var freeUsed = 0;
 const MAX_PAID = 500;
 const FREE_LIMIT = 3;
 
@@ -1462,7 +1462,7 @@ let selD = _ss('selD'), dupeRes = _ss('dupeRes') || '', dupeLoad = false, dupeCh
 let photoChat = _ss('photoChat') || [], photoChatLoad = false;
 let celebQ = '';
 let expQ = '', expFilter = 'all', expResults = [];
-let _compareList = []; // max 3 perfumes for comparison
+var _compareList = []; // max 3 perfumes for comparison
 const cache = {};
 
 // Birthday to zodiac sign converter

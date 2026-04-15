@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "vercel dev",
     "test": "npx playwright test",
-    "test:mobile": "npx playwright test --project=mobile"
+    "test:desktop": "npx playwright test --project=desktop",
+    "test:mobile": "npx playwright test --project=mobile",
+    "test:headed": "npx playwright test --headed --project=desktop",
+    "test:ui": "npx playwright test --ui"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1"
+    "@playwright/test": "^1.56.0"
   }
 }

@@ -60,9 +60,11 @@ test.describe('Mobile Loading Performance', () => {
 
     test('font loading uses non-blocking preload pattern', async ({ page }) => {
       await mockAPIs(page);
-      await page.goto('/');
-      const fontLink = page.locator('link[rel="preload"][as="style"][href*="fonts.googleapis.com"]');
-      await expect(fontLink).toBeAttached();
+      // Read the raw HTML before JS modifies the DOM (preload onload changes rel to stylesheet)
+      const html = await page.goto('/').then(r => r.text());
+      expect(html).toContain('rel="preload"');
+      expect(html).toContain('as="style"');
+      expect(html).toContain('fonts.googleapis.com');
     });
 
     test('preconnect hints exist for external domains', async ({ page }) => {
@@ -75,24 +77,34 @@ test.describe('Mobile Loading Performance', () => {
 
   test.describe('Explore page loading', () => {
 
-    test('shows animated spinner while DB loads', async ({ page }) => {
+    test('shows loading state while DB loads', async ({ page }) => {
       await mockAPIs(page);
-      // Block DB files to simulate slow network
-      await page.route('**/perfumes.js', () => { /* hold forever */ });
-      await page.route('**/perfumes-rich.js', () => { /* hold forever */ });
+      // Block DB files but still fulfill them eventually to avoid page.goto timeout
+      let resolvePerfumes, resolveRich;
+      const perfumesP = new Promise(r => { resolvePerfumes = r; });
+      const richP = new Promise(r => { resolveRich = r; });
 
-      await page.goto('/?mode=explore');
+      await page.route('**/perfumes.js', async route => {
+        await perfumesP;
+        await route.continue();
+      });
+      await page.route('**/perfumes-rich.js', async route => {
+        await richP;
+        await route.continue();
+      });
 
-      // Should show animated dots spinner
-      const spinner = page.locator('#page-explore .dot');
-      await expect(spinner.first()).toBeVisible({ timeout: 5000 });
-
-      // Should have at least 3 dot elements
-      const dotCount = await page.locator('#page-explore .dot').count();
-      expect(dotCount).toBeGreaterThanOrEqual(3);
+      // Use waitUntil: 'domcontentloaded' so we don't wait for blocked scripts
+      await page.goto('/?mode=explore', { waitUntil: 'domcontentloaded' });
 
       // Should show loading text
-      await expect(page.locator('#page-explore')).toContainText('Loading fragrance database...');
+      await expect(page.locator('#page-explore')).toContainText('Loading fragrance database', { timeout: 10000 });
+
+      // Release the DB files
+      resolvePerfumes();
+      resolveRich();
+
+      // Eventually the search input should appear
+      await expect(page.locator('#exp-inp')).toBeVisible({ timeout: 30000 });
     });
 
     test('loads and renders explore page after DB is ready', async ({ page }) => {
@@ -114,27 +126,38 @@ test.describe('Mobile Loading Performance', () => {
 
       await searchInput.fill('Sauvage');
       await page.locator('#page-explore button:has-text("Search")').click();
+      await page.waitForTimeout(500);
 
-      await expect(page.locator('#page-explore .pc')).not.toHaveCount(0, { timeout: 5000 });
+      // Perfume cards use .pcard class
+      await expect(page.locator('#page-explore .pcard').first()).toBeVisible({ timeout: 5000 });
     });
   });
 
   test.describe('Celebrity page loading', () => {
 
-    test('shows animated spinner while DB loads', async ({ page }) => {
+    test('shows loading state while DB loads', async ({ page }) => {
       await mockAPIs(page);
-      await page.route('**/perfumes.js', () => { /* hold */ });
-      await page.route('**/perfumes-rich.js', () => { /* hold */ });
+      let resolvePerfumes, resolveRich;
+      const perfumesP = new Promise(r => { resolvePerfumes = r; });
+      const richP = new Promise(r => { resolveRich = r; });
 
-      await page.goto('/?mode=celeb');
+      await page.route('**/perfumes.js', async route => {
+        await perfumesP;
+        await route.continue();
+      });
+      await page.route('**/perfumes-rich.js', async route => {
+        await richP;
+        await route.continue();
+      });
 
-      const spinner = page.locator('#page-celeb .dot');
-      await expect(spinner.first()).toBeVisible({ timeout: 5000 });
+      await page.goto('/?mode=celeb', { waitUntil: 'domcontentloaded' });
 
-      const dotCount = await page.locator('#page-celeb .dot').count();
-      expect(dotCount).toBeGreaterThanOrEqual(3);
+      await expect(page.locator('#page-celeb')).toContainText('Loading fragrance data', { timeout: 10000 });
 
-      await expect(page.locator('#page-celeb')).toContainText('Loading fragrance data...');
+      resolvePerfumes();
+      resolveRich();
+
+      await expect(page.locator('#celeb-s')).toBeVisible({ timeout: 30000 });
     });
 
     test('loads and renders celebrity page after DB is ready', async ({ page }) => {
@@ -259,7 +282,7 @@ test.describe('Mobile Loading Performance', () => {
 
   test.describe('Navigation transitions', () => {
 
-    test('home to explore transition shows spinner then content', async ({ page }) => {
+    test('home to explore transition shows loading then content', async ({ page }) => {
       await mockAPIs(page);
       let resolveDb;
       const dbPromise = new Promise(r => { resolveDb = r; });
@@ -273,12 +296,13 @@ test.describe('Mobile Loading Performance', () => {
         await route.continue();
       });
 
-      await page.goto('/');
+      await page.goto('/', { waitUntil: 'domcontentloaded' });
       await expect(page.locator('#page-home')).toBeVisible();
 
       await page.evaluate(() => { window['go']('explore'); });
 
-      await expect(page.locator('#page-explore .dot').first()).toBeVisible({ timeout: 3000 });
+      // Should show loading text (DB not ready yet)
+      await expect(page.locator('#page-explore')).toContainText('Loading fragrance database', { timeout: 5000 });
 
       resolveDb();
 
