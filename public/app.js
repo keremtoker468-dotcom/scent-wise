@@ -86,18 +86,17 @@ function openModeSwitcher() {
   const optionsEl = document.getElementById('mode-switch-options');
   if (!overlay || !optionsEl) return;
   const allModes = [
-    {id:'chat',name:'AI Advisor',desc:'Ask anything about fragrances',i:'💬'},
-    {id:'explore',name:'Explore Database',desc:'Search 75,000+ perfumes',i:'🧪'},
-    {id:'photo',name:'Photo Style Scan',desc:'Upload a photo, get matched scents',i:'📸'},
-    {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars',i:'🔮'},
-    {id:'music',name:'Music Match',desc:'Your music taste reveals your scent',i:'🎶'},
-    {id:'style',name:'Style Match',desc:'Scents that match your wardrobe',i:'🪞'},
-    {id:'dupe',name:'Dupe Finder',desc:'Find affordable alternatives to pricey scents',i:'🔄'},
-    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear',i:'💫'}
+    {id:'chat',name:'AI Advisor',desc:'Ask anything about fragrances'},
+    {id:'explore',name:'Explore Database',desc:'Search 75,000+ perfumes'},
+    {id:'photo',name:'Photo Style Scan',desc:'Upload a photo, get matched scents'},
+    {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars'},
+    {id:'music',name:'Music Match',desc:'Your music taste reveals your scent'},
+    {id:'style',name:'Style Match',desc:'Scents that match your wardrobe'},
+    {id:'dupe',name:'Dupe Finder',desc:'Find affordable alternatives to pricey scents'},
+    {id:'celeb',name:'Celebrity Collections',desc:'See what the icons wear'}
   ];
   optionsEl.innerHTML = allModes.map(m =>
     `<div class="ms-option ${CP===m.id?'ms-active':''}" onclick="goFromSwitcher('${m.id}')">
-      <div class="ms-icon">${m.i}</div>
       <div class="ms-info">
         <div class="ms-name">${m.name}</div>
         <div class="ms-desc">${m.desc}</div>
@@ -1284,168 +1283,168 @@ function loadExploreImages() {
 
 // ═══════════════ 101 CELEBRITIES ═══════════════
 const CELEBS = [
-  {name:"Rihanna",img:"🎤",frags:["Love, Don't Be Shy|Kilian","Oud Silk Mood|Maison Francis Kurkdjian","Tobacco Vanille|Tom Ford"]},
-  {name:"David Beckham",img:"⚽",frags:["Dior Homme Intense|Dior","Silver Mountain Water|Creed","Bleu de Chanel|Chanel"]},
-  {name:"Zendaya",img:"🎬",frags:["Idôle|Lancôme","Black Opium|YSL","Flowerbomb|Viktor&Rolf"]},
-  {name:"Johnny Depp",img:"🏴‍☠️",frags:["Sauvage|Dior","Sauvage Elixir|Dior"]},
-  {name:"Ariana Grande",img:"🎀",frags:["Cloud|Ariana Grande","R.E.M.|Ariana Grande","God Is A Woman|Ariana Grande"]},
-  {name:"Brad Pitt",img:"🎞️",frags:["Chanel No. 5|Chanel","Le Labo Santal 33|Le Labo"]},
-  {name:"Beyoncé",img:"👑",frags:["Love, Don't Be Shy|Kilian","Soleil Blanc|Tom Ford","Coco Mademoiselle|Chanel"]},
-  {name:"Harry Styles",img:"🎸",frags:["Bleu de Chanel|Chanel","Tobacco Vanille|Tom Ford","Mémoire d'une Odeur|Gucci"]},
-  {name:"Jennifer Aniston",img:"🌟",frags:["Chanel No. 5|Chanel","Neroli Portofino|Tom Ford"]},
-  {name:"Travis Scott",img:"🔥",frags:["Sauvage|Dior","Aventus|Creed","Oud Wood|Tom Ford"]},
-  {name:"Billie Eilish",img:"💚",frags:["Eilish|Billie Eilish","Glossier You|Glossier","Another 13|Le Labo"]},
-  {name:"Ryan Reynolds",img:"🎭",frags:["Armani Code|Giorgio Armani","Bleu de Chanel|Chanel"]},
-  {name:"Dua Lipa",img:"🦋",frags:["Libre|YSL","Crystal Noir|Versace","Alien|Mugler"]},
-  {name:"The Weeknd",img:"🌙",frags:["Tuscan Leather|Tom Ford","Fahrenheit|Dior","Angels' Share|Kilian"]},
-  {name:"Taylor Swift",img:"🎵",frags:["Flowerbomb|Viktor&Rolf","Santal Blush|Tom Ford","Santal 33|Le Labo"]},
-  {name:"Drake",img:"🦉",frags:["Aventus|Creed","Tobacco Vanille|Tom Ford","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
-  {name:"Margot Robbie",img:"💎",frags:["Gabrielle|Chanel","Mon Guerlain|Guerlain"]},
-  {name:"LeBron James",img:"🏀",frags:["Aventus|Creed","Oud Wood|Tom Ford"]},
-  {name:"Gigi Hadid",img:"🌸",frags:["Bal d'Afrique|Byredo","Daisy|Marc Jacobs","Soleil Blanc|Tom Ford"]},
-  {name:"Cristiano Ronaldo",img:"⚽",frags:["CR7|Cristiano Ronaldo","Acqua di Gio|Giorgio Armani","Invictus|Paco Rabanne"]},
-  {name:"Kendall Jenner",img:"🦄",frags:["Santal 33|Le Labo","Gypsy Water|Byredo"]},
-  {name:"Jay-Z",img:"💰",frags:["Tom Ford Noir|Tom Ford","Green Irish Tweed|Creed","Scent of Peace|Bond No. 9"]},
-  {name:"Hailey Bieber",img:"☀️",frags:["Mixed Emotions|Byredo","Dedcool 01|Dedcool","Lust in Paradise|Ex Nihilo"]},
-  {name:"Justin Bieber",img:"🎤",frags:["Aventus|Creed","Sauvage|Dior","Grey Vetiver|Tom Ford"]},
-  {name:"Selena Gomez",img:"💜",frags:["Daisy|Marc Jacobs","Cloud|Ariana Grande"]},
-  {name:"Kanye West",img:"🐻",frags:["Aventus|Creed","Santal 33|Le Labo","Jazz Club|Maison Margiela"]},
-  {name:"Timothée Chalamet",img:"🎬",frags:["Bleu de Chanel|Chanel","Thé Noir 29|Le Labo"]},
-  {name:"Scarlett Johansson",img:"🖤",frags:["The One|Dolce & Gabbana","Black Orchid|Tom Ford"]},
-  {name:"Post Malone",img:"🍺",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Tobacco Vanille|Tom Ford"]},
-  {name:"Emma Watson",img:"📖",frags:["Trésor Midnight Rose|Lancôme","Coco Mademoiselle|Chanel"]},
-  {name:"Bad Bunny",img:"🐰",frags:["Sauvage|Dior","Le Male|Jean Paul Gaultier","1 Million|Paco Rabanne"]},
-  {name:"Chris Hemsworth",img:"⚡",frags:["Man Wood Essence|Bvlgari","Boss Bottled|Hugo Boss"]},
-  {name:"Lady Gaga",img:"🌈",frags:["Black Orchid|Tom Ford","Flowerbomb|Viktor&Rolf"]},
-  {name:"ASAP Rocky",img:"🏁",frags:["Bal d'Afrique|Byredo","Tobacco Vanille|Tom Ford","Jazz Club|Maison Margiela"]},
-  {name:"Jennie Kim",img:"🖤",frags:["Chanel No. 5 L'Eau|Chanel","Gypsy Water|Byredo","Coco Mademoiselle|Chanel"]},
-  {name:"David Harbour",img:"🧊",frags:["Oud Wood|Tom Ford","Viking|Creed"]},
-  {name:"Rosé",img:"🌹",frags:["Tiffany & Co EDP|Tiffany","Mon Paris|YSL"]},
-  {name:"Jacob Elordi",img:"🔥",frags:["Bleu de Chanel|Chanel","Noir Extreme|Tom Ford"]},
-  {name:"Sydney Sweeney",img:"🌊",frags:["My Way|Giorgio Armani","La Vie Est Belle|Lancôme"]},
-  {name:"Michael B. Jordan",img:"🥊",frags:["Aventus|Creed","Coach for Men|Coach"]},
-  {name:"Bella Hadid",img:"✨",frags:["Côte d'Azur|Oribe","Mojave Ghost|Byredo","Dedcool 01|Dedcool"]},
-  {name:"Tom Holland",img:"🕷️",frags:["Bleu de Chanel|Chanel","Acqua di Gio|Giorgio Armani"]},
-  {name:"Olivia Rodrigo",img:"💔",frags:["Glossier You|Glossier","Cloud|Ariana Grande"]},
-  {name:"Idris Elba",img:"🎩",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
-  {name:"Megan Fox",img:"🔥",frags:["Armani Privé|Giorgio Armani","Alien|Mugler","Black Orchid|Tom Ford"]},
-  {name:"Jason Momoa",img:"🌊",frags:["Acqua di Gio Profumo|Giorgio Armani","Layton|Parfums de Marly"]},
-  {name:"Cardi B",img:"💅",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Good Girl|Carolina Herrera"]},
-  {name:"Chris Evans",img:"🛡️",frags:["Bleu de Chanel|Chanel","Aventus|Creed"]},
-  {name:"Kim Kardashian",img:"💋",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Crystal Gardenia|KKW","Santal 33|Le Labo"]},
-  {name:"Tom Cruise",img:"✈️",frags:["Green Irish Tweed|Creed","Black Afgano|Nasomatto"]},
-  {name:"Natalie Portman",img:"🎬",frags:["Miss Dior|Dior","Chanel No. 5|Chanel"]},
-  {name:"Leonardo DiCaprio",img:"🏆",frags:["Acqua di Gio|Giorgio Armani","Green Irish Tweed|Creed"]},
-  {name:"Angelina Jolie",img:"🖤",frags:["Mon Guerlain|Guerlain","Shalimar|Guerlain"]},
-  {name:"Will Smith",img:"🌟",frags:["Creed Aventus|Creed","Dior Homme|Dior"]},
-  {name:"Charlize Theron",img:"💛",frags:["J'adore|Dior","Chanel No. 5|Chanel"]},
-  {name:"Robert Downey Jr.",img:"🦾",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
-  {name:"Jennifer Lopez",img:"💃",frags:["Glow|Jennifer Lopez","Promise|Jennifer Lopez","Still|Jennifer Lopez"]},
-  {name:"Zayn Malik",img:"🎤",frags:["Versace Eros|Versace","Bleu de Chanel|Chanel"]},
-  {name:"Kylie Jenner",img:"👄",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Santal 33|Le Labo","Delina|Parfums de Marly"]},
-  {name:"Keanu Reeves",img:"🎯",frags:["Acqua di Gio|Giorgio Armani","Oud Wood|Tom Ford"]},
-  {name:"Nicole Kidman",img:"🌺",frags:["Chanel No. 5|Chanel","J'adore|Dior"]},
-  {name:"George Clooney",img:"🎩",frags:["Casamorati 1888|Xerjoff","Green Irish Tweed|Creed"]},
-  {name:"Anne Hathaway",img:"🌟",frags:["Lancôme Idôle|Lancôme","Coco Mademoiselle|Chanel"]},
-  {name:"Pedro Pascal",img:"🌵",frags:["Bleu de Chanel|Chanel","Terre d'Hermès|Hermès"]},
-  {name:"Florence Pugh",img:"🌻",frags:["Glossier You|Glossier","Jo Malone Wood Sage|Jo Malone"]},
-  {name:"Oscar Isaac",img:"🎭",frags:["Oud Wood|Tom Ford","Tuscan Leather|Tom Ford"]},
-  {name:"Ana de Armas",img:"💎",frags:["J'adore|Dior","Estée Lauder Beautiful|Estée Lauder"]},
-  {name:"Austin Butler",img:"🕺",frags:["Noir Extreme|Tom Ford","Sauvage Elixir|Dior"]},
-  {name:"Anya Taylor-Joy",img:"♟️",frags:["Flowerbomb Nectar|Viktor&Rolf","Black Opium|YSL"]},
-  {name:"Henry Cavill",img:"⚔️",frags:["Chanel Allure Homme Sport|Chanel","Aventus|Creed"]},
-  {name:"Doja Cat",img:"🐱",frags:["Delina|Parfums de Marly","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
-  {name:"SZA",img:"🎵",frags:["Kayali Vanilla 28|Kayali","Another 13|Le Labo"]},
-  {name:"Jenna Ortega",img:"🖤",frags:["Cloud|Ariana Grande","Glossier You|Glossier"]},
-  {name:"Paul Mescal",img:"🎭",frags:["Santal 33|Le Labo","Terre d'Hermès|Hermès"]},
-  {name:"Ice Spice",img:"🍊",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Cloud|Ariana Grande"]},
-  {name:"Jungkook",img:"💜",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Libre|YSL","Bleu de Chanel|Chanel"]},
-  {name:"Blackpink Lisa",img:"🌸",frags:["Celine Black Tie|Celine","Miss Dior|Dior"]},
-  {name:"V (Taehyung)",img:"🐯",frags:["Blanche|Byredo","Bois d'Argent|Dior"]},
-  {name:"Jimin",img:"🩰",frags:["Mojave Ghost|Byredo","Santal 33|Le Labo"]},
-  {name:"Neymar",img:"⚽",frags:["1 Million|Paco Rabanne","Invictus|Paco Rabanne"]},
-  {name:"Lewis Hamilton",img:"🏎️",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
-  {name:"Mbappe",img:"⚽",frags:["Sauvage|Dior","Y EDP|YSL"]},
-  {name:"Elon Musk",img:"🚀",frags:["Terre d'Hermès|Hermès","Creed Aventus|Creed"]},
-  {name:"Oprah Winfrey",img:"🌟",frags:["Beautiful|Estée Lauder","Chanel No. 5|Chanel"]},
-  {name:"Sandra Bullock",img:"🎬",frags:["Kai|Kai","Le Labo Rose 31|Le Labo"]},
-  {name:"Matthew McConaughey",img:"🤙",frags:["Dolce & Gabbana The One|D&G","Sauvage|Dior"]},
-  {name:"Victoria Beckham",img:"🖤",frags:["Santal 33|Le Labo","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
-  {name:"Priyanka Chopra",img:"✨",frags:["Trussardi Donna|Trussardi","Bulgari Omnia|Bvlgari"]},
-  {name:"Shakira",img:"💃",frags:["S by Shakira|Shakira","Dance|Shakira"]},
-  {name:"Pharrell Williams",img:"🎹",frags:["Girl|Comme des Garcons","Bleu de Chanel|Chanel"]},
-  {name:"Lizzo",img:"🎵",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Good Girl|Carolina Herrera"]},
-  {name:"Lana Del Rey",img:"🌊",frags:["Chanel No. 5|Chanel","Black Opium|YSL","Replica By the Fireplace|Maison Margiela"]},
-  {name:"Tyler, The Creator",img:"🌼",frags:["French Waltz|Matiere Premiere","Santal 33|Le Labo","Tobacco Vanille|Tom Ford"]},
-  {name:"Frank Ocean",img:"🌊",frags:["Comme des Garcons 2|CDG","Terre d'Hermès|Hermès"]},
-  {name:"Daniel Craig",img:"🍸",frags:["Aventus|Creed","Tom Ford Noir|Tom Ford"]},
-  {name:"Salma Hayek",img:"🌹",frags:["Opium|YSL","Black Orchid|Tom Ford"]},
-  {name:"Chris Pratt",img:"⭐",frags:["Bleu de Chanel|Chanel","Sauvage|Dior"]},
-  {name:"Lupita Nyong'o",img:"💜",frags:["Lancôme La Vie Est Belle|Lancôme","J'adore|Dior"]},
-  {name:"Lenny Kravitz",img:"🎸",frags:["Oud Wood|Tom Ford","Jazz Club|Maison Margiela","Tobacco Vanille|Tom Ford"]},
-  {name:"Sabrina Carpenter",img:"🎀",frags:["Cloud|Ariana Grande","Mon Paris|YSL","Delina|Parfums de Marly"]},
-  {name:"Chappell Roan",img:"🌈",frags:["Glossier You|Glossier","Replica Bubble Bath|Maison Margiela"]}
+  {name:"Rihanna",img:"R",frags:["Love, Don't Be Shy|Kilian","Oud Silk Mood|Maison Francis Kurkdjian","Tobacco Vanille|Tom Ford"]},
+  {name:"David Beckham",img:"D",frags:["Dior Homme Intense|Dior","Silver Mountain Water|Creed","Bleu de Chanel|Chanel"]},
+  {name:"Zendaya",img:"Z",frags:["Idôle|Lancôme","Black Opium|YSL","Flowerbomb|Viktor&Rolf"]},
+  {name:"Johnny Depp",img:"J",frags:["Sauvage|Dior","Sauvage Elixir|Dior"]},
+  {name:"Ariana Grande",img:"A",frags:["Cloud|Ariana Grande","R.E.M.|Ariana Grande","God Is A Woman|Ariana Grande"]},
+  {name:"Brad Pitt",img:"B",frags:["Chanel No. 5|Chanel","Le Labo Santal 33|Le Labo"]},
+  {name:"Beyoncé",img:"B",frags:["Love, Don't Be Shy|Kilian","Soleil Blanc|Tom Ford","Coco Mademoiselle|Chanel"]},
+  {name:"Harry Styles",img:"H",frags:["Bleu de Chanel|Chanel","Tobacco Vanille|Tom Ford","Mémoire d'une Odeur|Gucci"]},
+  {name:"Jennifer Aniston",img:"J",frags:["Chanel No. 5|Chanel","Neroli Portofino|Tom Ford"]},
+  {name:"Travis Scott",img:"T",frags:["Sauvage|Dior","Aventus|Creed","Oud Wood|Tom Ford"]},
+  {name:"Billie Eilish",img:"B",frags:["Eilish|Billie Eilish","Glossier You|Glossier","Another 13|Le Labo"]},
+  {name:"Ryan Reynolds",img:"R",frags:["Armani Code|Giorgio Armani","Bleu de Chanel|Chanel"]},
+  {name:"Dua Lipa",img:"D",frags:["Libre|YSL","Crystal Noir|Versace","Alien|Mugler"]},
+  {name:"The Weeknd",img:"T",frags:["Tuscan Leather|Tom Ford","Fahrenheit|Dior","Angels' Share|Kilian"]},
+  {name:"Taylor Swift",img:"T",frags:["Flowerbomb|Viktor&Rolf","Santal Blush|Tom Ford","Santal 33|Le Labo"]},
+  {name:"Drake",img:"D",frags:["Aventus|Creed","Tobacco Vanille|Tom Ford","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
+  {name:"Margot Robbie",img:"M",frags:["Gabrielle|Chanel","Mon Guerlain|Guerlain"]},
+  {name:"LeBron James",img:"L",frags:["Aventus|Creed","Oud Wood|Tom Ford"]},
+  {name:"Gigi Hadid",img:"G",frags:["Bal d'Afrique|Byredo","Daisy|Marc Jacobs","Soleil Blanc|Tom Ford"]},
+  {name:"Cristiano Ronaldo",img:"C",frags:["CR7|Cristiano Ronaldo","Acqua di Gio|Giorgio Armani","Invictus|Paco Rabanne"]},
+  {name:"Kendall Jenner",img:"K",frags:["Santal 33|Le Labo","Gypsy Water|Byredo"]},
+  {name:"Jay-Z",img:"J",frags:["Tom Ford Noir|Tom Ford","Green Irish Tweed|Creed","Scent of Peace|Bond No. 9"]},
+  {name:"Hailey Bieber",img:"H",frags:["Mixed Emotions|Byredo","Dedcool 01|Dedcool","Lust in Paradise|Ex Nihilo"]},
+  {name:"Justin Bieber",img:"J",frags:["Aventus|Creed","Sauvage|Dior","Grey Vetiver|Tom Ford"]},
+  {name:"Selena Gomez",img:"S",frags:["Daisy|Marc Jacobs","Cloud|Ariana Grande"]},
+  {name:"Kanye West",img:"K",frags:["Aventus|Creed","Santal 33|Le Labo","Jazz Club|Maison Margiela"]},
+  {name:"Timothée Chalamet",img:"T",frags:["Bleu de Chanel|Chanel","Thé Noir 29|Le Labo"]},
+  {name:"Scarlett Johansson",img:"S",frags:["The One|Dolce & Gabbana","Black Orchid|Tom Ford"]},
+  {name:"Post Malone",img:"P",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Tobacco Vanille|Tom Ford"]},
+  {name:"Emma Watson",img:"E",frags:["Trésor Midnight Rose|Lancôme","Coco Mademoiselle|Chanel"]},
+  {name:"Bad Bunny",img:"B",frags:["Sauvage|Dior","Le Male|Jean Paul Gaultier","1 Million|Paco Rabanne"]},
+  {name:"Chris Hemsworth",img:"C",frags:["Man Wood Essence|Bvlgari","Boss Bottled|Hugo Boss"]},
+  {name:"Lady Gaga",img:"L",frags:["Black Orchid|Tom Ford","Flowerbomb|Viktor&Rolf"]},
+  {name:"ASAP Rocky",img:"A",frags:["Bal d'Afrique|Byredo","Tobacco Vanille|Tom Ford","Jazz Club|Maison Margiela"]},
+  {name:"Jennie Kim",img:"J",frags:["Chanel No. 5 L'Eau|Chanel","Gypsy Water|Byredo","Coco Mademoiselle|Chanel"]},
+  {name:"David Harbour",img:"D",frags:["Oud Wood|Tom Ford","Viking|Creed"]},
+  {name:"Rosé",img:"R",frags:["Tiffany & Co EDP|Tiffany","Mon Paris|YSL"]},
+  {name:"Jacob Elordi",img:"J",frags:["Bleu de Chanel|Chanel","Noir Extreme|Tom Ford"]},
+  {name:"Sydney Sweeney",img:"S",frags:["My Way|Giorgio Armani","La Vie Est Belle|Lancôme"]},
+  {name:"Michael B. Jordan",img:"M",frags:["Aventus|Creed","Coach for Men|Coach"]},
+  {name:"Bella Hadid",img:"B",frags:["Côte d'Azur|Oribe","Mojave Ghost|Byredo","Dedcool 01|Dedcool"]},
+  {name:"Tom Holland",img:"T",frags:["Bleu de Chanel|Chanel","Acqua di Gio|Giorgio Armani"]},
+  {name:"Olivia Rodrigo",img:"O",frags:["Glossier You|Glossier","Cloud|Ariana Grande"]},
+  {name:"Idris Elba",img:"I",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
+  {name:"Megan Fox",img:"M",frags:["Armani Privé|Giorgio Armani","Alien|Mugler","Black Orchid|Tom Ford"]},
+  {name:"Jason Momoa",img:"J",frags:["Acqua di Gio Profumo|Giorgio Armani","Layton|Parfums de Marly"]},
+  {name:"Cardi B",img:"C",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Good Girl|Carolina Herrera"]},
+  {name:"Chris Evans",img:"C",frags:["Bleu de Chanel|Chanel","Aventus|Creed"]},
+  {name:"Kim Kardashian",img:"K",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Crystal Gardenia|KKW","Santal 33|Le Labo"]},
+  {name:"Tom Cruise",img:"T",frags:["Green Irish Tweed|Creed","Black Afgano|Nasomatto"]},
+  {name:"Natalie Portman",img:"N",frags:["Miss Dior|Dior","Chanel No. 5|Chanel"]},
+  {name:"Leonardo DiCaprio",img:"L",frags:["Acqua di Gio|Giorgio Armani","Green Irish Tweed|Creed"]},
+  {name:"Angelina Jolie",img:"A",frags:["Mon Guerlain|Guerlain","Shalimar|Guerlain"]},
+  {name:"Will Smith",img:"W",frags:["Creed Aventus|Creed","Dior Homme|Dior"]},
+  {name:"Charlize Theron",img:"C",frags:["J'adore|Dior","Chanel No. 5|Chanel"]},
+  {name:"Robert Downey Jr.",img:"R",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
+  {name:"Jennifer Lopez",img:"J",frags:["Glow|Jennifer Lopez","Promise|Jennifer Lopez","Still|Jennifer Lopez"]},
+  {name:"Zayn Malik",img:"Z",frags:["Versace Eros|Versace","Bleu de Chanel|Chanel"]},
+  {name:"Kylie Jenner",img:"K",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Santal 33|Le Labo","Delina|Parfums de Marly"]},
+  {name:"Keanu Reeves",img:"K",frags:["Acqua di Gio|Giorgio Armani","Oud Wood|Tom Ford"]},
+  {name:"Nicole Kidman",img:"N",frags:["Chanel No. 5|Chanel","J'adore|Dior"]},
+  {name:"George Clooney",img:"G",frags:["Casamorati 1888|Xerjoff","Green Irish Tweed|Creed"]},
+  {name:"Anne Hathaway",img:"A",frags:["Lancôme Idôle|Lancôme","Coco Mademoiselle|Chanel"]},
+  {name:"Pedro Pascal",img:"P",frags:["Bleu de Chanel|Chanel","Terre d'Hermès|Hermès"]},
+  {name:"Florence Pugh",img:"F",frags:["Glossier You|Glossier","Jo Malone Wood Sage|Jo Malone"]},
+  {name:"Oscar Isaac",img:"O",frags:["Oud Wood|Tom Ford","Tuscan Leather|Tom Ford"]},
+  {name:"Ana de Armas",img:"A",frags:["J'adore|Dior","Estée Lauder Beautiful|Estée Lauder"]},
+  {name:"Austin Butler",img:"A",frags:["Noir Extreme|Tom Ford","Sauvage Elixir|Dior"]},
+  {name:"Anya Taylor-Joy",img:"A",frags:["Flowerbomb Nectar|Viktor&Rolf","Black Opium|YSL"]},
+  {name:"Henry Cavill",img:"H",frags:["Chanel Allure Homme Sport|Chanel","Aventus|Creed"]},
+  {name:"Doja Cat",img:"D",frags:["Delina|Parfums de Marly","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
+  {name:"SZA",img:"S",frags:["Kayali Vanilla 28|Kayali","Another 13|Le Labo"]},
+  {name:"Jenna Ortega",img:"J",frags:["Cloud|Ariana Grande","Glossier You|Glossier"]},
+  {name:"Paul Mescal",img:"P",frags:["Santal 33|Le Labo","Terre d'Hermès|Hermès"]},
+  {name:"Ice Spice",img:"I",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Cloud|Ariana Grande"]},
+  {name:"Jungkook",img:"J",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Libre|YSL","Bleu de Chanel|Chanel"]},
+  {name:"Blackpink Lisa",img:"B",frags:["Celine Black Tie|Celine","Miss Dior|Dior"]},
+  {name:"V (Taehyung)",img:"V",frags:["Blanche|Byredo","Bois d'Argent|Dior"]},
+  {name:"Jimin",img:"J",frags:["Mojave Ghost|Byredo","Santal 33|Le Labo"]},
+  {name:"Neymar",img:"N",frags:["1 Million|Paco Rabanne","Invictus|Paco Rabanne"]},
+  {name:"Lewis Hamilton",img:"L",frags:["Oud Wood|Tom Ford","Aventus|Creed"]},
+  {name:"Mbappe",img:"M",frags:["Sauvage|Dior","Y EDP|YSL"]},
+  {name:"Elon Musk",img:"E",frags:["Terre d'Hermès|Hermès","Creed Aventus|Creed"]},
+  {name:"Oprah Winfrey",img:"O",frags:["Beautiful|Estée Lauder","Chanel No. 5|Chanel"]},
+  {name:"Sandra Bullock",img:"S",frags:["Kai|Kai","Le Labo Rose 31|Le Labo"]},
+  {name:"Matthew McConaughey",img:"M",frags:["Dolce & Gabbana The One|D&G","Sauvage|Dior"]},
+  {name:"Victoria Beckham",img:"V",frags:["Santal 33|Le Labo","Baccarat Rouge 540|Maison Francis Kurkdjian"]},
+  {name:"Priyanka Chopra",img:"P",frags:["Trussardi Donna|Trussardi","Bulgari Omnia|Bvlgari"]},
+  {name:"Shakira",img:"S",frags:["S by Shakira|Shakira","Dance|Shakira"]},
+  {name:"Pharrell Williams",img:"P",frags:["Girl|Comme des Garcons","Bleu de Chanel|Chanel"]},
+  {name:"Lizzo",img:"L",frags:["Baccarat Rouge 540|Maison Francis Kurkdjian","Good Girl|Carolina Herrera"]},
+  {name:"Lana Del Rey",img:"L",frags:["Chanel No. 5|Chanel","Black Opium|YSL","Replica By the Fireplace|Maison Margiela"]},
+  {name:"Tyler, The Creator",img:"T",frags:["French Waltz|Matiere Premiere","Santal 33|Le Labo","Tobacco Vanille|Tom Ford"]},
+  {name:"Frank Ocean",img:"F",frags:["Comme des Garcons 2|CDG","Terre d'Hermès|Hermès"]},
+  {name:"Daniel Craig",img:"D",frags:["Aventus|Creed","Tom Ford Noir|Tom Ford"]},
+  {name:"Salma Hayek",img:"S",frags:["Opium|YSL","Black Orchid|Tom Ford"]},
+  {name:"Chris Pratt",img:"C",frags:["Bleu de Chanel|Chanel","Sauvage|Dior"]},
+  {name:"Lupita Nyong'o",img:"L",frags:["Lancôme La Vie Est Belle|Lancôme","J'adore|Dior"]},
+  {name:"Lenny Kravitz",img:"L",frags:["Oud Wood|Tom Ford","Jazz Club|Maison Margiela","Tobacco Vanille|Tom Ford"]},
+  {name:"Sabrina Carpenter",img:"S",frags:["Cloud|Ariana Grande","Mon Paris|YSL","Delina|Parfums de Marly"]},
+  {name:"Chappell Roan",img:"C",frags:["Glossier You|Glossier","Replica Bubble Bath|Maison Margiela"]}
 ];
 
 // ═══════════════ ZODIAC DATA ═══════════════
 const ZODIAC = [
-  {sign:'Aries',symbol:'♈',dates:'Mar 21 – Apr 19',emoji:'🔥'},
-  {sign:'Taurus',symbol:'♉',dates:'Apr 20 – May 20',emoji:'🌹'},
-  {sign:'Gemini',symbol:'♊',dates:'May 21 – Jun 20',emoji:'🌬️'},
-  {sign:'Cancer',symbol:'♋',dates:'Jun 21 – Jul 22',emoji:'🌊'},
-  {sign:'Leo',symbol:'♌',dates:'Jul 23 – Aug 22',emoji:'👑'},
-  {sign:'Virgo',symbol:'♍',dates:'Aug 23 – Sep 22',emoji:'🌿'},
-  {sign:'Libra',symbol:'♎',dates:'Sep 23 – Oct 22',emoji:'⚖️'},
-  {sign:'Scorpio',symbol:'♏',dates:'Oct 23 – Nov 21',emoji:'🦂'},
-  {sign:'Sagittarius',symbol:'♐',dates:'Nov 22 – Dec 21',emoji:'🏹'},
-  {sign:'Capricorn',symbol:'♑',dates:'Dec 22 – Jan 19',emoji:'⛰️'},
-  {sign:'Aquarius',symbol:'♒',dates:'Jan 20 – Feb 18',emoji:'🌌'},
-  {sign:'Pisces',symbol:'♓',dates:'Feb 19 – Mar 20',emoji:'🧜‍♀️'}
+  {sign:'Aries',symbol:'♈',dates:'Mar 21 – Apr 19'},
+  {sign:'Taurus',symbol:'♉',dates:'Apr 20 – May 20'},
+  {sign:'Gemini',symbol:'♊',dates:'May 21 – Jun 20'},
+  {sign:'Cancer',symbol:'♋',dates:'Jun 21 – Jul 22'},
+  {sign:'Leo',symbol:'♌',dates:'Jul 23 – Aug 22'},
+  {sign:'Virgo',symbol:'♍',dates:'Aug 23 – Sep 22'},
+  {sign:'Libra',symbol:'♎',dates:'Sep 23 – Oct 22'},
+  {sign:'Scorpio',symbol:'♏',dates:'Oct 23 – Nov 21'},
+  {sign:'Sagittarius',symbol:'♐',dates:'Nov 22 – Dec 21'},
+  {sign:'Capricorn',symbol:'♑',dates:'Dec 22 – Jan 19'},
+  {sign:'Aquarius',symbol:'♒',dates:'Jan 20 – Feb 18'},
+  {sign:'Pisces',symbol:'♓',dates:'Feb 19 – Mar 20'}
 ];
 
 const GENRES = [
-  {name:'Hip-Hop / Rap',emoji:'🎤',desc:'Bold, confident, street-smart'},
-  {name:'R&B / Soul',emoji:'🎶',desc:'Smooth, sensual, warm'},
-  {name:'Pop',emoji:'🎵',desc:'Fresh, fun, versatile'},
-  {name:'Rock / Alternative',emoji:'🎸',desc:'Edgy, raw, independent'},
-  {name:'Electronic / EDM',emoji:'🎧',desc:'Futuristic, energetic, bold'},
-  {name:'Jazz / Blues',emoji:'🎷',desc:'Sophisticated, deep, timeless'},
-  {name:'Classical',emoji:'🎻',desc:'Elegant, refined, complex'},
-  {name:'Country',emoji:'🤠',desc:'Earthy, authentic, warm'},
-  {name:'Indie / Folk',emoji:'🍂',desc:'Natural, artistic, unique'},
-  {name:'Latin / Reggaeton',emoji:'💃',desc:'Passionate, vibrant, warm'},
-  {name:'K-Pop',emoji:'💜',desc:'Trendy, sweet, playful'},
-  {name:'Metal / Punk',emoji:'🤘',desc:'Intense, dark, powerful'}
+  {name:'Hip-Hop / Rap',desc:'Bold, confident, street-smart'},
+  {name:'R&B / Soul',desc:'Smooth, sensual, warm'},
+  {name:'Pop',desc:'Fresh, fun, versatile'},
+  {name:'Rock / Alternative',desc:'Edgy, raw, independent'},
+  {name:'Electronic / EDM',desc:'Futuristic, energetic, bold'},
+  {name:'Jazz / Blues',desc:'Sophisticated, deep, timeless'},
+  {name:'Classical',desc:'Elegant, refined, complex'},
+  {name:'Country',desc:'Earthy, authentic, warm'},
+  {name:'Indie / Folk',desc:'Natural, artistic, unique'},
+  {name:'Latin / Reggaeton',desc:'Passionate, vibrant, warm'},
+  {name:'K-Pop',desc:'Trendy, sweet, playful'},
+  {name:'Metal / Punk',desc:'Intense, dark, powerful'}
 ];
 
 const STYLES = [
-  {name:'Streetwear',emoji:'🧢',desc:'Urban, bold, hype culture'},
-  {name:'Minimalist',emoji:'🤍',desc:'Clean, simple, refined'},
-  {name:'Preppy / Classic',emoji:'👔',desc:'Polished, traditional, smart'},
-  {name:'Bohemian',emoji:'🌻',desc:'Free-spirited, earthy, artistic'},
-  {name:'Sporty / Athleisure',emoji:'🏃',desc:'Active, fresh, dynamic'},
-  {name:'Goth / Dark',emoji:'🖤',desc:'Mysterious, dark, dramatic'},
-  {name:'Luxury / High Fashion',emoji:'👑',desc:'Opulent, statement, exclusive'},
-  {name:'Casual / Everyday',emoji:'👕',desc:'Relaxed, comfortable, easygoing'},
-  {name:'Vintage / Retro',emoji:'🎞️',desc:'Nostalgic, unique, timeless'},
-  {name:'Edgy / Punk',emoji:'⚡',desc:'Rebellious, raw, bold'},
-  {name:'Romantic / Feminine',emoji:'🌹',desc:'Soft, elegant, graceful'},
-  {name:'Techwear / Futuristic',emoji:'🤖',desc:'Modern, functional, sci-fi'}
+  {name:'Streetwear',desc:'Urban, bold, hype culture'},
+  {name:'Minimalist',desc:'Clean, simple, refined'},
+  {name:'Preppy / Classic',desc:'Polished, traditional, smart'},
+  {name:'Bohemian',desc:'Free-spirited, earthy, artistic'},
+  {name:'Sporty / Athleisure',desc:'Active, fresh, dynamic'},
+  {name:'Goth / Dark',desc:'Mysterious, dark, dramatic'},
+  {name:'Luxury / High Fashion',desc:'Opulent, statement, exclusive'},
+  {name:'Casual / Everyday',desc:'Relaxed, comfortable, easygoing'},
+  {name:'Vintage / Retro',desc:'Nostalgic, unique, timeless'},
+  {name:'Edgy / Punk',desc:'Rebellious, raw, bold'},
+  {name:'Romantic / Feminine',desc:'Soft, elegant, graceful'},
+  {name:'Techwear / Futuristic',desc:'Modern, functional, sci-fi'}
 ];
 
 const DUPES = [
-  {name:'Baccarat Rouge 540',emoji:'🌹',desc:'MFK · ~$325'},
-  {name:'Aventus',emoji:'🍍',desc:'Creed · ~$445'},
-  {name:'Lost Cherry',emoji:'🍒',desc:'Tom Ford · ~$390'},
-  {name:'Oud Wood',emoji:'🪵',desc:'Tom Ford · ~$285'},
-  {name:'Bleu de Chanel',emoji:'💎',desc:'Chanel · ~$165'},
-  {name:'Black Opium',emoji:'☕',desc:'YSL · ~$140'},
-  {name:'Delina',emoji:'🌸',desc:'Parfums de Marly · ~$335'},
-  {name:'Santal 33',emoji:'🪘',desc:'Le Labo · ~$310'},
-  {name:'La Vie Est Belle',emoji:'✨',desc:'Lancôme · ~$105'},
-  {name:'Sauvage',emoji:'🌵',desc:'Dior · ~$115'},
-  {name:'Tobacco Vanille',emoji:'🍂',desc:'Tom Ford · ~$285'},
-  {name:'Good Girl',emoji:'👠',desc:'Carolina Herrera · ~$110'}
+  {name:'Baccarat Rouge 540',desc:'MFK · ~$325'},
+  {name:'Aventus',desc:'Creed · ~$445'},
+  {name:'Lost Cherry',desc:'Tom Ford · ~$390'},
+  {name:'Oud Wood',desc:'Tom Ford · ~$285'},
+  {name:'Bleu de Chanel',desc:'Chanel · ~$165'},
+  {name:'Black Opium',desc:'YSL · ~$140'},
+  {name:'Delina',desc:'Parfums de Marly · ~$335'},
+  {name:'Santal 33',desc:'Le Labo · ~$310'},
+  {name:'La Vie Est Belle',desc:'Lancôme · ~$105'},
+  {name:'Sauvage',desc:'Dior · ~$115'},
+  {name:'Tobacco Vanille',desc:'Tom Ford · ~$285'},
+  {name:'Good Girl',desc:'Carolina Herrera · ~$110'}
 ];
 
 // ═══════════════ STATE ═══════════════
@@ -1521,26 +1520,26 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 
 // ═══════════════ NAV ═══════════════
 const NI = [
-  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI Advisor',i:'💬'},
-  {id:'photo',l:'Style Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},{id:'music',l:'Music',i:'🎶'},
-  {id:'style',l:'Style',i:'🪞'},{id:'dupe',l:'Dupes',i:'🔄'},{id:'celeb',l:'Celebs',i:'💫'},{id:'account',l:'Account',i:'👤'}
+  {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI Advisor'},
+  {id:'photo',l:'Style Scan'},{id:'zodiac',l:'Zodiac'},{id:'music',l:'Music'},
+  {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},{id:'account',l:'Account'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
-  {id:'home',l:'Home',i:'✦'},{id:'explore',l:'Explore',i:'🧪'},{id:'chat',l:'AI',i:'💬'},
-  {id:'_modes',l:'Modes',i:'✧'},{id:'account',l:'Account',i:'👤'}
+  {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI'},
+  {id:'_modes',l:'Modes'},{id:'account',l:'Account'}
 ];
 // All switchable modes (for the pill bar)
 const MODES = [
-  {id:'chat',l:'AI Advisor',i:'💬'},{id:'explore',l:'Explore',i:'🧪'},
-  {id:'photo',l:'Photo Scan',i:'📸'},{id:'zodiac',l:'Zodiac',i:'🔮'},
-  {id:'music',l:'Music',i:'🎶'},{id:'style',l:'Style',i:'🪞'},
-  {id:'dupe',l:'Dupe Finder',i:'🔄'},{id:'celeb',l:'Celebs',i:'💫'}
+  {id:'chat',l:'AI Advisor'},{id:'explore',l:'Explore'},
+  {id:'photo',l:'Photo Scan'},{id:'zodiac',l:'Zodiac'},
+  {id:'music',l:'Music'},{id:'style',l:'Style'},
+  {id:'dupe',l:'Dupe Finder'},{id:'celeb',l:'Celebs'}
 ];
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
-    `<a href="#" class="ni ${CP===n.id?'na':''}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
+    `<a href="#" class="ni ${CP===n.id?'na':''}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.l}</a>`
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
@@ -1548,9 +1547,9 @@ function rNav() {
     mobEl.innerHTML = MNI.map(n => {
       if (n.id === '_modes') {
         const isOnMode = modePages.includes(CP);
-        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()" role="tab" tabindex="0" aria-label="Switch discovery mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModeSwitcher()}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
+        return `<div class="mob-ni ${isOnMode?'mob-na':''}" onclick="openModeSwitcher()" role="tab" tabindex="0" aria-label="Switch discovery mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openModeSwitcher()}"><span>${n.l}</span></div>`;
       }
-      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}"><span aria-hidden="true">${n.i}</span><span>${n.l}</span></div>`;
+      return `<div class="mob-ni ${CP===n.id?'mob-na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}"><span>${n.l}</span></div>`;
     }).join('');
   }
   rModeBar();
@@ -1564,7 +1563,7 @@ function rModeBar() {
   bar.style.display = isModePage ? '' : 'none';
   if (!isModePage) return;
   inner.innerHTML = MODES.map(m =>
-    `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')"><span class="mp-icon">${m.i}</span>${m.l}</div>`
+    `<div class="mode-pill ${CP===m.id?'mp-active':''}" onclick="go('${m.id}')">${m.l}</div>`
   ).join('');
   // Auto-scroll active pill into view (horizontal only, no vertical page scroll)
   setTimeout(() => {
@@ -2256,7 +2255,7 @@ function r_photo(el) {
     </div>
     ${!photoPrev?`<div class="pdrop" onclick="document.getElementById('pf').click()" ondragover="event.preventDefault();this.style.borderColor='var(--g)'" ondragleave="this.style.borderColor='var(--d4)'" ondrop="event.preventDefault();phFile(event.dataTransfer.files[0])">
       <input type="file" id="pf" accept="image/*" hidden onchange="phFile(this.files[0])">
-      <div style="font-size:56px;margin-bottom:20px;opacity:.4">📸</div>
+      <div style="font-size:11px;letter-spacing:3px;color:var(--g);font-weight:600;margin-bottom:20px;text-transform:uppercase">Upload</div>
       <p style="font-size:17px;margin-bottom:8px;font-weight:500">Drop a photo here or click to upload</p>
       <p style="color:var(--td);font-size:13px">We'll analyze your style and match fragrances to your vibe</p>
     </div>`:`<div class="glass-panel" style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
@@ -2352,7 +2351,7 @@ function r_zodiac(el) {
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px">
       ${ZODIAC.map((z,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickZ('${z.sign}')" style="text-align:center;padding:18px 12px;${selZ===z.sign?'border-color:var(--g);background:var(--gl)':''}">
-        <div style="font-size:30px;margin-bottom:8px">${z.emoji}</div>
+        <div style="font-size:28px;margin-bottom:8px;color:var(--gd);line-height:1">${z.symbol}</div>
         <div style="font-weight:600;font-size:14px">${z.sign}</div>
         <div style="font-size:11px;color:var(--td);margin-top:2px">${z.dates}</div>
       </div>`).join('')}
@@ -2418,7 +2417,7 @@ function r_music(el) {
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
       ${GENRES.map((g,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickM('${g.name}')" style="padding:18px;${selM===g.name?'border-color:var(--g);background:var(--gl)':''}">
-        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${g.emoji}</span><div><div style="font-weight:600;font-size:14px">${g.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${g.desc}</div></div></div>
+        <div><div style="font-weight:600;font-size:14px">${g.name}</div><div style="font-size:11px;color:var(--td);margin-top:4px">${g.desc}</div></div>
       </div>`).join('')}
     </div>
     <div id="m-res" role="region" aria-live="polite" aria-label="Music fragrance results" style="margin-top:28px">
@@ -2488,7 +2487,7 @@ function r_style(el) {
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
       ${STYLES.map((s,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickSt('${s.name}')" style="padding:18px;${selS===s.name?'border-color:var(--g);background:var(--gl)':''}">
-        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${s.emoji}</span><div><div style="font-weight:600;font-size:14px">${s.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${s.desc}</div></div></div>
+        <div><div style="font-weight:600;font-size:14px">${s.name}</div><div style="font-size:11px;color:var(--td);margin-top:4px">${s.desc}</div></div>
       </div>`).join('')}
     </div>
     <div id="s-res" role="region" aria-live="polite" aria-label="Style match results" style="margin-top:28px">
@@ -2623,7 +2622,7 @@ function r_dupe(el) {
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
       ${DUPES.map((d,i)=>`<div class="card fi stagger-${Math.min(i+1,7)}" onclick="pickD('${d.name.replace(/'/g,"\\'")}')" style="padding:18px;${selD===d.name?'border-color:var(--g);background:var(--gl)':''}">
-        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:26px">${d.emoji}</span><div><div style="font-weight:600;font-size:14px">${d.name}</div><div style="font-size:11px;color:var(--td);margin-top:2px">${d.desc}</div></div></div>
+        <div><div style="font-weight:600;font-size:14px">${d.name}</div><div style="font-size:11px;color:var(--td);margin-top:4px">${d.desc}</div></div>
       </div>`).join('')}
     </div>
     <div id="d-res" role="region" aria-live="polite" aria-label="Dupe finder results" style="margin-top:28px">
@@ -2735,14 +2734,14 @@ function r_account(el) {
     // Show profile for logged-in users
     el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:48px auto">
       <div style="text-align:center;padding:36px 0">
-        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">${isOwner ? '👑' : '✦'}</div>
+        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;color:var(--g);box-shadow:var(--glow)">${isOwner ? 'O' : '✦'}</div>
         <h2 class="fd" style="font-size:30px;margin-bottom:6px">Your Account</h2>
         <p style="color:var(--td);font-size:14px">${isOwner ? 'Owner Access' : 'Premium Member'}</p>
       </div>
       <div class="glass-panel" style="margin-bottom:18px">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Status</span>
-          <span class="tag">${isOwner ? '👑 Owner' : '✦ Premium'}</span>
+          <span class="tag">${isOwner ? 'Owner' : '✦ Premium'}</span>
         </div>
         ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Email</span>
@@ -2768,7 +2767,7 @@ function r_account(el) {
     // Show login form for non-premium users
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:48px auto">
       <div style="text-align:center;margin-bottom:36px">
-        <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">👤</div>
+        <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--g);font-weight:600">✦</div>
         <h2 class="fd" style="font-size:30px;margin-bottom:8px">Log In</h2>
         <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
       </div>
@@ -2815,7 +2814,7 @@ function doOrderActivate() {
 function r_admin(el) {
   if (isOwner) {
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto;text-align:center">
-      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;box-shadow:var(--glow)">👑</div>
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--g);font-weight:600;letter-spacing:2px;box-shadow:var(--glow)">OWN</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Access Active</h2>
       <p style="color:var(--td);margin-bottom:28px">You are logged in as the owner with unlimited access.</p>
       <div style="display:flex;gap:12px;justify-content:center">
@@ -2827,7 +2826,7 @@ function r_admin(el) {
   }
   el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:64px auto">
     <div style="text-align:center;margin-bottom:36px">
-      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px">🔐</div>
+      <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:11px;color:var(--g);font-weight:600;letter-spacing:2px">ADMIN</div>
       <h2 class="fd" style="font-size:28px;margin-bottom:8px">Owner Login</h2>
       <p style="color:var(--td);font-size:14px">Enter your owner key to access the admin panel.</p>
     </div>
