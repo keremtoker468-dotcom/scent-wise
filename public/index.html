@@ -89,6 +89,34 @@ a{color:inherit;text-decoration:none}
 .logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--gd));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--dk);font-weight:700;box-shadow:0 2px 8px rgba(201,169,110,.25)}
 .nav-s{display:flex;gap:2px;overflow-x:auto;flex:1;scrollbar-width:none}
 .nav-s::-webkit-scrollbar{display:none}
+.nav-tools{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:12px}
+.nav-meter{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;background:var(--gl);border:1px solid rgba(201,169,110,.25);color:var(--gd);font-size:11px;font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.nav-meter.paid{background:linear-gradient(135deg,rgba(201,169,110,.18),rgba(201,169,110,.08));color:var(--gd)}
+.nav-meter.spent{background:rgba(229,62,62,.08);border-color:rgba(229,62,62,.25);color:#b93b3b}
+.nav-search-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;background:transparent;border:1px solid rgba(120,95,40,.2);border-radius:100px;color:var(--td);font-size:13px;cursor:pointer;transition:all .2s;font-family:inherit}
+.nav-search-btn:hover{border-color:var(--g);color:var(--gd);background:var(--gl)}
+.nav-search-btn svg{flex-shrink:0}
+.nav-search-kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;background:rgba(120,95,40,.1);border:1px solid rgba(120,95,40,.15);border-radius:5px;font-size:11px;font-weight:600;color:var(--td);font-family:ui-monospace,Menlo,monospace}
+.gs-overlay{position:fixed;inset:0;background:rgba(26,20,16,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:2000;display:none;align-items:flex-start;justify-content:center;padding:72px 20px 20px;animation:gsFade .18s}
+.gs-overlay.open{display:flex}
+@keyframes gsFade{from{opacity:0}to{opacity:1}}
+.gs-panel{background:var(--d);border:1px solid rgba(120,95,40,.18);border-radius:18px;width:100%;max-width:620px;box-shadow:0 20px 60px rgba(26,20,16,.35);overflow:hidden}
+.gs-head{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid rgba(120,95,40,.12);color:var(--td)}
+.gs-head input{flex:1;border:none;outline:none;background:transparent;font-size:15px;color:var(--t);font-family:inherit}
+.gs-head input::placeholder{color:var(--td);opacity:.7}
+.gs-close{background:rgba(120,95,40,.08);border:1px solid rgba(120,95,40,.15);color:var(--td);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.3px;font-family:inherit}
+.gs-close:hover{background:rgba(120,95,40,.15);color:var(--t)}
+.gs-body{max-height:60vh;overflow-y:auto;padding:8px 0}
+.gs-hint{padding:32px 24px;text-align:center;color:var(--td);font-size:13px}
+.gs-row{display:flex;align-items:center;gap:14px;padding:12px 18px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:inherit;color:var(--t);transition:background .15s}
+.gs-row:hover,.gs-row.active{background:var(--gl)}
+.gs-row-letter{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--dk);background:linear-gradient(135deg,var(--g),var(--gd));flex-shrink:0}
+.gs-row-meta{flex:1;min-width:0}
+.gs-row-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gs-row-sub{font-size:12px;color:var(--td);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gs-row-tag{font-size:10px;color:var(--gd);background:var(--gl);padding:3px 9px;border-radius:100px;flex-shrink:0}
+.gs-footer{padding:10px 18px;border-top:1px solid rgba(120,95,40,.1);color:var(--td);font-size:11px;display:flex;justify-content:space-between;align-items:center}
+@media(max-width:720px){.nav-search-label,.nav-search-kbd{display:none}.nav-search-btn{padding:8px;border-radius:50%}.nav-tools{gap:6px}.nav-meter{padding:4px 9px;font-size:10px}}
 .ni{padding:9px 14px;cursor:pointer;border-radius:var(--r-sm);transition:all .2s;font-size:13px;white-space:nowrap;color:var(--td);display:inline-flex;align-items:center;gap:6px;font-weight:500;position:relative}
 .ni:hover{background:rgba(120,95,40,.08);color:var(--t)}
 .na{color:var(--g)!important;background:var(--gl)!important}
@@ -333,6 +361,25 @@ input::placeholder{color:var(--td);opacity:.7}
   background: var(--hp-gold);
   color: var(--hp-bg) !important;
 }
+.hp-nav-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: 1px solid var(--hp-border2);
+  border-radius: 100px;
+  color: var(--hp-cream3);
+  font-family: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.hp-nav-search:hover {
+  border-color: var(--hp-gold2);
+  color: var(--hp-gold);
+}
 .hp-nav-toggle {
   display: none;
   flex-direction: column;
@@ -435,6 +482,58 @@ input::placeholder{color:var(--td);opacity:.7}
   transition: all 0.3s;
 }
 .hp-btn-ghost:hover { border-color: var(--hp-cream3); }
+.hp-hero-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 0.35rem;
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border2);
+  border-radius: 100px;
+  box-shadow: 0 4px 18px rgba(74,56,24,.06);
+  animation: hpFadeUp 0.8s 0.8s both;
+  transition: border-color .25s, box-shadow .25s;
+}
+.hp-hero-input:focus-within {
+  border-color: var(--hp-gold);
+  box-shadow: 0 4px 24px rgba(201,169,110,.18);
+}
+.hp-hero-input input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--hp-sans);
+  font-size: 0.95rem;
+  color: var(--hp-cream);
+}
+.hp-hero-input input::placeholder { color: var(--hp-cream3); opacity: .7; }
+.hp-hero-input .hp-btn-primary {
+  padding: 0.75rem 1.6rem;
+  flex-shrink: 0;
+}
+.hp-hero-subcta {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1.1rem;
+  font-size: 0.82rem;
+  color: var(--hp-cream3);
+  animation: hpFadeUp 0.8s 0.95s both;
+}
+.hp-hero-subcta a {
+  color: var(--hp-gold);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .2s;
+}
+.hp-hero-subcta a:hover { color: var(--hp-gold3); text-decoration: underline; }
+.hp-hero-subcta span { opacity: .5; }
 .hp-hero-stats {
   display: flex;
   gap: 3.5rem;
@@ -794,6 +893,11 @@ input::placeholder{color:var(--td);opacity:.7}
   .hp-hero-stat .label { font-size: 0.75rem; }
   .hp-hero-actions { flex-direction: column; width: 100%; }
   .hp-btn-primary, .hp-btn-ghost { width: 100%; text-align: center; min-height: 52px; font-size: 1rem; }
+  .hp-hero-input { flex-direction: column; border-radius: 20px; padding: 0.5rem; gap: 0.4rem; }
+  .hp-hero-input input { padding: 0.85rem 1rem; text-align: center; }
+  .hp-hero-input .hp-btn-primary { width: 100%; min-height: 48px; }
+  .hp-hero-subcta { flex-direction: column; gap: 0.35rem; }
+  .hp-hero-subcta span { display: none; }
   .hp-celeb-section { padding: 3rem 0; }
   .hp-celeb-inner { padding: 0 1.25rem; }
   .hp-mode-item { padding: 1.5rem; border-radius: 18px; }
@@ -937,7 +1041,28 @@ input::placeholder{color:var(--td);opacity:.7}
 <nav class="nav-w" aria-label="Main navigation"><div class="nav-i">
   <div class="logo" onclick="go('home')" role="button" tabindex="0" aria-label="ScentWise Home" onkeydown="if(event.key==='Enter')go('home')"><div class="logo-icon" aria-hidden="true">S</div><span class="fd gg" style="font-size:20px;font-weight:600;letter-spacing:.5px">ScentWise</span></div>
   <div class="nav-s" id="nav" role="tablist"></div>
+  <div class="nav-tools">
+    <span id="nav-trial-meter" class="nav-meter" style="display:none" aria-live="polite"></span>
+    <button class="nav-search-btn" id="nav-search-btn" onclick="openGlobalSearch()" aria-label="Search fragrances" title="Search (press /)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg>
+      <span class="nav-search-label">Search</span>
+      <span class="nav-search-kbd" aria-hidden="true">/</span>
+    </button>
+  </div>
 </div></nav>
+<!-- Global Search Overlay -->
+<div class="gs-overlay" id="gs-overlay" role="dialog" aria-modal="true" aria-label="Search fragrances" onclick="if(event.target===this)closeGlobalSearch()">
+  <div class="gs-panel">
+    <div class="gs-head">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg>
+      <input type="text" id="gs-input" placeholder="Search 75,000+ fragrances by name or brand…" autocomplete="off" aria-label="Search fragrances">
+      <button class="gs-close" onclick="closeGlobalSearch()" aria-label="Close search">Esc</button>
+    </div>
+    <div class="gs-body" id="gs-body">
+      <div class="gs-hint">Start typing to search. Press Enter to open the full results page.</div>
+    </div>
+  </div>
+</div>
 <!-- Mobile Bottom Navigation -->
 <nav class="mob-nav" aria-label="Mobile navigation"><div class="mob-nav-inner" id="mob-nav" role="tablist"></div></nav>
 <!-- Mobile Mode Switcher (scrollable pill bar) -->
@@ -961,6 +1086,7 @@ input::placeholder{color:var(--td);opacity:.7}
       <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
       <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <button class="hp-nav-search" onclick="openGlobalSearch()" aria-label="Search fragrances" title="Search (press /)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg><span>Search</span></button>
       <a href="#" class="hp-nav-cta" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
     <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.classList.toggle('open');this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -970,69 +1096,60 @@ input::placeholder{color:var(--td);opacity:.7}
   <section class="hp-hero">
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
     <h1>Find the scent that <em>feels like you</em></h1>
-    <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of 75,000+ scents.</p>
-    <div class="hp-hero-actions">
-      <button class="hp-btn-primary" onclick="go('chat')">Start Discovering</button>
-      <button class="hp-btn-ghost" onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    <p class="hp-hero-sub">Describe the mood, occasion, or memory — and we'll match it to real fragrances from a collection of 75,000+.</p>
+    <form class="hp-hero-input" onsubmit="event.preventDefault();if(window.heroStart)heroStart(this.querySelector('input').value);else go('chat')" role="search">
+      <input type="text" id="hp-hero-q" placeholder="e.g. Something warm for fall date nights..." aria-label="Describe what you're looking for" autocomplete="off">
+      <button type="submit" class="hp-btn-primary">Find My Scent</button>
+    </form>
+    <div class="hp-hero-subcta">
+      <a href="#" onclick="event.preventDefault();go('chat')">Or start a blank chat</a>
+      <span aria-hidden="true">·</span>
+      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See other discovery modes</a>
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
-      <div class="hp-hero-stat"><div class="num">7</div><div class="label">Discovery Modes</div></div>
+      <div class="hp-hero-stat"><div class="num">6</div><div class="label">Discovery Modes</div></div>
       <div class="hp-hero-stat"><div class="num">2,500</div><div class="label">Curated Top Picks</div></div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-section" id="hp-discover">
-    <div class="hp-section-kicker hp-reveal visible">Ways to Discover</div>
-    <div class="hp-section-heading hp-reveal visible">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
-    <p class="hp-section-copy hp-reveal visible">Seven distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
+    <div class="hp-section-kicker hp-reveal visible">Or Discover Another Way</div>
+    <div class="hp-section-heading hp-reveal visible">Not sure what to ask? <em>Let your life pick.</em></div>
+    <p class="hp-section-copy hp-reveal visible">Six alternative paths — each one reads a different dimension of who you are and matches fragrances to it.</p>
     <div class="hp-modes-layout">
-      <div class="hp-mode-item featured hp-reveal visible" onclick="go('chat')">
-        <div>
-          <div class="hp-mode-number">01</div>
-          <div class="hp-mode-name">Ask the Expert</div>
-          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
-          <div class="hp-mode-tag">Conversation → Recommendations</div>
-        </div>
-        <div class="hp-mode-visual">
-          <div class="hp-mode-visual-circle">
-            <div class="hp-mode-visual-icon">✦</div>
-            <div class="hp-mode-visual-ring"></div>
-          </div>
-        </div>
-      </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('zodiac')">
-        <div class="hp-mode-number">02</div>
+        <div class="hp-mode-number">01</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('photo')">
-        <div class="hp-mode-number">03</div>
+        <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('music')">
-        <div class="hp-mode-number">04</div>
+        <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('style')">
-        <div class="hp-mode-number">05</div>
+        <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('dupe')">
-        <div class="hp-mode-number">06</div>
+        <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Dupe Finder</div>
         <div class="hp-mode-desc">Love an expensive fragrance? Find affordable alternatives that smell nearly identical at a fraction of the price.</div>
         <div class="hp-mode-tag">Luxury → Budget Match</div>
       </div>
       <div class="hp-mode-item hp-reveal visible" onclick="go('celeb')">
-        <div class="hp-mode-number">07</div>
+        <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
