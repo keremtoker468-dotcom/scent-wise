@@ -199,7 +199,12 @@ module.exports = async function handler(req, res) {
           res.setHeader('Set-Cookie', setCookies);
         } catch (err) {
           // LS API unreachable — trust the local cookie, don't block the user
+          // Still set throttle cookie to avoid hammering LS API on every request
           console.error('LS revalidation error:', err.message);
+          const existing = res.getHeader('Set-Cookie') || [];
+          const setCookies = Array.isArray(existing) ? [...existing] : [existing];
+          setCookies.push(`sw_revalidated=1; Path=/; HttpOnly; SameSite=Lax; Max-Age=3600${isProduction ? '; Secure' : ''}`);
+          res.setHeader('Set-Cookie', setCookies);
         }
       }
 
