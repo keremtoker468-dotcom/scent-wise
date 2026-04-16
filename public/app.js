@@ -396,6 +396,8 @@ function _renderCollection() {
     <div style="display:flex;flex-direction:column;gap:10px">
       ${items.map(item => {
         const safeName = esc(item.name).replace(/'/g, "\\'");
+        const cmpN = esc(item.name).replace(/'/g, '&#39;');
+        const cmpB = esc(item.brand || '').replace(/'/g, '&#39;');
         return `<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--c3);border-radius:10px">
           <span style="color:#f56565;font-size:16px">&#9829;</span>
           <div style="flex:1;min-width:0">
@@ -403,6 +405,7 @@ function _renderCollection() {
             ${item.brand ? `<div style="font-size:11px;color:var(--td)">${esc(item.brand)}</div>` : ''}
           </div>
           <a href="${amazonLink(item.name, item.brand)}" target="_blank" rel="noopener noreferrer" style="color:#f90;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">Amazon</a>
+          <button type="button" class="cmp-btn" data-cmp-name="${cmpN}" data-cmp-brand="${cmpB}" title="Add to compare" style="background:var(--gl);border:1px solid rgba(201,169,110,.22);color:var(--gd);font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;font-family:inherit">+ Compare</button>
           <button onclick="removeFromCollection('${safeName}')" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:16px;padding:0 4px" title="Remove">&times;</button>
         </div>`;
       }).join('')}
@@ -1200,7 +1203,9 @@ function fmt(text) {
       const fragName = byMatch ? byMatch[1] : name;
       const fragBrand = byMatch ? byMatch[2] : '';
       const amzUrl = amazonLink(fragName, fragBrand);
-      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:18px;color:${heartColor};padding:6px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:15px;color:rgba(255,255,255,.25);padding:6px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span><br><a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin:6px 0;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.18)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>`;
+      const cmpDataName = fragName.replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+      const cmpDataBrand = fragBrand.replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:18px;color:${heartColor};padding:6px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:15px;color:rgba(255,255,255,.25);padding:6px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span><br><span style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0;align-items:center"><a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.18)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a><button type="button" class="cmp-btn" data-cmp-name="${cmpDataName}" data-cmp-brand="${cmpDataBrand}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gd);padding:8px 14px;border-radius:10px;background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button></span>`;
     })
     .replace(/\n/g, '<br>');
 
@@ -1239,7 +1244,9 @@ function fmt(text) {
   // Matches patterns like: "1. Fragrance Name by Brand —" or "1. Fragrance Name by Brand -"
   s = s.replace(/(\d+\.\s+)(?!<strong)([A-Z][^<\n—\-]{2,60}?)\s+by\s+([A-Z][^<\n—\-]{2,40}?)(\s*[—\-])/g, function(_, num, fragName, brand, dash) {
     const url = amazonLink(fragName.trim(), brand.trim());
-    return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin-left:4px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background=\'rgba(255,153,0,.18)\'" onmouseout="this.style.background=\'rgba(255,153,0,.08)\'">Amazon</a>' + dash;
+    const cmpN = fragName.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+    const cmpB = brand.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+    return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin-left:4px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background=\'rgba(255,153,0,.18)\'" onmouseout="this.style.background=\'rgba(255,153,0,.08)\'">Amazon</a> <button type="button" class="cmp-btn" data-cmp-name="' + cmpN + '" data-cmp-brand="' + cmpB + '" title="Add to compare" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--gd);padding:8px 14px;margin-left:2px;border-radius:10px;background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background=\'rgba(201,169,110,.18)\'" onmouseout="this.style.background=\'var(--gl)\'">+ Compare</button>' + dash;
   });
 
   // Add retry button to error messages
@@ -1915,13 +1922,13 @@ function _renderCompareBar() {
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'compare-bar';
-    bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--c2);border:1px solid var(--b);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:90vw;backdrop-filter:blur(12px)';
+    bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--glass,var(--d2));border:1px solid rgba(201,169,110,.25);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));max-width:calc(100vw - 24px);flex-wrap:wrap;backdrop-filter:blur(12px)';
     document.body.appendChild(bar);
   }
   bar.innerHTML = _compareList.map((c, i) =>
-    `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--c3);border-radius:8px;font-size:12px">
+    `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--d3);border:1px solid rgba(201,169,110,.18);border-radius:8px;font-size:12px;color:var(--t)">
       <span style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
-      <button onclick="removeFromCompare(${i})" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">&times;</button>
+      <button onclick="removeFromCompare(${i})" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:14px;padding:0 2px;line-height:1" aria-label="Remove ${esc(c.name)} from compare">&times;</button>
     </div>`
   ).join('') +
   `<button onclick="showComparison()" class="btn btn-sm" style="font-size:12px;padding:8px 16px;white-space:nowrap" ${_compareList.length < 2 ? 'disabled style="opacity:.5;font-size:12px;padding:8px 16px;white-space:nowrap"' : ''}>Compare ${_compareList.length}/3</button>
@@ -2003,17 +2010,17 @@ function showComparison() {
 
   const isMobileCmp = window.innerWidth < 640;
   const separator = isMobileCmp
-    ? '<div style="height:1px;background:var(--b);width:100%"></div>'
-    : '<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>';
+    ? '<div style="height:1px;background:var(--d4);width:100%"></div>'
+    : '<div style="width:1px;background:var(--d4);align-self:stretch;flex-shrink:0"></div>';
   const cols = items.map((p, i) => _cmpColHTML(p, i)).join(separator);
 
   const loadingBar = hasMissing ? '<div id="cmp-ai-status" style="text-align:center;padding:10px;font-size:12px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:8px">Fetching missing fragrance info via AI...</span></div>' : '';
 
   const isMobile = window.innerWidth < 640;
-  overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
+  overlay.innerHTML = `<div style="background:var(--d);border:1px solid rgba(201,169,110,.25);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));color:var(--t)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isMobile ? '16px' : '24px'}">
-      <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600">Fragrance Comparison</h3>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px">&times;</button>
+      <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600;color:var(--t)">Fragrance Comparison</h3>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px" aria-label="Close comparison">&times;</button>
     </div>
     ${loadingBar}
     <div style="display:flex;gap:${isMobile ? '16px' : '20px'};${isMobile ? 'flex-direction:column' : 'overflow-x:auto'}">${cols}</div>
@@ -2916,7 +2923,10 @@ function r_celeb(el) {
               </div>
               ${p?.a?`<p class="note" style="margin-left:19px">Accords: ${esc(p.a)}</p>`:''}
               ${p?.t?`<p class="note" style="margin-left:19px">Notes: ${esc(p.t)}</p>`:''}
-              <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;margin:6px 0 0 19px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
+              <div style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0 0 19px;align-items:center">
+                <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
+                <button type="button" class="cmp-btn" data-cmp-name="${esc(n).replace(/'/g,'&#39;')}" data-cmp-brand="${esc(b||'').replace(/'/g,'&#39;')}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--gd);background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button>
+              </div>
             </div>`;
           }).join('')}
         </div>
