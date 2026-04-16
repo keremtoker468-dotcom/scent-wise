@@ -2099,7 +2099,7 @@ function r_home(el) {
 function r_explore(el) {
   if (!_dbLoaded) {
     el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="margin-left:4px">Loading fragrance database...</span></div></div>';
-    loadDB().then(() => { if (CP === 'explore') r_explore(el); });
+    loadDB().then(() => { if (CP === 'explore') r_explore(el); }).catch(() => { el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td);margin-bottom:16px">Could not load fragrance database.</p><button class="btn btn-sm" onclick="go(\'explore\')">Retry</button></div>'; });
     return;
   }
   const filters = ['all','Male','Female','Unisex'];
@@ -2687,7 +2687,7 @@ async function dFollow() {
 function r_celeb(el) {
   if (!_dbLoaded) {
     el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="margin-left:4px">Loading fragrance data...</span></div></div>';
-    loadDB().then(() => { if (CP === 'celeb') r_celeb(el); });
+    loadDB().then(() => { if (CP === 'celeb') r_celeb(el); }).catch(() => { el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><p style="color:var(--td);margin-bottom:16px">Could not load fragrance data.</p><button class="btn btn-sm" onclick="go(\'celeb\')">Retry</button></div>'; });
     return;
   }
   const q = celebQ.toLowerCase();
