@@ -236,8 +236,12 @@ input::placeholder{color:var(--td);opacity:.7}
   .tag{padding:6px 14px;font-size:12px}
   .fbtn{padding:10px 18px;font-size:13px;min-height:40px}
   .note{font-size:12px}
-  /* Improve touch targets */
-  .ni{padding:12px 16px;font-size:14px}
+  /* Improve touch targets — WCAG 2.5.5 minimum 44x44px */
+  .ni{padding:12px 16px;font-size:14px;min-height:44px}
+  .mob-ni{padding:10px 8px 8px;min-height:44px;min-width:44px}
+  .tag{min-height:44px;display:inline-flex;align-items:center}
+  .fbtn{min-height:44px}
+  .inp-row button,.inp-row .btn-sm{min-height:44px;min-width:44px}
   /* Better grid layouts on mobile */
   .grid{gap:12px}
   /* Push cookie banner & PWA install above bottom nav */
@@ -951,11 +955,11 @@ input::placeholder{color:var(--td);opacity:.7}
   <nav class="hp-nav" id="hp-nav">
     <div class="hp-nav-logo" onclick="go('home')">Scent<span>Wise</span></div>
     <div class="hp-nav-links">
-      <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
-      <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
-      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
-      <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
-      <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
+      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
+      <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
+      <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a href="#" class="hp-nav-cta" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
     <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.classList.toggle('open');this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -1278,18 +1282,26 @@ input::placeholder{color:var(--td);opacity:.7}
   }
   // PWA Install Prompt
   var _deferredInstall = null;
+  window._swAiResponses = 0; // Track AI responses before showing install banner
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     _deferredInstall = e;
-    // Show install banner after 30s if user hasn't installed
-    setTimeout(function() {
-      if (!_deferredInstall) return;
+    // Show install banner only after user has received 2+ AI responses (value demonstrated)
+    // Poll periodically rather than using a fixed timeout
+    var _pwaCheck = setInterval(function() {
+      if (!_deferredInstall) { clearInterval(_pwaCheck); return; }
+      if ((window._swAiResponses || 0) < 2) return;
+      // Don't show on chat/scan/zodiac/music/style/dupe pages where it overlays input
+      var activePage = typeof CP !== 'undefined' ? CP : '';
+      var blockedPages = ['chat','photo','zodiac','music','style','dupe'];
+      if (blockedPages.indexOf(activePage) !== -1) return;
+      clearInterval(_pwaCheck);
       var banner = document.createElement('div');
       banner.id = 'pwa-install-banner';
-      banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--d3,#16161a);border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:90vw;backdrop-filter:blur(12px)';
-      banner.innerHTML = '<span style="font-size:24px">📱</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f0ece4">Install ScentWise</div><div style="font-size:12px;color:#8a8278;margin-top:2px">Add to home screen for quick access</div></div><button onclick="swInstall()" style="padding:8px 18px;border-radius:12px;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#09090b;border:none;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit">Install</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8a8278;cursor:pointer;font-size:18px;padding:4px">✕</button>';
+      banner.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--d3,#16161a);border:1px solid rgba(201,169,110,.2);border-radius:16px;padding:14px 20px;display:flex;align-items:center;gap:14px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,.5);width:420px;max-width:min(420px,92vw);backdrop-filter:blur(12px)';
+      banner.innerHTML = '<span style="font-size:24px">📱</span><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#f0ece4">Install ScentWise</div><div style="font-size:12px;color:#8a8278;margin-top:2px">Add to home screen for quick access</div></div><button onclick="swInstall()" style="padding:10px 20px;border-radius:12px;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#09090b;border:none;font-weight:600;font-size:13px;cursor:pointer;font-family:inherit;min-height:44px">Install</button><button onclick="this.parentElement.remove()" style="background:none;border:none;color:#8a8278;cursor:pointer;font-size:18px;padding:10px;min-height:44px;min-width:44px" aria-label="Dismiss install banner">✕</button>';
       document.body.appendChild(banner);
-    }, 30000);
+    }, 5000);
   });
   window.swInstall = function() {
     if (_deferredInstall) {
