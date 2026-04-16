@@ -285,14 +285,16 @@ function hasFreeTrialLeft() {
 
 function trackUsage(serverUsage) {
   if (isOwner) return;
-  if (typeof serverUsage === 'number') { aiUsage = serverUsage; return; }
-  aiUsage++;
+  if (typeof serverUsage === 'number') aiUsage = serverUsage;
+  else aiUsage++;
+  try { updateTrialMeter(); } catch {}
 }
 
 function trackFreeUsage(used) {
   if (typeof used === 'number') freeUsed = used;
   else freeUsed++;
   trackFunnel('free_trial_used', { queries_used: freeUsed, queries_remaining: FREE_LIMIT - freeUsed });
+  try { updateTrialMeter(); } catch {}
 }
 
 // ═══════════════ USER SCENT PROFILE ═══════════════
@@ -394,6 +396,8 @@ function _renderCollection() {
     <div style="display:flex;flex-direction:column;gap:10px">
       ${items.map(item => {
         const safeName = esc(item.name).replace(/'/g, "\\'");
+        const cmpN = esc(item.name).replace(/'/g, '&#39;');
+        const cmpB = esc(item.brand || '').replace(/'/g, '&#39;');
         return `<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--c3);border-radius:10px">
           <span style="color:#f56565;font-size:16px">&#9829;</span>
           <div style="flex:1;min-width:0">
@@ -401,6 +405,7 @@ function _renderCollection() {
             ${item.brand ? `<div style="font-size:11px;color:var(--td)">${esc(item.brand)}</div>` : ''}
           </div>
           <a href="${amazonLink(item.name, item.brand)}" target="_blank" rel="noopener noreferrer" style="color:#f90;font-size:11px;font-weight:600;text-decoration:none;white-space:nowrap">Amazon</a>
+          <button type="button" class="cmp-btn" data-cmp-name="${cmpN}" data-cmp-brand="${cmpB}" title="Add to compare" style="background:var(--gl);border:1px solid rgba(201,169,110,.22);color:var(--gd);font-size:11px;font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;font-family:inherit">+ Compare</button>
           <button onclick="removeFromCollection('${safeName}')" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:16px;padding:0 4px" title="Remove">&times;</button>
         </div>`;
       }).join('')}
@@ -614,6 +619,47 @@ async function rateScentMode(modeId, liked) {
   loadScentProfile();
 }
 
+const _CRUMB_LABELS = {
+  chat: 'AI Chat',
+  photo: 'Photo Style Scan',
+  zodiac: 'Zodiac Match',
+  music: 'Music Match',
+  style: 'Style Match',
+  dupe: 'Dupe Finder',
+  celeb: 'Celebrity Collections',
+  explore: 'Explore Database',
+  account: 'Account',
+  admin: 'Admin',
+};
+function crumbsHTML(id) {
+  const label = _CRUMB_LABELS[id];
+  if (!label) return '';
+  return `<nav class="crumbs" aria-label="Breadcrumb">
+    <button type="button" onclick="go('home')" aria-label="Back to home">Home</button>
+    <span class="sep" aria-hidden="true">›</span>
+    <span class="here" aria-current="page">${label}</span>
+  </nav>`;
+}
+window.crumbsHTML = crumbsHTML;
+
+function refineLast(modeId) {
+  const cfg = {
+    photo:  { inp: 'pfu-inp', fn: 'pFollow' },
+    zodiac: { inp: 'zfu-inp', fn: 'zFollow' },
+    music:  { inp: 'mfu-inp', fn: 'mFollow' },
+    style:  { inp: 'sfu-inp', fn: 'sFollow' },
+    dupe:   { inp: 'dfu-inp', fn: 'dFollow' },
+    celeb:  { inp: 'cfu-inp', fn: 'cFollow' },
+  }[modeId];
+  if (!cfg) return;
+  const inp = document.getElementById(cfg.inp);
+  if (!inp) return;
+  inp.value = 'Show me 3 more picks in a similar direction, but with a slightly different mood or price range.';
+  const fn = window[cfg.fn];
+  if (typeof fn === 'function') fn();
+}
+window.refineLast = refineLast;
+
 function modeFeedbackHTML(modeId, resultText) {
   if (!resultText || !/\*\*[^*]{3,}\*\*/.test(resultText)) return '';
   if (_ratedModes.has(modeId)) {
@@ -621,8 +667,9 @@ function modeFeedbackHTML(modeId, resultText) {
   }
   return `<div id="mfb-${modeId}" style="margin-top:12px;padding-top:8px;border-top:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:10px">
     <span style="color:var(--td);font-size:11px">Like these picks?</span>
-    <button onclick="rateScentMode('${modeId}',true)" style="background:none;border:1px solid rgba(201,169,110,.2);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--g);display:flex;align-items:center;gap:4px">&#128077; Yes</button>
-    <button onclick="rateScentMode('${modeId}',false)" style="background:none;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--td);display:flex;align-items:center;gap:4px">&#128078; No</button>
+    <button onclick="rateScentMode('${modeId}',true)" style="background:none;border:1px solid rgba(201,169,110,.25);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--gd);font-weight:500">Yes</button>
+    <button onclick="rateScentMode('${modeId}',false)" style="background:none;border:1px solid rgba(120,95,40,.12);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:13px;color:var(--td);font-weight:500">No</button>
+    <button onclick="refineLast('${modeId}')" style="margin-left:auto;background:var(--gl);border:1px solid rgba(201,169,110,.25);border-radius:8px;padding:4px 12px;cursor:pointer;font-size:12px;color:var(--gd);font-weight:500">More like this →</button>
   </div>`;
 }
 
@@ -1138,6 +1185,7 @@ function _isLikelyFragrance(name) {
 }
 
 function fmt(text) {
+  const _seenFrags = new Set();
   let s = esc(text)
     .replace(/\*\*(.+?)\*\*/g, function(_, name) {
       if (name.startsWith('Oops') || name.startsWith('Something') || name.startsWith('Connection')) {
@@ -1147,6 +1195,10 @@ function fmt(text) {
         return `<strong style="color:var(--g)">${name}</strong>`;
       }
       const key = name.toLowerCase();
+      if (_seenFrags.has(key)) {
+        return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
+      }
+      _seenFrags.add(key);
       const isLiked = _likedFrags.has(key + '_up');
       const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.4)';
       const heartChar = isLiked ? '&#9829;' : '&#9825;';
@@ -1156,7 +1208,9 @@ function fmt(text) {
       const fragName = byMatch ? byMatch[1] : name;
       const fragBrand = byMatch ? byMatch[2] : '';
       const amzUrl = amazonLink(fragName, fragBrand);
-      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:18px;color:${heartColor};padding:6px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:15px;color:rgba(255,255,255,.25);padding:6px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span><br><a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin:6px 0;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.18)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>`;
+      const cmpDataName = fragName.replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+      const cmpDataBrand = fragBrand.replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+      return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong><span class="frag-actions" style="display:inline-flex;gap:2px;margin-left:4px;vertical-align:middle"><button onclick="likeFragrance('${safeName}',true,this)" title="${heartTitle}" style="background:none;border:none;cursor:pointer;font-size:18px;color:${heartColor};padding:6px;line-height:1;transition:color .2s;opacity:${isLiked ? '1' : '.6'}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='${isLiked ? '1' : '.6'}'">${heartChar}</button>${!isLiked ? `<button onclick="likeFragrance('${safeName}',false,this.previousElementSibling);this.style.display='none'" title="Not for me" style="background:none;border:none;cursor:pointer;font-size:15px;color:rgba(255,255,255,.25);padding:6px;line-height:1;opacity:.5;transition:opacity .2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.5'">&#10005;</button>` : ''}</span><br><span style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0;align-items:center"><a href="${amzUrl}" target="_blank" rel="noopener noreferrer" title="Shop on Amazon" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.18)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a><button type="button" class="cmp-btn" data-cmp-name="${cmpDataName}" data-cmp-brand="${cmpDataBrand}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--gd);padding:8px 14px;border-radius:10px;background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button></span>`;
     })
     .replace(/\n/g, '<br>');
 
@@ -1194,8 +1248,15 @@ function fmt(text) {
   // Fallback: Add Amazon links for numbered recommendations without bold formatting
   // Matches patterns like: "1. Fragrance Name by Brand —" or "1. Fragrance Name by Brand -"
   s = s.replace(/(\d+\.\s+)(?!<strong)([A-Z][^<\n—\-]{2,60}?)\s+by\s+([A-Z][^<\n—\-]{2,40}?)(\s*[—\-])/g, function(_, num, fragName, brand, dash) {
+    const fallbackKey = (fragName.trim() + '|' + brand.trim()).toLowerCase();
+    if (_seenFrags.has(fallbackKey)) {
+      return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + dash;
+    }
+    _seenFrags.add(fallbackKey);
     const url = amazonLink(fragName.trim(), brand.trim());
-    return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin-left:4px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background=\'rgba(255,153,0,.18)\'" onmouseout="this.style.background=\'rgba(255,153,0,.08)\'">Amazon</a>' + dash;
+    const cmpN = fragName.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+    const cmpB = brand.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
+    return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + ' <a href="' + url + '" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#f90;padding:8px 14px;margin-left:4px;border-radius:10px;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background=\'rgba(255,153,0,.18)\'" onmouseout="this.style.background=\'rgba(255,153,0,.08)\'">Amazon</a> <button type="button" class="cmp-btn" data-cmp-name="' + cmpN + '" data-cmp-brand="' + cmpB + '" title="Add to compare" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--gd);padding:8px 14px;margin-left:2px;border-radius:10px;background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background=\'rgba(201,169,110,.18)\'" onmouseout="this.style.background=\'var(--gl)\'">+ Compare</button>' + dash;
   });
 
   // Add retry button to error messages
@@ -1227,29 +1288,35 @@ function perfCard(p) {
   const isLiked = _likedFrags.has(key + '_up');
   const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.35)';
   const heartChar = isLiked ? '&#9829;' : '&#9825;';
+  const gender = esc(p.gender||p.g||'');
+  const rating = p.rating||p.r;
+  const notes = p.notes||p.t;
+  const accords = p.accords||p.a;
   return `<div class="pcard" data-cat="${cat}" data-name="${name}" data-brand="${brand}">
-    <div style="display:flex;gap:14px">
+    <div class="pc-top">
       <div class="pc-thumb" style="background:${bg}"><span class="pc-letter">${letter}</span></div>
-      <div style="flex:1">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span style="font-weight:600;font-size:14px">${name}</span>
-          <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px">
-            <span style="color:var(--td);font-size:12px">${esc(p.brand||p.b)}</span>
-            <button class="heart-btn" data-heart-name="${safeName}" data-heart-brand="${brand.replace(/'/g, "&#39;")}" title="${isLiked ? 'Click to unlike' : 'Love this fragrance'}" style="background:none;border:none;cursor:pointer;font-size:16px;color:${heartColor};padding:2px;line-height:1;transition:color .2s,transform .2s" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">${heartChar}</button>
+      <div class="pc-head">
+        <div class="pc-title-row">
+          <div class="pc-title">
+            <div class="pc-name">${name}</div>
+            ${brand ? `<div class="pc-brand">${brand}</div>` : ''}
           </div>
+          <button class="heart-btn" data-heart-name="${safeName}" data-heart-brand="${brand.replace(/'/g, "&#39;")}" title="${isLiked ? 'Saved — click to remove' : 'Save to favorites'}" aria-pressed="${isLiked}" style="color:${heartColor}">${heartChar}</button>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-          ${cat ? `<span class="tag" style="font-size:10px;padding:3px 10px">${cat}</span>` : ''}
-          ${p.gender||p.g ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(133,193,233,.06);color:#85c1e9;border-color:rgba(133,193,233,.1)">${esc(p.gender||p.g)}</span>` : ''}
-          ${p.rating||p.r ? `<span class="tag" style="font-size:10px;padding:3px 10px;background:rgba(232,168,124,.06);color:#e8a87c;border-color:rgba(232,168,124,.1)">★ ${p.rating||p.r}</span>` : ''}
-        </div>
-        ${p.notes||p.t ? `<p class="note">Notes: ${esc(p.notes||p.t)}</p>` : ''}
-        ${p.accords||p.a ? `<p class="note">Accords: ${esc(p.accords||p.a)}</p>` : ''}
-        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-          <a href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none;transition:all .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
-          <button class="cmp-btn" data-cmp-name="${safeName}" data-cmp-brand="${brand.replace(/'/g, "&#39;")}" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--g);background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.15);cursor:pointer;transition:all .2s;min-height:36px" onmouseover="this.style.background='rgba(201,169,110,.15)'" onmouseout="this.style.background='rgba(201,169,110,.08)'">+ Compare</button>
+        <div class="pc-meta">
+          ${cat ? `<span class="pc-chip">${cat}</span>` : ''}
+          ${gender ? `<span class="pc-chip pc-chip-soft">${gender}</span>` : ''}
+          ${rating ? `<span class="pc-chip pc-chip-rating" aria-label="Rating ${rating} out of 5">★ ${rating}</span>` : ''}
         </div>
       </div>
+    </div>
+    ${notes ? `<div class="pc-row"><span class="pc-label">Notes</span><span class="pc-value">${esc(notes)}</span></div>` : ''}
+    ${accords ? `<div class="pc-row"><span class="pc-label">Accords</span><span class="pc-value">${esc(accords)}</span></div>` : ''}
+    <div class="pc-profile-wrap" data-profile-name="${safeName}" data-profile-brand="${brand.replace(/'/g, "&#39;")}"></div>
+    <div class="pc-actions">
+      <a class="pc-btn pc-btn-shop" href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
+      <button class="pc-btn pc-btn-compare cmp-btn" data-cmp-name="${safeName}" data-cmp-brand="${brand.replace(/'/g, "&#39;")}">+ Compare</button>
+      <button class="pc-btn pc-btn-profile prof-btn" data-prof-name="${safeName}" data-prof-brand="${brand.replace(/'/g, "&#39;")}" type="button">Scent profile</button>
     </div>
   </div>`;
 }
@@ -1632,7 +1699,156 @@ function go(p) {
   }
   window.scrollTo({top:0,behavior:'smooth'});
   initSwipe();
+  try { updateTrialMeter(); } catch {}
 }
+
+// ═══════════════ HERO → CHAT HANDOFF ═══════════════
+function heroStart(q) {
+  const text = (q || '').trim();
+  go('chat');
+  if (!text) return;
+  // Wait a tick for r_chat() to render, then populate + send
+  setTimeout(() => {
+    const inp = document.getElementById('c-inp');
+    if (inp) inp.value = text;
+    try { cSend(text); } catch (e) { console.error('heroStart send failed', e); }
+  }, 60);
+}
+window.heroStart = heroStart;
+
+// ═══════════════ GLOBAL SEARCH OVERLAY ═══════════════
+let _gsActive = -1, _gsResults = [], _gsDebounce = null;
+function openGlobalSearch() {
+  const ov = document.getElementById('gs-overlay');
+  if (!ov) return;
+  ov.classList.add('open');
+  // Kick off DB load if needed
+  if (!_dbLoaded) loadDB().then(() => { if (ov.classList.contains('open')) renderGlobalSearch(); });
+  setTimeout(() => document.getElementById('gs-input')?.focus(), 40);
+}
+function closeGlobalSearch() {
+  const ov = document.getElementById('gs-overlay');
+  if (!ov) return;
+  ov.classList.remove('open');
+  const inp = document.getElementById('gs-input');
+  if (inp) inp.value = '';
+  _gsResults = []; _gsActive = -1;
+}
+function renderGlobalSearch() {
+  const body = document.getElementById('gs-body');
+  const inp = document.getElementById('gs-input');
+  if (!body || !inp) return;
+  const q = (inp.value || '').trim();
+  if (!q) {
+    body.innerHTML = `<div class="gs-hint">Start typing to search. Press Enter to open the full results page.</div>
+      <div style="padding:0 18px 14px">
+        <div style="font-size:11px;color:var(--td);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">Popular searches</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${['Dior Sauvage','Baccarat Rouge 540','Tom Ford','Creed Aventus','Lattafa','Chanel No 5'].map(s => `<button class="fbtn" onclick="document.getElementById('gs-input').value='${s}';renderGlobalSearch()">${s}</button>`).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+  if (!_dbLoaded) { body.innerHTML = `<div class="gs-hint">Loading fragrance database…</div>`; return; }
+  _gsResults = searchDB(q, 8) || [];
+  if (_gsResults.length === 0) {
+    body.innerHTML = `<div class="gs-hint">No matches for "${esc(q)}". Try a different name or brand.</div>`;
+    return;
+  }
+  _gsActive = 0;
+  body.innerHTML = _gsResults.map((p, i) => {
+    const name = esc(p.name || p.n);
+    const brand = esc(p.brand || p.b || '');
+    const cat = esc(p.category || p.c || '');
+    const letter = (p.name || p.n || '?').charAt(0).toUpperCase();
+    return `<button class="gs-row ${i===0?'active':''}" data-gs-idx="${i}" onclick="pickGlobalSearchResult(${i})">
+      <div class="gs-row-letter">${letter}</div>
+      <div class="gs-row-meta">
+        <div class="gs-row-name">${name}</div>
+        <div class="gs-row-sub">${brand}${brand && cat ? ' · ' : ''}${cat}</div>
+      </div>
+      ${p.gender || p.g ? `<span class="gs-row-tag">${esc(p.gender || p.g)}</span>` : ''}
+    </button>`;
+  }).join('') + `<div class="gs-footer"><span>${_gsResults.length} of ${(SI && SI.length || 0).toLocaleString()}</span><span>Press Enter for all results</span></div>`;
+}
+function pickGlobalSearchResult(i) {
+  const p = _gsResults[i];
+  if (!p) return;
+  const name = p.name || p.n;
+  closeGlobalSearch();
+  expQ = name;
+  go('explore');
+  setTimeout(() => { try { doExp(); } catch {} }, 80);
+}
+function gsKeyNav(e) {
+  if (!_gsResults.length) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); _gsActive = Math.min(_gsActive + 1, _gsResults.length - 1); _gsUpdateActive(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); _gsActive = Math.max(_gsActive - 1, 0); _gsUpdateActive(); }
+  else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (_gsActive >= 0) pickGlobalSearchResult(_gsActive);
+    else {
+      const q = document.getElementById('gs-input')?.value?.trim();
+      if (q) { closeGlobalSearch(); expQ = q; go('explore'); setTimeout(() => { try { doExp(); } catch {} }, 80); }
+    }
+  }
+}
+function _gsUpdateActive() {
+  document.querySelectorAll('.gs-row').forEach((r, i) => r.classList.toggle('active', i === _gsActive));
+  const el = document.querySelector('.gs-row.active');
+  if (el && el.scrollIntoView) el.scrollIntoView({block: 'nearest'});
+}
+window.openGlobalSearch = openGlobalSearch;
+window.closeGlobalSearch = closeGlobalSearch;
+window.renderGlobalSearch = renderGlobalSearch;
+window.pickGlobalSearchResult = pickGlobalSearchResult;
+
+function _bindGlobalSearchInput() {
+  const inp = document.getElementById('gs-input');
+  if (!inp || inp._gsBound) return;
+  inp._gsBound = true;
+  inp.addEventListener('input', () => { clearTimeout(_gsDebounce); _gsDebounce = setTimeout(renderGlobalSearch, 120); });
+  inp.addEventListener('keydown', gsKeyNav);
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', _bindGlobalSearchInput);
+} else {
+  _bindGlobalSearchInput();
+}
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const ov = document.getElementById('gs-overlay');
+    if (ov && ov.classList.contains('open')) { e.preventDefault(); closeGlobalSearch(); }
+  } else if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '')) {
+    e.preventDefault();
+    openGlobalSearch();
+  }
+});
+
+// ═══════════════ TRIAL METER IN NAV ═══════════════
+function updateTrialMeter() {
+  const el = document.getElementById('nav-trial-meter');
+  if (!el) return;
+  if (isOwner) {
+    el.style.display = '';
+    el.className = 'nav-meter paid';
+    el.textContent = 'Owner · Unlimited';
+    return;
+  }
+  if (isPaid) {
+    el.style.display = '';
+    el.className = 'nav-meter paid';
+    el.textContent = `Premium · ${Math.max(0, MAX_PAID - aiUsage)} of ${MAX_PAID} left`;
+    return;
+  }
+  const left = Math.max(0, FREE_LIMIT - freeUsed);
+  el.style.display = '';
+  el.className = 'nav-meter' + (left === 0 ? ' spent' : '');
+  el.textContent = left === 0 ? 'Free trial used · Upgrade' : `${left} of ${FREE_LIMIT} free AI queries left`;
+  el.onclick = left === 0 ? () => { try { unlockPaid(); } catch {} } : null;
+  el.style.cursor = left === 0 ? 'pointer' : 'default';
+}
+window.updateTrialMeter = updateTrialMeter;
 
 // Swipe between modes on mobile
 let _swTx=0,_swTy=0,_swActive=false,_swEl=null;
@@ -1680,7 +1896,51 @@ document.addEventListener('click', function(e) {
     if (name) addToCompare(name, brand);
     return;
   }
+  const prof = e.target.closest('.prof-btn');
+  if (prof) {
+    e.stopPropagation();
+    const name = prof.dataset.profName;
+    const brand = (prof.dataset.profBrand || '').replace(/&#39;/g, "'");
+    if (name) togglePerfCardProfile(prof, name, brand);
+    return;
+  }
 });
+
+async function togglePerfCardProfile(btn, name, brand) {
+  const card = btn.closest('.pcard');
+  if (!card) return;
+  const wrap = card.querySelector('.pc-profile-wrap');
+  if (!wrap) return;
+  if (wrap.dataset.open === '1') {
+    wrap.style.display = 'none';
+    wrap.dataset.open = '0';
+    btn.textContent = 'Scent profile';
+    return;
+  }
+  if (wrap.dataset.loaded === '1') {
+    wrap.style.display = '';
+    wrap.dataset.open = '1';
+    btn.textContent = 'Hide profile';
+    return;
+  }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  wrap.style.display = '';
+  wrap.innerHTML = '<div style="font-size:12px;color:var(--td);padding:8px 0"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:6px">Fetching scent profile…</span></div>';
+  try {
+    const info = await fetchScentProfile(name, brand);
+    wrap.innerHTML = renderProfileBadges(info) || '<div style="font-size:12px;color:var(--td);padding:6px 0">Details unavailable.</div>';
+    wrap.dataset.loaded = '1';
+    wrap.dataset.open = '1';
+    btn.textContent = 'Hide profile';
+  } catch {
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--td);padding:6px 0">Could not load profile.</div>';
+    btn.textContent = orig;
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 // ═══════════════ FRAGRANCE COMPARISON ═══════════════
 function addToCompare(name, brand) {
@@ -1718,21 +1978,91 @@ function _renderCompareBar() {
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'compare-bar';
-    bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--c2);border:1px solid var(--b);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:0 8px 32px rgba(0,0,0,.4);max-width:90vw;backdrop-filter:blur(12px)';
+    bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--glass,var(--d2));border:1px solid rgba(201,169,110,.25);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));max-width:calc(100vw - 24px);flex-wrap:wrap;backdrop-filter:blur(12px)';
     document.body.appendChild(bar);
   }
   bar.innerHTML = _compareList.map((c, i) =>
-    `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--c3);border-radius:8px;font-size:12px">
+    `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--d3);border:1px solid rgba(201,169,110,.18);border-radius:8px;font-size:12px;color:var(--t)">
       <span style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
-      <button onclick="removeFromCompare(${i})" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">&times;</button>
+      <button onclick="removeFromCompare(${i})" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:14px;padding:0 2px;line-height:1" aria-label="Remove ${esc(c.name)} from compare">&times;</button>
     </div>`
   ).join('') +
   `<button onclick="showComparison()" class="btn btn-sm" style="font-size:12px;padding:8px 16px;white-space:nowrap" ${_compareList.length < 2 ? 'disabled style="opacity:.5;font-size:12px;padding:8px 16px;white-space:nowrap"' : ''}>Compare ${_compareList.length}/3</button>
    <button onclick="clearCompare()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:18px;padding:0 4px;line-height:1" title="Clear all">&times;</button>`;
 }
 
+// ═══════════════ SHARED SCENT PROFILE (scores + blind-buy) ═══════════════
+const _PROFILE_CACHE_KEY = 'sw_scent_profiles_v1';
+let _profileCache = (() => { try { return JSON.parse(localStorage.getItem(_PROFILE_CACHE_KEY)) || {}; } catch { return {}; } })();
+const _profileInflight = {};
+function _profileKey(name, brand) { return ((name||'') + '|' + (brand||'')).toLowerCase().trim(); }
+function _saveProfileCache() { try { localStorage.setItem(_PROFILE_CACHE_KEY, JSON.stringify(_profileCache)); } catch {} }
+
+async function fetchScentProfile(name, brand) {
+  const k = _profileKey(name, brand);
+  if (_profileCache[k]) return _profileCache[k];
+  if (_profileInflight[k]) return _profileInflight[k];
+  const prompt = `For the fragrance "${name}${brand ? ' by ' + brand : ''}":
+
+Return ONLY a JSON object (no markdown, no code fences, no prose) with these exact keys:
+{"longevity":1-5,"projection":1-5,"sillage":1-5,"versatility":1-5,"blindBuyRisk":"Low"|"Medium"|"Test first","blindBuyReason":"one short sentence explaining why","gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated","notes":"comma separated top/heart/base notes","rating":1-5 or null}
+
+Base scores on community consensus and typical performance. If the fragrance is unknown, use null for all fields.`;
+  const p = (async () => {
+    try {
+      const raw = await aiCall('chat', { messages: [{ role: 'user', content: prompt }] });
+      const jsonStr = raw.replace(/```json?\s*/g, '').replace(/```/g, '').trim();
+      const info = JSON.parse(jsonStr);
+      if (!info || typeof info !== 'object') return null;
+      _profileCache[k] = info;
+      _saveProfileCache();
+      return info;
+    } catch { return null; }
+    finally { delete _profileInflight[k]; }
+  })();
+  _profileInflight[k] = p;
+  return p;
+}
+
+function _scoreBadge(label, score) {
+  const n = parseInt(score);
+  if (!n || n < 1 || n > 5) return '';
+  const pct = (n / 5) * 100;
+  const color = n >= 4 ? '#3f7a4e' : n >= 3 ? '#9a7a1e' : '#b93b3b';
+  return `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:11px;background:var(--d3);border:1px solid rgba(201,169,110,.18);color:var(--t)">
+    <span style="color:var(--td)">${label}</span>
+    <span style="display:inline-block;width:32px;height:4px;border-radius:2px;background:rgba(120,95,40,.12);position:relative;overflow:hidden"><span style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:2px"></span></span>
+    <span style="color:${color};font-weight:700">${n}</span>
+  </span>`;
+}
+
+function _blindBuyBadge(risk, reason) {
+  if (!risk) return '';
+  const r = String(risk).toLowerCase();
+  const palette = r.startsWith('low')
+    ? { bg: 'rgba(72,138,85,.12)', bd: 'rgba(72,138,85,.25)', fg: '#3f7a4e' }
+    : r.startsWith('med')
+      ? { bg: 'rgba(200,150,30,.14)', bd: 'rgba(200,150,30,.28)', fg: '#8a6510' }
+      : { bg: 'rgba(185,59,59,.1)', bd: 'rgba(185,59,59,.25)', fg: '#b93b3b' };
+  const txt = esc(risk) + (reason ? ' — ' + esc(reason) : '');
+  return `<div style="display:inline-block;margin:6px 0;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:600;background:${palette.bg};color:${palette.fg};border:1px solid ${palette.bd}">${txt}</div>`;
+}
+
+function renderProfileBadges(info) {
+  if (!info) return '';
+  const scores = [
+    _scoreBadge('Longevity', info.longevity),
+    _scoreBadge('Projection', info.projection),
+    _scoreBadge('Sillage', info.sillage),
+    _scoreBadge('Versatility', info.versatility)
+  ].filter(Boolean).join('');
+  const bb = _blindBuyBadge(info.blindBuyRisk, info.blindBuyReason);
+  if (!scores && !bb) return '<div style="font-size:12px;color:var(--td);padding:6px 0">Details unavailable for this fragrance.</div>';
+  return `${scores ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">${scores}</div>` : ''}${bb}`;
+}
+
 function _cmpHasMissing(p) {
-  return !p.a && !p.t;
+  return !p.a || !p.t || !p.longevity || !p.sillage;
 }
 
 function _cmpColHTML(p, idx) {
@@ -1743,6 +2073,10 @@ function _cmpColHTML(p, idx) {
   const notes = esc(p.t || p.notes || '—');
   const accords = esc(p.a || p.accords || '—');
   const conc = esc(p.c || p.concentration || '—');
+  const profileHTML = renderProfileBadges({
+    longevity: p.longevity, projection: p.projection, sillage: p.sillage,
+    versatility: p.versatility, blindBuyRisk: p.blindBuyRisk, blindBuyReason: p.blindBuyReason
+  });
   return `<div style="flex:1;min-width:200px;max-width:320px" id="cmp-col-${idx}">
     <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--g)">${name}</div>
     <div style="font-size:12px;color:var(--td);margin-bottom:16px">${brand}</div>
@@ -1751,6 +2085,7 @@ function _cmpColHTML(p, idx) {
     <div class="cmp-row"><span class="cmp-label">Type</span><span>${conc}</span></div>
     <div class="cmp-row"><span class="cmp-label">Accords</span><span style="font-size:11px;line-height:1.5" id="cmp-accords-${idx}">${accords}</span></div>
     <div class="cmp-row"><span class="cmp-label">Notes</span><span style="font-size:11px;line-height:1.5" id="cmp-notes-${idx}">${notes}</span></div>
+    <div style="margin-top:14px" id="cmp-profile-${idx}">${profileHTML}</div>
     <a href="${amazonLink(p.n||p.name, p.b||p.brand)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none">Shop on Amazon</a>
   </div>`;
 }
@@ -1758,34 +2093,27 @@ function _cmpColHTML(p, idx) {
 async function _cmpFillMissing(items) {
   const missing = items.map((p, i) => _cmpHasMissing(p) ? i : -1).filter(i => i >= 0);
   if (!missing.length) return;
-  const names = missing.map(i => `"${items[i].n || items[i].name}${items[i].b || items[i].brand ? ' by ' + (items[i].b || items[i].brand) : ''}"`).join(', ');
-  const prompt = `For the following fragrance(s): ${names}
-
-Return ONLY a JSON array (no markdown, no code fences) with one object per fragrance in the same order. Each object must have these exact keys:
-{"gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated main accords","notes":"comma separated key notes","rating":"number 1-5 or null if unknown"}
-
-Example: [{"gender":"Male","concentration":"EDP","accords":"woody, amber, fresh","notes":"bergamot, cedar, musk","rating":4.2}]`;
-  try {
-    const raw = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-    const jsonStr = raw.replace(/```json?\s*/g,'').replace(/```/g,'').trim();
-    const arr = JSON.parse(jsonStr);
-    if (!Array.isArray(arr)) return;
-    missing.forEach((itemIdx, arrIdx) => {
-      const info = arr[arrIdx];
-      if (!info) return;
-      const p = items[itemIdx];
-      if (info.gender && !p.g) p.g = info.gender;
-      if (info.concentration && !p.c) p.c = info.concentration;
-      if (info.accords && !p.a) p.a = info.accords;
-      if (info.notes && !p.t) p.t = info.notes;
-      if (info.rating && !p.r) p.r = info.rating;
-      // Update the compare list cache too
-      if (_compareList[itemIdx]) _compareList[itemIdx].data = p;
-      // Update DOM in-place
-      const col = document.getElementById('cmp-col-' + itemIdx);
-      if (col) col.outerHTML = _cmpColHTML(p, itemIdx);
-    });
-  } catch {}
+  await Promise.all(missing.map(async (itemIdx) => {
+    const p = items[itemIdx];
+    const n = p.n || p.name;
+    const b = p.b || p.brand || '';
+    const info = await fetchScentProfile(n, b);
+    if (!info) return;
+    if (info.gender && !p.g) p.g = info.gender;
+    if (info.concentration && !p.c) p.c = info.concentration;
+    if (info.accords && !p.a) p.a = info.accords;
+    if (info.notes && !p.t) p.t = info.notes;
+    if (info.rating && !p.r) p.r = info.rating;
+    if (info.longevity) p.longevity = info.longevity;
+    if (info.projection) p.projection = info.projection;
+    if (info.sillage) p.sillage = info.sillage;
+    if (info.versatility) p.versatility = info.versatility;
+    if (info.blindBuyRisk) p.blindBuyRisk = info.blindBuyRisk;
+    if (info.blindBuyReason) p.blindBuyReason = info.blindBuyReason;
+    if (_compareList[itemIdx]) _compareList[itemIdx].data = p;
+    const col = document.getElementById('cmp-col-' + itemIdx);
+    if (col) col.outerHTML = _cmpColHTML(p, itemIdx);
+  }));
 }
 
 function showComparison() {
@@ -1806,17 +2134,17 @@ function showComparison() {
 
   const isMobileCmp = window.innerWidth < 640;
   const separator = isMobileCmp
-    ? '<div style="height:1px;background:var(--b);width:100%"></div>'
-    : '<div style="width:1px;background:var(--b);align-self:stretch;flex-shrink:0"></div>';
+    ? '<div style="height:1px;background:var(--d4);width:100%"></div>'
+    : '<div style="width:1px;background:var(--d4);align-self:stretch;flex-shrink:0"></div>';
   const cols = items.map((p, i) => _cmpColHTML(p, i)).join(separator);
 
   const loadingBar = hasMissing ? '<div id="cmp-ai-status" style="text-align:center;padding:10px;font-size:12px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:8px">Fetching missing fragrance info via AI...</span></div>' : '';
 
   const isMobile = window.innerWidth < 640;
-  overlay.innerHTML = `<div style="background:var(--c2);border:1px solid var(--b);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto">
+  overlay.innerHTML = `<div style="background:var(--d);border:1px solid rgba(201,169,110,.25);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));color:var(--t)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isMobile ? '16px' : '24px'}">
-      <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600">Fragrance Comparison</h3>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px">&times;</button>
+      <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600;color:var(--t)">Fragrance Comparison</h3>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px" aria-label="Close comparison">&times;</button>
     </div>
     ${loadingBar}
     <div style="display:flex;gap:${isMobile ? '16px' : '20px'};${isMobile ? 'flex-direction:column' : 'overflow-x:auto'}">${cols}</div>
@@ -1854,10 +2182,15 @@ function r_home(el) {
   <section class="hp-hero">
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
     <h1>Find the scent that <em>feels like you</em></h1>
-    <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of ${perfumeCount}+ scents.</p>
-    <div class="hp-hero-actions">
-      <button class="hp-btn-primary" onclick="go('chat')">Start Discovering</button>
-      <button class="hp-btn-ghost" onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    <p class="hp-hero-sub">Describe the mood, occasion, or memory — and we'll match it to real fragrances from a collection of ${perfumeCount}+.</p>
+    <form class="hp-hero-input" onsubmit="event.preventDefault();heroStart(this.querySelector('input').value)" role="search">
+      <input type="text" id="hp-hero-q" placeholder="e.g. Something warm for fall date nights..." aria-label="Describe what you're looking for" autocomplete="off">
+      <button type="submit" class="hp-btn-primary">Find My Scent</button>
+    </form>
+    <div class="hp-hero-subcta">
+      <a href="#" onclick="event.preventDefault();go('chat')">Or start a blank chat</a>
+      <span aria-hidden="true">·</span>
+      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See other discovery modes</a>
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">${perfumeCount}+</div><div class="label">Fragrances</div></div>
@@ -1879,56 +2212,42 @@ function r_home(el) {
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <!-- Discovery Modes -->
   <section class="hp-section" id="hp-discover">
-    <div class="hp-section-kicker hp-reveal">Ways to Discover</div>
-    <div class="hp-section-heading hp-reveal">Every person has a <em>signature scent</em> waiting. We help you find yours.</div>
-    <p class="hp-section-copy hp-reveal">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
+    <div class="hp-section-kicker hp-reveal">Or Discover Another Way</div>
+    <div class="hp-section-heading hp-reveal">Not sure what to ask? <em>Let your life pick.</em></div>
+    <p class="hp-section-copy hp-reveal">Six alternative paths — each one reads a different dimension of who you are and matches fragrances to it.</p>
     <div class="hp-modes-layout">
-      <div class="hp-mode-item featured hp-reveal" onclick="go('chat')">
-        <div>
-          <div class="hp-mode-number">01</div>
-          <div class="hp-mode-name">Ask the Expert</div>
-          <div class="hp-mode-desc">Have a conversation with our fragrance advisor. Describe what you're looking for — an occasion, a mood, a memory — and get curated recommendations with tasting notes, pricing, and alternatives.</div>
-          <div class="hp-mode-tag">Conversation → Recommendations</div>
-        </div>
-        <div class="hp-mode-visual">
-          <div class="hp-mode-visual-circle">
-            <div class="hp-mode-visual-icon">✦</div>
-            <div class="hp-mode-visual-ring"></div>
-          </div>
-        </div>
-      </div>
       <div class="hp-mode-item hp-reveal" onclick="go('zodiac')">
-        <div class="hp-mode-number">02</div>
+        <div class="hp-mode-number">01</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('photo')">
-        <div class="hp-mode-number">03</div>
+        <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('music')">
-        <div class="hp-mode-number">04</div>
+        <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('style')">
-        <div class="hp-mode-number">05</div>
+        <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('dupe')">
-        <div class="hp-mode-number">06</div>
+        <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Dupe Finder</div>
         <div class="hp-mode-desc">Love an expensive fragrance? We'll find affordable alternatives that smell just like the original.</div>
         <div class="hp-mode-tag">Fragrance → Dupes</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
-        <div class="hp-mode-number">07</div>
+        <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
@@ -2103,6 +2422,7 @@ function r_explore(el) {
   }
   const filters = ['all','Male','Female','Unisex'];
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Explore</span> Database</h2>
       <p>Search ${(Math.ceil(SI.length/5000)*5000).toLocaleString()}+ fragrances — works offline, no subscription needed.</p>
@@ -2150,6 +2470,7 @@ function r_chat(el) {
   const sugg = ["Best fragrances under $50","Dupe for Baccarat Rouge 540","Build me a 4-season rotation","Compare Aventus vs CDNIM","Best office fragrances","Top 5 winter blind buys"];
   const trialBanner = (!isPaid && hasFreeTrialLeft()) ? `<div style="background:var(--gl);border:1px solid rgba(201,169,110,.15);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--g);display:flex;align-items:center;gap:8px"><span style="font-size:16px">✦</span> Free trial: <strong>${FREE_LIMIT - freeUsed}</strong> of ${FREE_LIMIT} queries remaining</div>` : (!isPaid && freeUsed >= FREE_LIMIT) ? `<div style="background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm);padding:10px 16px;margin-bottom:14px;font-size:12px;color:var(--td)">Free trial used — <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Subscribe for unlimited access</a></div>` : '';
   el.innerHTML = `<div class="chat-wrap fi">
+    ${crumbsHTML('chat')}
     <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
         <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
@@ -2249,10 +2570,12 @@ function retryLast() {
 function r_photo(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Scan</h2>
       <p>Upload a photo and get fragrance recommendations matched to your aesthetic.</p>
     </div>
+    <div class="expect-note"><div><strong>How it works:</strong> your photo is analyzed in your browser and sent securely to our AI only for this session — we never store, train on, or share it. Best results: outfits, room aesthetics, or travel shots.</div></div>
     ${!photoPrev?`<div class="pdrop" onclick="document.getElementById('pf').click()" ondragover="event.preventDefault();this.style.borderColor='var(--g)'" ondragleave="this.style.borderColor='var(--d4)'" ondrop="event.preventDefault();phFile(event.dataTransfer.files[0])">
       <input type="file" id="pf" accept="image/*" hidden onchange="phFile(this.files[0])">
       <div style="font-size:11px;letter-spacing:3px;color:var(--g);font-weight:600;margin-bottom:20px;text-transform:uppercase">Upload</div>
@@ -2339,10 +2662,12 @@ async function pFollow() {
 function r_zodiac(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Zodiac</span> Match</h2>
       <p>Select your sign or type your birthday to discover your cosmic scent match.</p>
     </div>
+    <div class="expect-note"><div><strong>Just for fun:</strong> we map the archetypes and elemental themes of each sign (fire, water, earth, air) to fragrance accords. Nothing mystical — think of it as a curated starting point based on your vibe.</div></div>
     <div class="glass-panel" style="margin-bottom:24px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <input type="text" id="bday-inp" placeholder="Type your birthday (e.g. March 15, 15/03)..." style="max-width:min(320px,100%);flex:1" onkeydown="if(event.key==='Enter')tryBday()">
@@ -2405,6 +2730,7 @@ async function zFollow() {
 function r_music(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Music</span> → Fragrance</h2>
       <p>Your music taste reveals your scent identity. Pick a genre or describe your taste below.</p>
@@ -2475,6 +2801,7 @@ async function mFollow() {
 function r_style(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Style</span> Match</h2>
       <p>Your clothing style says everything about your ideal scent. Pick a style or describe yours.</p>
@@ -2610,6 +2937,7 @@ function _buildDupeGrounding(dbResult) {
 function r_dupe(el) {
   if (!isPaid && !hasFreeTrialLeft()) { el.innerHTML = `<div class="sec fi">${showPaywall()}</div>`; return; }
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Dupe</span> Finder</h2>
       <p>Find affordable alternatives that smell just like your favorite expensive fragrances.</p>
@@ -2692,6 +3020,7 @@ function r_celeb(el) {
   const q = celebQ.toLowerCase();
   const f = q ? CELEBS.filter(c => c.name.toLowerCase().includes(q)) : CELEBS;
   el.innerHTML = `<div class="sec fi">
+    ${crumbsHTML(CP)}
     <div class="sec-header">
       <h2 class="fd"><span class="gg" style="font-weight:600">Celebrity</span> Fragrances</h2>
       <p>Discover what ${CELEBS.length} celebrities actually wear.</p>
@@ -2718,7 +3047,10 @@ function r_celeb(el) {
               </div>
               ${p?.a?`<p class="note" style="margin-left:19px">Accords: ${esc(p.a)}</p>`:''}
               ${p?.t?`<p class="note" style="margin-left:19px">Notes: ${esc(p.t)}</p>`:''}
-              <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;margin:6px 0 0 19px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
+              <div style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0 0 19px;align-items:center">
+                <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
+                <button type="button" class="cmp-btn" data-cmp-name="${esc(n).replace(/'/g,'&#39;')}" data-cmp-brand="${esc(b||'').replace(/'/g,'&#39;')}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--gd);background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button>
+              </div>
             </div>`;
           }).join('')}
         </div>
