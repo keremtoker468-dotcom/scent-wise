@@ -1185,6 +1185,7 @@ function _isLikelyFragrance(name) {
 }
 
 function fmt(text) {
+  const _seenFrags = new Set();
   let s = esc(text)
     .replace(/\*\*(.+?)\*\*/g, function(_, name) {
       if (name.startsWith('Oops') || name.startsWith('Something') || name.startsWith('Connection')) {
@@ -1194,6 +1195,10 @@ function fmt(text) {
         return `<strong style="color:var(--g)">${name}</strong>`;
       }
       const key = name.toLowerCase();
+      if (_seenFrags.has(key)) {
+        return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
+      }
+      _seenFrags.add(key);
       const isLiked = _likedFrags.has(key + '_up');
       const heartColor = isLiked ? '#f56565' : 'rgba(201,169,110,.4)';
       const heartChar = isLiked ? '&#9829;' : '&#9825;';
@@ -1243,6 +1248,11 @@ function fmt(text) {
   // Fallback: Add Amazon links for numbered recommendations without bold formatting
   // Matches patterns like: "1. Fragrance Name by Brand —" or "1. Fragrance Name by Brand -"
   s = s.replace(/(\d+\.\s+)(?!<strong)([A-Z][^<\n—\-]{2,60}?)\s+by\s+([A-Z][^<\n—\-]{2,40}?)(\s*[—\-])/g, function(_, num, fragName, brand, dash) {
+    const fallbackKey = (fragName.trim() + '|' + brand.trim()).toLowerCase();
+    if (_seenFrags.has(fallbackKey)) {
+      return num + '<strong style="color:var(--g)">' + fragName + '</strong> by ' + brand + dash;
+    }
+    _seenFrags.add(fallbackKey);
     const url = amazonLink(fragName.trim(), brand.trim());
     const cmpN = fragName.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
     const cmpB = brand.trim().replace(/"/g, '&quot;').replace(/'/g, "&#39;");
@@ -1302,9 +1312,11 @@ function perfCard(p) {
     </div>
     ${notes ? `<div class="pc-row"><span class="pc-label">Notes</span><span class="pc-value">${esc(notes)}</span></div>` : ''}
     ${accords ? `<div class="pc-row"><span class="pc-label">Accords</span><span class="pc-value">${esc(accords)}</span></div>` : ''}
+    <div class="pc-profile-wrap" data-profile-name="${safeName}" data-profile-brand="${brand.replace(/'/g, "&#39;")}"></div>
     <div class="pc-actions">
       <a class="pc-btn pc-btn-shop" href="${amazonLink(p.name||p.n, p.brand||p.b)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Shop on Amazon</a>
       <button class="pc-btn pc-btn-compare cmp-btn" data-cmp-name="${safeName}" data-cmp-brand="${brand.replace(/'/g, "&#39;")}">+ Compare</button>
+      <button class="pc-btn pc-btn-profile prof-btn" data-prof-name="${safeName}" data-prof-brand="${brand.replace(/'/g, "&#39;")}" type="button">Scent profile</button>
     </div>
   </div>`;
 }
@@ -1884,7 +1896,51 @@ document.addEventListener('click', function(e) {
     if (name) addToCompare(name, brand);
     return;
   }
+  const prof = e.target.closest('.prof-btn');
+  if (prof) {
+    e.stopPropagation();
+    const name = prof.dataset.profName;
+    const brand = (prof.dataset.profBrand || '').replace(/&#39;/g, "'");
+    if (name) togglePerfCardProfile(prof, name, brand);
+    return;
+  }
 });
+
+async function togglePerfCardProfile(btn, name, brand) {
+  const card = btn.closest('.pcard');
+  if (!card) return;
+  const wrap = card.querySelector('.pc-profile-wrap');
+  if (!wrap) return;
+  if (wrap.dataset.open === '1') {
+    wrap.style.display = 'none';
+    wrap.dataset.open = '0';
+    btn.textContent = 'Scent profile';
+    return;
+  }
+  if (wrap.dataset.loaded === '1') {
+    wrap.style.display = '';
+    wrap.dataset.open = '1';
+    btn.textContent = 'Hide profile';
+    return;
+  }
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Loading…';
+  wrap.style.display = '';
+  wrap.innerHTML = '<div style="font-size:12px;color:var(--td);padding:8px 0"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span> <span style="margin-left:6px">Fetching scent profile…</span></div>';
+  try {
+    const info = await fetchScentProfile(name, brand);
+    wrap.innerHTML = renderProfileBadges(info) || '<div style="font-size:12px;color:var(--td);padding:6px 0">Details unavailable.</div>';
+    wrap.dataset.loaded = '1';
+    wrap.dataset.open = '1';
+    btn.textContent = 'Hide profile';
+  } catch {
+    wrap.innerHTML = '<div style="font-size:12px;color:var(--td);padding:6px 0">Could not load profile.</div>';
+    btn.textContent = orig;
+  } finally {
+    btn.disabled = false;
+  }
+}
 
 // ═══════════════ FRAGRANCE COMPARISON ═══════════════
 function addToCompare(name, brand) {
@@ -1935,8 +1991,78 @@ function _renderCompareBar() {
    <button onclick="clearCompare()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:18px;padding:0 4px;line-height:1" title="Clear all">&times;</button>`;
 }
 
+// ═══════════════ SHARED SCENT PROFILE (scores + blind-buy) ═══════════════
+const _PROFILE_CACHE_KEY = 'sw_scent_profiles_v1';
+let _profileCache = (() => { try { return JSON.parse(localStorage.getItem(_PROFILE_CACHE_KEY)) || {}; } catch { return {}; } })();
+const _profileInflight = {};
+function _profileKey(name, brand) { return ((name||'') + '|' + (brand||'')).toLowerCase().trim(); }
+function _saveProfileCache() { try { localStorage.setItem(_PROFILE_CACHE_KEY, JSON.stringify(_profileCache)); } catch {} }
+
+async function fetchScentProfile(name, brand) {
+  const k = _profileKey(name, brand);
+  if (_profileCache[k]) return _profileCache[k];
+  if (_profileInflight[k]) return _profileInflight[k];
+  const prompt = `For the fragrance "${name}${brand ? ' by ' + brand : ''}":
+
+Return ONLY a JSON object (no markdown, no code fences, no prose) with these exact keys:
+{"longevity":1-5,"projection":1-5,"sillage":1-5,"versatility":1-5,"blindBuyRisk":"Low"|"Medium"|"Test first","blindBuyReason":"one short sentence explaining why","gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated","notes":"comma separated top/heart/base notes","rating":1-5 or null}
+
+Base scores on community consensus and typical performance. If the fragrance is unknown, use null for all fields.`;
+  const p = (async () => {
+    try {
+      const raw = await aiCall('chat', { messages: [{ role: 'user', content: prompt }] });
+      const jsonStr = raw.replace(/```json?\s*/g, '').replace(/```/g, '').trim();
+      const info = JSON.parse(jsonStr);
+      if (!info || typeof info !== 'object') return null;
+      _profileCache[k] = info;
+      _saveProfileCache();
+      return info;
+    } catch { return null; }
+    finally { delete _profileInflight[k]; }
+  })();
+  _profileInflight[k] = p;
+  return p;
+}
+
+function _scoreBadge(label, score) {
+  const n = parseInt(score);
+  if (!n || n < 1 || n > 5) return '';
+  const pct = (n / 5) * 100;
+  const color = n >= 4 ? '#3f7a4e' : n >= 3 ? '#9a7a1e' : '#b93b3b';
+  return `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:10px;font-size:11px;background:var(--d3);border:1px solid rgba(201,169,110,.18);color:var(--t)">
+    <span style="color:var(--td)">${label}</span>
+    <span style="display:inline-block;width:32px;height:4px;border-radius:2px;background:rgba(120,95,40,.12);position:relative;overflow:hidden"><span style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:2px"></span></span>
+    <span style="color:${color};font-weight:700">${n}</span>
+  </span>`;
+}
+
+function _blindBuyBadge(risk, reason) {
+  if (!risk) return '';
+  const r = String(risk).toLowerCase();
+  const palette = r.startsWith('low')
+    ? { bg: 'rgba(72,138,85,.12)', bd: 'rgba(72,138,85,.25)', fg: '#3f7a4e' }
+    : r.startsWith('med')
+      ? { bg: 'rgba(200,150,30,.14)', bd: 'rgba(200,150,30,.28)', fg: '#8a6510' }
+      : { bg: 'rgba(185,59,59,.1)', bd: 'rgba(185,59,59,.25)', fg: '#b93b3b' };
+  const txt = esc(risk) + (reason ? ' — ' + esc(reason) : '');
+  return `<div style="display:inline-block;margin:6px 0;padding:5px 12px;border-radius:12px;font-size:11px;font-weight:600;background:${palette.bg};color:${palette.fg};border:1px solid ${palette.bd}">${txt}</div>`;
+}
+
+function renderProfileBadges(info) {
+  if (!info) return '';
+  const scores = [
+    _scoreBadge('Longevity', info.longevity),
+    _scoreBadge('Projection', info.projection),
+    _scoreBadge('Sillage', info.sillage),
+    _scoreBadge('Versatility', info.versatility)
+  ].filter(Boolean).join('');
+  const bb = _blindBuyBadge(info.blindBuyRisk, info.blindBuyReason);
+  if (!scores && !bb) return '<div style="font-size:12px;color:var(--td);padding:6px 0">Details unavailable for this fragrance.</div>';
+  return `${scores ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0">${scores}</div>` : ''}${bb}`;
+}
+
 function _cmpHasMissing(p) {
-  return !p.a && !p.t;
+  return !p.a || !p.t || !p.longevity || !p.sillage;
 }
 
 function _cmpColHTML(p, idx) {
@@ -1947,6 +2073,10 @@ function _cmpColHTML(p, idx) {
   const notes = esc(p.t || p.notes || '—');
   const accords = esc(p.a || p.accords || '—');
   const conc = esc(p.c || p.concentration || '—');
+  const profileHTML = renderProfileBadges({
+    longevity: p.longevity, projection: p.projection, sillage: p.sillage,
+    versatility: p.versatility, blindBuyRisk: p.blindBuyRisk, blindBuyReason: p.blindBuyReason
+  });
   return `<div style="flex:1;min-width:200px;max-width:320px" id="cmp-col-${idx}">
     <div style="font-weight:700;font-size:15px;margin-bottom:4px;color:var(--g)">${name}</div>
     <div style="font-size:12px;color:var(--td);margin-bottom:16px">${brand}</div>
@@ -1955,6 +2085,7 @@ function _cmpColHTML(p, idx) {
     <div class="cmp-row"><span class="cmp-label">Type</span><span>${conc}</span></div>
     <div class="cmp-row"><span class="cmp-label">Accords</span><span style="font-size:11px;line-height:1.5" id="cmp-accords-${idx}">${accords}</span></div>
     <div class="cmp-row"><span class="cmp-label">Notes</span><span style="font-size:11px;line-height:1.5" id="cmp-notes-${idx}">${notes}</span></div>
+    <div style="margin-top:14px" id="cmp-profile-${idx}">${profileHTML}</div>
     <a href="${amazonLink(p.n||p.name, p.b||p.brand)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.15);text-decoration:none">Shop on Amazon</a>
   </div>`;
 }
@@ -1962,34 +2093,27 @@ function _cmpColHTML(p, idx) {
 async function _cmpFillMissing(items) {
   const missing = items.map((p, i) => _cmpHasMissing(p) ? i : -1).filter(i => i >= 0);
   if (!missing.length) return;
-  const names = missing.map(i => `"${items[i].n || items[i].name}${items[i].b || items[i].brand ? ' by ' + (items[i].b || items[i].brand) : ''}"`).join(', ');
-  const prompt = `For the following fragrance(s): ${names}
-
-Return ONLY a JSON array (no markdown, no code fences) with one object per fragrance in the same order. Each object must have these exact keys:
-{"gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated main accords","notes":"comma separated key notes","rating":"number 1-5 or null if unknown"}
-
-Example: [{"gender":"Male","concentration":"EDP","accords":"woody, amber, fresh","notes":"bergamot, cedar, musk","rating":4.2}]`;
-  try {
-    const raw = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-    const jsonStr = raw.replace(/```json?\s*/g,'').replace(/```/g,'').trim();
-    const arr = JSON.parse(jsonStr);
-    if (!Array.isArray(arr)) return;
-    missing.forEach((itemIdx, arrIdx) => {
-      const info = arr[arrIdx];
-      if (!info) return;
-      const p = items[itemIdx];
-      if (info.gender && !p.g) p.g = info.gender;
-      if (info.concentration && !p.c) p.c = info.concentration;
-      if (info.accords && !p.a) p.a = info.accords;
-      if (info.notes && !p.t) p.t = info.notes;
-      if (info.rating && !p.r) p.r = info.rating;
-      // Update the compare list cache too
-      if (_compareList[itemIdx]) _compareList[itemIdx].data = p;
-      // Update DOM in-place
-      const col = document.getElementById('cmp-col-' + itemIdx);
-      if (col) col.outerHTML = _cmpColHTML(p, itemIdx);
-    });
-  } catch {}
+  await Promise.all(missing.map(async (itemIdx) => {
+    const p = items[itemIdx];
+    const n = p.n || p.name;
+    const b = p.b || p.brand || '';
+    const info = await fetchScentProfile(n, b);
+    if (!info) return;
+    if (info.gender && !p.g) p.g = info.gender;
+    if (info.concentration && !p.c) p.c = info.concentration;
+    if (info.accords && !p.a) p.a = info.accords;
+    if (info.notes && !p.t) p.t = info.notes;
+    if (info.rating && !p.r) p.r = info.rating;
+    if (info.longevity) p.longevity = info.longevity;
+    if (info.projection) p.projection = info.projection;
+    if (info.sillage) p.sillage = info.sillage;
+    if (info.versatility) p.versatility = info.versatility;
+    if (info.blindBuyRisk) p.blindBuyRisk = info.blindBuyRisk;
+    if (info.blindBuyReason) p.blindBuyReason = info.blindBuyReason;
+    if (_compareList[itemIdx]) _compareList[itemIdx].data = p;
+    const col = document.getElementById('cmp-col-' + itemIdx);
+    if (col) col.outerHTML = _cmpColHTML(p, itemIdx);
+  }));
 }
 
 function showComparison() {
