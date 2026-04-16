@@ -1853,6 +1853,21 @@ function r_home(el) {
   </nav>
   <!-- Hero -->
   <section class="hp-hero">
+    <div class="hero-3d-bg" aria-hidden="true">
+      <div class="hero-orb hero-orb-1"></div>
+      <div class="hero-orb hero-orb-2"></div>
+      <div class="hero-orb hero-orb-3"></div>
+    </div>
+    <div class="hero-bottle-3d" aria-hidden="true">
+      <div class="bottle-scene">
+        <div class="bottle-cap"></div>
+        <div class="bottle-neck"></div>
+        <div class="bottle-body"></div>
+        <div class="bottle-ring-1"></div>
+        <div class="bottle-ring-2"></div>
+        <div class="bottle-glow"></div>
+      </div>
+    </div>
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Not another quiz. We match fragrances to your zodiac, music taste, personal style, and photos — from a collection of ${perfumeCount}+ scents.</p>
@@ -1885,6 +1900,7 @@ function r_home(el) {
     <p class="hp-section-copy hp-reveal">Six distinct paths to fragrance discovery — each one analyzes a different dimension of who you are.</p>
     <div class="hp-modes-layout">
       <div class="hp-mode-item featured hp-reveal" onclick="go('chat')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div>
           <div class="hp-mode-number">01</div>
           <div class="hp-mode-name">Ask the Expert</div>
@@ -1899,36 +1915,42 @@ function r_home(el) {
         </div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('zodiac')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('photo')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('music')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('style')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('dupe')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Dupe Finder</div>
         <div class="hp-mode-desc">Love an expensive fragrance? We'll find affordable alternatives that smell just like the original.</div>
         <div class="hp-mode-tag">Fragrance → Dupes</div>
       </div>
       <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+        <div class="hp-mode-shine" aria-hidden="true"></div>
         <div class="hp-mode-number">07</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
@@ -2091,6 +2113,80 @@ function r_home(el) {
         }
       };
       window.addEventListener('scroll', window._hpScrollHandler, {passive: true});
+    }
+
+    // 3D interactions — desktop only, skip if reduced-motion preferred
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = window.matchMedia('(hover: none)').matches;
+    if (!prefersReduced && !isTouch) {
+      // Card 3D tilt + cursor-tracked shine
+      el.querySelectorAll('.hp-mode-item').forEach(card => {
+        let rafId;
+        card.addEventListener('mousemove', e => {
+          cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(() => {
+            const r = card.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width;
+            const y = (e.clientY - r.top) / r.height;
+            card.style.transform = `perspective(900px) rotateX(${(y - .5) * -9}deg) rotateY(${(x - .5) * 9}deg) translateZ(6px)`;
+            card.style.setProperty('--sx', `${x * 100}%`);
+            card.style.setProperty('--sy', `${y * 100}%`);
+          });
+        });
+        card.addEventListener('mouseleave', () => {
+          cancelAnimationFrame(rafId);
+          card.style.transform = '';
+        });
+      });
+
+      // Magnetic button: slight follow + glow
+      el.querySelectorAll('.hp-btn-primary, .hp-btn-ghost, .hp-nav-cta').forEach(btn => {
+        btn.addEventListener('mousemove', e => {
+          const r = btn.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width * 100;
+          const y = (e.clientY - r.top) / r.height * 100;
+          btn.style.setProperty('--bx', `${x}%`);
+          btn.style.setProperty('--by', `${y}%`);
+          const dx = (e.clientX - r.left - r.width / 2) * 0.1;
+          const dy = (e.clientY - r.top - r.height / 2) * 0.1;
+          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+        });
+        btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+      });
+
+      // Hero parallax layers on mouse move
+      const hero = el.querySelector('.hp-hero');
+      const bottle = el.querySelector('.hero-bottle-3d');
+      if (hero) {
+        let heroRaf;
+        hero.addEventListener('mousemove', e => {
+          cancelAnimationFrame(heroRaf);
+          heroRaf = requestAnimationFrame(() => {
+            const r = hero.getBoundingClientRect();
+            const x = (e.clientX - r.left - r.width / 2) / r.width;
+            const y = (e.clientY - r.top - r.height / 2) / r.height;
+            const eyebrow = hero.querySelector('.hp-hero-eyebrow');
+            const h1 = hero.querySelector('h1');
+            const sub = hero.querySelector('.hp-hero-sub');
+            const actions = hero.querySelector('.hp-hero-actions');
+            const stats = hero.querySelector('.hp-hero-stats');
+            if (eyebrow) eyebrow.style.transform = `translate(${x * -7}px, ${y * -7}px)`;
+            if (h1) h1.style.transform = `translate(${x * -11}px, ${y * -9}px)`;
+            if (sub) sub.style.transform = `translate(${x * -5}px, ${y * -5}px)`;
+            if (actions) actions.style.transform = `translate(${x * -3}px, ${y * -3}px)`;
+            if (stats) stats.style.transform = `translate(${x * -2}px, ${y * -2}px)`;
+            if (bottle) bottle.style.transform = `translateY(-50%) translate(${x * 22}px, ${y * 11}px)`;
+          });
+        });
+        hero.addEventListener('mouseleave', () => {
+          cancelAnimationFrame(heroRaf);
+          ['.hp-hero-eyebrow','h1','.hp-hero-sub','.hp-hero-actions','.hp-hero-stats'].forEach(s => {
+            const t = hero.querySelector(s);
+            if (t) t.style.transform = '';
+          });
+          if (bottle) bottle.style.transform = 'translateY(-50%)';
+        });
+      }
     }
   }, 50);
 }
