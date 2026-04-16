@@ -819,7 +819,7 @@ async function unlockPaid() {
   const btns = document.querySelectorAll('[data-subscribe-btn]');
   btns.forEach(b => { b._prev = b.innerHTML; b.disabled = true; b.innerHTML = '<span class="dot" style="margin-right:4px"></span><span class="dot" style="animation-delay:.2s;margin-right:4px"></span><span class="dot" style="animation-delay:.4s"></span>'; });
   try {
-    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: { 'X-Requested-With': 'ScentWise' } });
+    const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' }, body: '{}' });
     const d = await r.json();
     if (d.url && /^https:\/\/[^/]*lemonsqueezy\.com(\/|$)/.test(d.url)) {
       LEMON_URL = d.url;
@@ -1009,6 +1009,7 @@ async function aiCall(mode, payload) {
     else if (isPaid) trackUsage();
     if (d.profileActive) scentProfile = scentProfile || { queryCount: d.profileQueryCount };
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
+    if (typeof window._swAiResponses === 'number') window._swAiResponses++;
     return d.result || 'No response. Try again.';
   } catch (e) {
     if (e.message === 'ai_unavailable') return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
@@ -1448,9 +1449,9 @@ const DUPES = [
 ];
 
 // ═══════════════ STATE ═══════════════
-// sessionStorage helpers for chat persistence
-function _ss(k) { try { return JSON.parse(sessionStorage.getItem('sw_'+k)); } catch { return null; } }
-function _ssw(k,v) { try { sessionStorage.setItem('sw_'+k, JSON.stringify(v)); } catch {} }
+// localStorage helpers for chat persistence (survives tab close for return visits)
+function _ss(k) { try { return JSON.parse(localStorage.getItem('sw_'+k)); } catch { try { return JSON.parse(sessionStorage.getItem('sw_'+k)); } catch { return null; } } }
+function _ssw(k,v) { try { localStorage.setItem('sw_'+k, JSON.stringify(v)); } catch { try { sessionStorage.setItem('sw_'+k, JSON.stringify(v)); } catch {} } }
 
 let CP = 'home';
 let chatMsgs = _ss('chatMsgs') || [], chatLoad = false, _chatShouldScroll = false, _chatScrollToLast = false;
@@ -1539,7 +1540,7 @@ const MODES = [
 
 function rNav() {
   document.getElementById('nav').innerHTML = NI.map(n =>
-    `<a class="ni ${CP===n.id?'na':''}" onclick="go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
+    `<a href="#" class="ni ${CP===n.id?'na':''}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.i} ${n.l}</a>`
   ).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
@@ -2172,6 +2173,8 @@ function r_chat(el) {
       ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
       <div id="c-end"></div>
     </div>
+    ${(!isPaid && !isOwner && freeUsed < FREE_LIMIT && chatMsgs.length > 0) ? `<div style="text-align:center;padding:6px 0 2px;font-size:11px;color:var(--g);opacity:.85">✦ ${FREE_LIMIT - freeUsed} free quer${(FREE_LIMIT - freeUsed) === 1 ? 'y' : 'ies'} remaining · <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:600">Go Premium</a></div>` : ''}
+    ${(!isPaid && !isOwner && freeUsed >= FREE_LIMIT) ? `<div style="text-align:center;padding:6px 0 2px;font-size:11px;color:var(--td)">Trial ended · <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:600">Subscribe for unlimited access</a></div>` : ''}
     <div class="inp-row" style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
       <label for="c-inp" class="sr-only">Ask about any fragrance</label>
       <input type="text" id="c-inp" placeholder="Ask about any fragrance..." onkeydown="if(event.key==='Enter')cSend()" autocomplete="off">
@@ -2880,6 +2883,18 @@ const _wantAdmin = _initParams.has('admin');
 const _initMode = _initParams.get('mode');
 
 go(_wantAdmin ? 'admin' : (_initMode && ['dupe','chat','explore','photo','zodiac','music','style','celeb'].includes(_initMode) ? _initMode : 'home'));
+
+// Handle SPA route paths (e.g. /pricing, /how-it-works) — scroll to the relevant section
+(function() {
+  const pathMap = { '/pricing': 'hp-pricing', '/how-it-works': 'hp-how', '/discover': 'hp-discover', '/collections': 'hp-celebrities' };
+  const target = pathMap[window.location.pathname];
+  if (target) {
+    requestAnimationFrame(function() {
+      var el = document.getElementById(target);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+})();
 
 // Prefetch DB files during idle time so explore/chat/celeb load instantly
 if ('requestIdleCallback' in window) {

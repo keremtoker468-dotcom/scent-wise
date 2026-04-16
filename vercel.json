@@ -1,6 +1,10 @@
 {
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" }
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/pricing", "destination": "/" },
+    { "source": "/how-it-works", "destination": "/" },
+    { "source": "/discover", "destination": "/" },
+    { "source": "/collections", "destination": "/" }
   ],
   "headers": [
     {
