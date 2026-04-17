@@ -1966,7 +1966,7 @@ document.addEventListener('click', function(e) {
 });
 
 async function togglePerfCardProfile(btn, name, brand) {
-  const card = btn.closest('.pcard');
+  const card = btn.closest('.celeb-frag, .pcard');
   if (!card) return;
   const wrap = card.querySelector('.pc-profile-wrap');
   if (!wrap) return;
@@ -3101,6 +3101,70 @@ async function dFollow() {
 }
 
 // ═══════════════ CELEBRITIES (FREE) ═══════════════
+let _celebDebounce;
+
+function _celebFragHTML(n, b) {
+  const p = find(n, b || '');
+  const cbg = _pcBg(n || '');
+  const cletter = (n || '?').charAt(0).toUpperCase();
+  const safeN = esc(n).replace(/'/g, '&#39;');
+  const safeB = esc(b || '').replace(/'/g, '&#39;');
+  return `<div class="celeb-frag" data-celeb-name="${esc(n).replace(/"/g, '&quot;')}" data-celeb-brand="${esc(b||'').replace(/"/g, '&quot;')}" style="background:var(--d2);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;border:1px solid rgba(255,255,255,.02)">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+      <div class="celeb-thumb" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;background:${cbg};position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:rgba(255,255,255,.7)">${cletter}</div>
+      <strong>${esc(n)}</strong>
+      ${b ? ` <span style="color:var(--td)">— ${esc(b)}</span>` : ''}
+      ${p?.r ? ` <span style="color:#e8a87c;font-size:11px;margin-left:auto">★ ${p.r}</span>` : ''}
+    </div>
+    ${p?.a ? `<p class="note" style="margin-left:46px">Accords: ${esc(p.a)}</p>` : ''}
+    ${p?.t ? `<p class="note" style="margin-left:46px">Notes: ${esc(p.t)}</p>` : ''}
+    <div class="pc-profile-wrap" data-profile-name="${safeN}" data-profile-brand="${safeB}" style="margin:6px 0 0 46px;display:none"></div>
+    <div style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0 0 46px;align-items:center">
+      <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
+      <button type="button" class="cmp-btn" data-cmp-name="${safeN}" data-cmp-brand="${safeB}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--gd);background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button>
+      <button type="button" class="prof-btn" data-prof-name="${safeN}" data-prof-brand="${safeB}" title="Show scent profile" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--gd);background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">Scent profile</button>
+    </div>
+  </div>`;
+}
+
+function _celebGridHTML(f) {
+  if (!f.length) return `<p style="text-align:center;color:var(--td);margin-top:48px;font-size:14px">No match for "${esc(celebQ)}"</p>`;
+  return `<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
+    ${f.map(c => `<div class="pcard" style="padding:22px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;font-size:22px">${c.img}</div>
+        <h3 style="font-size:16px;font-weight:600">${esc(c.name)}</h3>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${c.frags.map(k => { const [n, b] = k.split('|'); return _celebFragHTML(n, b); }).join('')}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function _attachCelebImageObservers(scope) {
+  if (!scope) return;
+  const cards = scope.querySelectorAll('.pcard');
+  if (!cards.length) return;
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { loadCelebImages(e.target); io.unobserve(e.target); } });
+    }, { rootMargin: '200px' });
+    cards.forEach(c => io.observe(c));
+  } else {
+    setTimeout(() => loadCelebImages(scope), 100);
+  }
+}
+
+function _doCelebFilter() {
+  const q = celebQ.toLowerCase();
+  const f = q ? CELEBS.filter(c => c.name.toLowerCase().includes(q)) : CELEBS;
+  const grid = document.getElementById('celeb-grid');
+  if (!grid) return;
+  grid.innerHTML = _celebGridHTML(f);
+  _attachCelebImageObservers(grid);
+}
+
 function r_celeb(el) {
   if (!_dbLoaded) {
     el.innerHTML = '<div class="sec fi" style="text-align:center;padding-top:80px"><div style="display:flex;align-items:center;justify-content:center;gap:10px;color:var(--td)"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="margin-left:4px">Loading fragrance data...</span></div></div>';
@@ -3116,53 +3180,11 @@ function r_celeb(el) {
       <p>Discover what ${CELEBS.length} celebrities actually wear.</p>
     </div>
     <div class="glass-panel" style="margin-bottom:24px">
-      <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;r_celeb(document.getElementById('page-celeb'))" style="max-width:min(400px,100%);flex:1">
+      <input type="search" id="celeb-s" placeholder="Search celebrities..." value="${esc(celebQ)}" oninput="celebQ=this.value;clearTimeout(_celebDebounce);_celebDebounce=setTimeout(_doCelebFilter,180)" style="max-width:min(400px,100%);flex:1">
     </div>
-    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr))">
-      ${f.map(c=>`<div class="pcard" style="padding:22px">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
-          <div style="width:48px;height:48px;border-radius:14px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;font-size:22px">${c.img}</div>
-          <h3 style="font-size:16px;font-weight:600">${esc(c.name)}</h3>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          ${c.frags.map(k=>{
-            const[n,b]=k.split('|');
-            const p=find(n,b||'');
-            const cbg=_pcBg(n||'');
-            const cletter=(n||'?').charAt(0).toUpperCase();
-            return`<div class="celeb-frag" data-celeb-name="${esc(n).replace(/"/g,'&quot;')}" data-celeb-brand="${esc(b||'').replace(/"/g,'&quot;')}" style="background:var(--d2);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;border:1px solid rgba(255,255,255,.02)">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
-                <div class="celeb-thumb" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;background:${cbg};position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:rgba(255,255,255,.7)">${cletter}</div>
-                <strong>${esc(n)}</strong>
-                ${b?` <span style="color:var(--td)">— ${esc(b)}</span>`:''}
-                ${p?.r?` <span style="color:#e8a87c;font-size:11px;margin-left:auto">★ ${p.r}</span>`:''}
-              </div>
-              ${p?.a?`<p class="note" style="margin-left:19px">Accords: ${esc(p.a)}</p>`:''}
-              ${p?.t?`<p class="note" style="margin-left:19px">Notes: ${esc(p.t)}</p>`:''}
-              <div style="display:inline-flex;flex-wrap:wrap;gap:6px;margin:6px 0 0 19px;align-items:center">
-                <a href="${amazonLink(n, b||'')}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:#f90;background:rgba(255,153,0,.08);border:1px solid rgba(255,153,0,.12);text-decoration:none;transition:background .2s;min-height:36px" onmouseover="this.style.background='rgba(255,153,0,.15)'" onmouseout="this.style.background='rgba(255,153,0,.08)'">Shop on Amazon</a>
-                <button type="button" class="cmp-btn" data-cmp-name="${esc(n).replace(/'/g,'&#39;')}" data-cmp-brand="${esc(b||'').replace(/'/g,'&#39;')}" title="Add to compare" style="display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:10px;font-size:12px;font-weight:600;color:var(--gd);background:var(--gl);border:1px solid rgba(201,169,110,.22);cursor:pointer;transition:background .2s;min-height:36px;font-family:inherit" onmouseover="this.style.background='rgba(201,169,110,.18)'" onmouseout="this.style.background='var(--gl)'">+ Compare</button>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`).join('')}
-    </div>
-    ${!f.length?`<p style="text-align:center;color:var(--td);margin-top:48px;font-size:14px">No match for "${esc(celebQ)}"</p>`:''}
+    <div id="celeb-grid">${_celebGridHTML(f)}</div>
   </div>`;
-  if (f.length && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          loadCelebImages(e.target);
-          io.unobserve(e.target);
-        }
-      });
-    }, { rootMargin: '200px' });
-    el.querySelectorAll('.pcard').forEach(c => io.observe(c));
-  } else if (f.length) {
-    setTimeout(() => loadCelebImages(el), 100);
-  }
+  _attachCelebImageObservers(el);
 }
 
 // ═══════════════ ACCOUNT PAGE ═══════════════
