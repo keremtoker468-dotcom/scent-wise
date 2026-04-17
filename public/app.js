@@ -1353,6 +1353,30 @@ function perfCard(p) {
   </div>`;
 }
 
+function loadCelebImages(container) {
+  if (!container) return;
+  const rows = container.querySelectorAll('.celeb-frag:not([data-img-loaded])');
+  rows.forEach(row => {
+    row.dataset.imgLoaded = '1';
+    const name = row.dataset.celebName || '';
+    const brand = row.dataset.celebBrand || '';
+    if (!name) return;
+    fetchImg(name + ' ' + brand + ' perfume', 1, name, brand).then(imgs => {
+      if (!imgs || !imgs[0]) return;
+      const thumb = row.querySelector('.celeb-thumb');
+      if (!thumb) return;
+      const img = document.createElement('img');
+      img.src = imgs[0].thumb;
+      img.alt = name;
+      img.loading = 'lazy';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s';
+      img.onload = function() { this.style.opacity = '1'; };
+      img.onerror = function() { this.remove(); };
+      thumb.appendChild(img);
+    });
+  });
+}
+
 function loadExploreImages() {
   document.querySelectorAll('.pcard[data-cat]:not([data-img-loaded])').forEach(el => {
     el.dataset.imgLoaded = '1';
@@ -2510,6 +2534,7 @@ function r_explore(el) {
     </div>
   </div>`;
   if (!expQ) document.getElementById('exp-inp')?.focus({preventScroll: true});
+  if (expResults.length) setTimeout(loadExploreImages, 100);
 }
 
 function doExp() {
@@ -2586,6 +2611,7 @@ function r_chat(el) {
     });
   }
   document.getElementById('c-inp')?.focus({preventScroll: true});
+  if (chatMsgs.some(m => m.role === 'assistant')) setTimeout(() => loadResultImages(el), 100);
 }
 
 async function cSend(text) {
@@ -2666,6 +2692,7 @@ function r_photo(el) {
       </div>
     </div>`}
   </div>`;
+  if (photoRes) setTimeout(() => loadResultImages(el), 100);
 }
 
 function phFile(file) {
@@ -2749,6 +2776,7 @@ function r_zodiac(el) {
     </div>
   </div>`;
   if (zodiacRes) document.getElementById('zfu-inp')?.focus({preventScroll: true});
+  if (zodiacRes) setTimeout(() => loadResultImages(el), 100);
 }
 
 function tryBday() {
@@ -2814,6 +2842,7 @@ function r_music(el) {
     </div>
   </div>`;
   if (musicRes) document.getElementById('mfu-inp')?.focus({preventScroll: true});
+  if (musicRes) setTimeout(() => loadResultImages(el), 100);
 }
 
 async function pickM(genre) {
@@ -2885,6 +2914,7 @@ function r_style(el) {
     </div>
   </div>`;
   if (styleRes) document.getElementById('sfu-inp')?.focus({preventScroll: true});
+  if (styleRes) setTimeout(() => loadResultImages(el), 100);
 }
 
 async function pickSt(style) {
@@ -3021,6 +3051,7 @@ function r_dupe(el) {
     </div>
   </div>`;
   if (dupeRes) document.getElementById('dfu-inp')?.focus({preventScroll: true});
+  if (dupeRes) setTimeout(() => loadResultImages(el), 100);
 }
 
 async function pickD(frag) {
@@ -3097,9 +3128,11 @@ function r_celeb(el) {
           ${c.frags.map(k=>{
             const[n,b]=k.split('|');
             const p=find(n,b||'');
-            return`<div style="background:var(--d2);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;border:1px solid rgba(255,255,255,.02)">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-                <span style="color:var(--g);font-size:11px">◈</span>
+            const cbg=_pcBg(n||'');
+            const cletter=(n||'?').charAt(0).toUpperCase();
+            return`<div class="celeb-frag" data-celeb-name="${esc(n).replace(/"/g,'&quot;')}" data-celeb-brand="${esc(b||'').replace(/"/g,'&quot;')}" style="background:var(--d2);border-radius:var(--r-sm);padding:12px 14px;font-size:13px;border:1px solid rgba(255,255,255,.02)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+                <div class="celeb-thumb" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;background:${cbg};position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:rgba(255,255,255,.7)">${cletter}</div>
                 <strong>${esc(n)}</strong>
                 ${b?` <span style="color:var(--td)">— ${esc(b)}</span>`:''}
                 ${p?.r?` <span style="color:#e8a87c;font-size:11px;margin-left:auto">★ ${p.r}</span>`:''}
@@ -3117,6 +3150,19 @@ function r_celeb(el) {
     </div>
     ${!f.length?`<p style="text-align:center;color:var(--td);margin-top:48px;font-size:14px">No match for "${esc(celebQ)}"</p>`:''}
   </div>`;
+  if (f.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          loadCelebImages(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { rootMargin: '200px' });
+    el.querySelectorAll('.pcard').forEach(c => io.observe(c));
+  } else if (f.length) {
+    setTimeout(() => loadCelebImages(el), 100);
+  }
 }
 
 // ═══════════════ ACCOUNT PAGE ═══════════════
