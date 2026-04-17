@@ -1562,6 +1562,9 @@ let photoChat = _ss('photoChat') || [], photoChatLoad = false;
 let celebQ = '';
 let expQ = '', expFilter = 'all', expResults = [];
 let _compareList = []; // max 3 perfumes for comparison
+const _CMP_KEY = 'sw_compare_v1';
+try { const d = JSON.parse(localStorage.getItem(_CMP_KEY)); if (Array.isArray(d)) _compareList = d.slice(0, 3).map(x => ({ name: String(x.name||''), brand: String(x.brand||''), data: null })); } catch {}
+function _saveCompareList() { try { localStorage.setItem(_CMP_KEY, JSON.stringify(_compareList.map(c => ({name:c.name, brand:c.brand})))); } catch {} }
 const cache = {};
 
 // Birthday to zodiac sign converter
@@ -1987,17 +1990,20 @@ function addToCompare(name, brand) {
   }
   const p = find(name, brand);
   _compareList.push({ name, brand, data: p });
+  _saveCompareList();
   _renderCompareBar();
   showToast(`${name} added to compare`, 'success');
 }
 
 function removeFromCompare(idx) {
   _compareList.splice(idx, 1);
+  _saveCompareList();
   _renderCompareBar();
 }
 
 function clearCompare() {
   _compareList = [];
+  _saveCompareList();
   _renderCompareBar();
 }
 
@@ -3280,6 +3286,17 @@ if ('requestIdleCallback' in window) {
 } else {
   setTimeout(() => { loadDB(); }, 3000);
 }
+
+// Hydrate compare items from localStorage once DB is ready, then auto-open if ?compare=1
+loadDB().then(() => {
+  if (_compareList.length) {
+    _compareList.forEach(c => { if (!c.data) { const p = find(c.name, c.brand); if (p) c.data = p; } });
+    _renderCompareBar();
+  }
+  if (_initParams.get('compare') === '1' && _compareList.length >= 2) {
+    setTimeout(() => showComparison(), 200);
+  }
+}).catch(() => {});
 
 // Initialize auth from server-side cookies
 (async function() {
