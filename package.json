@@ -2,6 +2,7 @@
   "name": "scentwise-ai",
   "version": "2.0.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "dev": "vercel dev",
     "test": "npx playwright test",
