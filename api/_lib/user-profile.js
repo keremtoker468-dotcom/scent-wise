@@ -97,8 +97,9 @@ async function getProfile(userId) {
   const key = profileKey(userId);
   const stored = await redisGet(key);
   if (!stored) return emptyProfile();
-  // Migrate old schema versions if needed
-  return { ...emptyProfile(), ...stored };
+  // Migrate old schema versions if needed + defensive cleanup of legacy
+  // pollution from the old greedy extractor.
+  return sanitizeProfile({ ...emptyProfile(), ...stored });
 }
 
 // Save user profile to Redis
@@ -127,6 +128,73 @@ function addUnique(arr, items, max) {
     }
   }
   return arr.slice(0, max);
+}
+
+// Known section headers / labels the AI uses in responses — these must never
+// be stored as fragrance names. Checked case-insensitively.
+const FRAGRANCE_NAME_DENYLIST = new Set([
+  'scores', 'score', 'similar to', 'blind buy risk', 'blind-buy risk',
+  'why it matches you', 'why it matches', 'why', 'notes', 'top notes',
+  'heart notes', 'base notes', 'middle notes', 'top', 'heart', 'middle',
+  'base', 'longevity', 'projection', 'sillage', 'performance', 'price',
+  'price range', 'budget', 'verdict', 'bottom line', 'summary',
+  'recommendation', 'recommendations', 'alternatives', 'dupes', 'dupe',
+  'pros', 'cons', 'note', 'wear context', 'occasion', 'season', 'gender',
+  'for men', 'for women', 'unisex', 'disclaimer', 'caveat', 'warning',
+  'important', 'pro tip', 'tip', 'profile match', 'match score',
+  'composition', 'character', 'vibe', 'mood', 'description',
+  'what you get', 'what to expect', 'the scent', 'opening', 'dry down',
+  'dry-down', 'drydown', 'first impression', 'final thoughts'
+]);
+
+function isLikelyFragranceName(name) {
+  if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
+  if (trimmed.length < 3 || trimmed.length > 60) return false;
+  // Reject labels (end with ":" or "—")
+  if (/[:—–\-]\s*$/.test(trimmed)) return false;
+  // Reject section headers from denylist
+  const key = trimmed.toLowerCase().replace(/[:!?.,]+$/, '').trim();
+  if (FRAGRANCE_NAME_DENYLIST.has(key)) return false;
+  // Reject all-caps shouts ("BLIND BUY RISK", "SCORES") — fragrance names
+  // have mixed case ("Bleu de Chanel", "Aventus").
+  const letters = trimmed.replace(/[^A-Za-z]/g, '');
+  if (letters.length >= 3 && letters === letters.toUpperCase()) return false;
+  // Must contain at least one letter
+  if (!/[A-Za-z]/.test(trimmed)) return false;
+  // Reject obvious prose (questions, sentences ending in a period followed by
+  // more words, or starting with a lowercase article).
+  if (/^(the|a|an|this|that|it|it's|here|there)\b/i.test(trimmed)) return false;
+  if (/\?$/.test(trimmed)) return false;
+  return true;
+}
+
+function isLikelyBrandName(brand) {
+  if (!brand || typeof brand !== 'string') return false;
+  const trimmed = brand.trim();
+  if (trimmed.length < 2 || trimmed.length > 50) return false;
+  // Must start with a capital letter
+  if (!/^[A-Z]/.test(trimmed)) return false;
+  // Reject if it contains sentence-prose words — a real brand name won't
+  // include these as standalone words.
+  if (/\b(it'?s|this|that|which|these|those|here|there|great|option|considering|because|since|while|although|really|very|quite|perfect|amazing|excellent|also|however|therefore|thus|recommend|suggest)\b/i.test(trimmed)) return false;
+  // Reject if it ends in sentence punctuation mid-string
+  if (/[.!?]\s+\w/.test(trimmed)) return false;
+  return true;
+}
+
+// Defensive filter for legacy profiles whose arrays may contain polluted
+// entries (section headers captured by the old greedy extractor). Mutates
+// and returns the profile.
+function sanitizeProfile(profile) {
+  if (!profile) return profile;
+  if (Array.isArray(profile.recentRecs)) {
+    profile.recentRecs = profile.recentRecs.filter(isLikelyFragranceName);
+  }
+  if (Array.isArray(profile.likedBrands)) {
+    profile.likedBrands = profile.likedBrands.filter(isLikelyBrandName);
+  }
+  return profile;
 }
 
 // Extract preference signals from user message + AI response using simple heuristics.
@@ -197,19 +265,27 @@ function extractPreferences(userMsg, aiResponse) {
     prefs.dislikedNotes.push(...noteWords);
   }
 
-  // Extract fragrance names from AI response (bolded names)
-  const boldPattern = /\*\*([^*]+)\*\*/g;
+  // Extract fragrance names from AI response (bolded names).
+  // Guard against section headers ("**SCORES:**", "**BLIND BUY RISK:**",
+  // "**WHY IT MATCHES YOU:**"), labels ending in ":", all-caps shouts,
+  // and free-form prose that just happens to sit between asterisks.
+  const boldPattern = /\*\*([^*\n]+)\*\*/g;
   while ((match = boldPattern.exec(aiResponse)) !== null) {
     const name = match[1].trim();
-    if (name.length > 2 && name.length < 80) {
+    if (isLikelyFragranceName(name)) {
       prefs.recommendedFragrances.push(name);
     }
   }
 
-  // Extract brands from AI response
-  const brandPattern = /\*\*[^*]+\*\*\s*by\s+([A-Z][a-zA-Zé&'. -]+)/g;
+  // Extract brands from AI response.
+  // Match only up to a sentence boundary so "by Parfums de Marly. It's a great
+  // option considering..." captures "Parfums de Marly" and not the full line.
+  const brandPattern = /\*\*[^*\n]+\*\*\s*by\s+([A-Z][a-zA-Zé&'’ -]{1,39}(?:\.\s*[A-Z][a-zA-Zé&'’ -]{1,19})?)(?=[.,;:!?\n]|\s+(?:is|for|has|with|in|from|—|-|–))/g;
   while ((match = brandPattern.exec(aiResponse)) !== null) {
-    prefs.likedBrands.push(match[1].trim());
+    const brand = match[1].trim().replace(/[.,;:!?]+$/, '').trim();
+    if (isLikelyBrandName(brand)) {
+      prefs.likedBrands.push(brand);
+    }
   }
 
   // Detect gender preference from user message
@@ -386,9 +462,16 @@ function applyFeedback(profile, fragranceName, aiText, liked) {
 
   // Extract notes from the section
   const notes = extractNoteWords(section);
-  // Extract brand (pattern: "by Brand")
-  const brandMatch = new RegExp('\\*\\*' + fragranceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\*\\*\\s*by\\s+([A-Z][a-zA-Zé&\'. -]+)', 'i').exec(aiText || '');
-  const brand = brandMatch ? brandMatch[1].trim() : null;
+  // Extract brand (pattern: "by Brand") — bounded to a sentence boundary so
+  // we don't swallow "Parfums de Marly. It's a great option considering..."
+  const escaped = fragranceName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const brandRe = new RegExp(
+    '\\*\\*' + escaped + '\\*\\*\\s*by\\s+([A-Z][a-zA-Zé&\'’ -]{1,39}(?:\\.\\s*[A-Z][a-zA-Zé&\'’ -]{1,19})?)(?=[.,;:!?\\n]|\\s+(?:is|for|has|with|in|from|—|-|–))',
+    'i'
+  );
+  const brandMatch = brandRe.exec(aiText || '');
+  const rawBrand = brandMatch ? brandMatch[1].trim().replace(/[.,;:!?]+$/, '').trim() : null;
+  const brand = isLikelyBrandName(rawBrand) ? rawBrand : null;
 
   if (liked) {
     // Boost liked notes and brand
@@ -424,5 +507,8 @@ module.exports = {
   updateProfile,
   buildProfilePrompt,
   applyFeedback,
-  emptyProfile
+  emptyProfile,
+  sanitizeProfile,
+  isLikelyFragranceName,
+  isLikelyBrandName
 };

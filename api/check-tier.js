@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, readFreeUsage, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, readDeviceFreeUsage, readOrMintDeviceId, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
 
 function verifySubToken(cookieValue, secret) {
@@ -155,10 +155,48 @@ module.exports = async function handler(req, res) {
   const cookies = parseCookies(req.headers.cookie || '');
   const subSecret = process.env.SUBSCRIPTION_SECRET;
   const ownerKey = process.env.OWNER_KEY;
+  const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
 
   if (ownerKey && cookies.sw_owner) {
     if (verifyOwnerToken(cookies.sw_owner, ownerKey)) {
       return res.status(200).json({ tier: 'owner' });
+    }
+  }
+
+  // Auto-bind subscription from device token (webhook wrote sw_devicesub:<deviceId>)
+  // If user returns after checkout on same device, restore their sw_sub cookie.
+  if (!cookies.sw_sub && subSecret && cookies.sw_device && isSameOrigin) {
+    try {
+      const { deviceId } = readOrMintDeviceId(req, res, subSecret, isProduction);
+      const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+      const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (redisUrl && redisToken && deviceId) {
+        const key = `sw_devicesub:${deviceId}`;
+        const r = await fetch(`${redisUrl}/GET/${encodeURIComponent(key)}`, {
+          headers: { Authorization: `Bearer ${redisToken}` }
+        });
+        if (r.ok) {
+          const payload = await r.json();
+          const raw = payload.result;
+          if (raw) {
+            const bind = JSON.parse(raw);
+            if (bind && bind.subId && bind.custId) {
+              const token = crypto.createHmac('sha256', subSecret).update(bind.subId + ':' + bind.custId).digest('hex');
+              const cookieValue = Buffer.from(JSON.stringify({
+                token, subId: bind.subId, custId: bind.custId, email: bind.email || ''
+              })).toString('base64');
+              const existing = res.getHeader('Set-Cookie') || [];
+              const list = Array.isArray(existing) ? [...existing] : [existing];
+              list.push(`sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+              res.setHeader('Set-Cookie', list);
+              // Re-parse cookies so the downstream check picks it up
+              cookies.sw_sub = cookieValue;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error('device auto-bind error:', err.message);
     }
   }
 
@@ -169,8 +207,6 @@ module.exports = async function handler(req, res) {
       // Use sw_revalidated cookie to throttle (once per 24h)
       const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
       const needsRevalidation = lsApiKey && !cookies.sw_revalidated && isSameOrigin;
-      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-
       if (needsRevalidation) {
         try {
           const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${sub.subId}`, {
@@ -218,15 +254,16 @@ module.exports = async function handler(req, res) {
     }
     // Invalid subscription token — only clear cookie if same-origin request
     if (isSameOrigin) {
-      const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
       res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
     }
   }
 
-  // Return free trial usage for anonymous users
+  // Return free trial usage for anonymous users — tracked per browser (device cookie),
+  // not per IP, so shared-IP users (CGNAT, public Wi-Fi, offices) each get their own quota.
   const trialSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
   if (trialSecret) {
-    const freeUsage = await readFreeUsage(req, ip, trialSecret);
+    const { deviceId } = readOrMintDeviceId(req, res, trialSecret, isProduction);
+    const freeUsage = await readDeviceFreeUsage(req, deviceId, trialSecret);
     return res.status(200).json({
       tier: 'free',
       freeUsed: freeUsage.count,

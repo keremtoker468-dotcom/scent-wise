@@ -1,5 +1,6 @@
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
+const { readOrMintDeviceId } = require('./_lib/usage');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -27,6 +28,18 @@ module.exports = async function handler(req, res) {
   const rawOrigin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || '';
   const siteUrl = ALLOWED_ORIGINS.includes(rawOrigin.replace(/\/+$/, '')) ? rawOrigin.replace(/\/+$/, '') : 'https://scent-wise.com';
 
+  // Device-token binding: mint/read the device cookie and pass it as custom_data
+  // so the webhook can map subscription → device and auto-unlock on return.
+  const subSecret = process.env.SUBSCRIPTION_SECRET;
+  const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+  let deviceId = null;
+  if (subSecret) {
+    try {
+      const mint = readOrMintDeviceId(req, res, subSecret, isProduction);
+      deviceId = mint.deviceId;
+    } catch { /* best-effort */ }
+  }
+
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -45,7 +58,7 @@ module.exports = async function handler(req, res) {
               receipt_link_url: siteUrl + '/'
             },
             checkout_data: {
-              custom: {}
+              custom: deviceId ? { device_id: deviceId } : {}
             }
           },
           relationships: {
