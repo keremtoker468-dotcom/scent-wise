@@ -1685,7 +1685,7 @@ const NI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI Advisor'},
   {id:'photo',l:'Style Scan'},{id:'zodiac',l:'Zodiac'},{id:'music',l:'Music'},
   {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},
-  {id:'account',l:'Profile'}
+  {id:'account',l:'Profile & Account'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
@@ -1750,7 +1750,7 @@ const PAGE_TITLES = {
   style: 'Style Match — ScentWise',
   dupe: 'Dupe Finder — ScentWise',
   celeb: 'Celebrity Fragrances — ScentWise',
-  account: 'Your Profile — ScentWise',
+  account: 'Profile & Account — ScentWise',
   admin: 'Admin — ScentWise'
 };
 
@@ -3236,8 +3236,8 @@ function r_account(el) {
     const hasProfile = scentProfile && scentProfile.queryCount > 0;
     el.innerHTML = `<div class="sec fi" style="max-width:720px;margin:40px auto">
       <div class="sec-header">
-        <h2 class="fd"><span class="gg" style="font-weight:600">Your Scent</span> Profile</h2>
-        <p>A living record of your taste — built automatically as you chat, rate recs, and take the quiz. The more you use ScentWise, the sharper your recommendations get.</p>
+        <h2 class="fd"><span class="gg" style="font-weight:600">Profile</span> &amp; Account</h2>
+        <p>Your Scent Profile, saved collection, and Account &amp; Billing — all in one place. The AI learns your taste as you chat and rate recs, and you can manage your subscription below.</p>
       </div>
       ${!hasProfile ? `<div class="glass-panel" style="margin-bottom:18px;text-align:center;padding:32px 24px">
         <div style="font-size:42px;margin-bottom:14px">✦</div>
@@ -3278,8 +3278,8 @@ function r_account(el) {
     el.innerHTML = `<div class="sec fi" style="max-width:460px;margin:48px auto">
       <div style="text-align:center;margin-bottom:36px">
         <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--g);font-weight:600">✦</div>
-        <h2 class="fd" style="font-size:30px;margin-bottom:8px">Log In</h2>
-        <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
+        <h2 class="fd" style="font-size:30px;margin-bottom:8px">Profile &amp; Account</h2>
+        <p style="color:var(--td);font-size:14px">Log in to access your scent profile, saved collection, and subscription — all in one place.</p>
       </div>
       <div class="glass-panel" style="margin-bottom:18px">
         <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Log in with email</p>
