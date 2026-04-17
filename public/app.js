@@ -2216,13 +2216,23 @@ function r_home(el) {
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Describe the mood, occasion, or memory — and we'll match it to real fragrances from a collection of ${perfumeCount}+.</p>
     <form class="hp-hero-input" onsubmit="event.preventDefault();heroStart(this.querySelector('input').value)" role="search">
-      <input type="text" id="hp-hero-q" placeholder="e.g. Something warm for fall date nights..." aria-label="Describe what you're looking for" autocomplete="off">
+      <input type="text" id="hp-hero-q" placeholder="e.g. Best fragrance for a date night..." aria-label="Describe what you're looking for" autocomplete="off">
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
+    <div class="hp-hero-features">
+      <button type="button" class="hp-feature-chip" onclick="go('photo')" aria-label="Upload a photo and get matched fragrances">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        <span><strong>Scan a photo</strong><em>Your vibe → scent</em></span>
+      </button>
+      <button type="button" class="hp-feature-chip" onclick="go('style')" aria-label="Match fragrances to your fashion style">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
+        <span><strong>Match your style</strong><em>Fashion → scent</em></span>
+      </button>
+    </div>
     <div class="hp-hero-subcta">
       <a href="#" onclick="event.preventDefault();go('chat')">Or start a blank chat</a>
       <span aria-hidden="true">·</span>
-      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See other discovery modes</a>
+      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See all discovery modes</a>
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">${perfumeCount}+</div><div class="label">Fragrances</div></div>
