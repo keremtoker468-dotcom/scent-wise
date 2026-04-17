@@ -4,8 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="preload" href="/app.js?v=2" as="script">
-<link rel="prefetch" href="/perfumes.js" as="script">
-<link rel="prefetch" href="/perfumes-rich.js" as="script">
+<!-- perfumes.js / perfumes-rich.js are ~3MB combined. We load them lazily
+     on first navigation to explore/chat/celeb (see loadDB in app.js) so
+     TikTok bounce visitors don't pay the bandwidth + main-thread cost. -->
 <title>ScentWise — AI Fragrance Advisor | Personalized Perfume Recommendations</title>
 <meta name="description" content="ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more. Find affordable fragrance dupes and alternatives, explore celebrity fragrances, and discover your signature scent.">
 <meta name="keywords" content="fragrance advisor, perfume recommendations, AI fragrance, scent finder, perfume database, fragrance dupes, perfume dupes, cheap alternatives to expensive perfumes, dupe finder, celebrity perfumes, zodiac fragrances, signature scent">
