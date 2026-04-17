@@ -1034,11 +1034,18 @@ function setupLemonSqueezy() {
                 ok = await activateSubscription(String(orderId), true);
               }
             }
-            if (!ok) { await checkTier(); go(CP); }
+            if (ok) {
+              showToast('✦ Welcome to ScentWise Premium! All AI features unlocked.', 'success', 6000);
+              go('chat');
+            } else {
+              await checkTier();
+              if (isPaid) { showToast('✦ Premium activated.', 'success'); go('chat'); }
+              else go(CP);
+            }
           } else {
             // Fallback: re-check tier (webhook may have processed)
             await checkTier();
-            if (isPaid) go(CP);
+            if (isPaid) { showToast('✦ Premium activated.', 'success'); go('chat'); }
           }
         }
       }
@@ -1677,12 +1684,13 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI Advisor'},
   {id:'photo',l:'Style Scan'},{id:'zodiac',l:'Zodiac'},{id:'music',l:'Music'},
-  {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},{id:'account',l:'Account'}
+  {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},
+  {id:'account',l:'Profile'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI'},
-  {id:'_modes',l:'Modes'},{id:'account',l:'Account'}
+  {id:'_modes',l:'Modes'},{id:'account',l:'Profile'}
 ];
 // All switchable modes (for the pill bar)
 const MODES = [
@@ -1742,7 +1750,7 @@ const PAGE_TITLES = {
   style: 'Style Match — ScentWise',
   dupe: 'Dupe Finder — ScentWise',
   celeb: 'Celebrity Fragrances — ScentWise',
-  account: 'Account — ScentWise',
+  account: 'Your Profile — ScentWise',
   admin: 'Admin — ScentWise'
 };
 
@@ -2823,7 +2831,7 @@ async function pickZ(sign) {
   const ck = 'z_'+sign;
   if (cache[ck]) { zodiacRes=cache[ck]; r_zodiac(document.getElementById('page-zodiac')); return; }
   zodiacRes=''; zodiacLoad=true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
-  const prompt = `You are ScentWise, a fragrance expert specializing in zodiac-scent matching. Recommend 5 specific fragrances for ${sign}. For each: **bold** name+brand, key notes, why it matches ${sign}'s personality, approximate price. Be creative connecting zodiac traits to scent profiles.`;
+  const prompt = `Match 5 fragrances to a ${sign}. Open with one sentence capturing the essence of this sign — the temperament, the traits that matter for scent. Then deliver picks in your calm, confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific ${sign} traits (be precise: ruling planet, what they gravitate toward, how they carry themselves), approximate price. Sound like a well-read friend who knows both astrology and perfumery — not a horoscope column.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
   setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
@@ -2881,7 +2889,7 @@ async function pickM(genre) {
   const ck = 'm_'+genre;
   if (cache[ck]) { musicRes=cache[ck]; r_music(document.getElementById('page-music')); return; }
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
-  const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances that capture the mood and aesthetic of ${genre} music. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative.`;
+  const prompt = `Match 5 fragrances to ${genre} music. Open with one line reading the sonic and sensory character of ${genre} — texture, mood, how it sits in a room. Then deliver picks in your composed, knowledgeable voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences drawing the music-to-scent line (specific artists, textures, eras — avoid vague words like "energetic"), price range. Sound like a friend who knows both the music and the fragrances well.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
@@ -2894,7 +2902,7 @@ async function customMusic() {
   musicChat = []; musicChatLoad = false;
   selM = taste;
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
-  const prompt = `You are ScentWise, a fragrance expert. The user describes their music taste as: "${taste}". Recommend 5 fragrances that capture this musical vibe. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative and specific to their taste.`;
+  const prompt = `The user describes their music taste as: "${taste}". Open with one line reflecting their taste back in sensory terms — show them you understood it. Then match 5 fragrances to this musical world. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences tying the scent to specific elements of their taste (a texture, an era, a lyric, a named artist if given), price range. Warm, precise, confident — no hype, no filler.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selM',selM); _ssw('musicRes',musicRes);
   musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
@@ -2953,7 +2961,7 @@ async function pickSt(style) {
   const ck = 's_'+style;
   if (cache[ck]) { styleRes=cache[ck]; r_style(document.getElementById('page-style')); return; }
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
-  const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances for the ${style} clothing style. For each: **bold** name+brand, explain WHY it matches this fashion style, key notes, price range. Include both premium and budget options.`;
+  const prompt = `Match 5 fragrances to the "${style}" fashion aesthetic. Open with one sentence reading the mood of this style — fabrics, silhouette, attitude. Then deliver picks in your confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific style cues (palette, texture, era, the person who wears this well), price range. Mix premium and budget. Tailored, not theatrical.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
@@ -2966,7 +2974,7 @@ async function customStyle() {
   styleChat = []; styleChatLoad = false;
   selS = desc;
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
-  const prompt = `You are ScentWise, a fragrance expert. The user describes their personal style as: "${desc}". Recommend 5 fragrances that perfectly match this aesthetic. For each: **bold** name+brand, explain WHY it matches their style, key notes, price range. Include both premium and budget options.`;
+  const prompt = `The user describes their personal style as: "${desc}". Open with one sentence reflecting their style back in sensory terms — show them you understood it. Then match 5 fragrances. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences of specific reasoning (what in their description sparked this pick — a word, an item, a mood), price range. Mix premium and budget. Tailored, precise, never generic.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selS',selS); _ssw('styleRes',styleRes);
   styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
@@ -3093,7 +3101,7 @@ async function pickD(frag) {
   await loadDB();
   const dbResult = findDbDupes(frag);
   const grounding = _buildDupeGrounding(dbResult);
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.${grounding}`;
+  const prompt = `The user wants affordable dupes for **${frag}**. Start with one precise sentence describing the original's actual scent experience — what spraying it feels like, not just a note list. Then deliver 5 dupes from cheapest to most expensive. Prioritize picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose vs. the original — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
@@ -3115,7 +3123,7 @@ async function customDupe() {
     showToast(`"${frag}" not found in our 75,000+ database — asking the AI anyway.`, 'info', 4500);
   }
   const grounding = _buildDupeGrounding(dbResult);
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
+  const prompt = `The user wants affordable dupes for **${frag}**. If you don't recognize this name, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one precise sentence describing the original's actual scent experience (what spraying it feels like, not just a note list). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
   dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
@@ -3222,33 +3230,41 @@ function r_celeb(el) {
   _attachCelebImageObservers(el);
 }
 
-// ═══════════════ ACCOUNT PAGE ═══════════════
+// ═══════════════ PROFILE / ACCOUNT PAGE (merged) ═══════════════
 function r_account(el) {
   if (isPaid) {
-    // Show profile for logged-in users
-    el.innerHTML = `<div class="sec fi" style="max-width:500px;margin:48px auto">
-      <div style="text-align:center;padding:36px 0">
-        <div style="width:88px;height:88px;border-radius:24px;background:var(--gl);border:1px solid rgba(201,169,110,.15);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;color:var(--g);box-shadow:var(--glow)">${isOwner ? 'O' : '✦'}</div>
-        <h2 class="fd" style="font-size:30px;margin-bottom:6px">Your Account</h2>
-        <p style="color:var(--td);font-size:14px">${isOwner ? 'Owner Access' : 'Premium Member'}</p>
+    const hasProfile = scentProfile && scentProfile.queryCount > 0;
+    el.innerHTML = `<div class="sec fi" style="max-width:720px;margin:40px auto">
+      <div class="sec-header">
+        <h2 class="fd"><span class="gg" style="font-weight:600">Your Scent</span> Profile</h2>
+        <p>A living record of your taste — built automatically as you chat, rate recs, and take the quiz. The more you use ScentWise, the sharper your recommendations get.</p>
       </div>
-      <div class="glass-panel" style="margin-bottom:18px">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      ${!hasProfile ? `<div class="glass-panel" style="margin-bottom:18px;text-align:center;padding:32px 24px">
+        <div style="font-size:42px;margin-bottom:14px">✦</div>
+        <h3 style="font-size:20px;margin:0 0 10px;font-weight:500">No profile yet</h3>
+        <p style="color:var(--td);font-size:14px;line-height:1.7;margin:0 0 20px;max-width:420px;margin-left:auto;margin-right:auto">Start a chat, rate a recommendation, or take the 2-minute quiz. Your favorite notes, preferred brands, budget and wear context will appear here.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-sm" onclick="openScentQuiz()">Take the Quiz</button>
+          <button class="btn-o btn-sm" onclick="go('chat')">Start a Chat</button>
+        </div>
+      </div>` : renderProfileCard()}
+      ${_renderCollection()}
+      <div class="glass-panel" style="margin-top:22px">
+        <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Account & Billing</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Status</span>
           <span class="tag">${isOwner ? 'Owner' : '✦ Premium'}</span>
         </div>
-        ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+        ${userEmail ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04)">
           <span style="color:var(--td);font-size:13px">Email</span>
           <span style="font-size:14px">${esc(userEmail)}</span>
         </div>` : ''}
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
           <span style="color:var(--td);font-size:13px">AI Queries</span>
           <span style="font-size:14px">${isOwner ? 'Unlimited' : aiUsage + ' / ' + MAX_PAID + ' this month'}</span>
         </div>
+        <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center;margin-top:14px">Log Out</button>
       </div>
-      ${renderProfileCard()}
-      ${_renderCollection()}
-      <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center;margin-top:18px">Log Out</button>
     </div>`;
     // Load profile asynchronously and re-render once
     if (!profileLoaded && !profileLoading) {
