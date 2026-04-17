@@ -856,9 +856,21 @@ function closeScentQuiz() {
   if (overlay) overlay.remove();
 }
 
+// Open the Lemon Squeezy checkout: prefer the overlay (keeps the user in the
+// ScentWise tab, much higher completion rate than a full redirect). Fall back
+// to a top-level navigation if lemon.js didn't load.
+function openLemonCheckout(url) {
+  const LS = window.LemonSqueezy;
+  if (LS && LS.Url && typeof LS.Url.Open === 'function') {
+    try { LS.Url.Open(url); return true; } catch {}
+  }
+  window.location.href = url;
+  return false;
+}
+
 async function unlockPaid() {
   if (LEMON_URL) {
-    window.location.href = LEMON_URL;
+    openLemonCheckout(LEMON_URL);
     return;
   }
   // Show loading state on all subscribe buttons
@@ -870,7 +882,9 @@ async function unlockPaid() {
     if (d.url && /^https:\/\/[^/]*lemonsqueezy\.com(\/|$)/.test(d.url)) {
       LEMON_URL = d.url;
       if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
-      window.location.href = d.url;
+      openLemonCheckout(d.url);
+      // Reset button state — overlay closes in-page so buttons need to re-enable
+      setTimeout(() => btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; }), 800);
     } else {
       showToast(d.error || 'Could not start checkout. Please try again.', 'error');
       btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
