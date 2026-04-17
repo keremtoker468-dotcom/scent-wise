@@ -940,7 +940,7 @@ function showPaywall() {
     </p>
     ${trialBanner}
     <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-    <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
+    <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime · <a href="/refund.html" target="_blank" rel="noopener" style="color:var(--g);text-decoration:underline">Refund policy</a></p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
     <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
     <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--d4);position:relative">
@@ -966,15 +966,25 @@ function promptActivate() {
 // ═══════════════ EMAIL LOGIN ═══════════════
 async function loginWithEmail(email) {
   if (!email || !email.trim()) return false;
+  const trimmed = email.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    showToast('Please enter a valid email address.', 'error');
+    return false;
+  }
   try {
     const r = await fetch('/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
       credentials: 'same-origin',
-      body: JSON.stringify({ email: email.trim() })
+      body: JSON.stringify({ email: trimmed })
     });
     const d = await r.json();
-    if (d.success) { isPaid = true; currentTier = d.tier || 'premium'; userEmail = d.email || email.trim(); go(CP); return true; }
+    if (d.success) {
+      isPaid = true; currentTier = d.tier || 'premium'; userEmail = d.email || trimmed;
+      showToast('✦ Logged in as ' + userEmail + '. Premium unlocked.', 'success', 5000);
+      go('chat');
+      return true;
+    }
     if (r.status === 404) {
       showToast('No subscription found for this email. Make sure you\'re using the same email from your LemonSqueezy purchase.', 'error', 6000);
     } else if (r.status === 429) {
@@ -1043,13 +1053,20 @@ async function aiCall(mode, payload) {
     if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
     return 'Please subscribe to use AI features.';
   }
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return '**You\'re offline.** AI recommendations need an internet connection. Please reconnect and try again.';
+  }
+  const aborter = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  const timeoutId = aborter ? setTimeout(() => aborter.abort(), 45000) : null;
   try {
     const r = await fetch(API_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise'},
       credentials: 'same-origin',
-      body: JSON.stringify({mode, ...payload})
+      body: JSON.stringify({mode, ...payload}),
+      signal: aborter ? aborter.signal : undefined
     });
+    if (timeoutId) clearTimeout(timeoutId);
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
       if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
@@ -1066,9 +1083,11 @@ async function aiCall(mode, payload) {
     if (typeof window._swAiResponses === 'number') window._swAiResponses++;
     return d.result || 'No response. Try again.';
   } catch (e) {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (e.name === 'AbortError') return '**Taking too long.** Our AI didn\'t respond in time. Please try again.';
     if (e.message === 'ai_unavailable') return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
     if (e.message === 'request_failed') return '**Something went wrong.** Please try again.';
-    if (e.message === 'Failed to fetch' || e.message.includes('network')) return '**Connection issue.** Check your internet and try again.';
+    if (e.message === 'Failed to fetch' || (e.message && e.message.includes('network'))) return '**Connection issue.** Check your internet and try again.';
     return '**Something went wrong.** Please try again in a moment.';
   }
 }
@@ -2391,7 +2410,7 @@ function r_home(el) {
         <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:4px 16px;border-radius:20px">Most Popular</div>
         <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--g);margin-bottom:12px">Premium</div>
         <div style="font-size:36px;font-weight:700;margin-bottom:6px"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime</div>
+        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime · <a href="/refund.html" style="color:var(--g);text-decoration:underline">Refund policy</a></div>
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Everything in Free</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> AI Chat Advisor</li>
@@ -3082,13 +3101,19 @@ async function pickD(frag) {
 
 async function customDupe() {
   const inp = document.getElementById('dupe-inp');
-  if (!inp || !inp.value.trim() || dupeLoad) return;
-  const frag = inp.value.trim(); inp.value = '';
+  if (!inp || dupeLoad) return;
+  const frag = (inp.value || '').trim();
+  if (frag.length < 3) { showToast('Please enter a fragrance name (at least 3 characters).', 'error'); return; }
+  if (!/[a-zA-Z]/.test(frag)) { showToast('Please enter a valid fragrance name.', 'error'); return; }
+  inp.value = '';
   dupeChat = []; dupeChatLoad = false;
   selD = frag;
   dupeRes=''; dupeLoad=true; r_dupe(document.getElementById('page-dupe')); _scrollToRes('#d-res');
   await loadDB();
   const dbResult = findDbDupes(frag);
+  if (!dbResult) {
+    showToast(`"${frag}" not found in our 75,000+ database — asking the AI anyway.`, 'info', 4500);
+  }
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
@@ -3401,11 +3426,19 @@ loadDB().then(() => {
         activated = await activateSubscription(orderId, true);
       }
       if (!activated) {
-        // All retries failed — show a helpful message
-        showToast('We couldn\'t verify your order yet. This can take a minute after purchase. Try logging in with your email on the Account page.', 'info', 8000);
+        // All retries failed — show a helpful message and jump to account so user can log in
+        showToast('Your payment went through, but we couldn\'t verify it automatically. Log in with the email you used at checkout to activate.', 'info', 9000);
+        window.history.replaceState({}, '', window.location.pathname);
+        go('account');
+        return;
       }
     }
     window.history.replaceState({}, '', window.location.pathname);
+    if (activated) {
+      showToast('✦ Welcome to ScentWise Premium! All AI features unlocked.', 'success', 6000);
+      go('chat');
+      return;
+    }
   }
   // Only re-render if auth state actually changed (avoids wasteful double-render on homepage)
   if (currentTier !== prevTier || orderId) {
