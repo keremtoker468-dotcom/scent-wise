@@ -700,7 +700,7 @@ input::placeholder{color:var(--td);opacity:.7}
 /* Discovery modes */
 .hp-modes-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.25rem;
   margin-top: 3.5rem;
 }
@@ -986,7 +986,6 @@ input::placeholder{color:var(--td);opacity:.7}
 }
 /* Homepage responsive */
 @media (max-width: 900px) {
-  .hp-modes-layout { grid-template-columns: 1fr; }
   .hp-mode-item.featured { grid-column: span 1; grid-template-columns: 1fr; }
   .hp-mode-visual { display: none; }
   .hp-steps { grid-template-columns: 1fr; gap: 0; }
