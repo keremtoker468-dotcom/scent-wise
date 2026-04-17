@@ -2582,8 +2582,12 @@ function r_home(el) {
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
   </footer>
   </div>`;
-  // Initialize reveal animations for homepage
-  setTimeout(() => {
+  // Initialize reveal animations, scroll listener, and placeholder rotation.
+  // This is non-critical work — if the user taps the hero form in the first
+  // ~300ms, we want their tap handler to run first. requestIdleCallback
+  // yields automatically to higher-priority input work, lowering INP on the
+  // home→chat path. Fallback to setTimeout for older browsers.
+  const _homepageInit = () => {
     const reveals = document.querySelectorAll('.hp-reveal');
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) {
@@ -2625,7 +2629,12 @@ function r_home(el) {
       window.addEventListener('scroll', window._hpScrollHandler, {passive: true});
     }
     startHeroPlaceholderRotation();
-  }, 50);
+  };
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(_homepageInit, { timeout: 300 });
+  } else {
+    setTimeout(_homepageInit, 50);
+  }
 }
 
 // ═══════════════ EXPLORE (FREE — uses local DB) ═══════════════
