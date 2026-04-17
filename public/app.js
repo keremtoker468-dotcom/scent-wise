@@ -2582,8 +2582,12 @@ function r_home(el) {
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
   </footer>
   </div>`;
-  // Initialize reveal animations for homepage
-  setTimeout(() => {
+  // Initialize reveal animations, scroll listener, and placeholder rotation.
+  // This is non-critical work — if the user taps the hero form in the first
+  // ~300ms, we want their tap handler to run first. requestIdleCallback
+  // yields automatically to higher-priority input work, lowering INP on the
+  // home→chat path. Fallback to setTimeout for older browsers.
+  const _homepageInit = () => {
     const reveals = document.querySelectorAll('.hp-reveal');
     const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reducedMotion) {
@@ -2625,7 +2629,12 @@ function r_home(el) {
       window.addEventListener('scroll', window._hpScrollHandler, {passive: true});
     }
     startHeroPlaceholderRotation();
-  }, 50);
+  };
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(_homepageInit, { timeout: 300 });
+  } else {
+    setTimeout(_homepageInit, 50);
+  }
 }
 
 // ═══════════════ EXPLORE (FREE — uses local DB) ═══════════════
@@ -3500,23 +3509,47 @@ go(_wantAdmin ? 'admin' : (_initMode && ['dupe','chat','explore','photo','zodiac
   }
 })();
 
-// Prefetch DB files during idle time so explore/chat/celeb load instantly
-if ('requestIdleCallback' in window) {
-  requestIdleCallback(() => { loadDB(); }, { timeout: 5000 });
-} else {
-  setTimeout(() => { loadDB(); }, 3000);
-}
+// Warm the DB lazily — only after the user has shown they're engaged.
+// We wait for the first scroll / pointer / key event before touching the
+// ~3MB perfume JSON. Bounce visitors (most TikTok ad clicks) never pay
+// the cost; engaged visitors get a warm cache by the time they click into
+// explore/chat/celeb. The route render functions still call loadDB()
+// themselves, so correctness is preserved if this prefetch never fires.
+(function warmDbOnEngage() {
+  let warmed = false;
+  function warm() {
+    if (warmed) return;
+    warmed = true;
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => { loadDB(); }, { timeout: 4000 });
+    } else {
+      setTimeout(() => { loadDB(); }, 800);
+    }
+  }
+  // { once: true } self-removes each listener after it fires; the `warmed`
+  // flag guards against overlapping events racing the load.
+  ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(ev => {
+    window.addEventListener(ev, warm, { passive: true, once: true });
+  });
+  // Safety net: if the user is idle on the page for 8s, warm anyway so
+  // returning visitors still benefit from the cache before they click.
+  setTimeout(warm, 8000);
+})();
 
-// Hydrate compare items from localStorage once DB is ready, then auto-open if ?compare=1
-loadDB().then(() => {
-  if (_compareList.length) {
-    _compareList.forEach(c => { if (!c.data) { const p = find(c.name, c.brand); if (p) c.data = p; } });
-    _renderCompareBar();
-  }
-  if (_initParams.get('compare') === '1' && _compareList.length >= 2) {
-    setTimeout(() => showComparison(), 200);
-  }
-}).catch(() => {});
+// Hydrate compare items — only bother if there's something to hydrate or
+// the user explicitly asked for the compare view. Otherwise we'd force a
+// ~3MB DB load on every home visit for a feature most users never touch.
+if (_compareList.length || _initParams.get('compare') === '1') {
+  loadDB().then(() => {
+    if (_compareList.length) {
+      _compareList.forEach(c => { if (!c.data) { const p = find(c.name, c.brand); if (p) c.data = p; } });
+      _renderCompareBar();
+    }
+    if (_initParams.get('compare') === '1' && _compareList.length >= 2) {
+      setTimeout(() => showComparison(), 200);
+    }
+  }).catch(() => {});
+}
 
 // Initialize auth from server-side cookies
 (async function() {
