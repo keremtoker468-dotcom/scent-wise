@@ -2275,6 +2275,7 @@ function r_home(el) {
     <div class="hp-nav-links">
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a href="#hp-profile" onclick="event.preventDefault();document.getElementById('hp-profile').scrollIntoView({behavior:'smooth'})">Profile</a>
       <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <a class="hp-nav-cta" href="#" onclick="event.preventDefault();go('chat')">Try Free</a>
@@ -2292,6 +2293,13 @@ function r_home(el) {
       <input type="text" id="hp-hero-q" placeholder="e.g. Best fragrance for a date night..." aria-label="Describe what you're looking for" autocomplete="off">
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
+    <div class="hp-hero-trust" aria-label="Pricing and trial information">
+      <span>&#10022; 3 free AI queries</span>
+      <span aria-hidden="true">·</span>
+      <span>No sign-up required</span>
+      <span aria-hidden="true">·</span>
+      <span>Then <strong>$2.99/mo</strong> · cancel anytime</span>
+    </div>
     <div class="hp-hero-features">
       <button type="button" class="hp-feature-chip" onclick="go('photo')" aria-label="Upload a photo and get matched fragrances">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
@@ -2301,11 +2309,17 @@ function r_home(el) {
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>
         <span><strong>Match your style</strong><em>Fashion → scent</em></span>
       </button>
+      <button type="button" class="hp-feature-chip" onclick="go('account')" aria-label="Open your Scent Profile" style="background:rgba(201,169,110,.14);border-color:rgba(201,169,110,.5)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/><path d="m19 3 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
+        <span><strong>Your Profile</strong><em>AI learns your taste</em></span>
+      </button>
     </div>
     <div class="hp-hero-subcta">
       <a href="#" onclick="event.preventDefault();go('chat')">Or start a blank chat</a>
       <span aria-hidden="true">·</span>
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See all discovery modes</a>
+      <span aria-hidden="true">·</span>
+      <a href="#" onclick="event.preventDefault();go('account')">Your Profile</a>
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">${perfumeCount}+</div><div class="label">Fragrances</div></div>
@@ -2393,6 +2407,28 @@ function r_home(el) {
         <div class="hp-step-text">Receive curated picks with detailed breakdowns — top notes, longevity, occasions, price range, and where to buy.</div>
       </div>
     </div>
+  </section>
+  <!-- Your Scent Profile -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-profile">
+    <div class="hp-section-kicker hp-reveal">Your Scent Profile</div>
+    <div class="hp-section-heading hp-reveal">The AI <em>remembers your taste</em></div>
+    <p class="hp-section-copy hp-reveal">Every chat, rating, and quiz builds a living record of the notes you love, the seasons you wear, and the collection you own. Come back tomorrow — it picks up where you left off.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-top:32px;max-width:960px;margin-left:auto;margin-right:auto">
+      <div class="hp-reveal" style="border:1px solid var(--d4);border-radius:var(--r);padding:28px 22px;background:rgba(255,255,255,.02)">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--hp-gold);margin-bottom:10px">Favorite Notes</div>
+        <div style="font-size:14px;color:var(--t);line-height:1.55">The top accords you keep coming back to — oud, iris, cedar, tonka — ranked by how often you pick them.</div>
+      </div>
+      <div class="hp-reveal" style="border:1px solid var(--d4);border-radius:var(--r);padding:28px 22px;background:rgba(255,255,255,.02)">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--hp-gold);margin-bottom:10px">Skin &amp; Climate</div>
+        <div style="font-size:14px;color:var(--t);line-height:1.55">Your skin chemistry, the seasons you wear, the occasions you dress for. The AI matches to your context, not a generic list.</div>
+      </div>
+      <div class="hp-reveal" style="border:1px solid var(--d4);border-radius:var(--r);padding:28px 22px;background:rgba(255,255,255,.02)">
+        <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--hp-gold);margin-bottom:10px">Your Collection</div>
+        <div style="font-size:14px;color:var(--t);line-height:1.55">Save bottles you own or want. The AI avoids dupes and finds adjacent picks that actually expand your wardrobe.</div>
+      </div>
+    </div>
+    <div class="hp-reveal visible" style="margin-top:32px;text-align:center"><button class="hp-btn-ghost" onclick="go('account')" style="padding:14px 32px">Open Your Profile</button></div>
   </section>
   <!-- Pricing -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
