@@ -2823,7 +2823,7 @@ async function pickZ(sign) {
   const ck = 'z_'+sign;
   if (cache[ck]) { zodiacRes=cache[ck]; r_zodiac(document.getElementById('page-zodiac')); return; }
   zodiacRes=''; zodiacLoad=true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
-  const prompt = `You are ScentWise, a fragrance expert specializing in zodiac-scent matching. Recommend 5 specific fragrances for ${sign}. For each: **bold** name+brand, key notes, why it matches ${sign}'s personality, approximate price. Be creative connecting zodiac traits to scent profiles.`;
+  const prompt = `Match 5 fragrances to a ${sign}. Open with one sentence that captures the essence of this sign's energy — the mood, the chaos, the charm. Then deliver picks with your usual passionate voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific ${sign} traits (don't just say "fiery" — get specific: which planets rule them, what they crave, how they move through the world), approximate price. Make it feel like you genuinely had fun matching this sign.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
   setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
@@ -2881,7 +2881,7 @@ async function pickM(genre) {
   const ck = 'm_'+genre;
   if (cache[ck]) { musicRes=cache[ck]; r_music(document.getElementById('page-music')); return; }
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
-  const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances that capture the mood and aesthetic of ${genre} music. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative.`;
+  const prompt = `Match 5 fragrances to ${genre} music. Open with one line that nails the sonic/sensory vibe of ${genre} — the way it feels in the body, the smoke or sweetness in the room. Then deliver picks. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences drawing the music-to-scent line (specific artists, lyrics, textures — not just "energetic"), price range. Make someone who loves ${genre} feel you actually listened to it.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
@@ -2894,7 +2894,7 @@ async function customMusic() {
   musicChat = []; musicChatLoad = false;
   selM = taste;
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
-  const prompt = `You are ScentWise, a fragrance expert. The user describes their music taste as: "${taste}". Recommend 5 fragrances that capture this musical vibe. For each: **bold** name+brand, explain the music-scent connection, key notes, price range. Be creative and specific to their taste.`;
+  const prompt = `The user describes their music taste as: "${taste}". Open with one line showing you *heard* what they described — reflect it back in sensory language. Then match 5 fragrances to this musical world. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences tying the scent to specific elements of their taste (a texture, an era, a lyric, a specific artist if they mentioned one), price range. Be specific, enthusiastic, and a little playful.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selM',selM); _ssw('musicRes',musicRes);
   musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
@@ -2953,7 +2953,7 @@ async function pickSt(style) {
   const ck = 's_'+style;
   if (cache[ck]) { styleRes=cache[ck]; r_style(document.getElementById('page-style')); return; }
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
-  const prompt = `You are ScentWise, a fragrance expert. Recommend 5 fragrances for the ${style} clothing style. For each: **bold** name+brand, explain WHY it matches this fashion style, key notes, price range. Include both premium and budget options.`;
+  const prompt = `Match 5 fragrances to the "${style}" fashion aesthetic. Open with one sentence that captures the mood of this style — the fabrics, the silhouette, the attitude. Then deliver picks. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific style cues (color palette, texture, era, the kind of person who nails this look), price range. Mix premium and budget options. Make someone who dresses this way feel genuinely seen.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
@@ -2966,7 +2966,7 @@ async function customStyle() {
   styleChat = []; styleChatLoad = false;
   selS = desc;
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
-  const prompt = `You are ScentWise, a fragrance expert. The user describes their personal style as: "${desc}". Recommend 5 fragrances that perfectly match this aesthetic. For each: **bold** name+brand, explain WHY it matches their style, key notes, price range. Include both premium and budget options.`;
+  const prompt = `The user describes their personal style as: "${desc}". Open with one sentence that reflects their style back to them in sensory language — show them you *got it*. Then match 5 fragrances. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences of specific reasoning (what about their description sparked this pick — a word, an item, a vibe), price range. Mix premium and budget. Make it feel tailored, not generic.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selS',selS); _ssw('styleRes',styleRes);
   styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
@@ -3093,7 +3093,7 @@ async function pickD(frag) {
   await loadDB();
   const dbResult = findDbDupes(frag);
   const grounding = _buildDupeGrounding(dbResult);
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible.${grounding}`;
+  const prompt = `The user wants affordable dupes for **${frag}**. Start with one vivid sentence painting the original's scent profile — what it actually smells like when you spray it (not a notes list, a *feeling*). Then deliver 5 dupes from cheapest to most expensive. Prioritize picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose vs. the original — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, like a friend who already smelled all of these for the user. End with one honest line — which dupe *you* would actually grab, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
@@ -3115,7 +3115,7 @@ async function customDupe() {
     showToast(`"${frag}" not found in our 75,000+ database — asking the AI anyway.`, 'info', 4500);
   }
   const grounding = _buildDupeGrounding(dbResult);
-  const prompt = `You are ScentWise, a fragrance expert specializing in affordable alternatives and dupes. The user wants cheaper alternatives to **${frag}**. Find exactly 5 dupes/alternatives that smell similar. For each dupe:\n1. **Bold** the name + brand\n2. Approximate retail price\n3. How similar it smells to the original\n4. Key notes it shares with the original\n5. Key differences from the original\n6. Where to buy (e.g. Amazon, FragranceNet, brand site)\n\nStart with a brief 1-sentence description of the original fragrance's scent profile, then list the 5 alternatives from cheapest to most expensive. Focus on fragrances under $80 when possible. If you don't recognize the fragrance name, say so and suggest what the user might have meant.${grounding}`;
+  const prompt = `The user wants affordable dupes for **${frag}**. If you don't recognize this name, say so warmly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one vivid sentence painting the original's actual scent experience (not a notes list, a *feeling*). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, like a friend who already smelled all of these for the user. End with one honest line — which dupe *you* would actually grab, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
   _ssw('selD',selD); _ssw('dupeRes',dupeRes);
   dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
