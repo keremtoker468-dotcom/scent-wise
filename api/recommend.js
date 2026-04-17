@@ -2,7 +2,12 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, writeUsage, readFreeUsage, writeFreeUsage, redisIncrFreeUsage, getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const {
+  readUsage, writeUsage,
+  readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage, readOrMintDeviceId,
+  checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
+  getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
+} = require('./_lib/usage');
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
 const { validateSecrets } = require('./_lib/validate-secrets');
 
@@ -50,10 +55,28 @@ module.exports = async function handler(req, res) {
   let usageCount = 0;
   let isFreeTrialRequest = false;
 
+  let freeDeviceId = null;
   if (!access.authorized) {
     // Free trial: allow a few queries so users can experience the AI
     if (subSecret) {
-      const freeUsage = await readFreeUsage(req, ip, subSecret);
+      const { deviceId } = readOrMintDeviceId(req, res, subSecret, isProduction);
+      freeDeviceId = deviceId;
+
+      // Abuse guard: per-IP soft daily cap so a single IP can't mint unlimited
+      // device cookies in a loop. Returns a distinct reason so the client can
+      // show a shared-IP-friendly message instead of the usual paywall.
+      const ipCap = await checkIpDailyCap(ip);
+      if (!ipCap.allowed) {
+        return res.status(429).json({
+          error: 'This network has been very busy today. Please try again later, or subscribe to continue.',
+          tier: 'free',
+          reason: 'ip_daily_cap',
+          ipDaily: ipCap.count,
+          ipDailyCap: ipCap.cap
+        });
+      }
+
+      const freeUsage = await readDeviceFreeUsage(req, deviceId, subSecret);
       if (freeUsage.count >= FREE_TRIAL_QUERIES) {
         return res.status(403).json({
           error: 'Free trial queries used. Subscribe for unlimited access!',
@@ -214,18 +237,19 @@ If the user hasn't stated preferences yet, infer from their question, name your 
     }
 
     // Track usage after successful AI call
-    if (isFreeTrialRequest && subSecret) {
-      // Use atomic Redis INCR to prevent TOCTOU race conditions
-      const atomicCount = await redisIncrFreeUsage(ip, getCurrentMonth());
+    if (isFreeTrialRequest && subSecret && freeDeviceId) {
+      // Atomic Redis INCR on device-bound key (prevents TOCTOU)
+      const atomicCount = await redisIncrDeviceFreeUsage(freeDeviceId, getCurrentMonth());
       if (atomicCount !== null) {
         usageCount = atomicCount;
       } else {
-        // Redis unavailable: still increment via in-memory + cookie layers
-        // This is less persistent but prevents completely untracked usage
         usageCount++;
       }
-      // Always write to all fallback layers for defense in depth
-      await writeFreeUsage(res, ip, usageCount, subSecret, isProduction);
+      // Signed cookie fallback (only layer when Redis is down)
+      writeCookieDeviceFreeUsage(res, freeDeviceId, usageCount, subSecret, isProduction);
+      // Light per-IP abuse counter — bumps even for legit free users, but the
+      // cap (100/day) is generous enough that real users never hit it.
+      redisIncrIpDaily(ip).catch(() => {});
     } else if (access.tier === 'premium' && subSecret) {
       usageCount++;
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);

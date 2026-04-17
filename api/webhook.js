@@ -96,10 +96,50 @@ module.exports = async function handler(req, res) {
     storeId: attrs.store_id
   });
 
+  // Persist device_id → subscription mapping so the paying device auto-unlocks
+  // on its next visit (no manual order-number entry needed).
+  async function bindDeviceToOrder() {
+    const deviceId = typeof customData.device_id === 'string' ? customData.device_id : null;
+    if (!deviceId || !/^[a-f0-9]{32}$/.test(deviceId)) return;
+    const subId = String(payload.data?.id || '');
+    const custId = String(attrs.customer_id || '');
+    const email = attrs.user_email || '';
+    if (!subId || !custId) return;
+
+    const url = process.env.UPSTASH_REDIS_REST_URL;
+    const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+    if (!url || !token) {
+      console.warn('[LS Webhook] No Redis — cannot persist device binding');
+      return;
+    }
+    try {
+      const key = `sw_devicesub:${deviceId}`;
+      const value = JSON.stringify({ subId, custId, email, boundAt: Date.now() });
+      // 60 days — long enough to survive typical return-to-site latency,
+      // short enough to drop stale bindings if a device is sold/wiped.
+      await fetch(`${url}/pipeline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify([
+          ['SET', key, value],
+          ['EXPIRE', key, 60 * 24 * 60 * 60]
+        ])
+      });
+    } catch (err) {
+      console.error('[LS Webhook] Failed to persist device binding:', err.message);
+    }
+  }
+
   // Handle relevant events
   switch (eventName) {
     case 'order_created':
       console.log(`[LS Webhook] New order received`);
+      await bindDeviceToOrder();
+      break;
+
+    case 'subscription_created':
+      console.log(`[LS Webhook] Subscription created`);
+      await bindDeviceToOrder();
       break;
 
     case 'subscription_updated':

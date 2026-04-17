@@ -1079,7 +1079,14 @@ async function aiCall(mode, payload) {
       if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
       isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
     }
-    if (r.status === 429) { const d = await r.json().catch(()=>({})); if (d.usage) trackUsage(d.usage); return d.error || 'Our AI is a bit busy right now. Please try again in a few seconds.'; }
+    if (r.status === 429) {
+      const d = await r.json().catch(()=>({}));
+      if (d.usage) trackUsage(d.usage);
+      if (d.reason === 'ip_daily_cap') {
+        return '**This network has been very busy today.** It looks like a lot of people on your connection (Wi‑Fi, office, or mobile carrier) have been trying ScentWise. Please try again in a few hours — or [go Premium](javascript:unlockPaid()) for unlimited queries with no network caps.';
+      }
+      return d.error || 'Our AI is a bit busy right now. Please try again in a few seconds.';
+    }
     if (!r.ok) throw new Error(r.status >= 500 ? 'ai_unavailable' : 'request_failed');
     const d = await r.json();
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
