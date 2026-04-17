@@ -1642,16 +1642,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   window.addEventListener('online', function() { showOfflineStatus(false); });
   if (!navigator.onLine) showOfflineStatus(true);
 </script>
-<!-- Cookie consent (GDPR-compliant: GA and AdSense only load after explicit consent) -->
+<!-- Cookie consent (GDPR-compliant: AdSense only loads after consent; GA runs
+     in "consent mode v2" — cookieless pings by default, upgraded on opt-in) -->
 <script>
 function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
 function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
-function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';loadConsentedScripts()}
-function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none'}
+function _gaConsentUpdate(a,d){if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
+function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);loadConsentedScripts()}
+function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false)}
 function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
-function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';loadConsentedScripts()}
-function loadConsentedScripts(){var c=getCookieConsent();if(!c)return;if(c.analytics&&!document.getElementById('sw-ga')){var g=document.createElement('script');g.id='sw-ga';g.src='https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6';document.head.appendChild(g)}if(c.ads&&!document.getElementById('sw-ads')){var a=document.createElement('script');a.id='sw-ads';a.async=true;a.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576';a.crossOrigin='anonymous';document.head.appendChild(a)}}
-document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{loadConsentedScripts()}});
+function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);loadConsentedScripts()}
+function loadConsentedScripts(){var c=getCookieConsent();if(!c)return;if(c.ads&&!document.getElementById('sw-ads')){var a=document.createElement('script');a.id='sw-ads';a.async=true;a.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576';a.crossOrigin='anonymous';document.head.appendChild(a)}}
+document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);loadConsentedScripts()}});
 </script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
@@ -1696,12 +1698,30 @@ setTimeout(function(){
 {"@context":"https://schema.org","@type":"ItemList","name":"ScentWise Discovery Modes","numberOfItems":7,"itemListElement":[{"@type":"ListItem","position":1,"name":"AI Chat Advisor","url":"https://scent-wise.com/"},{"@type":"ListItem","position":2,"name":"Zodiac Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":3,"name":"Photo Style Scan","url":"https://scent-wise.com/"},{"@type":"ListItem","position":4,"name":"Music to Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":5,"name":"Style Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":6,"name":"Dupe Finder","url":"https://scent-wise.com/"},{"@type":"ListItem","position":7,"name":"Celebrity Fragrance Collections","url":"https://scent-wise.com/"}]}
 </script>
 <script defer src="/_vercel/speed-insights/script.js"></script>
-<!-- Google Analytics (only initialized if user consented to analytics cookies) -->
+<!-- Google Analytics 4 — Consent Mode v2.
+     Defaults: all denied. GA still sends cookieless "consent pings" so we
+     capture basic pageviews + traffic source (TikTok, referrals) while
+     staying GDPR-compliant. Upgraded to granted via gtag('consent','update')
+     when the user accepts the cookie banner. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
+gtag('consent', 'default', {
+  ad_storage: 'denied',
+  analytics_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  functionality_storage: 'granted',
+  security_storage: 'granted',
+  wait_for_update: 500
+});
+// URL passthrough keeps TikTok/UTM click IDs across the pre-consent hop;
+// ads_data_redaction strips PII from pre-consent pings.
+gtag('set', 'url_passthrough', true);
+gtag('set', 'ads_data_redaction', true);
 gtag('js', new Date());
-gtag('config', 'G-769WY8EYH6', { 'anonymize_ip': true });
+gtag('config', 'G-769WY8EYH6', { anonymize_ip: true });
 </script>
 </body>
 </html>
