@@ -1034,11 +1034,18 @@ function setupLemonSqueezy() {
                 ok = await activateSubscription(String(orderId), true);
               }
             }
-            if (!ok) { await checkTier(); go(CP); }
+            if (ok) {
+              showToast('✦ Welcome to ScentWise Premium! All AI features unlocked.', 'success', 6000);
+              go('chat');
+            } else {
+              await checkTier();
+              if (isPaid) { showToast('✦ Premium activated.', 'success'); go('chat'); }
+              else go(CP);
+            }
           } else {
             // Fallback: re-check tier (webhook may have processed)
             await checkTier();
-            if (isPaid) go(CP);
+            if (isPaid) { showToast('✦ Premium activated.', 'success'); go('chat'); }
           }
         }
       }
@@ -1677,12 +1684,13 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
 const NI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI Advisor'},
   {id:'photo',l:'Style Scan'},{id:'zodiac',l:'Zodiac'},{id:'music',l:'Music'},
-  {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},{id:'account',l:'Account'}
+  {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},
+  {id:'profile',l:'Profile'},{id:'account',l:'Account'}
 ];
 // Mobile bottom bar (core tabs)
 const MNI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI'},
-  {id:'_modes',l:'Modes'},{id:'account',l:'Account'}
+  {id:'_modes',l:'Modes'},{id:'profile',l:'Profile'}
 ];
 // All switchable modes (for the pill bar)
 const MODES = [
@@ -1742,6 +1750,7 @@ const PAGE_TITLES = {
   style: 'Style Match — ScentWise',
   dupe: 'Dupe Finder — ScentWise',
   celeb: 'Celebrity Fragrances — ScentWise',
+  profile: 'Your Scent Profile — ScentWise',
   account: 'Account — ScentWise',
   admin: 'Admin — ScentWise'
 };
@@ -3222,6 +3231,33 @@ function r_celeb(el) {
   _attachCelebImageObservers(el);
 }
 
+// ═══════════════ PROFILE PAGE ═══════════════
+function r_profile(el) {
+  const hasProfile = scentProfile && scentProfile.queryCount > 0;
+  el.innerHTML = `<div class="sec fi" style="max-width:720px;margin:40px auto">
+    <div class="sec-header">
+      <h2 class="fd"><span class="gg" style="font-weight:600">Your Scent</span> Profile</h2>
+      <p>A living record of your taste — built automatically as you chat with the AI, rate recommendations, and take the quiz. The more you use ScentWise, the sharper your recs get.</p>
+    </div>
+    ${!hasProfile ? `<div class="glass-panel" style="margin-bottom:18px;text-align:center;padding:32px 24px">
+      <div style="font-size:42px;margin-bottom:14px">✦</div>
+      <h3 style="font-size:20px;margin:0 0 10px;font-weight:500">No profile yet</h3>
+      <p style="color:var(--td);font-size:14px;line-height:1.7;margin:0 0 20px;max-width:420px;margin-left:auto;margin-right:auto">Start a chat, rate a recommendation, or take the 2-minute quiz. Your favorite notes, preferred brands, budget and wear context will appear here.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-sm" onclick="openScentQuiz()">Take the Quiz</button>
+        <button class="btn-o btn-sm" onclick="go('chat')">Start a Chat</button>
+      </div>
+    </div>` : renderProfileCard()}
+    ${hasProfile ? _renderCollection() : ''}
+    <div style="margin-top:24px;padding-top:18px;border-top:1px solid rgba(120,95,40,.08);text-align:center">
+      <a onclick="go('account')" style="color:var(--g);font-size:13px;cursor:pointer;text-decoration:underline">Account & billing →</a>
+    </div>
+  </div>`;
+  if (!profileLoaded && !profileLoading) {
+    loadScentProfile().then(() => { if (CP === 'profile') r_profile(el); });
+  }
+}
+
 // ═══════════════ ACCOUNT PAGE ═══════════════
 function r_account(el) {
   if (isPaid) {
@@ -3246,8 +3282,13 @@ function r_account(el) {
           <span style="font-size:14px">${isOwner ? 'Unlimited' : aiUsage + ' / ' + MAX_PAID + ' this month'}</span>
         </div>
       </div>
-      ${renderProfileCard()}
-      ${_renderCollection()}
+      <div class="glass-panel" style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div>
+          <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:4px;text-transform:uppercase">Scent Profile</p>
+          <p style="color:var(--td);font-size:13px;margin:0">${scentProfile && scentProfile.queryCount > 0 ? `Learned from ${scentProfile.queryCount} interaction${scentProfile.queryCount !== 1 ? 's' : ''}` : 'Not built yet — start a chat or take the quiz'}</p>
+        </div>
+        <button class="btn-o btn-sm" onclick="go('profile')" style="flex-shrink:0;white-space:nowrap">View →</button>
+      </div>
       <button class="btn-o" onclick="doLogout()" style="width:100%;text-align:center;margin-top:18px">Log Out</button>
     </div>`;
     // Load profile asynchronously and re-render once

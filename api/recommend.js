@@ -126,7 +126,7 @@ Open with 1-2 sentences that capture the vibe you're reading from the photo — 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
 2. WHY IT MATCHES YOU: 2-3 sentences of genuine, specific reasoning. Reference exact visual cues from the photo ("the cream knit and gold jewelry tell me you like warmth without loudness") and any profile data. Make them feel understood.
-3. BLIND BUY RISK: Conversational — "Safe blind buy, you'll wear it for years" / "Risky unless you already love [note] — sample first" / "Polarizing — people either marry it or hate it in 5 minutes"
+3. BLIND BUY RISK: One of — "Low-risk blind buy" / "Medium risk — only if you like [specific note]" / "Test first — polarizing"
 4. SIMILAR TO: Compare to something well-known so they have a reference point. E.g. "Think YSL Libre but softer, like it was wrapped in a cashmere blanket"
 5. SCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 
@@ -153,7 +153,7 @@ FORMAT: Use **bold** for fragrance names. Open with 1 short sentence acknowledgi
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
 2. WHY IT MATCHES YOU: 2-3 sentences of specific, human reasoning. Connect to their stated preferences, mood, memory, or scent profile. E.g. "You said you want something 'quiet but expensive-smelling' — this is exactly that. Soft iris powder, a whisper of leather, and it wears like a cashmere turtleneck."
-3. BLIND BUY RISK: Conversational — "Safe blind buy, you'll wear it for years" / "Risky unless you already love [note] — grab a sample first" / "Polarizing — people marry it or hate it inside 5 minutes"
+3. BLIND BUY RISK: One of — "Low-risk blind buy" / "Medium risk — only if you like [specific note]" / "Test first — polarizing"
 4. SIMILAR TO: Compare to a well-known reference. "Think Baccarat Rouge 540 but less loud and more wearable" / "Cousin to Aventus, same DNA but smokier"
 5. SCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 
