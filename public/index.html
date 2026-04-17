@@ -1227,6 +1227,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     <div class="hp-nav-links">
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a href="#hp-profile" onclick="event.preventDefault();document.getElementById('hp-profile').scrollIntoView({behavior:'smooth'})">Profile</a>
       <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <button class="hp-nav-search" onclick="openGlobalSearch()" aria-label="Search fragrances" title="Search (press /)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg><span>Search</span></button>
@@ -1340,6 +1341,27 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-profile">
+    <div class="hp-section-kicker hp-reveal visible">Your Scent Profile</div>
+    <div class="hp-section-heading hp-reveal visible">The AI <em>remembers</em> your taste.</div>
+    <p class="hp-section-copy hp-reveal visible">ScentWise builds a living profile of what you love — notes, brands, budgets, occasions — from every chat, rating and quiz. Every new recommendation gets sharper than the last.</p>
+    <div class="hp-reveal visible" style="max-width:820px;margin:36px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <div style="padding:22px 20px;border:1px solid var(--d4);border-radius:var(--r);background:rgba(255,255,255,.02)">
+        <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Favorite Notes</div>
+        <div style="color:var(--t);font-size:14px;line-height:1.6">Auto-detected from what you rate &amp; ask about — oud, iris, bergamot, whatever you gravitate toward.</div>
+      </div>
+      <div style="padding:22px 20px;border:1px solid var(--d4);border-radius:var(--r);background:rgba(255,255,255,.02)">
+        <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Skin &amp; Climate</div>
+        <div style="color:var(--t);font-size:14px;line-height:1.6">A 2-minute quiz tunes recs to your skin chemistry, weather, and how strongly you like to project.</div>
+      </div>
+      <div style="padding:22px 20px;border:1px solid var(--d4);border-radius:var(--r);background:rgba(255,255,255,.02)">
+        <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Your Collection</div>
+        <div style="color:var(--t);font-size:14px;line-height:1.6">Everything you save shows up in one place — exportable, searchable, and fed back into your recs.</div>
+      </div>
+    </div>
+    <div class="hp-reveal visible" style="margin-top:32px;text-align:center"><button class="hp-btn-ghost" onclick="go('account')" style="padding:14px 32px">Open Your Profile</button></div>
+  </section>
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-section" id="hp-pricing">
     <div class="hp-section-kicker hp-reveal visible">Simple Pricing</div>
     <div class="hp-section-heading hp-reveal visible">Start free. <em>Upgrade when you're ready.</em></div>
@@ -1429,8 +1451,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 <div id="page-style" class="hidden" role="region" aria-label="Style Match"></div>
 <div id="page-dupe" class="hidden" role="region" aria-label="Dupe Finder"></div>
 <div id="page-celeb" class="hidden" role="region" aria-label="Celebrity Fragrances"></div>
-<div id="page-profile" class="hidden" role="region" aria-label="Scent Profile"></div>
-<div id="page-account" class="hidden" role="region" aria-label="Account"></div>
+<div id="page-account" class="hidden" role="region" aria-label="Your Profile"></div>
 <div id="page-admin" class="hidden" role="region" aria-label="Admin"></div>
 </main>
 <!-- Cookie Banner (GDPR-compliant with granular consent) -->
