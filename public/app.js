@@ -2019,6 +2019,12 @@ function _renderCompareBar() {
     bar.style.cssText = 'position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--glass,var(--d2));border:1px solid rgba(201,169,110,.25);border-radius:16px;padding:12px 18px;display:flex;align-items:center;gap:12px;z-index:1000;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));max-width:calc(100vw - 24px);flex-wrap:wrap;backdrop-filter:blur(12px)';
     document.body.appendChild(bar);
   }
+  const ck = document.getElementById('cookie-banner');
+  if (ck && ck.offsetParent !== null) {
+    bar.style.bottom = (ck.offsetHeight + 80) + 'px';
+  } else {
+    bar.style.bottom = '70px';
+  }
   bar.innerHTML = _compareList.map((c, i) =>
     `<div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:var(--d3);border:1px solid rgba(201,169,110,.18);border-radius:8px;font-size:12px;color:var(--t)">
       <span style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span>
@@ -2182,7 +2188,7 @@ function showComparison() {
   overlay.innerHTML = `<div style="background:var(--d);border:1px solid rgba(201,169,110,.25);border-radius:20px;padding:${isMobile ? '20px 16px' : '28px'};max-width:900px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg,0 14px 40px rgba(74,56,24,.18));color:var(--t)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${isMobile ? '16px' : '24px'}">
       <h3 style="font-size:${isMobile ? '16px' : '18px'};font-weight:600;color:var(--t)">Fragrance Comparison</h3>
-      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:24px" aria-label="Close comparison">&times;</button>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;color:var(--td);cursor:pointer;font-size:22px;line-height:1;min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px" aria-label="Close comparison">&times;</button>
     </div>
     ${loadingBar}
     <div style="display:flex;gap:${isMobile ? '16px' : '20px'};${isMobile ? 'flex-direction:column' : 'overflow-x:auto'}">${cols}</div>
