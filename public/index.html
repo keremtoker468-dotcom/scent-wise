@@ -1001,6 +1001,13 @@ input::placeholder{color:var(--td);opacity:.7}
   opacity: 1;
   transform: translateY(0);
 }
+/* Desktop-only / mobile-only text swaps for the Profile & Account surface */
+.hp-mob-only, .hp-mob-only-block { display: none; }
+@media (max-width: 768px) {
+  .hp-desk-only { display: none !important; }
+  .hp-mob-only { display: inline; }
+  .hp-mob-only-block { display: block; }
+}
 /* Homepage responsive */
 @media (max-width: 900px) {
   .hp-mode-item.featured { grid-column: span 1; grid-template-columns: 1fr; }
@@ -1175,7 +1182,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   if (p === '/' || p === '/index.html') {
     var s = document.createElement('style');
     s.id = 'hp-hide';
-    s.textContent = '.nav-w,.mob-nav,#mode-bar,#site-footer,nav[aria-label]{display:none!important}body{padding-bottom:0!important}';
+    s.textContent = '.nav-w,#mode-bar,#site-footer,nav[aria-label]{display:none!important}';
     document.head.appendChild(s);
   }
 })();
@@ -1227,7 +1234,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     <div class="hp-nav-links">
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
-      <a href="#hp-profile" onclick="event.preventDefault();document.getElementById('hp-profile').scrollIntoView({behavior:'smooth'})">Profile &amp; Account</a>
+      <a href="#hp-profile" onclick="event.preventDefault();document.getElementById('hp-profile').scrollIntoView({behavior:'smooth'})"><span class="hp-desk-only">Profile &amp; Account</span><span class="hp-mob-only">Profile</span></a>
       <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
       <button class="hp-nav-search" onclick="openGlobalSearch()" aria-label="Search fragrances" title="Search (press /)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg><span>Search</span></button>
@@ -1263,7 +1270,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       </button>
       <button type="button" class="hp-feature-chip" onclick="go('account')" aria-label="Open your Profile and Account" style="background:rgba(201,169,110,.14);border-color:rgba(201,169,110,.5)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 14 0v1"/><path d="m19 3 1 2 2 1-2 1-1 2-1-2-2-1 2-1z"/></svg>
-        <span><strong>Profile &amp; Account</strong><em>Scent taste + billing</em></span>
+        <span><strong><span class="hp-desk-only">Profile &amp; Account</span><span class="hp-mob-only">Your Profile</span></strong><em><span class="hp-desk-only">Scent taste + billing</span><span class="hp-mob-only">AI learns your taste</span></em></span>
       </button>
     </div>
     <div class="hp-hero-subcta">
@@ -1271,7 +1278,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <span aria-hidden="true">·</span>
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">See all discovery modes</a>
       <span aria-hidden="true">·</span>
-      <a href="#" onclick="event.preventDefault();go('account')">Profile &amp; Account</a>
+      <a href="#" onclick="event.preventDefault();go('account')"><span class="hp-desk-only">Profile &amp; Account</span><span class="hp-mob-only">Your Profile</span></a>
     </div>
     <div class="hp-hero-stats">
       <div class="hp-hero-stat"><div class="num">75,000+</div><div class="label">Fragrances</div></div>
@@ -1348,9 +1355,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-section" id="hp-profile">
-    <div class="hp-section-kicker hp-reveal visible">Profile &amp; Account</div>
-    <div class="hp-section-heading hp-reveal visible">Your scent taste and account — <em>one place.</em></div>
-    <p class="hp-section-copy hp-reveal visible">Your Scent Profile and your Account &amp; Billing live together on a single page. The AI learns your taste from every chat and rating, and you manage your subscription, email, and usage from the same screen.</p>
+    <div class="hp-section-kicker hp-reveal visible"><span class="hp-desk-only">Profile &amp; Account</span><span class="hp-mob-only">Your Scent Profile</span></div>
+    <div class="hp-section-heading hp-reveal visible hp-desk-only">Your scent taste and account — <em>one place.</em></div>
+    <div class="hp-section-heading hp-reveal visible hp-mob-only-block">The AI <em>remembers</em> your taste.</div>
+    <p class="hp-section-copy hp-reveal visible hp-desk-only">Your Scent Profile and your Account &amp; Billing live together on a single page. The AI learns your taste from every chat and rating, and you manage your subscription, email, and usage from the same screen.</p>
+    <p class="hp-section-copy hp-reveal visible hp-mob-only-block">ScentWise builds a living profile of what you love — notes, brands, budgets, occasions — from every chat, rating and quiz. Every new recommendation gets sharper than the last.</p>
     <div class="hp-reveal visible" style="max-width:1040px;margin:36px auto 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
       <div style="padding:22px 20px;border:1px solid var(--d4);border-radius:var(--r);background:rgba(255,255,255,.02)">
         <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Favorite Notes</div>
@@ -1364,14 +1373,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
         <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Your Collection</div>
         <div style="color:var(--t);font-size:14px;line-height:1.6">Everything you save shows up in one place — exportable, searchable, and fed back into your recs.</div>
       </div>
-      <div style="padding:22px 20px;border:1px solid var(--g);border-radius:var(--r);background:var(--gl)">
+      <div class="hp-desk-only" style="padding:22px 20px;border:1px solid var(--g);border-radius:var(--r);background:var(--gl)">
         <div style="color:var(--g);font-size:11px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px">Account &amp; Billing</div>
         <div style="color:var(--t);font-size:14px;line-height:1.6">Log in, check your subscription status, email, monthly AI usage, and manage Premium — all on the same page as your profile.</div>
       </div>
     </div>
     <div class="hp-reveal visible" style="margin-top:32px;text-align:center">
-      <button class="hp-btn-ghost" onclick="go('account')" style="padding:14px 32px">Open Profile &amp; Account</button>
-      <div style="margin-top:12px;color:var(--td);font-size:12px">One page for your scent taste, collection, subscription and login.</div>
+      <button class="hp-btn-ghost" onclick="go('account')" style="padding:14px 32px"><span class="hp-desk-only">Open Profile &amp; Account</span><span class="hp-mob-only">Open Your Profile</span></button>
+      <div class="hp-desk-only" style="margin-top:12px;color:var(--td);font-size:12px">One page for your scent taste, collection, subscription and login.</div>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>

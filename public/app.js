@@ -1767,11 +1767,11 @@ function go(p) {
   const blogNav = document.querySelector('nav[aria-label]');
   if (p === 'home') {
     if (navW) navW.style.display = 'none';
-    if (mobNav) mobNav.style.display = 'none';
+    if (mobNav) mobNav.style.display = '';
     if (modeBar) modeBar.style.display = 'none';
     if (footer) footer.style.display = 'none';
     if (blogNav) blogNav.style.display = 'none';
-    document.body.style.paddingBottom = '0';
+    document.body.style.paddingBottom = '';
   } else {
     // Remove the early-hide stylesheet injected by inline script
     var hpHide = document.getElementById('hp-hide');
