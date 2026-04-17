@@ -1160,15 +1160,39 @@ function loadResultImages(container) {
 
 // ═══════════════ HELPERS ═══════════════
 const _AMZ_GEO = (function() {
-  const lang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
-  if (lang.startsWith('de')) return { domain: 'amazon.de', tag: 'scentwisede20-21' };
-  if (lang.startsWith('fr')) return { domain: 'amazon.fr', tag: 'scentwisede0e-21' };
-  if (lang.startsWith('es')) return { domain: 'amazon.es', tag: 'scentwised09f-21' };
-  if (lang.startsWith('it')) return { domain: 'amazon.it', tag: 'scentwisede09-21' };
-  if (lang === 'nl-be' || lang === 'fr-be') return { domain: 'amazon.com.be', tag: 'scentwisebe-21' };
-  if (lang.startsWith('nl')) return { domain: 'amazon.com.be', tag: 'scentwisebe-21' };
-  if (lang === 'en-gb') return { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' };
-  return { domain: 'amazon.com', tag: 'scentwise20-20' };
+  const STORES = {
+    de: { domain: 'amazon.de',     tag: 'scentwisede20-21' },
+    fr: { domain: 'amazon.fr',     tag: 'scentwisede0e-21' },
+    es: { domain: 'amazon.es',     tag: 'scentwised09f-21' },
+    it: { domain: 'amazon.it',     tag: 'scentwisede09-21' },
+    uk: { domain: 'amazon.co.uk',  tag: 'scentwiseuk-21'  },
+    be: { domain: 'amazon.com.be', tag: 'scentwisebe-21'  },
+    us: { domain: 'amazon.com',    tag: 'scentwise20-20'  }
+  };
+  // 1. Timezone wins — most reliable proxy for physical location
+  let tz = '';
+  try { tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase(); } catch (e) {}
+  const TZ_MAP = {
+    'europe/paris': 'fr', 'europe/monaco': 'fr',
+    'europe/berlin': 'de', 'europe/vienna': 'de', 'europe/zurich': 'de', 'europe/luxembourg': 'de',
+    'europe/madrid': 'es',
+    'europe/rome': 'it',
+    'europe/london': 'uk', 'europe/dublin': 'uk',
+    'europe/brussels': 'be', 'europe/amsterdam': 'be'
+  };
+  if (TZ_MAP[tz]) return STORES[TZ_MAP[tz]];
+  // 2. Fall back to all preferred languages (not just primary)
+  const langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || navigator.userLanguage || 'en']).map(l => String(l).toLowerCase());
+  for (const lang of langs) {
+    if (lang === 'nl-be' || lang === 'fr-be') return STORES.be;
+    if (lang === 'en-gb' || lang === 'cy-gb')  return STORES.uk;
+    if (lang.startsWith('de')) return STORES.de;
+    if (lang.startsWith('fr')) return STORES.fr;
+    if (lang.startsWith('es')) return STORES.es;
+    if (lang.startsWith('it')) return STORES.it;
+    if (lang.startsWith('nl')) return STORES.be;
+  }
+  return STORES.us;
 })();
 function amazonLink(name, brand) {
   const q = encodeURIComponent((name || '') + ' ' + (brand || '') + ' perfume');
