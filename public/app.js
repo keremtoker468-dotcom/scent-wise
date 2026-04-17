@@ -1100,7 +1100,7 @@ function _evictImgCache() {
   while (_imgCacheKeys.length > _IMG_CACHE_MAX) {
     const old = _imgCacheKeys.shift();
     delete _imgCache[old];
-    try { sessionStorage.removeItem(old); } catch {}
+    try { localStorage.removeItem(old); } catch {}
   }
 }
 
@@ -1108,7 +1108,7 @@ async function fetchImg(query, n, name, brand) {
   n = n || 1;
   const ck = name ? 'img_' + name + '_' + (brand || '') : 'img_' + query + '_' + n;
   if (_imgCache[ck]) return _imgCache[ck];
-  try { const cached = sessionStorage.getItem(ck); if (cached) { _imgCache[ck] = JSON.parse(cached); return _imgCache[ck]; } } catch {}
+  try { const cached = localStorage.getItem(ck); if (cached) { _imgCache[ck] = JSON.parse(cached); return _imgCache[ck]; } } catch {}
   try {
     const url = name
       ? '/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand || '')
@@ -1119,7 +1119,17 @@ async function fetchImg(query, n, name, brand) {
     _imgCache[ck] = imgs;
     _imgCacheKeys.push(ck);
     _evictImgCache();
-    try { sessionStorage.setItem(ck, JSON.stringify(imgs)); } catch {}
+    try { localStorage.setItem(ck, JSON.stringify(imgs)); } catch (e) {
+      // localStorage quota exceeded — drop oldest keys and retry once
+      try {
+        for (let i = 0; i < 20 && _imgCacheKeys.length; i++) {
+          const old = _imgCacheKeys.shift();
+          delete _imgCache[old];
+          localStorage.removeItem(old);
+        }
+        localStorage.setItem(ck, JSON.stringify(imgs));
+      } catch {}
+    }
     return imgs;
   } catch { return []; }
 }
@@ -1144,7 +1154,7 @@ function loadResultImages(container) {
     }
     const brand = match ? (match.brand || match.b || '') : '';
     fetchImg(query, 1, name, brand).then(imgs => {
-      if (imgs[0]) {
+      if (imgs[0] && imgs[0].thumb) {
         const img = document.createElement('img');
         img.className = 'result-img';
         img.src = imgs[0].thumb;
@@ -1362,7 +1372,7 @@ function loadCelebImages(container) {
     const brand = row.dataset.celebBrand || '';
     if (!name) return;
     fetchImg(name + ' ' + brand + ' perfume', 1, name, brand).then(imgs => {
-      if (!imgs || !imgs[0]) return;
+      if (!imgs || !imgs[0] || !imgs[0].thumb) return;
       const thumb = row.querySelector('.celeb-thumb');
       if (!thumb) return;
       const img = document.createElement('img');
@@ -1386,7 +1396,7 @@ function loadExploreImages() {
     // Use name + brand for specific results; fall back to category-based query
     const q = (name && brand) ? name + ' ' + brand + ' perfume' : (CAT_IMG_QUERIES[cat] || 'perfume bottle luxury');
     fetchImg(q, 1, name, brand).then(imgs => {
-      if (imgs[0]) {
+      if (imgs[0] && imgs[0].thumb) {
         const thumb = el.querySelector('.pc-thumb');
         if (thumb) {
           const img = document.createElement('img');
