@@ -590,6 +590,23 @@ input::placeholder{color:var(--td);opacity:.7}
   color: var(--hp-cream3);
   animation: hpFadeUp 0.8s 0.95s both;
 }
+.hp-hero-trust {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.8rem;
+  font-size: 0.78rem;
+  color: var(--hp-cream3);
+  letter-spacing: 0.02em;
+  animation: hpFadeUp 0.8s 0.75s both;
+}
+.hp-hero-trust strong { color: var(--hp-gold); font-weight: 600; }
+@media (max-width: 520px) {
+  .hp-hero-trust { flex-direction: column; gap: 0.25rem; font-size: 0.72rem; }
+  .hp-hero-trust span[aria-hidden="true"] { display: none; }
+}
 .hp-hero-subcta a {
   color: var(--hp-gold);
   text-decoration: none;
@@ -1227,6 +1244,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <input type="text" id="hp-hero-q" placeholder="e.g. Best fragrance for a date night..." aria-label="Describe what you're looking for" autocomplete="off">
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
+    <div class="hp-hero-trust" aria-label="Pricing and trial information">
+      <span>✦ 3 free AI queries</span>
+      <span aria-hidden="true">·</span>
+      <span>No sign-up required</span>
+      <span aria-hidden="true">·</span>
+      <span>Then <strong>$2.99/mo</strong> · cancel anytime</span>
+    </div>
     <div class="hp-hero-features">
       <button type="button" class="hp-feature-chip" onclick="go('photo')" aria-label="Upload a photo and get matched fragrances">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
@@ -1337,7 +1361,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
         <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:4px 16px;border-radius:20px">Most Popular</div>
         <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--g);margin-bottom:12px">Premium</div>
         <div style="font-size:36px;font-weight:700;margin-bottom:6px"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime</div>
+        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime · <a href="/refund.html" style="color:var(--g);text-decoration:underline">Refund policy</a></div>
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Everything in Free</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> AI Chat Advisor</li>

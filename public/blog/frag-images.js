@@ -318,6 +318,20 @@
     meta.insertBefore(span, meta.firstChild);
   }
 
+  // ═══ AFFILIATE DISCLOSURE (FTC compliance) ═══
+  function addAffiliateDisclosure() {
+    var article = document.querySelector('article.article');
+    if (!article || article.querySelector('.affiliate-disclosure')) return;
+    var meta = article.querySelector('.meta');
+    var anchor = meta || article.querySelector('h1');
+    if (!anchor) return;
+    var box = document.createElement('div');
+    box.className = 'affiliate-disclosure';
+    box.style.cssText = 'margin:14px 0 22px;padding:10px 14px;background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.22);border-radius:8px;font-size:12px;line-height:1.55;color:#595040';
+    box.innerHTML = '<strong style="color:#2a2218">Affiliate disclosure:</strong> This post contains affiliate links. ScentWise may earn a commission from qualifying purchases at no extra cost to you. See our <a href="/privacy.html" style="color:#8c6a2a;text-decoration:underline">privacy policy</a> for details.';
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+
   // ═══ RELATED ARTICLES ═══
   function addRelatedArticles() {
     var article = document.querySelector('article.article');
@@ -385,6 +399,7 @@
 
   function initBlogFeatures() {
     addReadingTime();
+    addAffiliateDisclosure();
     addRelatedArticles();
   }
 
