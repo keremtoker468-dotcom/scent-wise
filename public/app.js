@@ -943,6 +943,14 @@ function showPaywall() {
     <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime</p>
     <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
     <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
+    <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--d4);position:relative">
+      <p style="color:var(--td);font-size:12px;margin-bottom:14px;letter-spacing:.04em">Not ready? Keep exploring — free forever</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+        <button type="button" onclick="go('explore')" class="ghost-btn" aria-label="Browse the perfume database — free">Browse Database</button>
+        <button type="button" onclick="go('celeb')" class="ghost-btn" aria-label="Browse celebrity fragrance collections — free">Celebrity Picks</button>
+        <button type="button" onclick="go('home')" class="ghost-btn" aria-label="Return to home">Go Home</button>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -2166,17 +2174,17 @@ function r_home(el) {
   el.innerHTML = `<div class="hp-grain">
   <!-- Homepage Nav -->
   <nav class="hp-nav" id="hp-nav">
-    <div class="hp-nav-logo" onclick="go('home')">Scent<span>Wise</span></div>
+    <a class="hp-nav-logo" href="/" onclick="event.preventDefault();go('home')" aria-label="ScentWise — Home">Scent<span>Wise</span></a>
     <div class="hp-nav-links">
-      <a onclick="document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
-      <a onclick="document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
-      <a onclick="document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
-      <a onclick="document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
-      <a class="hp-nav-cta" onclick="go('chat')">Try Free</a>
+      <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
+      <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
+      <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
+      <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a class="hp-nav-cta" href="#" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
-    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+    <button type="button" class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" aria-label="Toggle navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </nav>
   <!-- Hero -->
   <section class="hp-hero">
@@ -2216,42 +2224,42 @@ function r_home(el) {
     <div class="hp-section-heading hp-reveal">Not sure what to ask? <em>Let your life pick.</em></div>
     <p class="hp-section-copy hp-reveal">Six alternative paths — each one reads a different dimension of who you are and matches fragrances to it.</p>
     <div class="hp-modes-layout">
-      <div class="hp-mode-item hp-reveal" onclick="go('zodiac')">
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('zodiac')" aria-label="Zodiac Match — Birthday to Scent">
         <div class="hp-mode-number">01</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('photo')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('photo')" aria-label="Photo Style Scan — Photo to Scent">
         <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('music')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('music')" aria-label="Music Match — Genres to Scent">
         <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('style')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('style')" aria-label="Style Match — Fashion to Scent">
         <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('dupe')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('dupe')" aria-label="Dupe Finder — Find affordable alternatives">
         <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Dupe Finder</div>
         <div class="hp-mode-desc">Love an expensive fragrance? We'll find affordable alternatives that smell just like the original.</div>
         <div class="hp-mode-tag">Fragrance → Dupes</div>
-      </div>
-      <div class="hp-mode-item hp-reveal" onclick="go('celeb')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal" onclick="go('celeb')" aria-label="Celebrity Collections — Browse icons">
         <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
-      </div>
+      </button>
     </div>
   </section>
   <!-- Divider -->
@@ -2375,24 +2383,29 @@ function r_home(el) {
   </div>`;
   // Initialize reveal animations for homepage
   setTimeout(() => {
+    const reveals = document.querySelectorAll('.hp-reveal');
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      // Skip animation entirely — content stays visible (default state)
+      reveals.forEach(el => el.classList.add('visible'));
+      return;
+    }
     // Enable reveal animations (content is visible by default without .hp-anim)
     const grain = el.querySelector('.hp-grain');
     if (grain) grain.classList.add('hp-anim');
-    const reveals = document.querySelectorAll('.hp-reveal');
     if ('IntersectionObserver' in window) {
       const hpObserver = new IntersectionObserver((entries) => {
         entries.forEach((entry, i) => {
           if (entry.isIntersecting) {
-            setTimeout(() => entry.target.classList.add('visible'), i * 80);
+            setTimeout(() => entry.target.classList.add('visible'), i * 60);
             hpObserver.unobserve(entry.target);
           }
         });
-      }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+      }, { threshold: 0.01, rootMargin: '0px 0px 200px 0px' });
       reveals.forEach(el => hpObserver.observe(el));
-      // Fallback: force-reveal any elements still hidden after 2s
-      setTimeout(() => { reveals.forEach(el => { if (!el.classList.contains('visible')) el.classList.add('visible'); }); }, 2000);
+      // Fallback: force-reveal anything still hidden quickly (short safety net)
+      setTimeout(() => { reveals.forEach(el => { if (!el.classList.contains('visible')) el.classList.add('visible'); }); }, 400);
     } else {
-      // No IntersectionObserver: reveal all immediately
       reveals.forEach(el => el.classList.add('visible'));
     }
     // Homepage nav scroll effect (throttled with rAF for better INP)

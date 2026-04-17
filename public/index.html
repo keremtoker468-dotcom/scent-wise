@@ -132,6 +132,9 @@ a{color:inherit;text-decoration:none}
 .btn-o{background:transparent;color:var(--g);border:1px solid rgba(201,169,110,.3);border-radius:var(--r);padding:12px 28px;cursor:pointer;transition:all .25s;font-family:'DM Sans';font-size:14px;font-weight:500;backdrop-filter:blur(8px)}
 .btn-o:hover{background:var(--gl);border-color:var(--g);transform:translateY(-1px)}
 .btn-sm{padding:8px 20px;font-size:13px;border-radius:var(--r-sm)}
+.ghost-btn{background:transparent;color:var(--t2);border:1px solid var(--d4);border-radius:100px;padding:9px 18px;cursor:pointer;font-family:'DM Sans';font-size:12.5px;font-weight:500;letter-spacing:.03em;transition:all .2s;min-height:40px}
+.ghost-btn:hover{border-color:var(--g);color:var(--g);background:var(--gl)}
+.ghost-btn:focus-visible{outline:2px solid var(--g);outline-offset:2px}
 
 /* ═══ CARDS ═══ */
 .card{background:var(--glass);border:1px solid rgba(120,95,40,.14);border-radius:var(--r);padding:22px;transition:all .3s cubic-bezier(.4,0,.2,1);cursor:pointer;backdrop-filter:blur(12px);position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(74,56,24,.05)}
@@ -308,7 +311,10 @@ input::placeholder{color:var(--td);opacity:.7}
   /* Better grid layouts on mobile */
   .grid{gap:12px}
   /* Push cookie banner & PWA install above bottom nav */
-  #cookie-banner{bottom:72px !important}
+  #cookie-banner{bottom:72px !important;padding:10px 14px !important;font-size:12px !important;max-height:40vh;overflow-y:auto}
+  #cookie-banner .ck-long{display:none !important}
+  #cookie-banner .ck-short{display:block !important}
+  #cookie-banner .btn-sm,#cookie-banner .btn.btn-sm{padding:7px 14px !important;font-size:12px !important;min-height:36px !important}
   #pwa-install-banner{bottom:80px !important}
   /* Fix offline indicator: don't cover nav */
   #offline-indicator{top:auto !important;bottom:72px !important;border-top:none !important;border-radius:0}
@@ -367,7 +373,14 @@ input::placeholder{color:var(--td);opacity:.7}
   letter-spacing: 0.08em;
   color: var(--hp-cream);
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: none;
+  display: inline-block;
+  line-height: 1;
 }
+.hp-nav-logo:hover { opacity: .82; }
 .hp-nav-logo span { color: var(--hp-gold); font-weight: 600; }
 .hp-nav-links {
   display: flex;
@@ -422,6 +435,19 @@ input::placeholder{color:var(--td);opacity:.7}
   gap: 5px;
   cursor: pointer;
   padding: 4px;
+  background: none;
+  border: none;
+}
+.hp-nav-toggle:focus-visible {
+  outline: 2px solid var(--hp-gold);
+  outline-offset: 3px;
+}
+.hp-nav-logo:focus-visible,
+.hp-nav-links a:focus-visible,
+.hp-nav-cta:focus-visible,
+.hp-nav-search:focus-visible {
+  outline: 2px solid var(--hp-gold);
+  outline-offset: 3px;
 }
 .hp-nav-toggle span {
   width: 22px;
@@ -647,6 +673,16 @@ input::placeholder{color:var(--td);opacity:.7}
   transition: all 0.4s;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(74,56,24,.05);
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  text-align: left;
+  width: 100%;
+  display: block;
+}
+.hp-mode-item:focus-visible {
+  outline: 2px solid var(--hp-gold);
+  outline-offset: 3px;
 }
 .hp-mode-item::before {
   content: '';
@@ -1130,7 +1166,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 <main id="main-content">
 <div id="page-home" role="region" aria-label="Home"><div class="hp-grain">
   <nav class="hp-nav" id="hp-nav">
-    <div class="hp-nav-logo" onclick="go('home')">Scent<span>Wise</span></div>
+    <a class="hp-nav-logo" href="/" onclick="event.preventDefault();go('home')" aria-label="ScentWise — Home">Scent<span>Wise</span></a>
     <div class="hp-nav-links">
       <a href="#hp-discover" onclick="event.preventDefault();document.getElementById('hp-discover').scrollIntoView({behavior:'smooth'})">Discover</a>
       <a href="#hp-how" onclick="event.preventDefault();document.getElementById('hp-how').scrollIntoView({behavior:'smooth'})">How It Works</a>
@@ -1139,9 +1175,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <button class="hp-nav-search" onclick="openGlobalSearch()" aria-label="Search fragrances" title="Search (press /)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3-3"></path></svg><span>Search</span></button>
       <a href="#" class="hp-nav-cta" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
-    <div class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.classList.toggle('open');this.setAttribute('aria-expanded',this.classList.contains('open'))" role="button" tabindex="0" aria-label="Toggle navigation menu" aria-expanded="false">
+    <button type="button" class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.classList.toggle('open');this.setAttribute('aria-expanded',this.classList.contains('open'))" aria-label="Toggle navigation menu" aria-expanded="false">
       <span></span><span></span><span></span>
-    </div>
+    </button>
   </nav>
   <section class="hp-hero">
     <div class="hp-hero-eyebrow">Fragrance Discovery, Reimagined</div>
@@ -1168,42 +1204,42 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     <div class="hp-section-heading hp-reveal visible">Not sure what to ask? <em>Let your life pick.</em></div>
     <p class="hp-section-copy hp-reveal visible">Six alternative paths — each one reads a different dimension of who you are and matches fragrances to it.</p>
     <div class="hp-modes-layout">
-      <div class="hp-mode-item hp-reveal visible" onclick="go('zodiac')">
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('zodiac')" aria-label="Zodiac Match — Birthday to Scent">
         <div class="hp-mode-number">01</div>
         <div class="hp-mode-name">Zodiac Match</div>
         <div class="hp-mode-desc">Enter your birthday and discover fragrances aligned with your celestial profile and elemental energy.</div>
         <div class="hp-mode-tag">Birthday → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal visible" onclick="go('photo')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('photo')" aria-label="Photo Style Scan — Photo to Scent">
         <div class="hp-mode-number">02</div>
         <div class="hp-mode-name">Photo Style Scan</div>
         <div class="hp-mode-desc">Upload any photo — your outfit, your room, a place you love — and we'll read the aesthetic to match fragrances.</div>
         <div class="hp-mode-tag">Photo → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal visible" onclick="go('music')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('music')" aria-label="Music Match — Genres to Scent">
         <div class="hp-mode-number">03</div>
         <div class="hp-mode-name">Music Match</div>
         <div class="hp-mode-desc">Tell us what you listen to. Your sonic taste reveals more about your fragrance preferences than you'd think.</div>
         <div class="hp-mode-tag">Genres → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal visible" onclick="go('style')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('style')" aria-label="Style Match — Fashion to Scent">
         <div class="hp-mode-number">04</div>
         <div class="hp-mode-name">Style Match</div>
         <div class="hp-mode-desc">Your wardrobe speaks volumes. Describe your fashion sense and we'll find scents that complete the picture.</div>
         <div class="hp-mode-tag">Fashion → Scent</div>
-      </div>
-      <div class="hp-mode-item hp-reveal visible" onclick="go('dupe')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('dupe')" aria-label="Dupe Finder — Find affordable alternatives">
         <div class="hp-mode-number">05</div>
         <div class="hp-mode-name">Dupe Finder</div>
         <div class="hp-mode-desc">Love an expensive fragrance? Find affordable alternatives that smell nearly identical at a fraction of the price.</div>
         <div class="hp-mode-tag">Luxury → Budget Match</div>
-      </div>
-      <div class="hp-mode-item hp-reveal visible" onclick="go('celeb')">
+      </button>
+      <button type="button" class="hp-mode-item hp-reveal visible" onclick="go('celeb')" aria-label="Celebrity Collections — Browse icons">
         <div class="hp-mode-number">06</div>
         <div class="hp-mode-name">Celebrity Collections</div>
         <div class="hp-mode-desc">Explore the signature fragrances of icons — from athletes to actors, musicians to moguls.</div>
         <div class="hp-mode-tag">Browse → Discover</div>
-      </div>
+      </button>
     </div>
   </section>
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
@@ -1325,7 +1361,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 <!-- Cookie Banner (GDPR-compliant with granular consent) -->
 <div id="cookie-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(250,244,232,.97);border-top:1px solid rgba(201,169,110,.35);padding:16px 20px;padding-bottom:max(16px, env(safe-area-inset-bottom));font-size:13px;color:var(--td);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:bottom .2s;box-shadow:0 -4px 20px rgba(74,56,24,.1)">
   <div style="max-width:960px;margin:0 auto">
-    <p style="line-height:1.6;margin:0 0 12px 0">We use <strong style="color:var(--t)">essential cookies</strong> (authentication, free trial tracking) plus optional <strong style="color:var(--t)">analytics</strong> (Google Analytics, Vercel) and <strong style="color:var(--t)">advertising</strong> (Google AdSense) cookies. <a href="/privacy.html" style="color:var(--gd);font-weight:600">Privacy Policy</a></p>
+    <p class="ck-long" style="line-height:1.6;margin:0 0 12px 0">We use <strong style="color:var(--t)">essential cookies</strong> (authentication, free trial tracking) plus optional <strong style="color:var(--t)">analytics</strong> (Google Analytics, Vercel) and <strong style="color:var(--t)">advertising</strong> (Google AdSense) cookies. <a href="/privacy.html" style="color:var(--gd);font-weight:600">Privacy Policy</a></p>
+    <p class="ck-short" style="line-height:1.5;margin:0 0 10px 0;display:none">We use cookies for essential, analytics, and ads. <a href="/privacy.html" style="color:var(--gd);font-weight:600">Privacy</a></p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button onclick="acceptAllCookies()" class="btn btn-sm">Accept All</button>
       <button onclick="acceptEssentialOnly()" class="btn-o btn-sm">Essential Only</button>
