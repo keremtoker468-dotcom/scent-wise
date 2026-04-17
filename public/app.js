@@ -56,7 +56,7 @@ async function captureEmail(e) {
     const d = await r.json().catch(() => ({}));
     if (!r.ok) {
       showToast(d.error || 'Could not subscribe. Please try again.', 'error');
-      if (btn) { btn.disabled = false; btn.textContent = 'Subscribe Free'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'Join the list'; }
       if (input) input.disabled = false;
       return false;
     }
@@ -1833,6 +1833,35 @@ function heroStart(q) {
 }
 window.heroStart = heroStart;
 
+// Rotate short placeholder prompts on the home hero input so first-time
+// visitors see the full range of things they can ask — far better than a
+// single static example.
+const HERO_PLACEHOLDERS = [
+  'Try: a beach day, my first date, Tom Ford but cheaper...',
+  'Try: something for a rainy Sunday in a bookstore...',
+  'Try: Tom Ford but under $60...',
+  'Try: smells like a cozy sweater...',
+  'Try: first-date scent, not too loud...',
+  'Try: office-safe but not boring...',
+  'Try: what would a villain wear?',
+  'Try: warm, spicy, winter evenings...',
+  'Try: summer, linen shirt, iced coffee...'
+];
+let _heroPhIdx = 0, _heroPhTimer = null;
+function startHeroPlaceholderRotation() {
+  const el = document.getElementById('hp-hero-q');
+  if (!el) return;
+  if (_heroPhTimer) clearInterval(_heroPhTimer);
+  _heroPhTimer = setInterval(() => {
+    // Stop rotating once the user engages with the field
+    if (el !== document.activeElement && !el.value) {
+      _heroPhIdx = (_heroPhIdx + 1) % HERO_PLACEHOLDERS.length;
+      el.placeholder = HERO_PLACEHOLDERS[_heroPhIdx];
+    }
+  }, 3200);
+}
+window.startHeroPlaceholderRotation = startHeroPlaceholderRotation;
+
 // ═══════════════ GLOBAL SEARCH OVERLAY ═══════════════
 let _gsActive = -1, _gsResults = [], _gsDebounce = null;
 function openGlobalSearch() {
@@ -2311,13 +2340,13 @@ function r_home(el) {
     <h1>Find the scent that <em>feels like you</em></h1>
     <p class="hp-hero-sub">Describe the mood, occasion, or memory — and we'll match it to real fragrances from a collection of ${perfumeCount}+.</p>
     <form class="hp-hero-input" onsubmit="event.preventDefault();heroStart(this.querySelector('input').value)" role="search">
-      <input type="text" id="hp-hero-q" placeholder="e.g. Best fragrance for a date night..." aria-label="Describe what you're looking for" autocomplete="off">
+      <input type="text" id="hp-hero-q" placeholder="Try: a beach day, my first date, Tom Ford but cheaper..." aria-label="Describe what you're looking for" autocomplete="off">
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
     <div class="hp-hero-trust" aria-label="Pricing and trial information">
       <span>&#10022; 3 free AI queries</span>
       <span aria-hidden="true">·</span>
-      <span>No sign-up required</span>
+      <span>No credit card to try</span>
       <span aria-hidden="true">·</span>
       <span>Then <strong>$2.99/mo</strong> · cancel anytime</span>
     </div>
@@ -2484,8 +2513,16 @@ function r_home(el) {
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 500 AI queries/month</li>
         </ul>
         <button class="hp-btn-primary" onclick="unlockPaid()" data-subscribe-btn style="width:100%;padding:14px">Get Premium</button>
+        <div style="display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;align-items:center;margin-top:14px;color:var(--td);font-size:12px;line-height:1.4">
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Cancel anytime</span>
+          <span aria-hidden="true" style="opacity:.4">·</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> 7-day refund</span>
+          <span aria-hidden="true" style="opacity:.4">·</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Secure checkout</span>
+        </div>
       </div>
     </div>
+    <p class="hp-reveal" style="text-align:center;color:var(--d5);font-size:11px;margin-top:22px;letter-spacing:.3px">Trusted by fragrance lovers worldwide · Powered by Google Gemini AI</p>
   </section>
   <!-- Email Capture -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
@@ -2495,7 +2532,7 @@ function r_home(el) {
     <p class="hp-section-copy hp-reveal">Join our newsletter for weekly scent recommendations, new release alerts, and subscriber-only content.</p>
     <form id="hp-email-form" class="hp-reveal" onsubmit="return captureEmail(event)" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:32px;max-width:520px;margin-left:auto;margin-right:auto">
       <input type="email" id="hp-email-input" placeholder="Enter your email" required style="flex:1;min-width:220px;padding:14px 18px;background:var(--d3);border:1px solid var(--d4);color:var(--t);border-radius:var(--r);font-family:'DM Sans';font-size:14px;outline:none">
-      <button type="submit" class="hp-btn-primary" id="hp-email-btn" style="padding:14px 28px;white-space:nowrap">Subscribe Free</button>
+      <button type="submit" class="hp-btn-primary" id="hp-email-btn" style="padding:14px 28px;white-space:nowrap">Join the list</button>
     </form>
     <p class="hp-reveal" style="color:var(--d5);font-size:11px;margin-top:12px;text-align:center">No spam. Unsubscribe anytime.</p>
   </section>
@@ -2587,6 +2624,7 @@ function r_home(el) {
       };
       window.addEventListener('scroll', window._hpScrollHandler, {passive: true});
     }
+    startHeroPlaceholderRotation();
   }, 50);
 }
 
