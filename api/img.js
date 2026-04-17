@@ -138,8 +138,6 @@ module.exports = async function handler(req, res) {
   if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
 
   const ip = getClientIp(req);
-  const rl = await rateLimit(`img:${ip}`, 30, 60000);
-  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json([]); }
 
   const name = (req.query.name || '').trim();
   const brand = (req.query.brand || '').trim();
@@ -152,12 +150,16 @@ module.exports = async function handler(req, res) {
 
     const redisKey = 'fi:' + (name + '|' + brand).toLowerCase();
 
-    // Check Redis cache first
+    // Check Redis cache first — cache hits bypass rate limit (they cost nothing)
     const cached = await redisGet(redisKey);
     if (cached) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
       return res.status(200).json([{ url: cached.u, thumb: cached.t, alt: cached.a }]);
     }
+
+    // Cache miss — rate limit now (protects external APIs, not cached reads)
+    const rl = await rateLimit(`img:${ip}`, 60, 60000);
+    if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json([]); }
 
     // Try Brave Image Search (with monthly quota cap)
     const underQuota = await braveQuotaCheck();
@@ -181,6 +183,10 @@ module.exports = async function handler(req, res) {
 
   // Mode 2: Generic query (Unsplash only — for hero images, categories, etc.)
   if (!q || q.length > 200) return res.status(400).json([]);
+
+  // Generic queries go to Unsplash directly; rate limit applies (no per-query Redis cache here)
+  const rl = await rateLimit(`img:${ip}`, 60, 60000);
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json([]); }
 
   const imgs = await searchUnsplash(q, n);
   res.setHeader('Cache-Control', 'public, max-age=3600');
