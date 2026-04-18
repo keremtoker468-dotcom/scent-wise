@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, readDeviceFreeUsage, readOrMintDeviceId, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, readDeviceFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
 
 function verifySubToken(cookieValue, secret) {
@@ -264,12 +264,14 @@ module.exports = async function handler(req, res) {
   if (trialSecret) {
     const { deviceId } = readOrMintDeviceId(req, res, trialSecret, isProduction);
     const freeUsage = await readDeviceFreeUsage(req, deviceId, trialSecret);
+    const emailGiven = readEmailFlag(req, deviceId, trialSecret);
     return res.status(200).json({
       tier: 'free',
       freeUsed: freeUsage.count,
-      freeLimit: FREE_TRIAL_QUERIES
+      freeLimit: FREE_TRIAL_QUERIES,
+      emailGiven
     });
   }
 
-  return res.status(200).json({ tier: 'free', freeUsed: 0, freeLimit: FREE_TRIAL_QUERIES });
+  return res.status(200).json({ tier: 'free', freeUsed: 0, freeLimit: FREE_TRIAL_QUERIES, emailGiven: false });
 };

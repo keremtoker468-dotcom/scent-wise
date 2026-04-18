@@ -1,70 +1,62 @@
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
+const { readOrMintDeviceId, writeEmailFlag } = require('./_lib/usage');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_TTL = 365 * 24 * 60 * 60;
 
-module.exports = async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-  if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
-  if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
-  if (isBodyTooLarge(req)) return res.status(413).json({ error: 'Request too large' });
+// Persist the gate email in Redis keyed by deviceId so we can retarget later.
+// Non-blocking: if Redis is down, the HMAC cookie still unlocks the gate.
+async function redisStoreGateEmail(deviceId, email) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token || !deviceId) return false;
+  try {
+    const key = `sw_email:${deviceId}`;
+    const payload = JSON.stringify({ email, ts: Date.now() });
+    const resp = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([
+        ['SET', key, payload],
+        ['EXPIRE', key, EMAIL_TTL]
+      ])
+    });
+    return resp.ok;
+  } catch { return false; }
+}
 
-  const ip = getClientIp(req);
-  const rl = await rateLimit(`subscribe:${ip}`, 3, 60000);
-  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Please wait a moment.' }); }
-
-  const { email } = req.body || {};
-  if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim()) || email.length > 254) {
-    return res.status(400).json({ error: 'Invalid email address.' });
-  }
-
-  const cleanEmail = email.trim().toLowerCase();
-
-  // ── 1. Add to Beehiiv audience ──────────────────────────────────────────
+async function subscribeBeehiiv(cleanEmail) {
   const beehiivKey = process.env.BEEHIIV_API_KEY;
   const beehiivPub = process.env.BEEHIIV_PUBLICATION_ID;
-
-  if (beehiivKey && beehiivPub) {
-    try {
-      const r = await fetch(`https://api.beehiiv.com/v2/publications/${beehiivPub}/subscriptions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${beehiivKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: cleanEmail,
-          reactivate_existing: false,
-          send_welcome_email: false, // we send our own below
-          utm_source: 'website',
-          utm_medium: 'organic'
-        })
-      });
-      if (!r.ok) {
-        const err = await r.text();
-        console.error('Beehiiv subscribe error:', r.status, err);
-        // Don't block — still send welcome email
-      }
-    } catch (err) {
-      console.error('Beehiiv error:', err);
-    }
-  }
-
-  // ── 2. Send welcome email via Resend ────────────────────────────────────
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) {
-    console.error('RESEND_API_KEY not configured');
-    return res.status(200).json({ ok: true });
-  }
-
+  if (!beehiivKey || !beehiivPub) return;
   try {
-    const fromEmail = process.env.RESEND_FROM_EMAIL || 'ScentWise <newsletter@scent-wise.com>';
+    const r = await fetch(`https://api.beehiiv.com/v2/publications/${beehiivPub}/subscriptions`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${beehiivKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: cleanEmail,
+        reactivate_existing: false,
+        send_welcome_email: false,
+        utm_source: 'website',
+        utm_medium: 'organic'
+      })
+    });
+    if (!r.ok) {
+      const err = await r.text();
+      console.error('Beehiiv subscribe error:', r.status, err);
+    }
+  } catch (err) { console.error('Beehiiv error:', err); }
+}
+
+async function sendWelcomeEmail(cleanEmail) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) { console.error('RESEND_API_KEY not configured'); return; }
+  const fromEmail = process.env.RESEND_FROM_EMAIL || 'ScentWise <newsletter@scent-wise.com>';
+  try {
     await fetch('https://api.resend.com/emails', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: fromEmail,
         to: [cleanEmail],
@@ -93,9 +85,11 @@ module.exports = async function handler(req, res) {
           </td></tr></table>
         </td></tr>
         <tr><td style="padding:24px 40px;border-top:1px solid #1a1a1a;text-align:center">
+          <p style="margin:0 0 8px;font-size:12px;color:#4a4542">
+            You're receiving this because you subscribed at <a href="https://scent-wise.com" style="color:#c9a96e;text-decoration:none">scent-wise.com</a>.
+          </p>
           <p style="margin:0;font-size:12px;color:#4a4542">
-            You're receiving this because you subscribed at scent-wise.com.<br>
-            <a href="https://scent-wise.com" style="color:#c9a96e;text-decoration:none">Unsubscribe</a>
+            Don't want these? <a href="mailto:scentwise.com@gmail.com?subject=Unsubscribe%20${encodeURIComponent(cleanEmail)}&body=Please%20unsubscribe%20${encodeURIComponent(cleanEmail)}%20from%20the%20ScentWise%20newsletter." style="color:#c9a96e;text-decoration:underline">Unsubscribe</a> &middot; <a href="https://scent-wise.com/privacy.html" style="color:#c9a96e;text-decoration:none">Privacy</a>
           </p>
         </td></tr>
       </table>
@@ -105,7 +99,55 @@ module.exports = async function handler(req, res) {
 </html>`
       })
     });
+  } catch (err) { console.error('Resend welcome error:', err); }
+}
 
+async function fireNewsletterSideEffects(cleanEmail) {
+  await subscribeBeehiiv(cleanEmail);
+  await sendWelcomeEmail(cleanEmail);
+}
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (!validateOrigin(req)) return res.status(403).json({ error: 'Forbidden' });
+  if (!validateContentType(req)) return res.status(415).json({ error: 'Content-Type must be application/json' });
+  if (isBodyTooLarge(req)) return res.status(413).json({ error: 'Request too large' });
+
+  const body = req.body || {};
+  const action = body.action === 'gate' ? 'gate' : 'newsletter';
+  const ip = getClientIp(req);
+  // Separate rate-limit buckets so the two flows don't starve each other.
+  const rl = await rateLimit(`subscribe:${action}:${ip}`, action === 'gate' ? 5 : 3, 60000);
+  if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Please wait a moment.' }); }
+
+  const { email } = body;
+  if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim()) || email.length > 254) {
+    return res.status(400).json({ error: 'Invalid email address.' });
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+
+  // ── GATE path: set HMAC cookie so the frontend can unlock queries 2–3 ──
+  if (action === 'gate') {
+    const subSecret = process.env.SUBSCRIPTION_SECRET;
+    if (!subSecret) {
+      console.error('Missing SUBSCRIPTION_SECRET for gate flow');
+      return res.status(500).json({ error: 'Server not configured' });
+    }
+    const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+    const { deviceId } = readOrMintDeviceId(req, res, subSecret, isProduction);
+    writeEmailFlag(res, deviceId, subSecret, isProduction);
+    // Non-blocking: retarget store + newsletter subscribe + welcome email.
+    // Gate unlock must succeed even if marketing infra is down.
+    redisStoreGateEmail(deviceId, cleanEmail).catch(() => {});
+    // Fire-and-forget: let the newsletter side-effects run but don't block the response
+    setImmediate(() => { fireNewsletterSideEffects(cleanEmail).catch(() => {}); });
+    return res.status(200).json({ success: true, emailGiven: true });
+  }
+
+  // ── Newsletter path: run side-effects, return ok when welcome email fires ──
+  try {
+    await fireNewsletterSideEffects(cleanEmail);
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('Subscribe error:', err);

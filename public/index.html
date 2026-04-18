@@ -1157,6 +1157,36 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:768px){.pc-thumb{width:44px;height:56px}.pc-letter{font-size:16px}}
 .cmp-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--d4);font-size:13px;color:var(--t)}
 .cmp-label{color:var(--td);font-weight:500;white-space:nowrap;min-width:60px}
+/* ═══ EMAIL GATE TEASER (locked rest of free-trial response) ═══ */
+.teaser-locked{position:relative;margin-top:18px;border-top:1px dashed rgba(201,169,110,.25);padding-top:18px}
+.teaser-blur{filter:blur(6px);pointer-events:none;user-select:none;max-height:220px;overflow:hidden;mask-image:linear-gradient(to bottom,#000 30%,transparent 95%);-webkit-mask-image:linear-gradient(to bottom,#000 30%,transparent 95%)}
+.teaser-cta{margin-top:-40px;position:relative;z-index:2;text-align:center;padding:22px 20px;background:linear-gradient(180deg,rgba(10,10,10,.5) 0%,rgba(10,10,10,.96) 55%,var(--bg) 100%);border-radius:14px}
+.teaser-cta .teaser-kicker{font-size:10px;letter-spacing:2.4px;color:var(--g);text-transform:uppercase;font-weight:700;margin-bottom:10px}
+.teaser-cta .teaser-title{font-size:17px;font-weight:600;color:var(--t);margin-bottom:6px;line-height:1.35}
+.teaser-cta .teaser-sub{font-size:13px;color:var(--td);margin-bottom:16px;line-height:1.55}
+.teaser-cta .teaser-btn{display:inline-block;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:700;border:none;border-radius:12px;padding:12px 28px;font-size:14px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+.teaser-cta .teaser-btn:hover{filter:brightness(1.05)}
+.teaser-cta .teaser-skip{display:block;margin-top:10px;font-size:11px;color:var(--td);background:none;border:none;cursor:pointer;text-decoration:underline;letter-spacing:.4px;font-family:inherit}
+/* ═══ EMAIL GATE MODAL (post-query-1) ═══ */
+.gate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:gateFadeIn .3s ease}
+@keyframes gateFadeIn{from{opacity:0}to{opacity:1}}
+.gate-card{background:#0f0f0f;border:1px solid rgba(201,169,110,.25);border-radius:18px;max-width:440px;width:100%;padding:36px 30px;position:relative;box-shadow:0 40px 120px rgba(0,0,0,.7);animation:gateSlideIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes gateSlideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.gate-card .gate-kicker{font-size:10px;letter-spacing:2.4px;color:var(--g);text-transform:uppercase;font-weight:700;text-align:center;margin-bottom:12px}
+.gate-card h3{font-size:22px;font-weight:600;line-height:1.3;color:var(--t);text-align:center;margin:0 0 10px}
+.gate-card h3 em{font-style:normal;background:linear-gradient(135deg,#c9a96e,#e6c896);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gate-card .gate-sub{font-size:13.5px;color:var(--td);text-align:center;line-height:1.6;margin-bottom:22px}
+.gate-card .gate-benefits{display:grid;gap:8px;margin:0 0 20px;padding:14px 16px;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.12);border-radius:12px;font-size:12.5px;color:var(--t)}
+.gate-card .gate-benefits div{display:flex;align-items:center;gap:8px}
+.gate-card .gate-benefits span.check{color:var(--g);font-weight:700}
+.gate-card input[type=email]{width:100%;padding:14px 16px;background:#141414;border:1px solid var(--d4);color:var(--t);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .15s}
+.gate-card input[type=email]:focus{border-color:var(--g)}
+.gate-card .gate-submit{width:100%;margin-top:12px;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:700;border:none;border-radius:12px;padding:14px;font-size:14.5px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
+.gate-card .gate-submit:disabled{opacity:.55;cursor:wait}
+.gate-card .gate-skip{display:block;margin:14px auto 0;background:none;border:none;color:var(--td);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:4px}
+.gate-card .gate-skip:hover{color:var(--t)}
+.gate-card .gate-priv{font-size:10.5px;color:var(--d5);text-align:center;margin-top:14px;letter-spacing:.2px;line-height:1.5}
+.gate-card .gate-err{color:#f56565;font-size:12px;text-align:center;margin-top:10px;min-height:14px}
 </style>
 <!-- Analytics (privacy-respecting, no cookies) -->
 <script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
@@ -1247,7 +1277,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
     <div class="hp-hero-trust" aria-label="Pricing and trial information">
-      <span>✦ 3 free AI queries</span>
+      <span>✦ 1 free pick · 2 more with email</span>
       <span aria-hidden="true">·</span>
       <span>No sign-up required</span>
       <span aria-hidden="true">·</span>
@@ -1381,7 +1411,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Search 75,000+ fragrances</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Celebrity collections (101 icons)</li>
-          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 3 free AI queries across all modes</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 1 free AI pick + 2 more with email</li>
           <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> Unlimited AI after trial (upgrade to Premium)</li>
         </ul>
         <button class="hp-btn-ghost" onclick="go('explore')" style="width:100%;padding:14px">Explore Database</button>
@@ -1522,7 +1552,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
         <li><strong>75,000+ fragrances</strong> from thousands of brands with detailed notes, accords, and ratings</li>
         <li><strong>AI-powered matching</strong> that understands your personality, not just preferences</li>
         <li><strong>Seven unique discovery modes</strong> — zodiac, music, style, photo, dupe finder, celebrity, and conversational AI</li>
-        <li><strong>Free to start</strong> — 3 free AI queries, unlimited database browsing</li>
+        <li><strong>Free to start</strong> — 1 free AI pick, 2 more with email, unlimited database browsing</li>
         <li><strong>Detailed breakdowns</strong> — top notes, longevity, sillage, occasions, price range, and purchase links</li>
         <li><strong>Celebrity collections</strong> — explore what icons like LeBron James, Zendaya, and Drake actually wear</li>
       </ul>
@@ -1540,7 +1570,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <h3>How many fragrances does ScentWise have?</h3>
       <p>ScentWise features a database of over 75,000 fragrances from thousands of brands, complete with detailed notes, accords, ratings, and reviews.</p>
       <h3>Is ScentWise free to use?</h3>
-      <p>ScentWise offers a free trial with 3 AI queries. The Explore database and Celebrity Collections are always free. Premium access with 500 AI recommendations per month is $2.99/month, cancel anytime.</p>
+      <p>ScentWise offers a free trial — one full AI recommendation up front, then two more after you share your email. The Explore database and Celebrity Collections are always free. Premium access with 500 AI recommendations per month is $2.99/month, cancel anytime.</p>
       <h3>What are the seven discovery modes?</h3>
       <p>AI Chat Advisor, Zodiac Match, Photo Style Scan, Music Match, Style Match, Dupe Finder, and Celebrity Collections — seven different paths to finding your perfect scent.</p>
     </section>
@@ -1688,7 +1718,7 @@ setTimeout(function(){
 {"@context":"https://schema.org","@type":"WebPage","@id":"https://scent-wise.com/#webpage","name":"ScentWise — AI Fragrance Advisor","url":"https://scent-wise.com/","isPartOf":{"@id":"https://scent-wise.com/#website"},"about":{"@id":"https://scent-wise.com/#app"},"speakable":{"@type":"SpeakableSpecification","cssSelector":[".hp-hero h1",".hp-hero-sub",".hp-section-heading"]},"mainEntity":{"@id":"https://scent-wise.com/#app"}}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best AI perfume recommendation app?","acceptedAnswer":{"@type":"Answer","text":"ScentWise is a leading AI perfume recommendation app with 75,000+ fragrances and 7 unique AI-powered discovery modes."}},{"@type":"Question","name":"How does ScentWise recommend fragrances?","acceptedAnswer":{"@type":"Answer","text":"ScentWise uses Google Gemini AI to analyze your preferences through 7 discovery modes then matches you with fragrances from a database of over 75,000 perfumes."}},{"@type":"Question","name":"How do I find cheap dupes for expensive perfumes?","acceptedAnswer":{"@type":"Answer","text":"ScentWise has a dedicated AI Dupe Finder. Enter any expensive fragrance and the AI instantly suggests affordable alternatives ranked by scent similarity."}},{"@type":"Question","name":"Is ScentWise free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. Browsing the 75,000+ perfume database is completely free. AI features include 3 free queries. Premium access costs $2.99/month for 500 AI queries."}},{"@type":"Question","name":"Can I get perfume recommendations from a photo?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise Photo Style Scan lets you upload a photo. The AI analyzes colors, textures, and mood to recommend fragrances that match your visual aesthetic."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best AI perfume recommendation app?","acceptedAnswer":{"@type":"Answer","text":"ScentWise is a leading AI perfume recommendation app with 75,000+ fragrances and 7 unique AI-powered discovery modes."}},{"@type":"Question","name":"How does ScentWise recommend fragrances?","acceptedAnswer":{"@type":"Answer","text":"ScentWise uses Google Gemini AI to analyze your preferences through 7 discovery modes then matches you with fragrances from a database of over 75,000 perfumes."}},{"@type":"Question","name":"How do I find cheap dupes for expensive perfumes?","acceptedAnswer":{"@type":"Answer","text":"ScentWise has a dedicated AI Dupe Finder. Enter any expensive fragrance and the AI instantly suggests affordable alternatives ranked by scent similarity."}},{"@type":"Question","name":"Is ScentWise free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. Browsing the 75,000+ perfume database is completely free. AI features include one full free recommendation plus two more after you share your email. Premium access costs $2.99/month for 500 AI queries."}},{"@type":"Question","name":"Can I get perfume recommendations from a photo?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise Photo Style Scan lets you upload a photo. The AI analyzes colors, textures, and mood to recommend fragrances that match your visual aesthetic."}}]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://scent-wise.com/"}]}

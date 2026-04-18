@@ -217,7 +217,7 @@
 
 <main>
     <h1>Privacy Policy</h1>
-    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: April 14, 2026</p>
+    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: April 18, 2026</p>
 
     <p>At ScentWise ("we," "our," or "us"), we respect your privacy. This Privacy Policy explains what information we collect, how we use it, and the choices you have. By using our website at <a href="https://scent-wise.com">scent-wise.com</a> (the "Service"), you agree to the practices described here.</p>
 
@@ -228,6 +228,7 @@
         <strong>What we collect:</strong><br>
         &mdash; <strong>IP address:</strong> Used for rate limiting, free trial tracking, abuse prevention, and user profile identification (for free users). Stored in our server infrastructure (Upstash Redis) with automatic expiration.<br>
         &mdash; <strong>Subscription details:</strong> Order ID, customer ID, and email address from Lemon Squeezy when you subscribe. Email is stored in your authentication cookie.<br>
+        &mdash; <strong>Email address (newsletter / free-pick unlock):</strong> If you submit your email to unlock additional free AI picks or to subscribe to our newsletter, we store it (a) in our server infrastructure (Upstash Redis) keyed by your device identifier so we can deliver the unlock, and (b) with our newsletter provider (Beehiiv) and transactional email provider (Resend) so we can send you fragrance updates and a welcome email. You can unsubscribe at any time via the link in any email or by emailing <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.<br>
         &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features. These are sent to Google's Gemini API for processing. Google may retain this data for up to 30 days for abuse detection per their policies.<br>
         &mdash; <strong>Scent profile data:</strong> Your fragrance preferences (liked/disliked notes, favorite brands, occasions, skin chemistry, etc.) are automatically extracted from your AI interactions and stored in our database to personalize future recommendations. See Section 5 for retention details.<br>
         &mdash; <strong>Analytics data:</strong> We use Google Analytics (GA4) to collect page-view and usage data, which includes cookies and may associate data with your Google account. We also use Vercel Analytics and Speed Insights for performance monitoring.<br>
@@ -243,6 +244,8 @@
     <table>
         <tr><th>Cookie</th><th>Purpose</th><th>Duration</th></tr>
         <tr><td><code>sw_free</code></td><td>Tracks free trial query count for anonymous users</td><td>32 days</td></tr>
+        <tr><td><code>sw_device</code></td><td>Device-bound identifier used to enforce free trial limits across browsers and incognito windows</td><td>32 days</td></tr>
+        <tr><td><code>sw_email</code></td><td>Marks that the user has shared their email to unlock extended free recommendations</td><td>32 days</td></tr>
         <tr><td><code>sw_sub</code></td><td>Authenticates premium subscribers</td><td>30 days</td></tr>
         <tr><td><code>sw_usage</code></td><td>Tracks monthly query count for premium users</td><td>32 days</td></tr>
         <tr><td><code>sw_owner</code></td><td>Authenticates site administrators</td><td>30 days</td></tr>
@@ -272,6 +275,7 @@
     &mdash; Build and maintain your scent preference profile for increasingly personalized recommendations.<br>
     &mdash; Enforce usage limits and prevent abuse (rate limiting, free trial enforcement).<br>
     &mdash; Process and verify subscription payments through Lemon Squeezy.<br>
+    &mdash; Send a welcome email and (if you opt in) a periodic fragrance newsletter. Legal basis: your consent, which you gave by submitting your email. You can withdraw consent at any time via the unsubscribe link in any email.<br>
     &mdash; Analyze usage patterns and site performance to improve the Service.<br>
     &mdash; Display relevant advertisements via Google AdSense.<br>
     &mdash; Respond to your support inquiries.</p>
@@ -286,7 +290,9 @@
         &mdash; <strong>Lemon Squeezy:</strong> Processes subscription payments and stores billing details. Subject to <a href="https://www.lemonsqueezy.com/privacy" target="_blank" rel="noopener">Lemon Squeezy's Privacy Policy</a>.<br>
         &mdash; <strong>Vercel:</strong> Hosts the Service and provides analytics/speed insights. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel's Privacy Policy</a>.<br>
         &mdash; <strong>Upstash:</strong> Provides server-side data storage (Redis) for rate limiting, usage tracking, and user profiles. Subject to <a href="https://upstash.com/trust/privacy.html" target="_blank" rel="noopener">Upstash's Privacy Policy</a>.<br>
-        &mdash; <strong>Amazon Associates:</strong> Affiliate product links. Clicking "Shop on Amazon" links may set Amazon tracking cookies. Subject to <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ" target="_blank" rel="noopener">Amazon's Privacy Notice</a>.
+        &mdash; <strong>Amazon Associates:</strong> Affiliate product links. Clicking "Shop on Amazon" links may set Amazon tracking cookies. Subject to <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ" target="_blank" rel="noopener">Amazon's Privacy Notice</a>.<br>
+        &mdash; <strong>Beehiiv:</strong> Newsletter subscription management. When you submit your email to unlock free picks or subscribe to the newsletter, we share your email with Beehiiv so they can deliver our newsletter and manage your subscription preferences. Subject to <a href="https://www.beehiiv.com/tou/privacy" target="_blank" rel="noopener">Beehiiv's Privacy Policy</a>.<br>
+        &mdash; <strong>Resend:</strong> Transactional email delivery (welcome email). Your email is passed to Resend solely to deliver a single welcome message. Subject to <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Resend's Privacy Policy</a>.
     </div>
 
     <h2>5. Data Retention</h2>
@@ -296,6 +302,7 @@
     &mdash; <strong>Cookies:</strong> Expire automatically as listed in Section 2 above.<br>
     &mdash; <strong>Subscription data:</strong> Retained while your subscription is active and for a reasonable period afterward for billing purposes.<br>
     &mdash; <strong>Free trial usage data:</strong> IP-based usage records are stored in Redis with a 33-day automatic expiration.<br>
+    &mdash; <strong>Gate / newsletter email:</strong> Stored in Redis for up to 1 year so we can honor your unlock. Stored with Beehiiv until you unsubscribe. Email us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a> at any time to have your email removed from all systems.<br>
     &mdash; <strong>Rate-limit data:</strong> Automatically purged after 10 minutes (in-memory) or at end of the rate-limit window.</p>
 
     <h2>6. Your Rights</h2>
