@@ -957,7 +957,6 @@ function showPaywall() {
       ${trialBanner}
       <div class="ph-price-row">
         <div class="ph-price"><span class="ph-curr">$</span>2<span class="ph-cents">.99</span><span class="ph-period">/month</span></div>
-        <div class="ph-guarantee">7-day money-back guarantee</div>
       </div>
       <ul class="ph-perks">
         <li>500 AI queries / month</li>
@@ -969,7 +968,6 @@ function showPaywall() {
       </ul>
       <a href="#" onclick="unlockPaid(); return false;" class="btn ph-cta" data-subscribe-btn>Unlock Premium</a>
       <div class="ph-badges">
-        <span class="ph-badge"><span class="ph-badge-i">7-DAY</span> Money-back guarantee</span>
         <span class="ph-badge"><span class="ph-badge-i">30s</span> Cancel anytime</span>
         <span class="ph-badge"><span class="ph-badge-i">SSL</span> Secured by Lemon Squeezy</span>
       </div>
