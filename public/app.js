@@ -3509,32 +3509,9 @@ go(_wantAdmin ? 'admin' : (_initMode && ['dupe','chat','explore','photo','zodiac
   }
 })();
 
-// Warm the DB lazily — only after the user has shown they're engaged.
-// We wait for the first scroll / pointer / key event before touching the
-// ~3MB perfume JSON. Bounce visitors (most TikTok ad clicks) never pay
-// the cost; engaged visitors get a warm cache by the time they click into
-// explore/chat/celeb. The route render functions still call loadDB()
-// themselves, so correctness is preserved if this prefetch never fires.
-(function warmDbOnEngage() {
-  let warmed = false;
-  function warm() {
-    if (warmed) return;
-    warmed = true;
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => { loadDB(); }, { timeout: 4000 });
-    } else {
-      setTimeout(() => { loadDB(); }, 800);
-    }
-  }
-  // { once: true } self-removes each listener after it fires; the `warmed`
-  // flag guards against overlapping events racing the load.
-  ['scroll', 'pointerdown', 'keydown', 'touchstart'].forEach(ev => {
-    window.addEventListener(ev, warm, { passive: true, once: true });
-  });
-  // Safety net: if the user is idle on the page for 8s, warm anyway so
-  // returning visitors still benefit from the cache before they click.
-  setTimeout(warm, 8000);
-})();
+// DB load is deferred to route transition — r_explore, r_chat, r_celeb etc.
+// each call loadDB() themselves. Home never touches the ~3MB perfume JSON,
+// so bounce visitors (most TikTok ad clicks) pay zero cost.
 
 // Hydrate compare items — only bother if there's something to hydrate or
 // the user explicitly asked for the compare view. Otherwise we'd force a
