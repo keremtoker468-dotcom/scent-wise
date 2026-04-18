@@ -1649,12 +1649,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
 function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
 function _gaConsentUpdate(a,d){if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
-function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);loadConsentedScripts()}
-function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false)}
+function _ttqConsentUpdate(a){if(typeof window.ttq==='undefined')return;try{if(a){ttq.grantConsent&&ttq.grantConsent()}else{ttq.revokeConsent&&ttq.revokeConsent()}}catch(e){}}
+function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);_ttqConsentUpdate(true);loadConsentedScripts()}
+function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false);_ttqConsentUpdate(false)}
 function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
-function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);loadConsentedScripts()}
+function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);_ttqConsentUpdate(a||d);loadConsentedScripts()}
 function loadConsentedScripts(){var c=getCookieConsent();if(!c)return;if(c.ads&&!document.getElementById('sw-ads')){var a=document.createElement('script');a.id='sw-ads';a.async=true;a.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576';a.crossOrigin='anonymous';document.head.appendChild(a)}}
-document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);loadConsentedScripts()}});
+document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);_ttqConsentUpdate(!!c.analytics||!!c.ads);loadConsentedScripts()}});
 </script>
 <!-- Stale content detector: if page is blank after 4s, force reload once -->
 <script>
@@ -1723,6 +1724,26 @@ gtag('set', 'url_passthrough', true);
 gtag('set', 'ads_data_redaction', true);
 gtag('js', new Date());
 gtag('config', 'G-769WY8EYH6', { anonymize_ip: true });
+</script>
+<!-- TikTok Pixel — consent-gated. Script loads async on every page view so
+     TikTok ad tracking keeps working inside the TikTok in-app browser where
+     GA is often blocked. holdConsent() withholds cookies until the user
+     accepts the cookie banner (grantConsent fires in acceptAllCookies). -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
+var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  try { ttq.holdConsent(); } catch(e){}
+  ttq.load('D7HLCTJC77UFJPI0A7AG');
+  ttq.page();
+  // If the user previously accepted analytics/ads cookies, grant now so the
+  // pixel can set cookies immediately instead of waiting for DOMContentLoaded.
+  try {
+    var _c = (function(){try{return JSON.parse(localStorage.getItem('sw_cookie_consent')||'null')}catch(e){return null}})();
+    if (_c && (_c.analytics || _c.ads)) { ttq.grantConsent(); }
+  } catch(e) {}
+}(window, document, 'ttq');
 </script>
 </body>
 </html>
