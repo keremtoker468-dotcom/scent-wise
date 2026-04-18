@@ -261,7 +261,6 @@ let emailGiven = false;       // set by /api/check-tier and /api/recommend (sw_e
 let _lastTeaser = false;      // side-channel: aiCall sets this so callers can persist it with the response
 const MAX_PAID = 500;
 const FREE_LIMIT = 3;
-const FREE_GATE_OPEN_AFTER = 1; // first full response is free; gate opens after that
 
 async function checkTier() {
   try {
@@ -1116,11 +1115,9 @@ async function aiCall(mode, payload) {
     if (d.profileActive) scentProfile = scentProfile || { queryCount: d.profileQueryCount };
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
     if (typeof window._swAiResponses === 'number') window._swAiResponses++;
-    // After the first free query, if email wasn't given, pop the gate modal so
-    // the *next* query lands in teaser mode only if they still skip.
-    if (!isPaid && !isOwner && !emailGiven && freeUsed === FREE_GATE_OPEN_AFTER && freeUsed < FREE_LIMIT) {
-      setTimeout(() => { try { openEmailGate(); } catch {} }, 450);
-    }
+    // No auto-open here — the gate modal is only triggered when the user
+    // clicks the "Unlock Full Picks" CTA embedded in the teaser blur on
+    // query 2/3. That way query 1 is seen in full with no interruption.
     return d.result || 'No response. Try again.';
   } catch (e) {
     if (timeoutId) clearTimeout(timeoutId);
@@ -1302,11 +1299,11 @@ function openEmailGate(trigger) {
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'sw-gate-title');
   overlay.innerHTML = `<div class="gate-card">
-    <div class="gate-kicker">&#10022; You're on pick #1 of 3</div>
-    <h3 id="sw-gate-title">Unlock your next <em>2 matches</em> in full</h3>
-    <p class="gate-sub">Drop your email to see the rest of your picks at full detail — no spam, unsubscribe anytime.</p>
+    <div class="gate-kicker">&#10022; You're seeing 2 of your picks</div>
+    <h3 id="sw-gate-title">Unlock the rest of your <em>matches</em></h3>
+    <p class="gate-sub">Drop your email and we'll reveal the full list — notes, scores, dupes. No spam, unsubscribe anytime.</p>
     <div class="gate-benefits">
-      <div><span class="check">&#10003;</span> Full detail on your next 2 AI picks</div>
+      <div><span class="check">&#10003;</span> Full detail on the rest of your AI picks</div>
       <div><span class="check">&#10003;</span> Weekly curated drops &amp; dupes</div>
       <div><span class="check">&#10003;</span> No credit card — free forever</div>
     </div>
