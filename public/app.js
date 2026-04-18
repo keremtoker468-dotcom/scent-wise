@@ -1303,21 +1303,39 @@ function openEmailGate(trigger) {
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'sw-gate-title');
   overlay.innerHTML = `<div class="gate-card">
+    <button type="button" class="gate-close" aria-label="Close" onclick="skipEmailGate()">&#215;</button>
     <div class="gate-kicker">&#10022; You're seeing 2 of your picks</div>
     <h3 id="sw-gate-title">Unlock the rest of your <em>matches</em></h3>
-    <p class="gate-sub">Drop your email and we'll reveal the full list — notes, scores, dupes. No spam, unsubscribe anytime.</p>
-    <div class="gate-benefits">
-      <div><span class="check">&#10003;</span> Full detail on the rest of your AI picks</div>
-      <div><span class="check">&#10003;</span> Weekly curated drops &amp; dupes</div>
-      <div><span class="check">&#10003;</span> No credit card — free forever</div>
+    <p class="gate-sub">Pick how you want to see the full list — notes, scores, dupes. No credit card for the free option.</p>
+    <div class="gate-choices">
+      <div class="gate-choice is-email">
+        <div class="gate-choice-title">&#9993;&#65039; Share your email</div>
+        <div class="gate-choice-price"><strong>Free</strong> &middot; 2 more picks</div>
+        <ul>
+          <li><span class="check">&#10003;</span> Full detail on remaining free picks</li>
+          <li><span class="check">&#10003;</span> Weekly curated drops</li>
+          <li><span class="check">&#10003;</span> Unsubscribe anytime</li>
+        </ul>
+        <form id="sw-gate-form" onsubmit="return submitEmailGate(event)">
+          <input type="email" id="sw-gate-email" placeholder="you@example.com" required aria-label="Your email" autocomplete="email">
+          <button type="submit" class="gate-btn-primary" id="sw-gate-btn">Unlock with Email</button>
+          <div class="gate-err" id="sw-gate-err" aria-live="polite"></div>
+        </form>
+      </div>
+      <div class="gate-choice is-premium">
+        <span class="gate-choice-badge">Best value</span>
+        <div class="gate-choice-title">&#10022; Go Premium</div>
+        <div class="gate-choice-price"><strong>$2.99/mo</strong> &middot; cancel anytime</div>
+        <ul>
+          <li><span class="check">&#10003;</span> Unlock <strong>everything</strong> instantly</li>
+          <li><span class="check">&#10003;</span> 500 AI queries per month</li>
+          <li><span class="check">&#10003;</span> All 7 discovery modes, no limits</li>
+        </ul>
+        <button type="button" class="gate-btn-premium" onclick="gateGoPremium()">Go Premium &rarr;</button>
+      </div>
     </div>
-    <form id="sw-gate-form" onsubmit="return submitEmailGate(event)">
-      <input type="email" id="sw-gate-email" placeholder="you@example.com" required aria-label="Your email" autocomplete="email">
-      <button type="submit" class="gate-submit" id="sw-gate-btn">Unlock My Matches</button>
-      <div class="gate-err" id="sw-gate-err" aria-live="polite"></div>
-    </form>
-    <button type="button" class="gate-skip" onclick="skipEmailGate()">Maybe later — continue with limited view</button>
-    <p class="gate-priv">We'll only email you scent drops. Privacy-first — see our <a href="/privacy.html" style="color:var(--g)" target="_blank" rel="noopener">privacy policy</a>.</p>
+    <button type="button" class="gate-skip" onclick="skipEmailGate()">Maybe later &mdash; continue with the limited view</button>
+    <p class="gate-priv">Privacy-first. We'll only email scent drops &mdash; see our <a href="/privacy.html" target="_blank" rel="noopener">privacy policy</a>.</p>
   </div>`;
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) skipEmailGate();
@@ -1335,6 +1353,13 @@ function _closeEmailGate() {
 function skipEmailGate() {
   trackFunnel('email_gate_skipped', { free_used: freeUsed });
   _closeEmailGate();
+}
+
+function gateGoPremium() {
+  trackFunnel('email_gate_go_premium', { free_used: freeUsed });
+  if (typeof gtag === 'function') gtag('event', 'email_gate_go_premium', { free_used: freeUsed });
+  _closeEmailGate();
+  try { unlockPaid(); } catch {}
 }
 
 async function submitEmailGate(e) {

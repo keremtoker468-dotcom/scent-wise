@@ -1167,26 +1167,45 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .teaser-cta .teaser-btn{display:inline-block;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:700;border:none;border-radius:12px;padding:12px 28px;font-size:14px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
 .teaser-cta .teaser-btn:hover{filter:brightness(1.05)}
 .teaser-cta .teaser-skip{display:block;margin-top:10px;font-size:11px;color:var(--td);background:none;border:none;cursor:pointer;text-decoration:underline;letter-spacing:.4px;font-family:inherit}
-/* ═══ EMAIL GATE MODAL (post-query-1) ═══ */
-.gate-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:gateFadeIn .3s ease}
+/* ═══ EMAIL GATE MODAL (beige palette, two-option layout) ═══ */
+.gate-overlay{position:fixed;inset:0;background:rgba(42,34,24,.48);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:gateFadeIn .3s ease}
 @keyframes gateFadeIn{from{opacity:0}to{opacity:1}}
-.gate-card{background:#0f0f0f;border:1px solid rgba(201,169,110,.25);border-radius:18px;max-width:440px;width:100%;padding:36px 30px;position:relative;box-shadow:0 40px 120px rgba(0,0,0,.7);animation:gateSlideIn .35s cubic-bezier(.2,.8,.2,1)}
+.gate-card{background:var(--d);border:1px solid var(--d4);border-radius:20px;max-width:520px;width:100%;padding:36px 32px 28px;position:relative;box-shadow:0 40px 120px rgba(42,34,24,.28),0 0 0 1px rgba(255,255,255,.4) inset;animation:gateSlideIn .35s cubic-bezier(.2,.8,.2,1);color:var(--t)}
 @keyframes gateSlideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.gate-card .gate-kicker{font-size:10px;letter-spacing:2.4px;color:var(--g);text-transform:uppercase;font-weight:700;text-align:center;margin-bottom:12px}
-.gate-card h3{font-size:22px;font-weight:600;line-height:1.3;color:var(--t);text-align:center;margin:0 0 10px}
-.gate-card h3 em{font-style:normal;background:linear-gradient(135deg,#c9a96e,#e6c896);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.gate-card .gate-sub{font-size:13.5px;color:var(--td);text-align:center;line-height:1.6;margin-bottom:22px}
-.gate-card .gate-benefits{display:grid;gap:8px;margin:0 0 20px;padding:14px 16px;background:rgba(201,169,110,.05);border:1px solid rgba(201,169,110,.12);border-radius:12px;font-size:12.5px;color:var(--t)}
-.gate-card .gate-benefits div{display:flex;align-items:center;gap:8px}
-.gate-card .gate-benefits span.check{color:var(--g);font-weight:700}
-.gate-card input[type=email]{width:100%;padding:14px 16px;background:#141414;border:1px solid var(--d4);color:var(--t);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;box-sizing:border-box;transition:border-color .15s}
-.gate-card input[type=email]:focus{border-color:var(--g)}
-.gate-card .gate-submit{width:100%;margin-top:12px;background:linear-gradient(135deg,#c9a96e,#b8944f);color:#0a0a0a;font-weight:700;border:none;border-radius:12px;padding:14px;font-size:14.5px;cursor:pointer;font-family:inherit;letter-spacing:.3px}
-.gate-card .gate-submit:disabled{opacity:.55;cursor:wait}
-.gate-card .gate-skip{display:block;margin:14px auto 0;background:none;border:none;color:var(--td);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:4px}
+.gate-card .gate-close{position:absolute;top:14px;right:14px;background:rgba(42,34,24,.06);border:none;color:var(--t2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:background .15s,color .15s}
+.gate-card .gate-close:hover{background:rgba(42,34,24,.12);color:var(--t)}
+.gate-card .gate-kicker{font-size:10px;letter-spacing:2.4px;color:var(--gd);text-transform:uppercase;font-weight:700;text-align:center;margin-bottom:10px}
+.gate-card h3{font-size:23px;font-weight:600;line-height:1.3;color:var(--t);text-align:center;margin:0 0 10px;font-family:'Fraunces','Playfair Display',serif;letter-spacing:-.3px}
+.gate-card h3 em{font-style:italic;background:linear-gradient(135deg,#c9a96e,#7f6226);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.gate-card .gate-sub{font-size:13.5px;color:var(--td);text-align:center;line-height:1.6;margin:0 auto 22px;max-width:420px}
+/* Two-tier choice row */
+.gate-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 16px}
+@media (max-width:520px){.gate-choices{grid-template-columns:1fr}}
+.gate-choice{background:#fbf7ee;border:1.5px solid var(--d4);border-radius:14px;padding:18px 16px 16px;display:flex;flex-direction:column;gap:10px;position:relative;transition:border-color .15s,box-shadow .15s}
+.gate-choice.is-email{border-color:rgba(201,169,110,.45)}
+.gate-choice.is-premium{background:linear-gradient(180deg,#fbf3e0,#f3e7c7);border-color:var(--g);box-shadow:0 8px 24px rgba(201,169,110,.2)}
+.gate-choice-badge{position:absolute;top:-10px;right:14px;background:var(--g);color:#2a2218;font-size:9.5px;letter-spacing:1.5px;font-weight:800;text-transform:uppercase;padding:4px 10px;border-radius:999px;box-shadow:0 4px 10px rgba(127,98,38,.25)}
+.gate-choice-title{font-size:14px;font-weight:700;color:var(--t);display:flex;align-items:center;gap:8px;margin:0}
+.gate-choice-price{font-size:11px;color:var(--td);letter-spacing:.3px;margin:-6px 0 6px}
+.gate-choice-price strong{color:var(--t);font-size:13px;font-weight:700}
+.gate-choice ul{list-style:none;padding:0;margin:0 0 10px;font-size:12px;color:var(--t2);line-height:1.55}
+.gate-choice ul li{display:flex;align-items:flex-start;gap:6px;margin-bottom:4px}
+.gate-choice ul li .check{color:var(--g);font-weight:800;flex-shrink:0}
+.gate-card input[type=email]{width:100%;padding:12px 14px;background:#fffdf8;border:1px solid var(--d4);color:var(--t);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13.5px;outline:none;box-sizing:border-box;transition:border-color .15s,box-shadow .15s;margin-bottom:8px}
+.gate-card input[type=email]::placeholder{color:var(--d5)}
+.gate-card input[type=email]:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(201,169,110,.15)}
+.gate-btn-primary{width:100%;background:linear-gradient(135deg,#c9a96e,#a68441);color:#fffdf8;font-weight:700;border:none;border-radius:10px;padding:12px;font-size:13.5px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:filter .15s,transform .1s}
+.gate-btn-primary:hover{filter:brightness(1.05)}
+.gate-btn-primary:active{transform:translateY(1px)}
+.gate-btn-primary:disabled{opacity:.55;cursor:wait}
+.gate-btn-premium{width:100%;background:#2a2218;color:#f5efe4;font-weight:700;border:none;border-radius:10px;padding:12px;font-size:13.5px;cursor:pointer;font-family:inherit;letter-spacing:.3px;transition:background .15s,transform .1s;margin-top:auto}
+.gate-btn-premium:hover{background:#443a29}
+.gate-btn-premium:active{transform:translateY(1px)}
+.gate-card .gate-skip{display:block;margin:8px auto 0;background:none;border:none;color:var(--td);font-size:12px;cursor:pointer;text-decoration:underline;font-family:inherit;padding:4px;letter-spacing:.2px}
 .gate-card .gate-skip:hover{color:var(--t)}
-.gate-card .gate-priv{font-size:10.5px;color:var(--d5);text-align:center;margin-top:14px;letter-spacing:.2px;line-height:1.5}
-.gate-card .gate-err{color:#f56565;font-size:12px;text-align:center;margin-top:10px;min-height:14px}
+.gate-card .gate-priv{font-size:10.5px;color:var(--d5);text-align:center;margin-top:12px;letter-spacing:.2px;line-height:1.5}
+.gate-card .gate-priv a{color:var(--gd)}
+.gate-card .gate-err{color:#b8443a;font-size:12px;text-align:center;margin:6px 0 0;min-height:14px}
 </style>
 <!-- Analytics (privacy-respecting, no cookies) -->
 <script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
