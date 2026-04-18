@@ -92,9 +92,9 @@ Required in Vercel dashboard:
 - **No framework, no build**: The frontend is a single `index.html` + `app.js` with no transpilation or bundling. Edit and deploy directly.
 - **Client-side search**: The 75K perfume database is embedded in `perfumes.js` and `perfumes-rich.js`, loaded client-side for instant search with zero API cost.
 - **AI features are server-side only**: All Gemini API calls go through `api/recommend.js`. The API key is never exposed to the client.
-- **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (subscription cookie signed with HMAC), `free` (3 trial queries tracked by IP via Redis + in-memory + cookie).
+- **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (subscription cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
-- **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get 3 trial queries (IP-tracked via Redis to prevent incognito bypass).
+- **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get up to 3 trial queries (device + IP-tracked via Redis to prevent incognito bypass). Pre-email queries after #1 return a `teaser` flag; the client blurs items past the first two picks until the user submits their email.
 - **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v5`.
 
 ## Amazon Affiliate Integration
@@ -117,6 +117,6 @@ Required in Vercel dashboard:
 - All server code uses **CommonJS** (`require`/`module.exports`), not ESM.
 - All crypto operations use **timing-safe comparisons** (`crypto.timingSafeEqual`).
 - API endpoints return JSON and use standard HTTP status codes (400, 403, 405, 413, 429, 500).
-- Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_owner` (owner auth).
+- Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
 - Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.

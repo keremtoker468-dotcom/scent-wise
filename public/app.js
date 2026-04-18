@@ -257,8 +257,11 @@ let currentTier = 'free';
 let userEmail = '';
 let aiUsage = 0;
 let freeUsed = 0;
+let emailGiven = false;       // set by /api/check-tier and /api/recommend (sw_email cookie on server)
+let _lastTeaser = false;      // side-channel: aiCall sets this so callers can persist it with the response
 const MAX_PAID = 500;
 const FREE_LIMIT = 3;
+const FREE_GATE_OPEN_AFTER = 1; // first full response is free; gate opens after that
 
 async function checkTier() {
   try {
@@ -270,7 +273,8 @@ async function checkTier() {
     if (d.email) userEmail = d.email;
     if (typeof d.usage === 'number') aiUsage = d.usage;
     if (typeof d.freeUsed === 'number') freeUsed = d.freeUsed;
-  } catch { currentTier = 'free'; isOwner = false; isPaid = false; userEmail = ''; }
+    if (typeof d.emailGiven === 'boolean') emailGiven = d.emailGiven;
+  } catch { currentTier = 'free'; isOwner = false; isPaid = false; userEmail = ''; emailGiven = false; }
 }
 
 function canUseAI() {
@@ -1070,8 +1074,9 @@ setupLemonSqueezy();
 
 // ═══════════════ AI CALLS ═══════════════
 async function aiCall(mode, payload) {
+  _lastTeaser = false;
   if (!canUseAI()) {
-    if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
+    if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
     return 'Please subscribe to use AI features.';
   }
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
@@ -1090,7 +1095,7 @@ async function aiCall(mode, payload) {
     if (timeoutId) clearTimeout(timeoutId);
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
-      if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used all 3 free queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
+      if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
       isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
     }
     if (r.status === 429) {
@@ -1106,9 +1111,16 @@ async function aiCall(mode, payload) {
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
     else if (typeof d.usage === 'number') trackUsage(d.usage);
     else if (isPaid) trackUsage();
+    if (typeof d.emailGiven === 'boolean') emailGiven = d.emailGiven;
+    _lastTeaser = !!d.teaser;
     if (d.profileActive) scentProfile = scentProfile || { queryCount: d.profileQueryCount };
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
     if (typeof window._swAiResponses === 'number') window._swAiResponses++;
+    // After the first free query, if email wasn't given, pop the gate modal so
+    // the *next* query lands in teaser mode only if they still skip.
+    if (!isPaid && !isOwner && !emailGiven && freeUsed === FREE_GATE_OPEN_AFTER && freeUsed < FREE_LIMIT) {
+      setTimeout(() => { try { openEmailGate(); } catch {} }, 450);
+    }
     return d.result || 'No response. Try again.';
   } catch (e) {
     if (timeoutId) clearTimeout(timeoutId);
@@ -1271,6 +1283,119 @@ function _isLikelyFragrance(name) {
   }
   // Default: treat as fragrance (bold items in AI responses are usually fragrances)
   return true;
+}
+
+// ═══════════════ EMAIL GATE (post-query-1 soft capture) ═══════════════
+// Gate policy: 1 full free response, then 2 more teased unless the user drops their
+// email. Email unlocks the next 2 at full fidelity; the hard paywall still kicks in
+// at FREE_LIMIT. Backed server-side by the sw_email HMAC cookie via /api/subscribe.
+let _gateOpen = false;
+function openEmailGate(trigger) {
+  if (_gateOpen) return;
+  if (isPaid || isOwner || emailGiven) return;
+  _gateOpen = true;
+  trackFunnel('email_gate_shown', { free_used: freeUsed, trigger: trigger || 'auto' });
+  const overlay = document.createElement('div');
+  overlay.className = 'gate-overlay';
+  overlay.id = 'sw-email-gate';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'sw-gate-title');
+  overlay.innerHTML = `<div class="gate-card">
+    <div class="gate-kicker">&#10022; You're on pick #1 of 3</div>
+    <h3 id="sw-gate-title">Unlock your next <em>2 matches</em> in full</h3>
+    <p class="gate-sub">Drop your email to see the rest of your picks at full detail — no spam, unsubscribe anytime.</p>
+    <div class="gate-benefits">
+      <div><span class="check">&#10003;</span> Full detail on your next 2 AI picks</div>
+      <div><span class="check">&#10003;</span> Weekly curated drops &amp; dupes</div>
+      <div><span class="check">&#10003;</span> No credit card — free forever</div>
+    </div>
+    <form id="sw-gate-form" onsubmit="return submitEmailGate(event)">
+      <input type="email" id="sw-gate-email" placeholder="you@example.com" required aria-label="Your email" autocomplete="email">
+      <button type="submit" class="gate-submit" id="sw-gate-btn">Unlock My Matches</button>
+      <div class="gate-err" id="sw-gate-err" aria-live="polite"></div>
+    </form>
+    <button type="button" class="gate-skip" onclick="skipEmailGate()">Maybe later — continue with limited view</button>
+    <p class="gate-priv">We'll only email you scent drops. Privacy-first — see our <a href="/privacy.html" style="color:var(--g)" target="_blank" rel="noopener">privacy policy</a>.</p>
+  </div>`;
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) skipEmailGate();
+  });
+  document.body.appendChild(overlay);
+  setTimeout(() => { const inp = document.getElementById('sw-gate-email'); if (inp) inp.focus(); }, 80);
+}
+
+function _closeEmailGate() {
+  const ov = document.getElementById('sw-email-gate');
+  if (ov) ov.remove();
+  _gateOpen = false;
+}
+
+function skipEmailGate() {
+  trackFunnel('email_gate_skipped', { free_used: freeUsed });
+  _closeEmailGate();
+}
+
+async function submitEmailGate(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const input = document.getElementById('sw-gate-email');
+  const btn = document.getElementById('sw-gate-btn');
+  const err = document.getElementById('sw-gate-err');
+  const email = input ? input.value.trim() : '';
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (err) err.textContent = 'Please enter a valid email address.';
+    return false;
+  }
+  if (err) err.textContent = '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Unlocking…'; }
+  try {
+    const r = await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email, action: 'gate' })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      if (err) err.textContent = d.error || 'Something went wrong. Please try again.';
+      if (btn) { btn.disabled = false; btn.textContent = 'Unlock My Matches'; }
+      return false;
+    }
+    emailGiven = true;
+    trackFunnel('email_gate_submitted', { free_used: freeUsed });
+    if (typeof gtag === 'function') gtag('event', 'email_captured', { method: 'gate' });
+    showToast('Unlocked — your next picks will be shown in full.', 'success');
+    _closeEmailGate();
+  } catch {
+    if (err) err.textContent = 'Network error — please try again.';
+    if (btn) { btn.disabled = false; btn.textContent = 'Unlock My Matches'; }
+  }
+  return false;
+}
+
+// Split an AI response at the 3rd (or later) numbered fragrance marker so the
+// first 2 picks render clearly and the rest gets blurred behind a CTA.
+function _splitTeaser(text) {
+  if (!text) return { visible: '', hidden: '' };
+  // Match the start of a 3+ numbered item on its own line: "\n3. ", "\n10. ", etc.
+  const m = text.match(/\n\s*(?:[3-9]|[1-9]\d+)\.\s/);
+  if (!m) return { visible: text, hidden: '' };
+  const cut = m.index;
+  return { visible: text.slice(0, cut), hidden: text.slice(cut + 1) };
+}
+
+function fmtAi(text, isTeaser) {
+  if (!isTeaser) return fmt(text);
+  const { visible, hidden } = _splitTeaser(text);
+  if (!hidden) return fmt(visible);
+  const cta = `<div class="teaser-cta">
+    <div class="teaser-kicker">&#10022; 3 more picks locked</div>
+    <div class="teaser-title">Drop your email to see the rest</div>
+    <div class="teaser-sub">The full breakdown — notes, scores, dupes — for your remaining matches. No spam, unsubscribe anytime.</div>
+    <button type="button" class="teaser-btn" onclick="openEmailGate('teaser')">Unlock Full Picks</button>
+    <button type="button" class="teaser-skip" onclick="unlockPaid()">Or go Premium for unlimited access</button>
+  </div>`;
+  return fmt(visible) + `<div class="teaser-locked"><div class="teaser-blur" aria-hidden="true">${fmt(hidden)}</div>${cta}</div>`;
 }
 
 function fmt(text) {
@@ -1640,6 +1765,12 @@ let selM = _ss('selM'), musicRes = _ss('musicRes') || '', musicLoad = false, mus
 let selS = _ss('selS'), styleRes = _ss('styleRes') || '', styleLoad = false, styleChat = _ss('styleChat') || [], styleChatLoad = false;
 let selD = _ss('selD'), dupeRes = _ss('dupeRes') || '', dupeLoad = false, dupeChat = _ss('dupeChat') || [], dupeChatLoad = false;
 let photoChat = _ss('photoChat') || [], photoChatLoad = false;
+// Per-mode teaser flags: persisted alongside the response so reloads keep the blur in place.
+let photoTeaser = _ss('photoTeaser') || false;
+let zodiacTeaser = _ss('zodiacTeaser') || false;
+let musicTeaser = _ss('musicTeaser') || false;
+let styleTeaser = _ss('styleTeaser') || false;
+let dupeTeaser = _ss('dupeTeaser') || false;
 let celebQ = '';
 let expQ = '', expFilter = 'all', expResults = [];
 let _compareList = []; // max 3 perfumes for comparison
@@ -1690,7 +1821,7 @@ function followUpHTML(chatArr, loadingFlag, inputId, sendFn, placeholder) {
     <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Ask a follow-up</p>
     ${chatArr.map(m=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}" style="margin-bottom:10px">
       ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
-      ${fmt(m.content)}
+      ${m.role==='assistant' ? fmtAi(m.content, !!m.teaser) : fmt(m.content)}
     </div>`).join('')}
     ${loadingFlag?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:16px 20px;margin-bottom:10px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
     <div class="inp-row" style="margin-top:10px">
@@ -2344,7 +2475,7 @@ function r_home(el) {
       <button type="submit" class="hp-btn-primary">Find My Scent</button>
     </form>
     <div class="hp-hero-trust" aria-label="Pricing and trial information">
-      <span>&#10022; 3 free AI queries</span>
+      <span>&#10022; 1 free pick · 2 more with email</span>
       <span aria-hidden="true">·</span>
       <span>No credit card to try</span>
       <span aria-hidden="true">·</span>
@@ -2494,7 +2625,7 @@ function r_home(el) {
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Search 75,000+ fragrances</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Celebrity collections (101 icons)</li>
-          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 3 free AI queries to try</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 1 free AI pick + 2 more with email</li>
           <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> AI Chat, Photo, Zodiac, Music, Style</li>
           <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> Dupe Finder</li>
         </ul>
@@ -2712,7 +2843,7 @@ function r_chat(el) {
       </div>`:''}
       ${chatMsgs.map((m,i)=>`<div class="cb fi ${m.role==='user'?'cb-u':'cb-a'}">
         ${m.role==='assistant'?'<div style="color:var(--g);font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:1.2px;text-transform:uppercase">ScentWise AI</div>':''}
-        ${fmt(m.content)}
+        ${m.role==='assistant' ? fmtAi(m.content, !!m.teaser) : fmt(m.content)}
         ${m.role==='assistant'?feedbackHTML(i):''}
       </div>`).join('')}
       ${chatLoad?'<div class="cb cb-a fi" style="display:flex;gap:8px;padding:20px 24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span></div>':''}
@@ -2758,7 +2889,7 @@ function r_chat(el) {
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used all 3 free queries! Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); _chatShouldScroll = true; r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used your free AI queries. Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); _chatShouldScroll = true; r_chat(document.getElementById('page-chat')); return; }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
@@ -2773,7 +2904,7 @@ async function cSend(text) {
   const apiMsgs = chatMsgs.map(m => ({role:m.role, content: m.role==='user' && m.content===text ? sysWithCtx + '\n\nUser question: ' + m.content : m.content}));
   
   const reply = await aiCall('chat', {messages: apiMsgs});
-  chatMsgs.push({role:'assistant',content:reply});
+  chatMsgs.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('chatMsgs', chatMsgs);
   chatLoad = false;
   _chatScrollToLast = true;
@@ -2824,7 +2955,7 @@ function r_photo(el) {
         `:`
           <div class="rbox" style="flex-direction:column;align-items:stretch">
             <div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">Your Style Matches</div>
-            <div style="line-height:1.8;font-size:14px">${fmt(photoRes)}</div>
+            <div style="line-height:1.8;font-size:14px">${fmtAi(photoRes, photoTeaser)}</div>
             ${modeFeedbackHTML('photo', photoRes)}
             ${followUpHTML(photoChat, photoChatLoad, 'pfu-inp', 'pFollow', 'Ask more about your style matches...')}
           </div>
@@ -2864,13 +2995,15 @@ async function doPhoto() {
   photoLoad = true;
   r_photo(document.getElementById('page-photo')); _scrollToRes('#page-photo .glass-panel');
   photoRes = await aiCall('photo', {imageBase64: photoB64, imageMime: 'image/jpeg'});
+  photoTeaser = _lastTeaser;
   _ssw('photoRes', photoRes);
+  _ssw('photoTeaser', photoTeaser);
   photoLoad = false;
   _renderKeepScroll(() => r_photo(document.getElementById('page-photo')));
   setTimeout(() => loadResultImages(document.querySelector('#page-photo .rbox')), 100);
 }
 
-function photoReset() { photoB64=null; photoPrev=null; photoRes=''; photoLoad=false; photoChat=[]; photoChatLoad=false; _ssw('photoRes',''); _ssw('photoChat',[]); r_photo(document.getElementById('page-photo')); }
+function photoReset() { photoB64=null; photoPrev=null; photoRes=''; photoTeaser=false; photoLoad=false; photoChat=[]; photoChatLoad=false; _ssw('photoRes',''); _ssw('photoTeaser',false); _ssw('photoChat',[]); r_photo(document.getElementById('page-photo')); }
 
 async function pFollow() {
   const inp = document.getElementById('pfu-inp');
@@ -2880,7 +3013,7 @@ async function pFollow() {
   photoChatLoad = true; r_photo(document.getElementById('page-photo')); _scrollToRes('#page-photo .rbox');
   const msgs = [{role:'user',content:`Context: I uploaded a style photo and got these fragrance recommendations:\n${photoRes}\n\nFollow-up question: ${text}`}];
   const reply = await aiCall('chat', {messages: msgs});
-  photoChat.push({role:'assistant',content:reply});
+  photoChat.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('photoChat', photoChat);
   photoChatLoad = false; _renderKeepScroll(() => r_photo(document.getElementById('page-photo')));
 }
@@ -2910,7 +3043,7 @@ function r_zodiac(el) {
     </div>
     <div id="z-res" role="region" aria-live="polite" aria-label="Zodiac fragrance results" style="margin-top:28px">
       ${zodiacLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding your cosmic scents...</span></div>':''}
-      ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selZ||'').toUpperCase())} Fragrance Matches</div><div style="line-height:1.8;font-size:14px">${fmt(zodiacRes)}</div>
+      ${zodiacRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selZ||'').toUpperCase())} Fragrance Matches</div><div style="line-height:1.8;font-size:14px">${fmtAi(zodiacRes, zodiacTeaser)}</div>
         ${modeFeedbackHTML('zodiac', zodiacRes)}
         ${followUpHTML(zodiacChat, zodiacChatLoad, 'zfu-inp', 'zFollow', 'Ask more about zodiac fragrances...')}
       </div>`:''}
@@ -2937,7 +3070,8 @@ async function pickZ(sign) {
   zodiacRes=''; zodiacLoad=true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
   const prompt = `Match 5 fragrances to a ${sign}. Open with one sentence capturing the essence of this sign — the temperament, the traits that matter for scent. Then deliver picks in your calm, confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific ${sign} traits (be precise: ruling planet, what they gravitate toward, how they carry themselves), approximate price. Sound like a well-read friend who knows both astrology and perfumery — not a horoscope column.`;
   zodiacRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); zodiacLoad=false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
+  zodiacTeaser = _lastTeaser;
+  cache[ck]=zodiacRes; _ssw('selZ',selZ); _ssw('zodiacRes',zodiacRes); _ssw('zodiacTeaser',zodiacTeaser); zodiacLoad=false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
   setTimeout(() => loadResultImages(document.getElementById('z-res')), 100);
 }
 
@@ -2949,7 +3083,7 @@ async function zFollow() {
   zodiacChatLoad = true; r_zodiac(document.getElementById('page-zodiac')); _scrollToRes('#z-res');
   const msgs = [{role:'user',content:`Context: I asked about ${selZ} zodiac fragrance recommendations and got this:\n${zodiacRes}\n\nFollow-up question: ${text}`}];
   const reply = await aiCall('chat', {messages: msgs});
-  zodiacChat.push({role:'assistant',content:reply});
+  zodiacChat.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('zodiacChat', zodiacChat);
   zodiacChatLoad = false; _renderKeepScroll(() => r_zodiac(document.getElementById('page-zodiac')));
 }
@@ -2976,7 +3110,7 @@ function r_music(el) {
     </div>
     <div id="m-res" role="region" aria-live="polite" aria-label="Music fragrance results" style="margin-top:28px">
       ${musicLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Matching your vibe...</span></div>':''}
-      ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selM||'').toUpperCase())} Scent Profile</div><div style="line-height:1.8;font-size:14px">${fmt(musicRes)}</div>
+      ${musicRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selM||'').toUpperCase())} Scent Profile</div><div style="line-height:1.8;font-size:14px">${fmtAi(musicRes, musicTeaser)}</div>
         ${modeFeedbackHTML('music', musicRes)}
         ${followUpHTML(musicChat, musicChatLoad, 'mfu-inp', 'mFollow', 'Ask more about music-inspired fragrances...')}
       </div>`:''}
@@ -2995,7 +3129,8 @@ async function pickM(genre) {
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
   const prompt = `Match 5 fragrances to ${genre} music. Open with one line reading the sonic and sensory character of ${genre} — texture, mood, how it sits in a room. Then deliver picks in your composed, knowledgeable voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences drawing the music-to-scent line (specific artists, textures, eras — avoid vague words like "energetic"), price range. Sound like a friend who knows both the music and the fragrances well.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
+  musicTeaser = _lastTeaser;
+  cache[ck]=musicRes; _ssw('selM',selM); _ssw('musicRes',musicRes); _ssw('musicTeaser',musicTeaser); musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
 
@@ -3008,7 +3143,8 @@ async function customMusic() {
   musicRes=''; musicLoad=true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
   const prompt = `The user describes their music taste as: "${taste}". Open with one line reflecting their taste back in sensory terms — show them you understood it. Then match 5 fragrances to this musical world. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences tying the scent to specific elements of their taste (a texture, an era, a lyric, a named artist if given), price range. Warm, precise, confident — no hype, no filler.`;
   musicRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  _ssw('selM',selM); _ssw('musicRes',musicRes);
+  musicTeaser = _lastTeaser;
+  _ssw('selM',selM); _ssw('musicRes',musicRes); _ssw('musicTeaser',musicTeaser);
   musicLoad=false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
   setTimeout(() => loadResultImages(document.getElementById('m-res')), 100);
 }
@@ -3021,7 +3157,7 @@ async function mFollow() {
   musicChatLoad = true; r_music(document.getElementById('page-music')); _scrollToRes('#m-res');
   const msgs = [{role:'user',content:`Context: I asked about "${selM}" music-fragrance matching and got this:\n${musicRes}\n\nFollow-up question: ${text}`}];
   const reply = await aiCall('chat', {messages: msgs});
-  musicChat.push({role:'assistant',content:reply});
+  musicChat.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('musicChat', musicChat);
   musicChatLoad = false; _renderKeepScroll(() => r_music(document.getElementById('page-music')));
 }
@@ -3048,7 +3184,7 @@ function r_style(el) {
     </div>
     <div id="s-res" role="region" aria-live="polite" aria-label="Style match results" style="margin-top:28px">
       ${styleLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Curating your scent wardrobe...</span></div>':''}
-      ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selS||'').toUpperCase())} Fragrance Picks</div><div style="line-height:1.8;font-size:14px">${fmt(styleRes)}</div>
+      ${styleRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">${esc((selS||'').toUpperCase())} Fragrance Picks</div><div style="line-height:1.8;font-size:14px">${fmtAi(styleRes, styleTeaser)}</div>
         ${modeFeedbackHTML('style', styleRes)}
         ${followUpHTML(styleChat, styleChatLoad, 'sfu-inp', 'sFollow', 'Ask more about style-matched fragrances...')}
       </div>`:''}
@@ -3067,7 +3203,8 @@ async function pickSt(style) {
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
   const prompt = `Match 5 fragrances to the "${style}" fashion aesthetic. Open with one sentence reading the mood of this style — fabrics, silhouette, attitude. Then deliver picks in your confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific style cues (palette, texture, era, the person who wears this well), price range. Mix premium and budget. Tailored, not theatrical.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
+  styleTeaser = _lastTeaser;
+  cache[ck]=styleRes; _ssw('selS',selS); _ssw('styleRes',styleRes); _ssw('styleTeaser',styleTeaser); styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
 
@@ -3080,7 +3217,8 @@ async function customStyle() {
   styleRes=''; styleLoad=true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
   const prompt = `The user describes their personal style as: "${desc}". Open with one sentence reflecting their style back in sensory terms — show them you understood it. Then match 5 fragrances. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences of specific reasoning (what in their description sparked this pick — a word, an item, a mood), price range. Mix premium and budget. Tailored, precise, never generic.`;
   styleRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  _ssw('selS',selS); _ssw('styleRes',styleRes);
+  styleTeaser = _lastTeaser;
+  _ssw('selS',selS); _ssw('styleRes',styleRes); _ssw('styleTeaser',styleTeaser);
   styleLoad=false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
   setTimeout(() => loadResultImages(document.getElementById('s-res')), 100);
 }
@@ -3093,7 +3231,7 @@ async function sFollow() {
   styleChatLoad = true; r_style(document.getElementById('page-style')); _scrollToRes('#s-res');
   const msgs = [{role:'user',content:`Context: I asked about "${selS}" style fragrance matching and got this:\n${styleRes}\n\nFollow-up question: ${text}`}];
   const reply = await aiCall('chat', {messages: msgs});
-  styleChat.push({role:'assistant',content:reply});
+  styleChat.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('styleChat', styleChat);
   styleChatLoad = false; _renderKeepScroll(() => r_style(document.getElementById('page-style')));
 }
@@ -3185,7 +3323,7 @@ function r_dupe(el) {
     </div>
     <div id="d-res" role="region" aria-live="polite" aria-label="Dupe finder results" style="margin-top:28px">
       ${dupeLoad?'<div style="display:flex;align-items:center;gap:10px;padding:24px"><span class="dot"></span><span class="dot" style="animation-delay:.2s"></span><span class="dot" style="animation-delay:.4s"></span><span style="color:var(--td);font-size:14px;margin-left:8px">Finding affordable alternatives...</span></div>':''}
-      ${dupeRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">DUPES FOR ${esc((selD||'').toUpperCase())}</div><div style="line-height:1.8;font-size:14px">${fmt(dupeRes)}</div>
+      ${dupeRes?`<div class="rbox fi" style="flex-direction:column;align-items:stretch"><div style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:12px;text-transform:uppercase">DUPES FOR ${esc((selD||'').toUpperCase())}</div><div style="line-height:1.8;font-size:14px">${fmtAi(dupeRes, dupeTeaser)}</div>
         ${modeFeedbackHTML('dupe', dupeRes)}
         ${followUpHTML(dupeChat, dupeChatLoad, 'dfu-inp', 'dFollow', 'Ask more about these dupes...')}
       </div>`:''}
@@ -3207,7 +3345,8 @@ async function pickD(frag) {
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `The user wants affordable dupes for **${frag}**. Start with one precise sentence describing the original's actual scent experience — what spraying it feels like, not just a note list. Then deliver 5 dupes from cheapest to most expensive. Prioritize picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose vs. the original — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
+  dupeTeaser = _lastTeaser;
+  cache[ck]=dupeRes; _ssw('selD',selD); _ssw('dupeRes',dupeRes); _ssw('dupeTeaser',dupeTeaser); dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
 
@@ -3229,7 +3368,8 @@ async function customDupe() {
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `The user wants affordable dupes for **${frag}**. If you don't recognize this name, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one precise sentence describing the original's actual scent experience (what spraying it feels like, not just a note list). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
   dupeRes = await aiCall('chat', {messages:[{role:'user',content:prompt}]});
-  _ssw('selD',selD); _ssw('dupeRes',dupeRes);
+  dupeTeaser = _lastTeaser;
+  _ssw('selD',selD); _ssw('dupeRes',dupeRes); _ssw('dupeTeaser',dupeTeaser);
   dupeLoad=false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
   setTimeout(() => loadResultImages(document.getElementById('d-res')), 100);
 }
@@ -3242,7 +3382,7 @@ async function dFollow() {
   dupeChatLoad = true; r_dupe(document.getElementById('page-dupe')); _scrollToRes('#d-res');
   const msgs = [{role:'user',content:`Context: I asked for dupes/alternatives for "${selD}" and got this:\n${dupeRes}\n\nFollow-up question: ${text}`}];
   const reply = await aiCall('chat', {messages: msgs});
-  dupeChat.push({role:'assistant',content:reply});
+  dupeChat.push({role:'assistant',content:reply,teaser:_lastTeaser});
   _ssw('dupeChat', dupeChat);
   dupeChatLoad = false; _renderKeepScroll(() => r_dupe(document.getElementById('page-dupe')));
 }

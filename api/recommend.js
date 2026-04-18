@@ -5,6 +5,7 @@ const { verifyOwnerToken } = require('./_lib/owner-token');
 const {
   readUsage, writeUsage,
   readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage, readOrMintDeviceId,
+  readEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
   getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
 } = require('./_lib/usage');
@@ -56,11 +57,13 @@ module.exports = async function handler(req, res) {
   let isFreeTrialRequest = false;
 
   let freeDeviceId = null;
+  let emailGiven = false;
   if (!access.authorized) {
     // Free trial: allow a few queries so users can experience the AI
     if (subSecret) {
       const { deviceId } = readOrMintDeviceId(req, res, subSecret, isProduction);
       freeDeviceId = deviceId;
+      emailGiven = readEmailFlag(req, deviceId, subSecret);
 
       // Abuse guard: per-IP soft daily cap so a single IP can't mint unlimited
       // device cookies in a loop. Returns a distinct reason so the client can
@@ -260,6 +263,10 @@ If the user hasn't stated preferences yet, infer from their question, name your 
       responseData.freeUsed = usageCount;
       responseData.freeLimit = FREE_TRIAL_QUERIES;
       responseData.tier = 'free';
+      responseData.emailGiven = emailGiven;
+      // After query 1, if the user skipped the email gate, mark the response
+      // as a teaser so the client blurs everything past the first 2 picks.
+      if (!emailGiven && usageCount > 1) responseData.teaser = true;
     } else if (access.tier === 'premium') {
       responseData.usage = usageCount;
       responseData.limit = MAX_MONTHLY_QUERIES;

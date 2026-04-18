@@ -363,6 +363,43 @@ async function readDeviceFreeUsage(req, deviceId, secret) {
   return { count: cookieCount, month, source: cookieCount > 0 ? 'cookie' : 'none' };
 }
 
+// ═══════════════ EMAIL GATE ═══════════════
+// After the user's 1st free query, they're asked for an email. If they give
+// one, queries 2–3 are full; if they skip, queries 2–3 come back as teasers
+// (2 fragrances + blurred lock). The email flag is carried by a short, HMAC-
+// signed cookie `sw_email=1.<sig>` where sig is derived from the device id.
+
+function signEmailFlag(deviceId, secret) {
+  return crypto.createHmac('sha256', deriveUsageKey(secret))
+    .update('email:' + deviceId).digest('hex').slice(0, 32);
+}
+
+function readEmailFlag(req, deviceId, secret) {
+  if (!deviceId) return false;
+  const cookies = parseCookies(req.headers.cookie);
+  const raw = cookies['sw_email'];
+  if (!raw) return false;
+  const dot = raw.indexOf('.');
+  if (dot < 0) return false;
+  const flag = raw.slice(0, dot);
+  const sig = raw.slice(dot + 1);
+  if (flag !== '1' || !sig) return false;
+  const expected = signEmailFlag(deviceId, secret);
+  if (Buffer.byteLength(sig) !== Buffer.byteLength(expected)) return false;
+  try {
+    return crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+  } catch { return false; }
+}
+
+function writeEmailFlag(res, deviceId, secret, isProduction) {
+  const sig = signEmailFlag(deviceId, secret);
+  const value = '1.' + sig;
+  const existing = res.getHeader('Set-Cookie') || [];
+  const list = Array.isArray(existing) ? [...existing] : [existing];
+  list.push(`sw_email=${value}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${365 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+  res.setHeader('Set-Cookie', list);
+}
+
 // ═══════════════ ABUSE GUARD: per-IP daily soft cap ═══════════════
 // Prevents a single IP from minting unlimited device cookies in a loop.
 // Generous enough that no real user hits it (100 free AI queries per IP per day).
@@ -418,6 +455,7 @@ module.exports = {
   readUsage, writeUsage,
   readFreeUsage, writeFreeUsage, redisIncrFreeUsage,
   readOrMintDeviceId, readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage,
+  readEmailFlag, writeEmailFlag, signEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
   getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
 };
