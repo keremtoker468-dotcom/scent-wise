@@ -948,26 +948,65 @@ function showPaywall() {
   trackFunnel('paywall_shown', { trial_remaining: FREE_LIMIT - freeUsed, tier: currentTier || 'free' });
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
-    ? `<div style="color:var(--g);font-size:13px;margin-bottom:20px;padding:12px 18px;background:var(--gl);border:1px solid rgba(201,169,110,.1);border-radius:var(--r-sm);display:flex;align-items:center;gap:8px;justify-content:center"><span style="font-size:16px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> remaining</div>`
-    : `<div style="color:var(--td);font-size:13px;margin-bottom:20px;padding:12px 18px;background:rgba(255,255,255,.02);border:1px solid var(--d4);border-radius:var(--r-sm)">You've used all ${FREE_LIMIT} free queries. Subscribe for unlimited access!</div>`;
-  return `<div class="paywall fi">
-    <div style="font-size:48px;margin-bottom:20px;position:relative">✦</div>
-    <h3 class="fd" style="font-size:28px">Unlock <span class="gg">ScentWise AI</span></h3>
-    <p style="color:var(--td);margin:14px 0 24px;line-height:1.7;font-size:14px;position:relative">
-      AI-powered fragrance recommendations — chat advisor, style scanning, zodiac matching, music matching & more.
-    </p>
-    ${trialBanner}
-    <div style="font-size:36px;font-weight:700;margin-bottom:6px;position:relative"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-    <p style="color:var(--td);font-size:12px;margin-bottom:28px;position:relative">500 AI queries/month · Cancel anytime · <a href="/refund.html" target="_blank" rel="noopener" style="color:var(--g);text-decoration:underline">Refund policy</a></p>
-    <a href="#" onclick="unlockPaid(); return false;" class="btn" data-subscribe-btn style="display:inline-block;text-decoration:none;cursor:pointer;padding:16px 40px;font-size:16px;position:relative">Subscribe Now</a>
-    <p style="margin-top:20px;font-size:12px;color:var(--td);position:relative">Already subscribed? <a onclick="go('account')" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:500">Log in here</a></p>
-    <div style="margin-top:36px;padding-top:24px;border-top:1px solid var(--d4);position:relative">
-      <p style="color:var(--td);font-size:12px;margin-bottom:14px;letter-spacing:.04em">Not ready? Keep exploring — free forever</p>
-      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
-        <button type="button" onclick="go('explore')" class="ghost-btn" aria-label="Browse the perfume database — free">Browse Database</button>
-        <button type="button" onclick="go('celeb')" class="ghost-btn" aria-label="Browse celebrity fragrance collections — free">Celebrity Picks</button>
-        <button type="button" onclick="go('home')" class="ghost-btn" aria-label="Return to home">Go Home</button>
+    ? `<div class="ph-trial"><span style="font-size:14px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> left — or unlock everything below.</div>`
+    : `<div class="ph-trial" style="color:var(--td);background:rgba(255,255,255,.4);border-color:var(--d4)">Free trial complete. Subscribe for unlimited access.</div>`;
+  return `<div class="paywall-hero fi">
+    <div class="ph-pitch">
+      <div class="ph-kicker">ScentWise Premium</div>
+      <h2 class="ph-head">Here's what <em>Premium</em> sees.</h2>
+      <p class="ph-sub">Unlimited AI advice, scent-by-scent breakdowns, dupes, zodiac, music &amp; style scans — every mode unlocked, every recommendation sharper than the last.</p>
+      ${trialBanner}
+      <div class="ph-price-row">
+        <div class="ph-price"><span class="ph-curr">$</span>2<span class="ph-cents">.99</span><span class="ph-period">/month</span></div>
+        <div class="ph-guarantee">7-day money-back guarantee</div>
       </div>
+      <ul class="ph-perks">
+        <li>500 AI queries / month</li>
+        <li>All 6 discovery modes</li>
+        <li>Dupe finder &amp; photo scan</li>
+        <li>Zodiac, music &amp; style match</li>
+        <li>Personal scent profile memory</li>
+        <li>Unlimited database browsing</li>
+      </ul>
+      <a href="#" onclick="unlockPaid(); return false;" class="btn ph-cta" data-subscribe-btn>Unlock Premium</a>
+      <div class="ph-badges">
+        <span class="ph-badge"><span class="ph-badge-i">7-DAY</span> Money-back guarantee</span>
+        <span class="ph-badge"><span class="ph-badge-i">30s</span> Cancel anytime</span>
+        <span class="ph-badge"><span class="ph-badge-i">SSL</span> Secured by Lemon Squeezy</span>
+      </div>
+      <p class="ph-proof"><strong>75,000+</strong> fragrances · <strong>101</strong> icons · <strong>6</strong> AI modes · trusted by fragrance explorers worldwide</p>
+      <p class="ph-login">Already subscribed? <a onclick="go('account')">Log in with your email</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
+    </div>
+    <div class="ph-preview" aria-hidden="true">
+      <div class="ph-preview-label">A Premium recommendation</div>
+      <div class="ph-preview-card">
+        <div class="ph-preview-frag">
+          <div class="ph-preview-frag-name">Bleu de Chanel Parfum</div>
+          <div class="ph-preview-frag-brand">by Chanel</div>
+          <div class="ph-preview-frag-notes">Top: grapefruit, mint · Heart: ginger, iris · Base: sandalwood, amber</div>
+          <div class="ph-preview-frag-why">Matches your fresh-woody lean with a smoky edge. Office-safe but confident enough for dinner — projects 4–6 hours, lasts 8+.</div>
+          <div class="ph-preview-scores">
+            <span class="ph-preview-score">Longevity 5/5</span>
+            <span class="ph-preview-score">Projection 4/5</span>
+            <span class="ph-preview-score">Versatility 5/5</span>
+          </div>
+        </div>
+        <div class="ph-preview-frag ph-preview-masked">
+          <div class="ph-preview-frag-name">████████ ██████████</div>
+          <div class="ph-preview-frag-brand">by ████████</div>
+          <div class="ph-preview-frag-notes">████: ██████████, ████ · █████: ██████, ████</div>
+          <div class="ph-preview-frag-why">███████ ████ ██████████ ███ ██████████ ████████ ██ █████ ██ ████████</div>
+        </div>
+        <div class="ph-preview-mask"><span class="ph-preview-mask-text">+ 4 more picks unlocked</span></div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;margin:24px auto 8px;max-width:1040px">
+    <p style="color:var(--td);font-size:12px;margin-bottom:12px;letter-spacing:.04em">Not ready? Keep exploring — free forever</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center">
+      <button type="button" onclick="go('explore')" class="ghost-btn" aria-label="Browse the perfume database — free">Browse Database</button>
+      <button type="button" onclick="go('celeb')" class="ghost-btn" aria-label="Browse celebrity fragrance collections — free">Celebrity Picks</button>
+      <button type="button" onclick="go('home')" class="ghost-btn" aria-label="Return to home">Go Home</button>
     </div>
   </div>`;
 }
