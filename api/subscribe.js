@@ -85,9 +85,11 @@ async function sendWelcomeEmail(cleanEmail) {
           </td></tr></table>
         </td></tr>
         <tr><td style="padding:24px 40px;border-top:1px solid #1a1a1a;text-align:center">
+          <p style="margin:0 0 8px;font-size:12px;color:#4a4542">
+            You're receiving this because you subscribed at <a href="https://scent-wise.com" style="color:#c9a96e;text-decoration:none">scent-wise.com</a>.
+          </p>
           <p style="margin:0;font-size:12px;color:#4a4542">
-            You're receiving this because you subscribed at scent-wise.com.<br>
-            <a href="https://scent-wise.com" style="color:#c9a96e;text-decoration:none">Unsubscribe</a>
+            Don't want these? <a href="mailto:scentwise.com@gmail.com?subject=Unsubscribe%20${encodeURIComponent(cleanEmail)}&body=Please%20unsubscribe%20${encodeURIComponent(cleanEmail)}%20from%20the%20ScentWise%20newsletter." style="color:#c9a96e;text-decoration:underline">Unsubscribe</a> &middot; <a href="https://scent-wise.com/privacy.html" style="color:#c9a96e;text-decoration:none">Privacy</a>
           </p>
         </td></tr>
       </table>
