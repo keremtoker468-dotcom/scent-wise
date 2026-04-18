@@ -1115,9 +1115,13 @@ async function aiCall(mode, payload) {
     if (d.profileActive) scentProfile = scentProfile || { queryCount: d.profileQueryCount };
     if (typeof gtag === 'function') gtag('event', 'ai_recommendation', { mode: mode, tier: currentTier || 'free' });
     if (typeof window._swAiResponses === 'number') window._swAiResponses++;
-    // No auto-open here — the gate modal is only triggered when the user
-    // clicks the "Unlock Full Picks" CTA embedded in the teaser blur on
-    // query 2/3. That way query 1 is seen in full with no interruption.
+    // When the server returns a teaser payload (query 2 or 3 with no
+    // email yet), auto-pop the gate modal once the result has rendered.
+    // Delay lets the 2 visible picks + blur paint first so users see
+    // what they're about to unlock before the modal interrupts.
+    if (d.teaser && !isPaid && !isOwner && !emailGiven) {
+      setTimeout(() => { try { openEmailGate('auto_teaser'); } catch {} }, 900);
+    }
     return d.result || 'No response. Try again.';
   } catch (e) {
     if (timeoutId) clearTimeout(timeoutId);
