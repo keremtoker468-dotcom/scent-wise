@@ -1131,7 +1131,14 @@ async function aiCall(mode, payload) {
     if (timeoutId) clearTimeout(timeoutId);
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
-      if (d.freeUsed !== undefined) { trackFreeUsage(d.freeUsed); go(CP); return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!'; }
+      if (d.freeUsed !== undefined) {
+        trackFreeUsage(d.freeUsed);
+        go(CP);
+        if (d.freeUsed >= FREE_LIMIT) {
+          try { openPaywallModal('server_403'); } catch {}
+        }
+        return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
+      }
       isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
     }
     if (r.status === 429) {
@@ -1321,6 +1328,64 @@ function _isLikelyFragrance(name) {
   }
   // Default: treat as fragrance (bold items in AI responses are usually fragrances)
   return true;
+}
+
+// ═══════════════ HARD PAYWALL MODAL (free trial exhausted) ═══════════════
+// Shown when the user has used all FREE_LIMIT queries. Overlays the current
+// screen with a Premium CTA so the subscription prompt can't be missed.
+let _paywallOpen = false;
+function openPaywallModal(trigger) {
+  if (_paywallOpen) return;
+  if (isPaid || isOwner) return;
+  _paywallOpen = true;
+  try { _closeEmailGate(); } catch {}
+  try { trackFunnel('paywall_modal_shown', { free_used: freeUsed, trigger: trigger || 'auto' }); } catch {}
+  if (typeof gtag === 'function') gtag('event', 'paywall_modal_shown', { trigger: trigger || 'auto' });
+  const overlay = document.createElement('div');
+  overlay.className = 'gate-overlay';
+  overlay.id = 'sw-paywall-modal';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'sw-pw-title');
+  overlay.innerHTML = `<div class="gate-card">
+    <button type="button" class="gate-close" aria-label="Close" onclick="closePaywallModal()">&#215;</button>
+    <div class="gate-kicker">&#10022; Free trial complete</div>
+    <h3 id="sw-pw-title">You've used your <em>3 free queries</em></h3>
+    <p class="gate-sub">Go Premium to keep your AI advisor — unlimited style scans, dupes, zodiac matches, and scent-profile memory, all for less than a coffee.</p>
+    <div class="gate-choices" style="grid-template-columns:1fr">
+      <div class="gate-choice is-premium">
+        <span class="gate-choice-badge">Best value</span>
+        <div class="gate-choice-title">&#10022; ScentWise Premium</div>
+        <div class="gate-choice-price"><strong>$2.99/mo</strong> &middot; cancel anytime</div>
+        <ul>
+          <li><span class="check">&#10003;</span> <strong>500</strong> AI queries per month</li>
+          <li><span class="check">&#10003;</span> All 6 discovery modes, no limits</li>
+          <li><span class="check">&#10003;</span> Dupe finder, photo &amp; style scan</li>
+          <li><span class="check">&#10003;</span> Personal scent-profile memory</li>
+        </ul>
+        <button type="button" class="gate-btn-premium" onclick="paywallGoPremium()">Go Premium &rarr;</button>
+      </div>
+    </div>
+    <button type="button" class="gate-skip" onclick="closePaywallModal()">Maybe later</button>
+    <p class="gate-priv">Already subscribed? <a onclick="closePaywallModal(); go('account')">Log in with your email</a> &middot; <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
+  </div>`;
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closePaywallModal();
+  });
+  document.body.appendChild(overlay);
+}
+
+function closePaywallModal() {
+  const ov = document.getElementById('sw-paywall-modal');
+  if (ov) ov.remove();
+  _paywallOpen = false;
+}
+
+function paywallGoPremium() {
+  try { trackFunnel('paywall_modal_go_premium', { free_used: freeUsed }); } catch {}
+  if (typeof gtag === 'function') gtag('event', 'paywall_modal_go_premium');
+  closePaywallModal();
+  try { unlockPaid(); } catch {}
 }
 
 // ═══════════════ EMAIL GATE (post-query-1 soft capture) ═══════════════
@@ -2952,7 +3017,17 @@ function r_chat(el) {
 async function cSend(text) {
   if (!text) { const i = document.getElementById('c-inp'); text = i?.value; if (i) i.value = ''; }
   if (!text || !text.trim() || chatLoad) return;
-  if (!canUseAI()) { chatMsgs.push({role:'user',content:text.trim()}); chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used your free AI queries. Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'}); _ssw('chatMsgs', chatMsgs); _chatShouldScroll = true; r_chat(document.getElementById('page-chat')); return; }
+  if (!canUseAI()) {
+    chatMsgs.push({role:'user',content:text.trim()});
+    chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used your free AI queries. Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'});
+    _ssw('chatMsgs', chatMsgs);
+    _chatShouldScroll = true;
+    r_chat(document.getElementById('page-chat'));
+    if (!isPaid && !isOwner && freeUsed >= FREE_LIMIT) {
+      try { openPaywallModal('chat_blocked'); } catch {}
+    }
+    return;
+  }
   text = text.trim();
   chatMsgs.push({role:'user',content:text});
   _ssw('chatMsgs', chatMsgs);
