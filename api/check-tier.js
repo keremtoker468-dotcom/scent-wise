@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, readDeviceFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, readDeviceFreeUsage, readFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
 
 function verifySubToken(cookieValue, secret) {
@@ -258,16 +258,21 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // Return free trial usage for anonymous users — tracked per browser (device cookie),
-  // not per IP, so shared-IP users (CGNAT, public Wi-Fi, offices) each get their own quota.
+  // Return free trial usage for anonymous users — tracked per browser (device cookie)
+  // AND per client IP (monthly). Using MAX(device, ip) prevents incognito / private-tab
+  // bypass where a fresh cookie jar would otherwise grant a brand-new quota.
   const trialSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
   if (trialSecret) {
     const { deviceId } = readOrMintDeviceId(req, res, trialSecret, isProduction);
-    const freeUsage = await readDeviceFreeUsage(req, deviceId, trialSecret);
+    const [freeUsage, ipUsage] = await Promise.all([
+      readDeviceFreeUsage(req, deviceId, trialSecret),
+      readFreeUsage(req, ip, trialSecret)
+    ]);
+    const freeUsed = Math.max(freeUsage.count, ipUsage.count);
     const emailGiven = readEmailFlag(req, deviceId, trialSecret);
     return res.status(200).json({
       tier: 'free',
-      freeUsed: freeUsage.count,
+      freeUsed,
       freeLimit: FREE_TRIAL_QUERIES,
       emailGiven
     });

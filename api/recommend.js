@@ -5,6 +5,7 @@ const { verifyOwnerToken } = require('./_lib/owner-token');
 const {
   readUsage, writeUsage,
   readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage, readOrMintDeviceId,
+  readFreeUsage, redisIncrFreeUsage, writeCookieFreeUsage,
   readEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
   getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
@@ -79,16 +80,24 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      const freeUsage = await readDeviceFreeUsage(req, deviceId, subSecret);
-      if (freeUsage.count >= FREE_TRIAL_QUERIES) {
+      // Count against BOTH the device cookie and the client IP (monthly).
+      // Incognito / private tabs mint a fresh device id, so device-only tracking
+      // could be bypassed by reopening a private window. IP tracking closes that
+      // loophole: MAX(device, ip) is what we enforce against FREE_TRIAL_QUERIES.
+      const [freeUsage, ipUsage] = await Promise.all([
+        readDeviceFreeUsage(req, deviceId, subSecret),
+        readFreeUsage(req, ip, subSecret)
+      ]);
+      const effectiveUsed = Math.max(freeUsage.count, ipUsage.count);
+      if (effectiveUsed >= FREE_TRIAL_QUERIES) {
         return res.status(403).json({
           error: 'Free trial queries used. Subscribe for unlimited access!',
           tier: 'free',
-          freeUsed: freeUsage.count,
+          freeUsed: effectiveUsed,
           freeLimit: FREE_TRIAL_QUERIES
         });
       }
-      usageCount = freeUsage.count;
+      usageCount = effectiveUsed;
       isFreeTrialRequest = true;
     } else {
       return res.status(403).json({ error: 'Premium subscription required', tier: 'free' });
@@ -241,15 +250,20 @@ If the user hasn't stated preferences yet, infer from their question, name your 
 
     // Track usage after successful AI call
     if (isFreeTrialRequest && subSecret && freeDeviceId) {
-      // Atomic Redis INCR on device-bound key (prevents TOCTOU)
-      const atomicCount = await redisIncrDeviceFreeUsage(freeDeviceId, getCurrentMonth());
-      if (atomicCount !== null) {
-        usageCount = atomicCount;
-      } else {
-        usageCount++;
-      }
-      // Signed cookie fallback (only layer when Redis is down)
-      writeCookieDeviceFreeUsage(res, freeDeviceId, usageCount, subSecret, isProduction);
+      // Atomic Redis INCR on both device-bound AND IP-bound keys (prevents
+      // TOCTOU and closes the incognito bypass: a new private tab gets a fresh
+      // device id, but the IP counter survives across tabs).
+      const month = getCurrentMonth();
+      const [atomicDevice, atomicIp] = await Promise.all([
+        redisIncrDeviceFreeUsage(freeDeviceId, month),
+        redisIncrFreeUsage(ip, month)
+      ]);
+      const nextDevice = atomicDevice !== null ? atomicDevice : usageCount + 1;
+      const nextIp = atomicIp !== null ? atomicIp : usageCount + 1;
+      usageCount = Math.max(nextDevice, nextIp);
+      // Signed cookie fallbacks (only layer when Redis is down).
+      writeCookieDeviceFreeUsage(res, freeDeviceId, nextDevice, subSecret, isProduction);
+      writeCookieFreeUsage(res, ip, nextIp, subSecret, isProduction);
       // Light per-IP abuse counter — bumps even for legit free users, but the
       // cap (100/day) is generous enough that real users never hit it.
       redisIncrIpDaily(ip).catch(() => {});
