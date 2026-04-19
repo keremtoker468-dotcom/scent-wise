@@ -225,6 +225,13 @@ async function writeFreeUsage(res, ip, count, secret, isProduction) {
   memorySetFreeUsage(ip, month, count);
 
   // 3. Cookie (client-side layer, helps across different serverless instances when Redis is down)
+  writeCookieFreeUsage(res, ip, count, secret, isProduction);
+}
+
+// Cookie-only writer for IP-based free usage. Used alongside atomic redisIncrFreeUsage
+// so we don't race-clobber Redis with a stale SET after INCR.
+function writeCookieFreeUsage(res, ip, count, secret, isProduction) {
+  const month = getCurrentMonth();
   const sig = makeSig(secret, 'free:' + ip, count, month);
   const value = Buffer.from(JSON.stringify({ c: count, m: month, sig })).toString('base64');
 
@@ -453,7 +460,7 @@ async function checkIpDailyCap(ip) {
 
 module.exports = {
   readUsage, writeUsage,
-  readFreeUsage, writeFreeUsage, redisIncrFreeUsage,
+  readFreeUsage, writeFreeUsage, writeCookieFreeUsage, redisIncrFreeUsage,
   readOrMintDeviceId, readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage,
   readEmailFlag, writeEmailFlag, signEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
