@@ -1284,12 +1284,7 @@ const _AMZ_GEO = (function() {
     'europe/madrid': 'es',
     'europe/rome': 'it',
     'europe/london': 'uk', 'europe/dublin': 'uk',
-    'europe/brussels': 'be', 'europe/amsterdam': 'be',
-    // Markets without a ScentWise affiliate tag → route to UK (English, ships internationally)
-    'europe/istanbul': 'uk', 'europe/athens': 'uk', 'europe/lisbon': 'uk',
-    'europe/warsaw': 'uk', 'europe/stockholm': 'uk', 'europe/oslo': 'uk',
-    'europe/helsinki': 'uk', 'europe/copenhagen': 'uk', 'europe/prague': 'uk',
-    'europe/bucharest': 'uk', 'europe/budapest': 'uk', 'europe/sofia': 'uk'
+    'europe/brussels': 'be', 'europe/amsterdam': 'be'
   };
   if (TZ_MAP[tz]) return STORES[TZ_MAP[tz]];
   // 2. Fall back to all preferred languages (not just primary)
@@ -1302,22 +1297,12 @@ const _AMZ_GEO = (function() {
     if (lang.startsWith('es')) return STORES.es;
     if (lang.startsWith('it')) return STORES.it;
     if (lang.startsWith('nl')) return STORES.be;
-    // Languages without a ScentWise affiliate store → UK
-    if (lang.startsWith('tr') || lang.startsWith('pt') || lang.startsWith('pl') ||
-        lang.startsWith('sv') || lang.startsWith('da') || lang.startsWith('no') ||
-        lang.startsWith('fi') || lang.startsWith('cs') || lang.startsWith('hu') ||
-        lang.startsWith('ro') || lang.startsWith('el') || lang.startsWith('bg')) return STORES.uk;
   }
   return STORES.us;
 })();
 function amazonLink(name, brand) {
-  // Strip noise that hurts search relevance (parentheticals, concentration suffixes).
-  const cleanName = String(name || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-  const cleanBrand = String(brand || '').replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
-  const q = encodeURIComponent((cleanBrand ? cleanBrand + ' ' : '') + cleanName + ' eau de parfum');
-  // i=beauty restricts results to the Beauty department — removes clothing, gadgets,
-  // and look-alike non-fragrance items that previously leaked into search results.
-  return 'https://www.' + _AMZ_GEO.domain + '/s?k=' + q + '&i=beauty&tag=' + _AMZ_GEO.tag;
+  const q = encodeURIComponent((name || '') + ' ' + (brand || '') + ' perfume');
+  return 'https://www.' + _AMZ_GEO.domain + '/s?k=' + q + '&tag=' + _AMZ_GEO.tag;
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function _isLikelyFragrance(name) {
