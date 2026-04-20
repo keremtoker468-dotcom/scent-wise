@@ -35,6 +35,11 @@ module.exports = async function handler(req, res) {
     console.error('Missing LEMONSQUEEZY_API_KEY or SUBSCRIPTION_SECRET');
     return res.status(500).json({ error: 'Server not configured' });
   }
+  // Required — without it any order in the store would unlock Premium.
+  if (!expectedProductId) {
+    console.error('Missing LEMONSQUEEZY_PRODUCT_ID');
+    return res.status(500).json({ error: 'Server not configured' });
+  }
 
   try {
     const lsHeaders = {
@@ -92,7 +97,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Validate order is for our product
-    if (expectedProductId && String(order.first_order_item?.product_id) !== expectedProductId) {
+    if (String(order.first_order_item?.product_id) !== expectedProductId) {
       console.error(`Order product_id mismatch: ${order.first_order_item?.product_id}`);
       return res.status(400).json({ error: 'This order is for a different product. Please use your ScentWise order number.' });
     }
