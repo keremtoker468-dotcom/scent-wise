@@ -15,7 +15,21 @@ function verifySignature(rawBody, signature, secret) {
   return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(signature));
 }
 
-module.exports = async function handler(req, res) {
+async function readRawBody(req) {
+  if (Buffer.isBuffer(req.body)) return req.body.toString('utf8');
+  if (typeof req.body === 'string') return req.body;
+  // Stream the raw bytes directly. Works whether Vercel's parser ran or not —
+  // if it ran, req has usually been fully consumed and this yields '', which
+  // then fails signature check cleanly. If parser is disabled, we get the
+  // original bytes needed for HMAC verification.
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const webhookSecret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET;
@@ -24,23 +38,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  // Read raw body for signature verification.
-  // With bodyParser disabled (see config export below), req.body is a Buffer/stream.
-  // Fallback handles cases where body may already be parsed.
-  let rawBody;
-  if (Buffer.isBuffer(req.body)) {
-    rawBody = req.body.toString('utf8');
-  } else if (typeof req.body === 'string') {
-    rawBody = req.body;
-  } else if (req.body && typeof req.body === 'object') {
-    // Body was pre-parsed — reject since re-serialization may differ from original
-    console.error('Webhook received pre-parsed body — signature verification unreliable');
-    return res.status(400).json({ error: 'Invalid request body format' });
-  } else {
-    // Body parser is disabled — read from stream
-    const chunks = [];
-    for await (const chunk of req) { chunks.push(chunk); }
-    rawBody = Buffer.concat(chunks).toString('utf8');
+  const rawBody = await readRawBody(req);
+  if (!rawBody) {
+    console.error('Webhook received empty body — bodyParser may have consumed it');
+    return res.status(400).json({ error: 'Empty request body' });
   }
 
   const signature = req.headers['x-signature'];
@@ -51,9 +52,7 @@ module.exports = async function handler(req, res) {
 
   let payload;
   try {
-    payload = typeof req.body === 'object' && req.body !== null && !Buffer.isBuffer(req.body)
-      ? req.body
-      : JSON.parse(rawBody);
+    payload = JSON.parse(rawBody);
   } catch {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
@@ -186,7 +185,10 @@ module.exports = async function handler(req, res) {
 
   // Always ACK the webhook to prevent retries
   return res.status(200).json({ received: true });
-};
+}
 
-// Disable Vercel's body parser so we receive the raw body for signature verification
+// Disable Vercel's body parser so we receive the raw body for signature verification.
+// Attach config BEFORE the export so Vercel reliably detects it at build time.
+handler.config = { api: { bodyParser: false } };
+module.exports = handler;
 module.exports.config = { api: { bodyParser: false } };
