@@ -137,11 +137,10 @@ module.exports = async function handler(req, res) {
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
     const { deviceId } = readOrMintDeviceId(req, res, subSecret, isProduction);
     writeEmailFlag(res, deviceId, subSecret, isProduction);
-    // Non-blocking: retarget store + newsletter subscribe + welcome email.
-    // Gate unlock must succeed even if marketing infra is down.
-    redisStoreGateEmail(deviceId, cleanEmail).catch(() => {});
-    // Fire-and-forget: let the newsletter side-effects run but don't block the response
-    setImmediate(() => { fireNewsletterSideEffects(cleanEmail).catch(() => {}); });
+    // Await side-effects so Vercel doesn't freeze the function before they run.
+    // Gate unlock must succeed even if marketing infra is down, so each is guarded.
+    await redisStoreGateEmail(deviceId, cleanEmail).catch(() => {});
+    await fireNewsletterSideEffects(cleanEmail).catch(() => {});
     return res.status(200).json({ success: true, emailGiven: true });
   }
 
