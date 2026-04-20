@@ -53,9 +53,12 @@ module.exports = async function handler(req, res) {
           type: 'checkouts',
           attributes: {
             product_options: {
-              redirect_url: siteUrl + '/',
+              // {order_id} is substituted by Lemon Squeezy on redirect so the
+              // frontend's ?order_id= handler can auto-activate the subscription
+              // even when the LS overlay script is blocked (ad-blockers).
+              redirect_url: siteUrl + '/?order_id={order_id}',
               receipt_button_text: 'Go to ScentWise',
-              receipt_link_url: siteUrl + '/'
+              receipt_link_url: siteUrl + '/?order_id={order_id}'
             },
             checkout_data: {
               custom: deviceId ? { device_id: deviceId } : {}

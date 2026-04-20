@@ -58,13 +58,17 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
   const eventName = payload.meta?.event_name;
-  const eventId = payload.meta?.webhook_id || payload.data?.id;
   const customData = payload.meta?.custom_data || {};
   const attrs = payload.data?.attributes || {};
 
-  // Idempotency: skip already-processed events
-  if (eventId) {
-    const idempKey = `${eventName}:${eventId}`;
+  // Idempotency: webhook_id is the endpoint ID — identical for every event, so
+  // using it as the key would collapse every delivery after the first into a
+  // duplicate. Use resource id + timestamp so retries of the same event dedupe
+  // but distinct updates of the same subscription process independently.
+  const resourceId = payload.data?.id;
+  const eventTs = attrs.updated_at || attrs.created_at || '';
+  const idempKey = resourceId ? `${eventName}:${resourceId}:${eventTs}` : null;
+  if (idempKey) {
     if (_processedEvents.has(idempKey)) {
       return res.status(200).json({ received: true, duplicate: true });
     }
@@ -84,8 +88,14 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ received: true }); // ACK but ignore
   }
 
+  // Product ID check is required — without it, any purchase in the same store
+  // (including unrelated products) would unlock Premium.
   const expectedProductId = process.env.LEMONSQUEEZY_PRODUCT_ID;
-  if (expectedProductId && String(attrs.first_order_item?.product_id) !== expectedProductId) {
+  if (!expectedProductId) {
+    console.error('Missing LEMONSQUEEZY_PRODUCT_ID — refusing to trust webhook');
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+  if (String(attrs.first_order_item?.product_id) !== expectedProductId) {
     console.error(`Webhook product_id mismatch: ${attrs.first_order_item?.product_id}`);
     return res.status(200).json({ received: true }); // ACK but ignore
   }
