@@ -1333,10 +1333,31 @@ function _isLikelyFragrance(name) {
 // ═══════════════ HARD PAYWALL MODAL (free trial exhausted) ═══════════════
 // Shown when the user has used all FREE_LIMIT queries. Overlays the current
 // screen with a Premium CTA so the subscription prompt can't be missed.
+// Modal-vs-search arbitration: if the user is actively using the global
+// search overlay, defer the paywall/email gate until they close it (queued
+// in _pendingModal and flushed by closeGlobalSearch).
+function _searchOverlayOpen() {
+  const ov = document.getElementById('gs-overlay');
+  return !!(ov && ov.classList.contains('open'));
+}
+let _pendingModal = null; // { type: 'paywall'|'email_gate', trigger }
+function _queueModal(type, trigger) {
+  // Paywall supersedes email gate; don't downgrade a queued paywall.
+  if (_pendingModal && _pendingModal.type === 'paywall' && type === 'email_gate') return;
+  _pendingModal = { type, trigger };
+}
+function _flushPendingModal() {
+  const p = _pendingModal;
+  if (!p) return;
+  _pendingModal = null;
+  if (p.type === 'paywall') { try { openPaywallModal(p.trigger); } catch {} }
+  else if (p.type === 'email_gate') { try { openEmailGate(p.trigger); } catch {} }
+}
 let _paywallOpen = false;
 function openPaywallModal(trigger) {
   if (_paywallOpen) return;
   if (isPaid || isOwner) return;
+  if (_searchOverlayOpen()) { _queueModal('paywall', trigger); return; }
   _paywallOpen = true;
   try { _closeEmailGate(); } catch {}
   try { trackFunnel('paywall_modal_shown', { free_used: freeUsed, trigger: trigger || 'auto' }); } catch {}
@@ -1396,6 +1417,7 @@ let _gateOpen = false;
 function openEmailGate(trigger) {
   if (_gateOpen) return;
   if (isPaid || isOwner || emailGiven) return;
+  if (_searchOverlayOpen()) { _queueModal('email_gate', trigger); return; }
   _gateOpen = true;
   trackFunnel('email_gate_shown', { free_used: freeUsed, trigger: trigger || 'auto' });
   const overlay = document.createElement('div');
@@ -2138,6 +2160,7 @@ function closeGlobalSearch() {
   const inp = document.getElementById('gs-input');
   if (inp) inp.value = '';
   _gsResults = []; _gsActive = -1;
+  try { _flushPendingModal && _flushPendingModal(); } catch {}
 }
 function renderGlobalSearch() {
   const body = document.getElementById('gs-body');
