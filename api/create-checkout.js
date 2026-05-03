@@ -58,7 +58,7 @@ module.exports = async function handler(req, res) {
               // even when the LS overlay script is blocked (ad-blockers).
               redirect_url: siteUrl + '/?order_id={order_id}',
               receipt_button_text: 'Go to ScentWise',
-              receipt_link_url: siteUrl + '/?order_id={order_id}'
+              receipt_link_url: siteUrl + '/'
             },
             checkout_data: {
               custom: deviceId ? { device_id: deviceId } : {}
