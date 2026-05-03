@@ -859,24 +859,16 @@ function closeScentQuiz() {
   if (overlay) overlay.remove();
 }
 
-// Open the Lemon Squeezy checkout. We previously used the LS overlay
-// (LS.Url.Open) for the in-page experience, but its close button is
-// unreliable on Safari/mobile — users got stuck with no way back.
-//
-// Mobile gets a top-level redirect: the system back button is the most
-// intuitive escape on a phone, and tab switchers are buried on iOS.
-// Desktop gets a new tab so the original ScentWise session stays open.
-// In both cases, redirect_url=...?order_id={order_id} auto-activates
-// the subscription when the user returns from a successful payment.
+// Open the Lemon Squeezy checkout via a top-level redirect on every device.
+// We previously used the LS overlay (in-page modal) and a mobile/desktop
+// split with new tabs, but both made it harder to come back: the overlay's
+// close button hid on Safari, and a new tab requires hunting for the
+// switcher icon. A plain navigation lets the browser back button bring
+// the user home — the most universal escape gesture there is. After a
+// successful payment, redirect_url=...?order_id={order_id} brings them
+// back and auto-activates the subscription.
 function openLemonCheckout(url) {
-  const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
-    || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-  if (isMobile) {
-    window.location.href = url;
-    return false;
-  }
-  const win = window.open(url, '_blank', 'noopener,noreferrer');
-  if (!win) window.location.href = url; // popup blocked — last resort
+  window.location.href = url;
   return false;
 }
 
