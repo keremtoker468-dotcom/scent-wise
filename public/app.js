@@ -1275,7 +1275,18 @@ function loadResultImages(container) {
         img.loading = 'lazy';
         img.onload = function() { this.classList.add('loaded'); };
         img.onerror = function() { this.remove(); };
-        el.parentElement.insertBefore(img, el.nextSibling);
+        // Walk forward from the fragrance name and skip over the inline
+        // action buttons (heart, Amazon, Compare) plus their <br>s. The
+        // image lands BELOW the action row and ABOVE the description text,
+        // instead of getting wedged between the name and the heart icon.
+        let anchor = el.nextSibling;
+        let safety = 8;
+        while (anchor && safety-- > 0 && anchor.nodeType === 1 && /^(SPAN|BR)$/i.test(anchor.tagName)) {
+          const isActionSpan = anchor.tagName === 'SPAN' && anchor.querySelector && anchor.querySelector('a[href*="amazon"], button.cmp-btn, .frag-actions');
+          anchor = anchor.nextSibling;
+          if (isActionSpan) break; // stop right after the Amazon/Compare row
+        }
+        el.parentElement.insertBefore(img, anchor);
       }
     });
   });
@@ -1329,14 +1340,18 @@ function _isLikelyFragrance(name) {
   // Common non-fragrance keywords (clothing, accessories, body parts, general items)
   const nonFrag = /\b(jacket|shirt|jeans|pants|dress|skirt|shoes|boots|sneakers|belt|bag|hat|cap|scarf|sunglasses|watch|ring|necklace|bracelet|earrings|coat|sweater|hoodie|blazer|cardigan|flats|heels|sandals|socks|shorts|leggings|vest|tie|gloves|trousers|blouse|tank top|t-shirt|tee|polo|denim|chinos|loafers|oxfords|mules|clutch|tote|backpack|wallet|beanie|hair|makeup|lipstick|eyeshadow|mascara|foundation|concealer|eyeliner|blush)\b/i;
   if (nonFrag.test(lower)) return false;
+  // Section headers / labels the AI sometimes bolds — never a fragrance
+  const sectionish = /^(notes?|top notes?|heart notes?|base notes?|why|why it matches|matches your profile|blind buy|risk|similar( to)?|scores?|longevity|projection|uniqueness|versatility|tip|note|p\.?s\.?|warning|verdict|summary|conclusion|alternatives?|bonus|extra|profile)[:\s]*$/i;
+  if (sectionish.test(name.trim())) return false;
   // Check local DB for match
   if (typeof RL !== 'undefined') {
     for (const k in RL) {
       if (k.startsWith(lower + '|') || k.includes('|') && k.split('|')[0] === lower) return true;
     }
   }
-  // Default: treat as fragrance (bold items in AI responses are usually fragrances)
-  return true;
+  // Without "by Brand", we can't build a reliable Amazon search URL — bail
+  // and render as plain bold so we don't drop links in random places.
+  return false;
 }
 
 // ═══════════════ HARD PAYWALL MODAL (free trial exhausted) ═══════════════

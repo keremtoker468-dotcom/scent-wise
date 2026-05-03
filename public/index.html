@@ -1135,9 +1135,9 @@ input::placeholder{color:var(--td);opacity:.7}
     animation-fill-mode: both;
   }
 }
-.result-img{width:80px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0;border:1px solid rgba(201,169,110,.15);display:block;margin:8px 0;opacity:0;transition:opacity .5s ease}
+.result-img{width:96px;height:96px;object-fit:cover;border-radius:12px;flex-shrink:0;border:1px solid rgba(201,169,110,.18);display:block;margin:10px 0 12px;opacity:0;transition:opacity .5s ease;box-shadow:0 2px 8px rgba(74,56,24,.06)}
 .result-img.loaded{opacity:1}
-@media(max-width:768px){.result-img{width:60px;height:60px}}
+@media(max-width:768px){.result-img{width:88px;height:88px;margin:8px 0 10px;border-radius:10px}}
 /* ═══ MODE SWITCHER BAR ═══ */
 .mode-bar{display:none;position:sticky;top:0;z-index:90;background:rgba(245,239,228,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(120,95,40,.12);padding:8px 0}
 .mode-bar-inner{display:flex;gap:6px;overflow-x:auto;padding:0 16px;scrollbar-width:none;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
