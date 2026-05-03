@@ -167,12 +167,18 @@ FOR EACH RECOMMENDATION, include:
 
 End with 2 budget-friendly alternatives (same format, briefer) and a one-line send-off that feels human — a small note, a tip, or a "if you love this, also try ___".
 
-STRICT OUTPUT FORMAT (the UI parser depends on this exact structure):
-- Start each pick on its own line with: **Fragrance Name by Brand** — both the name AND "by Brand" must be inside the bold markers.
-- Example header: **Aventus by Creed** — pineapple, birch, oakmoss
-- Section labels must match exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
-- SCORES line must read: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
-- No extra preamble, no closing summary, no nested bullets inside picks.` + profileContext;
+STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing it inserts links in the wrong places):
+- **Bold (`**...**`) is reserved EXCLUSIVELY for fragrance picks formatted as "Name by Brand".** Every bold span MUST contain the word " by " between the fragrance name and the brand. Never bold section labels, notes, tips, headers, brand names alone, or anything else.
+- Each pick starts on its own line: **Fragrance Name by Brand** — top notes, heart, base
+- Worked example of one pick:
+    1. **Aventus by Creed** — pineapple, birch, oakmoss; price $$$
+    WHY IT MATCHES YOU: This nails the "quiet confidence" you described — fruity opening, smoky dry-down, never loud.
+    BLIND BUY RISK: Low-risk blind buy
+    SIMILAR TO: Think Tom Ford Oud Wood but fresher and more office-friendly
+    SCORES: Longevity: 4/5 | Projection: 4/5 | Uniqueness: 3/5 | Versatility: 5/5
+- Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
+- SCORES line must read literally: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
+- Do NOT use markdown headers (`#`, `##`), do NOT use nested bullets inside picks, do NOT bold notes or section labels.` + profileContext;
       parts = [
         { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
         { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
@@ -205,12 +211,18 @@ FEEDBACK HANDLING: When the user says "too sweet", "too mature", "hate rose", "l
 
 If the user hasn't stated preferences yet, infer from their question, name your assumption out loud ("Reading this as date-night warmth — let me know if that's off") and give recs anyway.
 
-STRICT OUTPUT FORMAT (the UI parser depends on this exact structure):
-- Start each pick on its own line with: **Fragrance Name by Brand** — both the name AND "by Brand" must be inside the bold markers.
-- Example header: **Aventus by Creed** — pineapple, birch, oakmoss
-- Section labels must match exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
-- SCORES line must read: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
-- No extra preamble, no closing summary, no nested bullets inside picks.` + profileContext;
+STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing it inserts links in the wrong places):
+- **Bold (`**...**`) is reserved EXCLUSIVELY for fragrance picks formatted as "Name by Brand".** Every bold span MUST contain the word " by " between the fragrance name and the brand. Never bold section labels, notes, tips, headers, brand names alone, or anything else.
+- Each pick starts on its own line: **Fragrance Name by Brand** — top notes, heart, base
+- Worked example of one pick:
+    1. **Aventus by Creed** — pineapple, birch, oakmoss; price $$$
+    WHY IT MATCHES YOU: This nails the "quiet confidence" you described — fruity opening, smoky dry-down, never loud.
+    BLIND BUY RISK: Low-risk blind buy
+    SIMILAR TO: Think Tom Ford Oud Wood but fresher and more office-friendly
+    SCORES: Longevity: 4/5 | Projection: 4/5 | Uniqueness: 3/5 | Versatility: 5/5
+- Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
+- SCORES line must read literally: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
+- Do NOT use markdown headers (`#`, `##`), do NOT use nested bullets inside picks, do NOT bold notes or section labels.` + profileContext;
       const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
       const history = messages && messages.length > 1
         ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
