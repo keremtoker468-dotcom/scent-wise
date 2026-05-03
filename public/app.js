@@ -859,15 +859,13 @@ function closeScentQuiz() {
   if (overlay) overlay.remove();
 }
 
-// Open the Lemon Squeezy checkout: prefer the overlay (keeps the user in the
-// ScentWise tab, much higher completion rate than a full redirect). Fall back
-// to a new tab if lemon.js didn't load — never a full-page redirect, because
-// users on mobile have no reliable way back from a top-level navigation.
+// Open the Lemon Squeezy checkout in a new tab. We previously used the
+// LS overlay (LS.Url.Open) for the in-page experience, but its close button
+// is unreliable on Safari/mobile — users got stuck with no way back to
+// ScentWise. New tab keeps the original session reachable and the
+// redirect_url with ?order_id={order_id} still triggers auto-activation
+// when the user returns.
 function openLemonCheckout(url) {
-  const LS = window.LemonSqueezy;
-  if (LS && LS.Url && typeof LS.Url.Open === 'function') {
-    try { LS.Url.Open(url); return true; } catch {}
-  }
   const win = window.open(url, '_blank', 'noopener,noreferrer');
   if (!win) window.location.href = url; // popup blocked — last resort
   return false;
