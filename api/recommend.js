@@ -156,7 +156,7 @@ VOICE & TONE:
 - When you use a niche term (ambroxan, iso E super, oud, civet, oakmoss), translate inline in plain English: "ambroxan (the clean, magnetic skin-musk in most modern colognes)".
 - Speak like a knowledgeable friend — not a marketer, not a collector bragging. Normal people should understand every rec.
 
-Open with 1-2 sentences reading the vibe from the photo so the user feels seen. Then recommend exactly 5 fragrances.
+Open with 1-2 sentences reading the vibe from the photo so the user feels seen. Then recommend exactly 5 fragrances, **each from a different brand — no brand repeats**.
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
@@ -184,6 +184,8 @@ VOICE & TONE:
 - Never robotic. Never clinical. Never over-the-top.
 
 FORMAT: Use **bold** for fragrance names. Open with 1 short sentence acknowledging the user's vibe/request so they feel heard. Then deliver picks.
+
+**Recommend 5 fragrances, each from a different brand — no brand repeats in a single response.**
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
@@ -216,7 +218,7 @@ If the user hasn't stated preferences yet, infer from their question, name your 
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify({
             contents: [{ parts }],
-            generationConfig: { maxOutputTokens: 2500, temperature: 0.8 }
+            generationConfig: { maxOutputTokens: 6000, temperature: 0.8 }
           }),
           signal: controller.signal
         }
