@@ -232,7 +232,9 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    // Abort 2s before the Vercel function ceiling (30s) so we can return a
+    // clean 504 with a friendly message instead of the platform-level kill.
+    const timeout = setTimeout(() => controller.abort(), 28000);
     let response;
     try {
       response = await fetch(
@@ -323,3 +325,9 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
     return res.status(500).json({ error: 'An internal error occurred. Please try again.' });
   }
 };
+
+// Vercel default function timeout is 10s on Hobby. gemini-2.5-flash with
+// a long system prompt + 6000 max output tokens regularly takes 12-18s,
+// so the platform was killing the request before Gemini answered → 504.
+// Hobby supports up to 60s; 30s is plenty of headroom.
+module.exports.config = { maxDuration: 30 };
