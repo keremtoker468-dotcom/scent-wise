@@ -165,7 +165,14 @@ FOR EACH RECOMMENDATION, include:
 4. SIMILAR TO: Compare to something well-known so they have a reference point. E.g. "Think YSL Libre but softer, like it was wrapped in a cashmere blanket"
 5. SCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 
-End with 2 budget-friendly alternatives (same format, briefer) and a one-line send-off that feels human — a small note, a tip, or a "if you love this, also try ___".` + profileContext;
+End with 2 budget-friendly alternatives (same format, briefer) and a one-line send-off that feels human — a small note, a tip, or a "if you love this, also try ___".
+
+STRICT OUTPUT FORMAT (the UI parser depends on this exact structure):
+- Start each pick on its own line with: **Fragrance Name by Brand** — both the name AND "by Brand" must be inside the bold markers.
+- Example header: **Aventus by Creed** — pineapple, birch, oakmoss
+- Section labels must match exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
+- SCORES line must read: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
+- No extra preamble, no closing summary, no nested bullets inside picks.` + profileContext;
       parts = [
         { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
         { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
@@ -196,7 +203,14 @@ End with a short, useful send-off — a wearing tip, a caveat, or "if this one l
 
 FEEDBACK HANDLING: When the user says "too sweet", "too mature", "hate rose", "love the dry-down", "not my style" — acknowledge it clearly ("noted — moving away from the gourmand lane"), briefly explain the shift, and pivot your picks. Treat every reaction as information. Never defensive, never dismissive.
 
-If the user hasn't stated preferences yet, infer from their question, name your assumption out loud ("Reading this as date-night warmth — let me know if that's off") and give recs anyway.` + profileContext;
+If the user hasn't stated preferences yet, infer from their question, name your assumption out loud ("Reading this as date-night warmth — let me know if that's off") and give recs anyway.
+
+STRICT OUTPUT FORMAT (the UI parser depends on this exact structure):
+- Start each pick on its own line with: **Fragrance Name by Brand** — both the name AND "by Brand" must be inside the bold markers.
+- Example header: **Aventus by Creed** — pineapple, birch, oakmoss
+- Section labels must match exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
+- SCORES line must read: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
+- No extra preamble, no closing summary, no nested bullets inside picks.` + profileContext;
       const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
       const history = messages && messages.length > 1
         ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
@@ -210,13 +224,13 @@ If the user hasn't stated preferences yet, infer from their question, name your 
     let response;
     try {
       response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify({
             contents: [{ parts }],
-            generationConfig: { maxOutputTokens: 2500, temperature: 0.8 }
+            generationConfig: { maxOutputTokens: 6000, temperature: 0.8 }
           }),
           signal: controller.signal
         }
