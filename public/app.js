@@ -861,13 +861,15 @@ function closeScentQuiz() {
 
 // Open the Lemon Squeezy checkout: prefer the overlay (keeps the user in the
 // ScentWise tab, much higher completion rate than a full redirect). Fall back
-// to a top-level navigation if lemon.js didn't load.
+// to a new tab if lemon.js didn't load — never a full-page redirect, because
+// users on mobile have no reliable way back from a top-level navigation.
 function openLemonCheckout(url) {
   const LS = window.LemonSqueezy;
   if (LS && LS.Url && typeof LS.Url.Open === 'function') {
     try { LS.Url.Open(url); return true; } catch {}
   }
-  window.location.href = url;
+  const win = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!win) window.location.href = url; // popup blocked — last resort
   return false;
 }
 
