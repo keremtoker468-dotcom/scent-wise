@@ -1275,7 +1275,18 @@ function loadResultImages(container) {
         img.loading = 'lazy';
         img.onload = function() { this.classList.add('loaded'); };
         img.onerror = function() { this.remove(); };
-        el.parentElement.insertBefore(img, el.nextSibling);
+        // Walk forward from the fragrance name and skip over the inline
+        // action buttons (heart, Amazon, Compare) plus their <br>s. The
+        // image lands BELOW the action row and ABOVE the description text,
+        // instead of getting wedged between the name and the heart icon.
+        let anchor = el.nextSibling;
+        let safety = 8;
+        while (anchor && safety-- > 0 && anchor.nodeType === 1 && /^(SPAN|BR)$/i.test(anchor.tagName)) {
+          const isActionSpan = anchor.tagName === 'SPAN' && anchor.querySelector && anchor.querySelector('a[href*="amazon"], button.cmp-btn, .frag-actions');
+          anchor = anchor.nextSibling;
+          if (isActionSpan) break; // stop right after the Amazon/Compare row
+        }
+        el.parentElement.insertBefore(img, anchor);
       }
     });
   });
