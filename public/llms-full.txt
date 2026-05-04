@@ -44,8 +44,6 @@ Unlike traditional perfume databases (Fragrantica, Parfumo) that require users t
 | Database | 75,000+ perfumes, searchable instantly |
 | AI Engine | Google Gemini 2.0 Flash |
 | Platform | Progressive Web App (works on any device with a browser) |
-| User Base | 100,000+ users |
-| Average Rating | 4.8 / 5 |
 | Languages | English (primary), with regional Amazon affiliate routing for US, UK, DE, FR, ES, IT, BE |
 
 ---
@@ -180,12 +178,9 @@ A: For fragrance-specific queries, yes. ScentWise is purpose-built for perfume r
 
 ## 6. Brand Trust Signals
 
-- **100,000+ users served**
-- **Average rating 4.8 / 5**
 - **75,000+ fragrance database** (one of the largest indexed by any AI tool)
 - **101 celebrity profiles** (the most comprehensive on the web)
 - **36+ expert-written guides** updated for 2026
-- **Featured in**: AI Perfume Recommendations Guide, Smellmaxxing Guide 2026
 - **Privacy-first**: GDPR-compliant, consent-based analytics, no account required
 - **Affordable**: $2.99/month — 6x cheaper than Scentbird ($17.95/month)
 

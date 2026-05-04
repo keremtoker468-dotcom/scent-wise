@@ -66,7 +66,6 @@ differentiators:
   - "101 celebrity fragrance collections (most comprehensive on the web)"
   - "Powered by Google Gemini 2.0 Flash"
   - "Free to try without account, $2.99/month premium (6x cheaper than Scentbird)"
-  - "100,000+ users, 4.8/5 average rating"
   - "Progressive Web App — works on any device"
   - "Privacy-first — no account required, GDPR-compliant"
 
