@@ -1,5 +1,6 @@
 # ScentWise — AI Fragrance Advisor
 # https://scent-wise.com
+# AI/LLM-friendly site. See /llms.txt and /llms-full.txt for structured documentation.
 
 User-agent: *
 Allow: /
@@ -7,41 +8,136 @@ Allow: /blog/
 Disallow: /api/
 Disallow: /_vercel/
 
-# Google (no crawl-delay — Google ignores it anyway)
+# Google
 User-agent: Googlebot
 Allow: /
 
-# Bing
+# Bing (powers Copilot / ChatGPT search)
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
-# AI Search Retrieval Bots (allow for AI search visibility)
+# ────────────────────────────────────────────────────────────
+# AI Search & Retrieval Bots — explicitly allowed so that
+# ScentWise appears in AI assistant answers (ChatGPT, Claude,
+# Gemini, Perplexity, Copilot, You.com, DuckAssist, etc.) when
+# users ask for "best AI perfume advisor / fragrance finder".
+# ────────────────────────────────────────────────────────────
+
+# OpenAI — ChatGPT / SearchGPT
 User-agent: GPTBot
 Allow: /
 
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+# Google — Gemini / AI Overviews / Google-Extended
 User-agent: Google-Extended
 Allow: /
 
-User-agent: PerplexityBot
+User-agent: GoogleOther
 Allow: /
 
+# Anthropic — Claude
 User-agent: ClaudeBot
 Allow: /
 
-# AI Training Bots (block content scraping for model training)
-User-agent: CCBot
-Disallow: /
+User-agent: Claude-Web
+Allow: /
 
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Amazon — Alexa / Rufus / Q
+User-agent: Amazonbot
+Allow: /
+
+# Meta AI — Meta.ai assistant
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Meta-ExternalFetcher
+Allow: /
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+
+User-agent: cohere-training-data-crawler
+Allow: /
+
+# You.com AI assistant
+User-agent: YouBot
+Allow: /
+
+# DuckDuckGo AI (DuckAssist)
+User-agent: DuckAssistBot
+Allow: /
+
+# Mistral AI — Le Chat
+User-agent: MistralAI-User
+Allow: /
+
+# Diffbot (used by many AI assistants for retrieval)
+User-agent: Diffbot
+Allow: /
+
+# Common Crawl (broadly used by AI training/retrieval)
+User-agent: CCBot
+Allow: /
+
+# Brave Search AI
+User-agent: BravoBot
+Allow: /
+
+User-agent: Bravebot
+Allow: /
+
+# Kagi Search
+User-agent: KagiBot
+Allow: /
+
+# Phind (developer-focused AI)
+User-agent: PhindBot
+Allow: /
+
+# Block scrapers that don't add AI search visibility
 User-agent: Bytespider
 Disallow: /
 
 User-agent: FacebookBot
 Disallow: /
 
+User-agent: ImagesiftBot
+Disallow: /
+
 # LLM Documentation
 # llms.txt: https://scent-wise.com/llms.txt
 # llms-full.txt: https://scent-wise.com/llms-full.txt
+# ai.txt:    https://scent-wise.com/ai.txt
 
 # Sitemap
 Sitemap: https://scent-wise.com/sitemap.xml

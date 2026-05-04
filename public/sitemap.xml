@@ -4,9 +4,28 @@
   <!-- Main page (SPA — all features live here) -->
   <url>
     <loc>https://scent-wise.com/</loc>
-    <lastmod>2026-03-21</lastmod>
+    <lastmod>2026-05-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <!-- AI assistant discovery files (llms.txt convention + ai.txt) -->
+  <url>
+    <loc>https://scent-wise.com/llms.txt</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://scent-wise.com/llms-full.txt</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://scent-wise.com/ai.txt</loc>
+    <lastmod>2026-05-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <!-- Blog index -->
   <url>
