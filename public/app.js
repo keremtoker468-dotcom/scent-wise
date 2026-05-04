@@ -1243,9 +1243,19 @@ async function fetchImg(query, n, name, brand) {
 function loadResultImages(container) {
   if (!container) return;
   const frags = container.querySelectorAll('strong[data-frag]');
+  // Track names we've already painted in this container so duplicate
+  // mentions of the same fragrance don't trigger duplicate image fetches
+  // (the parser tries to dedupe too — this is a belt-and-braces).
+  const _paintedNames = new Set();
   frags.forEach(el => {
     const name = el.getAttribute('data-frag');
     if (!name || name.length > 60 || el.dataset.imgLoaded) return;
+    const nameKey = name.toLowerCase().trim();
+    if (_paintedNames.has(nameKey)) {
+      el.dataset.imgLoaded = '1';
+      return;
+    }
+    _paintedNames.add(nameKey);
     el.dataset.imgLoaded = '1';
     // Build a smarter query: look up the fragrance in the database for brand/category
     let query = name + ' fragrance';
@@ -1576,7 +1586,11 @@ function fmt(text) {
       }
       const key = name.toLowerCase();
       if (_seenFrags.has(key)) {
-        return `<strong style="color:var(--g)" data-frag="${name}">${name}</strong>`;
+        // Same fragrance bolded again later in the body (e.g. inside the
+        // "WHY IT MATCHES YOU" section). Keep it visually highlighted but
+        // strip data-frag so loadResultImages doesn't paint a second copy
+        // of the same bottle photo further down the page.
+        return `<strong style="color:var(--g)">${name}</strong>`;
       }
       _seenFrags.add(key);
       const isLiked = _likedFrags.has(key + '_up');
