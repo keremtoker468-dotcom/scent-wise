@@ -1631,12 +1631,15 @@ function fmt(text) {
       return `<div style="display:flex;flex-wrap:wrap;gap:2px;margin:6px 0">${badge('Longevity',lon)}${badge('Projection',proj)}${badge('Uniqueness',uniq)}${badge('Versatility',vers)}</div>`;
     });
 
-  // Style "WHY IT MATCHES YOU" / "MATCHES YOUR PROFILE" sections
-  s = s.replace(/(?:WHY IT MATCHES YOU|WHY THIS MATCHES|MATCHES YOUR PROFILE|Why it matches you)[:\s]*(?:<br>)?[\s]*([^<]{10,200}?)(?=<br><br>|<br>(?:BLIND|SIMILAR|SCORES|Blind|Similar|Scores|\d\.))/gi,
+  // Style "WHY IT MATCHES YOU" / "MATCHES YOUR PROFILE" sections —
+  // allow inline HTML so embedded bold fragrance links survive.
+  s = s.replace(/(?:WHY IT MATCHES YOU|WHY THIS MATCHES|MATCHES YOUR PROFILE|Why it matches you)[:\s]*(?:<br>)?[\s]*([\s\S]{10,400}?)(?=<br><br>|<br>(?:BLIND|SIMILAR|SCORES|Blind|Similar|Scores|\d\.))/gi,
     '<div style="margin:4px 0;padding:6px 10px;border-left:2px solid rgba(201,169,110,.3);background:rgba(201,169,110,.04);border-radius:0 8px 8px 0;font-size:12px;color:var(--t);line-height:1.5">$1</div>');
 
-  // Style "SIMILAR TO" comparisons
-  s = s.replace(/(?:SIMILAR TO|Similar to|Comparable to)[:\s]*(?:<br>)?[\s]*([^<]{10,150}?)(?=<br>|$)/gi,
+  // Style "SIMILAR TO" comparisons — allow inline HTML so embedded
+  // bold-with-Amazon-button spans (e.g. **Tom Ford Oud Wood by Tom Ford**)
+  // survive intact rather than being stripped by an [^<] match.
+  s = s.replace(/(?:SIMILAR TO|Similar to|Comparable to)[:\s]*(?:<br>)?[\s]*([\s\S]{10,300}?)(?=<br><br>|<br>(?:SCORES|Scores|\d+\.|$)|$)/gi,
     '<span style="display:inline-block;margin:2px 0;font-size:12px;color:var(--td);font-style:italic">$1</span>');
 
   // Fallback: Add Amazon links for numbered recommendations without bold formatting
