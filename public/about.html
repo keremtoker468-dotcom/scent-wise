@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-769WY8EYH6');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About ScentWise — The AI Fragrance Advisor Behind 75,000+ Perfumes</title>
+    <meta name="description" content="Learn about ScentWise, the AI-powered fragrance advisor. Our mission, how we built our 75,000+ perfume database, the team behind the recommendations, and why we believe scent should be deeply personal.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://scent-wise.com/about.html">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://scent-wise.com/about.html">
+    <meta property="og:title" content="About ScentWise — The AI Fragrance Advisor">
+    <meta property="og:description" content="The story, mission, and team behind ScentWise — the AI fragrance advisor with 75,000+ perfumes and 7 discovery modes.">
+    <meta property="og:site_name" content="ScentWise">
+    <meta property="og:image" content="https://scent-wise.com/og-image.png">
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About ScentWise — The AI Fragrance Advisor">
+    <meta name="twitter:description" content="The story, mission, and team behind ScentWise.">
+    <meta name="twitter:image" content="https://scent-wise.com/og-image.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg: #0a0a0f;
+            --bg-card: #111118;
+            --border: #1e1e2a;
+            --text: #c8c8d4;
+            --text-muted: #7a7a8e;
+            --heading: #e8e6f0;
+            --accent: #b8965a;
+            --accent-glow: rgba(184, 150, 90, 0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            font-weight: 300;
+            line-height: 1.75;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--accent);
+            text-decoration: none;
+            letter-spacing: 0.04em;
+        }
+
+        .logo span {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+            margin-left: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover { color: var(--accent); }
+
+        main {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 3.5rem 2rem 5rem;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.02em;
+            line-height: 1.2;
+        }
+
+        .lede {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+            font-style: italic;
+            font-family: 'Cormorant Garamond', serif;
+            line-height: 1.6;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--heading);
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.02em;
+        }
+
+        h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--accent);
+            margin-top: 1.75rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            font-size: 0.98rem;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        ul {
+            margin: 0.5rem 0 1.25rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            padding: 1.5rem 1.75rem;
+            border-radius: 0 8px 8px 0;
+            margin: 2rem 0;
+        }
+
+        .highlight-box p:last-child { margin-bottom: 0; }
+        .highlight-box strong { color: var(--heading); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(184, 150, 90, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+        }
+
+        .stat-card .num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent);
+            display: block;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .cta-card {
+            background: linear-gradient(135deg, var(--bg-card), rgba(184, 150, 90, 0.08));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .cta-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--heading);
+            text-transform: none;
+            letter-spacing: 0.02em;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 0.85rem 2rem;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 100px;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--accent-glow);
+            text-decoration: none;
+        }
+
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        footer a { color: var(--accent); margin: 0 1rem; }
+
+        @media (max-width: 600px) {
+            main { padding: 2rem 1.25rem 3rem; }
+            h1 { font-size: 2.1rem; }
+            h2 { font-size: 1.4rem; }
+        }
+    </style>
+    <!-- Vercel Web Analytics -->
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<header>
+    <a href="https://scent-wise.com" class="logo">◈ ScentWise <span>About</span></a>
+    <a href="https://scent-wise.com" class="back-link">← Back to ScentWise</a>
+</header>
+
+<main>
+    <h1>About ScentWise</h1>
+    <p class="lede">We started ScentWise because finding a perfume you actually love shouldn't take three confusing visits to a department store and a $200 mistake. Modern AI can do better — and that's what we built.</p>
+
+    <h2>Our Mission</h2>
+    <p>Fragrance is one of the most personal purchases anyone makes. It sits on your skin all day, becomes part of how people remember you, and yet most people buy it almost blind — picking from a shelf, trusting a celebrity face, or copying what a friend wears. The good ones cost $100–$400. The bad ones get worn twice and shoved in a drawer.</p>
+    <p>ScentWise exists to fix that. We believe everyone deserves a fragrance that genuinely matches their personality, lifestyle, and aesthetic — without needing to memorize the difference between an aldehyde and an ambroxan, and without spending a small fortune on samples to find out. Our job is to translate the messy, subjective, deeply personal experience of scent into clear recommendations you can actually act on.</p>
+
+    <h2>What ScentWise Does</h2>
+    <p>ScentWise is an AI-powered fragrance advisor. Tell us a little about yourself — through a chat, a photo of your outfit, your zodiac sign, your favorite music, or just the name of a perfume you wish you could afford — and our AI surfaces fragrances that fit. We work across <strong>seven different discovery modes</strong> because no single approach matches how everyone thinks about scent:</p>
+    <ul>
+        <li><strong>AI Chat Advisor</strong> — describe what you want in plain language, get specific bottle recommendations</li>
+        <li><strong>Dupe Finder</strong> — paste any expensive fragrance, get affordable alternatives ranked by scent similarity</li>
+        <li><strong>Photo Style Scan</strong> — upload a picture of your outfit or aesthetic, get fragrances that match the visual mood</li>
+        <li><strong>Zodiac Match</strong> — your birthday maps to fragrance families that align with your astrological personality</li>
+        <li><strong>Music to Fragrance</strong> — your favorite genre or artist translates into matching scent profiles</li>
+        <li><strong>Style Match</strong> — describe your fashion (streetwear, minimalist, corporate, bohemian) for wardrobe-aligned scents</li>
+        <li><strong>Celebrity Fragrance Explorer</strong> — browse what 101 celebrities actually wear</li>
+    </ul>
+
+    <div class="stats-grid">
+        <div class="stat-card"><span class="num">75K+</span><span class="label">Perfumes Indexed</span></div>
+        <div class="stat-card"><span class="num">101</span><span class="label">Celebrity Profiles</span></div>
+        <div class="stat-card"><span class="num">7</span><span class="label">AI Discovery Modes</span></div>
+        <div class="stat-card"><span class="num">36+</span><span class="label">Expert Guides</span></div>
+    </div>
+
+    <h2>How We Built the Database</h2>
+    <p>The heart of ScentWise is its fragrance database — over <strong>75,000 perfumes</strong> indexed with brand, top/middle/base notes, concentration, price tier, and curated quality scores. We assembled it by combining publicly available fragrance metadata, manufacturer-published note pyramids, and structured data from open fragrance encyclopedias. Every entry was normalized, de-duplicated, and re-categorized into a consistent taxonomy of fragrance families and accords so that the AI can reason across them.</p>
+    <p>The database loads instantly in your browser — meaning search, filtering, and recommendations happen with zero server latency. We deliberately chose this architecture so that browsing is always fast, even on slow connections, and so that we never need to log what you search for.</p>
+
+    <h2>The AI Behind the Recommendations</h2>
+    <p>ScentWise's recommendations are powered by <a href="https://ai.google.dev/gemini-api" rel="noopener">Google Gemini 2.0 Flash</a>, a large language model with strong reasoning ability and multimodal (text + image) understanding. We chose Gemini because it lets us combine text-based queries (what you write to the chat advisor) with vision tasks (analyzing the photo you upload) inside a single coherent system.</p>
+    <p>But the model alone isn't enough. We ground every recommendation in our 75,000-perfume database — that means the AI isn't free to hallucinate fictional fragrances or invented notes. When the model suggests a perfume, that perfume is a real product with real notes, a real brand, and a real price tier. We do the heavy lifting on data quality so that the AI can focus on matching.</p>
+
+    <div class="highlight-box">
+        <p><strong>Transparency note:</strong> AI recommendations are guidance, not gospel. Scent is deeply personal, and skin chemistry varies from person to person. Always sample a fragrance before committing — that's why our affiliate links lead to retailers like Amazon and FragranceX where samples are available. We earn a small commission on purchases, which is disclosed on every product link.</p>
+    </div>
+
+    <h2>Who We Serve</h2>
+    <p>ScentWise is for anyone who wants a fragrance that actually fits — whether you're buying your first cologne at 17, hunting an affordable dupe of Baccarat Rouge 540, building a signature scent in your thirties, or just curious what perfume your favorite musician wears. We work for fragrance newcomers and seasoned collectors alike.</p>
+    <p>The free tier lets you take our AI advisor for a real test drive: one full personalized recommendation up front, plus two more after you share your email. No account, no credit card, no friction. If you find it useful, our Premium tier — <strong>$2.99 per month for 500 AI queries</strong> — supports the project and unlocks unlimited exploration. That's roughly six times cheaper than fragrance subscription boxes, and the recommendations are infinitely more personal.</p>
+
+    <h2>Our Values</h2>
+
+    <h3>Privacy First</h3>
+    <p>We don't require an account to use ScentWise. We don't sell your data. We don't track you across the web. The free tier is genuinely free — your email, if you choose to share it, is used only to unlock additional queries and to occasionally send fragrance guides if you've opted in. You can read the specifics in our <a href="/privacy.html">Privacy Policy</a>.</p>
+
+    <h3>Honesty Over Hype</h3>
+    <p>We don't tell you a $400 niche fragrance is "objectively the best" — because that's not how scent works. We give you matches that fit your input, with honest pros and cons, longevity ratings, and price context. When we recommend a dupe, we say up front how close it actually smells, not just "smells exactly the same!" (it never does).</p>
+
+    <h3>Affordable by Default</h3>
+    <p>Perfume can be intimidating because it's expensive. We deliberately built ScentWise so that the database, the search, and the first AI recommendation are free. We surface budget options alongside luxury picks, and our Dupe Finder exists specifically to help people find affordable alternatives to $300 bottles. Premium is priced at $2.99 because that's what it costs us to serve high-quality AI calls — not what we could charge.</p>
+
+    <h2>Contact &amp; Support</h2>
+    <p>The best way to reach us is by email at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. We read every message and aim to reply within 48 hours on business days. Whether you've found a bug, want to suggest a feature, have a press inquiry, or just want to argue about whether Aventus has actually gotten worse since the early batches — we'd love to hear from you.</p>
+    <p>For more details, see our <a href="/contact.html">Contact page</a>.</p>
+
+    <div class="cta-card">
+        <h3>Try ScentWise Free</h3>
+        <p>One full AI fragrance recommendation, no signup required. Two more if you share your email.</p>
+        <a href="https://scent-wise.com" class="cta-button">Find My Scent →</a>
+    </div>
+</main>
+
+<footer>
+    <p>© 2026 ScentWise. All rights reserved.</p>
+    <p style="margin-top: 0.75rem;">
+        <a href="https://scent-wise.com">Home</a>
+        <a href="/blog/">Blog</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/refund.html">Refunds</a>
+    </p>
+</footer>
+
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

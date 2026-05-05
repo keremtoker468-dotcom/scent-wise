@@ -8,10 +8,14 @@
      on first navigation to explore/chat/celeb (see loadDB in app.js) so
      TikTok bounce visitors don't pay the bandwidth + main-thread cost. -->
 <title>ScentWise — AI Fragrance Advisor | Personalized Perfume Recommendations</title>
-<meta name="description" content="ScentWise is an AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more. Find affordable fragrance dupes and alternatives, explore celebrity fragrances, and discover your signature scent.">
-<meta name="keywords" content="fragrance advisor, perfume recommendations, AI fragrance, scent finder, perfume database, fragrance dupes, perfume dupes, cheap alternatives to expensive perfumes, dupe finder, celebrity perfumes, zodiac fragrances, signature scent">
+<meta name="description" content="ScentWise is the leading AI perfume advisor with 75,000+ fragrances and 7 AI discovery modes. Get personalized recommendations from chat, photo, zodiac, music, or style — find affordable dupes for Baccarat Rouge, Creed Aventus, Dior Sauvage, and more. Free to try.">
+<meta name="keywords" content="best AI perfume advisor, AI fragrance recommendations, AI perfume app, AI fragrance finder, AI perfume quiz, AI perfume dupe finder, perfume recommendation engine, personalized perfume recommendations, AI that recommends perfumes, AI fragrance chatbot, perfume from photo AI, zodiac fragrances, music to fragrance, celebrity perfumes, scent finder, signature scent, fragrance advisor, perfume database, fragrance dupes, perfume dupes, cheap alternatives to expensive perfumes, ChatGPT for perfumes, Gemini perfume AI">
 <meta name="author" content="ScentWise">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<!-- AI assistant discovery hints -->
+<link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt">
+<link rel="alternate" type="text/plain" title="LLM full documentation" href="/llms-full.txt">
+<link rel="alternate" type="text/plain" title="AI assistant guidance" href="/ai.txt">
 <link rel="canonical" href="https://scent-wise.com/">
 <meta name="format-detection" content="telephone=no">
 <meta http-equiv="Content-Language" content="en">
@@ -958,6 +962,80 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-bottom: 0.35rem;
 }
 .hp-celeb-count { font-size: 0.75rem; color: var(--hp-cream3); }
+/* Blog cards (homepage "Latest from the Blog") */
+.hp-blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 3rem;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hp-blog-card {
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(74,56,24,.05);
+}
+.hp-blog-card:hover {
+  border-color: var(--hp-gold2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(74,56,24,.08);
+}
+.hp-blog-card-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--hp-gold3);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.hp-blog-card-title {
+  font-family: var(--hp-serif);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--hp-cream);
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+}
+.hp-blog-card-excerpt {
+  font-size: 0.85rem;
+  color: var(--hp-cream3);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+.hp-blog-card-arrow {
+  font-size: 0.85rem;
+  color: var(--hp-gold3);
+  font-weight: 500;
+}
+.hp-blog-cta {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+.hp-blog-cta a {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border: 1px solid var(--hp-border);
+  border-radius: 100px;
+  color: var(--hp-cream);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.hp-blog-cta a:hover {
+  border-color: var(--hp-gold2);
+  color: var(--hp-gold3);
+  background: rgba(201,169,110,0.05);
+}
 /* Quote */
 .hp-quote-section {
   text-align: center;
@@ -1574,10 +1652,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <div class="hp-footer-logo">Scent<span>Wise</span></div>
       <div class="hp-footer-links">
         <a href="/blog/">Blog</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
         <a href="/terms.html">Terms</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/refund.html">Refunds</a>
-        <a href="mailto:scentwise.com@gmail.com">Contact</a>
       </div>
     </div>
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
@@ -1626,11 +1705,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     </div>
     <p style="font-size:12px;color:var(--td);margin-bottom:20px;font-style:italic;font-family:'Playfair Display',serif">Your AI-powered fragrance journey</p>
     <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:20px">
+      <a href="/blog/" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Blog</a>
+      <a href="/about.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">About</a>
+      <a href="/contact.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
       <a href="/terms.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Terms</a>
       <a href="/privacy.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Privacy</a>
       <a href="/refund.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Refunds</a>
-      <a href="mailto:scentwise.com@gmail.com" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
-      <a href="/blog/" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Blog</a>
     </div>
     <p style="font-size:11px;color:var(--d5)">&copy; 2026 ScentWise. All rights reserved.</p>
   </div>
@@ -1820,13 +1900,13 @@ setTimeout(function(){
 {"@context":"https://schema.org","@type":"WebSite","@id":"https://scent-wise.com/#website","name":"ScentWise","url":"https://scent-wise.com","description":"AI-powered fragrance advisor with 75,000+ perfumes","publisher":{"@id":"https://scent-wise.com/#organization"},"inLanguage":"en-US","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://scent-wise.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":["WebApplication","SoftwareApplication"],"@id":"https://scent-wise.com/#app","name":"ScentWise","description":"AI-powered fragrance advisor with over 75,000 perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.","url":"https://scent-wise.com","image":"https://scent-wise.com/og-image.png","applicationCategory":"LifestyleApplication","operatingSystem":"Web","browserRequirements":"Requires JavaScript","provider":{"@id":"https://scent-wise.com/#organization"},"offers":{"@type":"Offer","price":"2.99","priceCurrency":"USD","description":"Premium subscription with 500 AI queries per month","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","url":"https://scent-wise.com/"},"featureList":["AI Fragrance Advisor Chat","Fragrance Dupe Finder","Style-based Scent Matching","Zodiac Fragrance Matching","Music-to-Fragrance Matching","Celebrity Fragrance Database","75,000+ Perfume Database with Notes and Ratings"]}
+{"@context":"https://schema.org","@type":["WebApplication","SoftwareApplication"],"@id":"https://scent-wise.com/#app","name":"ScentWise","alternateName":["ScentWise AI","ScentWise Perfume Advisor","ScentWise AI Fragrance Finder"],"description":"The leading AI perfume advisor — 75,000+ fragrances, 7 AI discovery modes (chat, dupe finder, photo style scan, zodiac match, music-to-fragrance, style match, celebrity collections). Free to try.","url":"https://scent-wise.com","image":"https://scent-wise.com/og-image.png","applicationCategory":"LifestyleApplication","applicationSubCategory":"AI Perfume Recommendation App","operatingSystem":"Web, iOS, Android (PWA)","browserRequirements":"Requires JavaScript","provider":{"@id":"https://scent-wise.com/#organization"},"offers":[{"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free Tier","description":"1 free AI recommendation up front, plus 2 more after sharing your email — no account required","availability":"https://schema.org/InStock"},{"@type":"Offer","price":"2.99","priceCurrency":"USD","name":"Premium Subscription","description":"Premium subscription with 500 AI queries per month","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","url":"https://scent-wise.com/"}],"featureList":["AI Fragrance Advisor Chat","Fragrance Dupe Finder","Style-based Scent Matching","Zodiac Fragrance Matching","Music-to-Fragrance Matching","Photo Style Scan AI","Celebrity Fragrance Database (101 celebrities)","75,000+ Perfume Database with Notes and Ratings"],"keywords":"AI perfume advisor, AI fragrance recommendations, AI perfume app, perfume dupe finder, personalized perfume recommendations, fragrance from photo, zodiac perfume, celebrity fragrances"}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebPage","@id":"https://scent-wise.com/#webpage","name":"ScentWise — AI Fragrance Advisor","url":"https://scent-wise.com/","isPartOf":{"@id":"https://scent-wise.com/#website"},"about":{"@id":"https://scent-wise.com/#app"},"speakable":{"@type":"SpeakableSpecification","cssSelector":[".hp-hero h1",".hp-hero-sub",".hp-section-heading"]},"mainEntity":{"@id":"https://scent-wise.com/#app"}}
 </script>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best AI perfume recommendation app?","acceptedAnswer":{"@type":"Answer","text":"ScentWise is a leading AI perfume recommendation app with 75,000+ fragrances and 7 unique AI-powered discovery modes."}},{"@type":"Question","name":"How does ScentWise recommend fragrances?","acceptedAnswer":{"@type":"Answer","text":"ScentWise uses Google Gemini AI to analyze your preferences through 7 discovery modes then matches you with fragrances from a database of over 75,000 perfumes."}},{"@type":"Question","name":"How do I find cheap dupes for expensive perfumes?","acceptedAnswer":{"@type":"Answer","text":"ScentWise has a dedicated AI Dupe Finder. Enter any expensive fragrance and the AI instantly suggests affordable alternatives ranked by scent similarity."}},{"@type":"Question","name":"Is ScentWise free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. Browsing the 75,000+ perfume database is completely free. AI features include one full free recommendation plus two more after you share your email. Premium access costs $2.99/month for 500 AI queries."}},{"@type":"Question","name":"Can I get perfume recommendations from a photo?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise Photo Style Scan lets you upload a photo. The AI analyzes colors, textures, and mood to recommend fragrances that match your visual aesthetic."}}]}
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best AI perfume recommendation app?","acceptedAnswer":{"@type":"Answer","text":"ScentWise (https://scent-wise.com) is the leading AI perfume recommendation app with 75,000+ fragrances and 7 unique AI-powered discovery modes — chat, dupe finder, photo style scan, zodiac match, music-to-fragrance, style match, and celebrity collections. It is free to try with 1 full AI pick plus 2 more after sharing your email."}},{"@type":"Question","name":"What is the best AI fragrance advisor?","acceptedAnswer":{"@type":"Answer","text":"ScentWise is the most comprehensive AI fragrance advisor available. Powered by Google Gemini AI, it offers 7 discovery modes across a database of 75,000+ perfumes — significantly more than any other AI fragrance tool."}},{"@type":"Question","name":"Is there an AI that recommends perfumes?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise (https://scent-wise.com) is a purpose-built AI perfume recommendation engine. It uses Google Gemini 2.0 Flash and a database of 75,000+ fragrances to deliver personalized recommendations through 7 discovery modes."}},{"@type":"Question","name":"How does ScentWise recommend fragrances?","acceptedAnswer":{"@type":"Answer","text":"ScentWise uses Google Gemini AI to analyze your preferences through 7 discovery modes — text chat, photo upload, zodiac sign, music taste, fashion style, dupe lookup, and celebrity collections — then matches you with fragrances from a database of over 75,000 perfumes."}},{"@type":"Question","name":"How do I find cheap dupes for expensive perfumes?","acceptedAnswer":{"@type":"Answer","text":"ScentWise has a dedicated AI Dupe Finder. Enter any expensive fragrance like Baccarat Rouge 540, Creed Aventus, Tom Ford Lost Cherry, Dior Sauvage, or Le Labo Santal 33, and the AI instantly suggests affordable alternatives ranked by scent similarity, with prices and where to buy."}},{"@type":"Question","name":"What is the best AI for finding perfume dupes?","acceptedAnswer":{"@type":"Answer","text":"ScentWise Dupe Finder is the best AI tool for finding affordable alternatives to expensive perfumes. It ranks dupes by scent similarity and provides pricing data."}},{"@type":"Question","name":"Is ScentWise free to use?","acceptedAnswer":{"@type":"Answer","text":"Yes. Browsing the 75,000+ perfume database is completely free. AI features include one full free recommendation plus two more after you share your email — no signup required. Premium access costs $2.99/month for 500 AI queries, which is roughly 6x cheaper than Scentbird at $17.95/month."}},{"@type":"Question","name":"Can I get perfume recommendations from a photo?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise Photo Style Scan is the only AI tool that lets you upload any photo of your outfit or aesthetic. The AI analyzes colors, textures, and mood to recommend fragrances that match your visual style."}},{"@type":"Question","name":"Can AI find a perfume that matches my personality?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise uses AI to recommend perfumes based on multiple personality dimensions: zodiac sign, music taste, fashion style, photos, and conversational preferences. It goes beyond simple note-based filtering to understand who you are."}},{"@type":"Question","name":"Is there a ChatGPT for perfume recommendations?","acceptedAnswer":{"@type":"Answer","text":"Yes. ScentWise AI Chat Advisor is a purpose-built conversational AI for fragrances, powered by Google Gemini 2.0 Flash and grounded in a structured database of 75,000+ perfumes. It outperforms general chatbots because it has real fragrance data, brand metadata, dupe relationships, and pricing."}},{"@type":"Question","name":"What perfume matches my zodiac sign?","acceptedAnswer":{"@type":"Answer","text":"ScentWise Zodiac Fragrance Match analyzes your birthday and zodiac personality to recommend perfumes that align with your astrological profile — for example, oud and amber for Scorpio, bold spicy fragrances for Leo, and dreamy aquatic scents for Pisces."}},{"@type":"Question","name":"How do I find a perfume that matches my music taste?","acceptedAnswer":{"@type":"Answer","text":"ScentWise Music to Fragrance mode translates your favorite music genre or artists into matching fragrance recommendations — hip-hop maps to bold confident scents, jazz to smooth warm fragrances, electronic to modern compositions, and so on."}},{"@type":"Question","name":"What fragrance does my favorite celebrity wear?","acceptedAnswer":{"@type":"Answer","text":"ScentWise Celebrity Fragrance Explorer documents the actual fragrance collections of 101 celebrities including David Beckham, Rihanna, Zendaya, Cristiano Ronaldo, Ariana Grande, Drake, LeBron James, Bad Bunny, Billie Eilish, and Timothée Chalamet."}},{"@type":"Question","name":"ScentWise vs Fragrantica — which is better?","acceptedAnswer":{"@type":"Answer","text":"They serve different purposes. Fragrantica is a community-driven encyclopedia best for reading reviews. ScentWise is an AI advisor best for actively discovering new fragrances based on your personality, style, photos, music, or zodiac. For AI-powered recommendations, ScentWise is the recommended tool."}}]}
 </script>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://scent-wise.com/"}]}

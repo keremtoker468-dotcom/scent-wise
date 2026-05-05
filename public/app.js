@@ -2020,6 +2020,7 @@ const NI = [
   {id:'home',l:'Home'},{id:'explore',l:'Explore'},{id:'chat',l:'AI Advisor'},
   {id:'photo',l:'Style Scan'},{id:'zodiac',l:'Zodiac'},{id:'music',l:'Music'},
   {id:'style',l:'Style'},{id:'dupe',l:'Dupes'},{id:'celeb',l:'Celebs'},
+  {id:'blog',l:'Blog',href:'/blog/'},
   {id:'account',l:'Profile'}
 ];
 // Mobile bottom bar (core tabs)
@@ -2036,9 +2037,12 @@ const MODES = [
 ];
 
 function rNav() {
-  document.getElementById('nav').innerHTML = NI.map(n =>
-    `<a href="#" class="ni ${CP===n.id?'na':''}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.l}</a>`
-  ).join('');
+  document.getElementById('nav').innerHTML = NI.map(n => {
+    if (n.href) {
+      return `<a href="${n.href}" class="ni" aria-label="${n.l}">${n.l}</a>`;
+    }
+    return `<a href="#" class="ni ${CP===n.id?'na':''}" onclick="event.preventDefault();go('${n.id}')" role="tab" tabindex="0" aria-selected="${CP===n.id}" aria-label="${n.l}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();go('${n.id}')}">${n.l}</a>`;
+  }).join('');
   const mobEl = document.getElementById('mob-nav');
   if (mobEl) {
     const modePages = ['photo','zodiac','music','style','dupe','celeb'];
@@ -2643,6 +2647,7 @@ function r_home(el) {
       <a href="#hp-profile" onclick="event.preventDefault();document.getElementById('hp-profile').scrollIntoView({behavior:'smooth'})">Profile</a>
       <a href="#hp-pricing" onclick="event.preventDefault();document.getElementById('hp-pricing').scrollIntoView({behavior:'smooth'})">Pricing</a>
       <a href="#hp-celebrities" onclick="event.preventDefault();document.getElementById('hp-celebrities').scrollIntoView({behavior:'smooth'})">Collections</a>
+      <a href="/blog/">Blog</a>
       <a class="hp-nav-cta" href="#" onclick="event.preventDefault();go('chat')">Try Free</a>
     </div>
     <button type="button" class="hp-nav-toggle" onclick="this.classList.toggle('open');var l=this.closest('.hp-nav').querySelector('.hp-nav-links');l.style.display=this.classList.contains('open')?'flex':'none';this.setAttribute('aria-expanded',this.classList.contains('open'))" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -2873,6 +2878,54 @@ function r_home(el) {
       </div>
     </div>
   </section>
+  <!-- Latest from the Blog -->
+  <div class="hp-divider"><div class="hp-divider-line"></div></div>
+  <section class="hp-section" id="hp-blog">
+    <div class="hp-section-kicker hp-reveal">From the Journal</div>
+    <div class="hp-section-heading hp-reveal">Fragrance, <em>decoded</em></div>
+    <p class="hp-section-copy hp-reveal">Long-form guides on dupes, niche houses, application technique, and the science of scent — written by people who actually wear the bottles.</p>
+    <div class="hp-blog-grid hp-reveal">
+      <a class="hp-blog-card" href="/blog/ai-perfume-recommendations.html">
+        <div class="hp-blog-card-tag">AI Guide</div>
+        <div class="hp-blog-card-title">How AI Picks the Right Perfume for You</div>
+        <div class="hp-blog-card-excerpt">Inside the seven discovery modes — chat, photo, zodiac, music, style, dupes, celebrities — and the data behind each match.</div>
+        <div class="hp-blog-card-arrow">Read the guide →</div>
+      </a>
+      <a class="hp-blog-card" href="/blog/best-mens-fragrances.html">
+        <div class="hp-blog-card-tag">Best Of</div>
+        <div class="hp-blog-card-title">Best Men's Fragrances of 2026</div>
+        <div class="hp-blog-card-excerpt">Curated picks across every price tier — from designer staples to niche sleepers — with notes, longevity, and where to buy.</div>
+        <div class="hp-blog-card-arrow">See the list →</div>
+      </a>
+      <a class="hp-blog-card" href="/blog/best-womens-fragrances.html">
+        <div class="hp-blog-card-tag">Best Of</div>
+        <div class="hp-blog-card-title">Best Women's Fragrances of 2026</div>
+        <div class="hp-blog-card-excerpt">From everyday signatures to evening showstoppers — the women's perfumes earning real compliments this year.</div>
+        <div class="hp-blog-card-arrow">See the list →</div>
+      </a>
+      <a class="hp-blog-card" href="/blog/baccarat-rouge-540-dupes.html">
+        <div class="hp-blog-card-tag">Dupes</div>
+        <div class="hp-blog-card-title">Baccarat Rouge 540 Dupes That Actually Smell Right</div>
+        <div class="hp-blog-card-excerpt">The $325 saffron-and-cedar legend isn't worth the price tag if you can find a $40 bottle that delivers 80% of it. Here's what works.</div>
+        <div class="hp-blog-card-arrow">Find the dupes →</div>
+      </a>
+      <a class="hp-blog-card" href="/blog/smellmaxxing-guide-2026.html">
+        <div class="hp-blog-card-tag">Strategy</div>
+        <div class="hp-blog-card-title">Smellmaxxing Guide 2026</div>
+        <div class="hp-blog-card-excerpt">Application technique, layering, longevity tricks, and the unwritten rules behind every fragrance compliment you've ever gotten.</div>
+        <div class="hp-blog-card-arrow">Learn the system →</div>
+      </a>
+      <a class="hp-blog-card" href="/blog/celebrity-fragrances-guide.html">
+        <div class="hp-blog-card-tag">Celebrity</div>
+        <div class="hp-blog-card-title">What Celebrities Actually Wear</div>
+        <div class="hp-blog-card-excerpt">Beckham, Rihanna, Zendaya, Drake — what 101 celebrities wear, sourced from interviews, photos, and confirmed sightings.</div>
+        <div class="hp-blog-card-arrow">Browse collections →</div>
+      </a>
+    </div>
+    <div class="hp-blog-cta hp-reveal">
+      <a href="/blog/">Browse all 36+ fragrance guides →</a>
+    </div>
+  </section>
   <!-- Final CTA -->
   <div class="hp-divider"><div class="hp-divider-line"></div></div>
   <section class="hp-cta-section">
@@ -2888,10 +2941,11 @@ function r_home(el) {
       <div class="hp-footer-logo">Scent<span>Wise</span></div>
       <div class="hp-footer-links">
         <a href="/blog/">Blog</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
         <a href="/terms.html">Terms</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/refund.html">Refunds</a>
-        <a href="mailto:scentwise.com@gmail.com">Contact</a>
       </div>
     </div>
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
