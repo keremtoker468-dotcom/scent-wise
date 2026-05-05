@@ -962,6 +962,80 @@ input::placeholder{color:var(--td);opacity:.7}
   margin-bottom: 0.35rem;
 }
 .hp-celeb-count { font-size: 0.75rem; color: var(--hp-cream3); }
+/* Blog cards (homepage "Latest from the Blog") */
+.hp-blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 3rem;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hp-blog-card {
+  background: var(--hp-surface);
+  border: 1px solid var(--hp-border);
+  border-radius: 14px;
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s;
+  box-shadow: 0 1px 3px rgba(74,56,24,.05);
+}
+.hp-blog-card:hover {
+  border-color: var(--hp-gold2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(74,56,24,.08);
+}
+.hp-blog-card-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--hp-gold3);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.hp-blog-card-title {
+  font-family: var(--hp-serif);
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--hp-cream);
+  margin-bottom: 0.6rem;
+  line-height: 1.35;
+}
+.hp-blog-card-excerpt {
+  font-size: 0.85rem;
+  color: var(--hp-cream3);
+  line-height: 1.55;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+.hp-blog-card-arrow {
+  font-size: 0.85rem;
+  color: var(--hp-gold3);
+  font-weight: 500;
+}
+.hp-blog-cta {
+  text-align: center;
+  margin-top: 2.5rem;
+}
+.hp-blog-cta a {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border: 1px solid var(--hp-border);
+  border-radius: 100px;
+  color: var(--hp-cream);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.hp-blog-cta a:hover {
+  border-color: var(--hp-gold2);
+  color: var(--hp-gold3);
+  background: rgba(201,169,110,0.05);
+}
 /* Quote */
 .hp-quote-section {
   text-align: center;
@@ -1578,10 +1652,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
       <div class="hp-footer-logo">Scent<span>Wise</span></div>
       <div class="hp-footer-links">
         <a href="/blog/">Blog</a>
+        <a href="/about.html">About</a>
+        <a href="/contact.html">Contact</a>
         <a href="/terms.html">Terms</a>
         <a href="/privacy.html">Privacy</a>
         <a href="/refund.html">Refunds</a>
-        <a href="mailto:scentwise.com@gmail.com">Contact</a>
       </div>
     </div>
     <div class="hp-footer-copy">© 2026 ScentWise. All rights reserved.</div>
@@ -1630,11 +1705,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     </div>
     <p style="font-size:12px;color:var(--td);margin-bottom:20px;font-style:italic;font-family:'Playfair Display',serif">Your AI-powered fragrance journey</p>
     <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:20px">
+      <a href="/blog/" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Blog</a>
+      <a href="/about.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">About</a>
+      <a href="/contact.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
       <a href="/terms.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Terms</a>
       <a href="/privacy.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Privacy</a>
       <a href="/refund.html" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Refunds</a>
-      <a href="mailto:scentwise.com@gmail.com" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Contact</a>
-      <a href="/blog/" style="color:var(--td);font-size:13px;transition:color .2s;font-weight:500" onmouseover="this.style.color='var(--g)'" onmouseout="this.style.color='var(--td)'">Blog</a>
     </div>
     <p style="font-size:11px;color:var(--d5)">&copy; 2026 ScentWise. All rights reserved.</p>
   </div>
