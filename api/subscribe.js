@@ -26,7 +26,7 @@ async function redisStoreGateEmail(deviceId, email) {
   } catch { return false; }
 }
 
-async function subscribeBeehiiv(cleanEmail) {
+async function subscribeBeehiiv(cleanEmail, campaign) {
   const beehiivKey = process.env.BEEHIIV_API_KEY;
   const beehiivPub = process.env.BEEHIIV_PUBLICATION_ID;
   if (!beehiivKey || !beehiivPub) return;
@@ -39,7 +39,8 @@ async function subscribeBeehiiv(cleanEmail) {
         reactivate_existing: false,
         send_welcome_email: false,
         utm_source: 'website',
-        utm_medium: 'organic'
+        utm_medium: 'organic',
+        utm_campaign: campaign
       })
     });
     if (!r.ok) {
@@ -102,8 +103,8 @@ async function sendWelcomeEmail(cleanEmail) {
   } catch (err) { console.error('Resend welcome error:', err); }
 }
 
-async function fireNewsletterSideEffects(cleanEmail) {
-  await subscribeBeehiiv(cleanEmail);
+async function fireNewsletterSideEffects(cleanEmail, campaign) {
+  await subscribeBeehiiv(cleanEmail, campaign);
   await sendWelcomeEmail(cleanEmail);
 }
 
@@ -140,13 +141,13 @@ module.exports = async function handler(req, res) {
     // Await side-effects so Vercel doesn't freeze the function before they run.
     // Gate unlock must succeed even if marketing infra is down, so each is guarded.
     await redisStoreGateEmail(deviceId, cleanEmail).catch(() => {});
-    await fireNewsletterSideEffects(cleanEmail).catch(() => {});
+    await fireNewsletterSideEffects(cleanEmail, 'gate_unlock').catch(() => {});
     return res.status(200).json({ success: true, emailGiven: true });
   }
 
   // ── Newsletter path: run side-effects, return ok when welcome email fires ──
   try {
-    await fireNewsletterSideEffects(cleanEmail);
+    await fireNewsletterSideEffects(cleanEmail, 'newsletter_signup');
     return res.status(200).json({ ok: true });
   } catch (err) {
     console.error('Subscribe error:', err);
