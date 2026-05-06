@@ -256,7 +256,7 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
           headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify({
             contents: [{ parts }],
-            generationConfig: { maxOutputTokens: 6000, temperature: 0.8 }
+            generationConfig: { maxOutputTokens: 3000, temperature: 0.8 }
           }),
           signal: controller.signal
         }

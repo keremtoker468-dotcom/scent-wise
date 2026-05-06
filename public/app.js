@@ -1119,17 +1119,68 @@ async function aiCall(mode, payload) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return '**You\'re offline.** AI recommendations need an internet connection. Please reconnect and try again.';
   }
-  const aborter = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-  const timeoutId = aborter ? setTimeout(() => aborter.abort(), 45000) : null;
+
+  // One silent retry on transient failures (Gemini cold start, Vercel 504,
+  // network blips). The retry is invisible — the user just waits ~1s longer
+  // before either getting their result or seeing the original error.
+  // Skipped for non-transient errors (403 auth, 429 rate limit, 4xx).
+  // Server-side cap is 30s; budget retry inside the 45s client window so a
+  // first attempt can fully time out and a second still has room.
+  const FIRST_TIMEOUT = 30000;  // matches server abort window + small buffer
+  const RETRY_TIMEOUT = 30000;
+  const RETRY_DELAY = 600;
+
+  async function attempt(attemptTimeout) {
+    const aborter = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timeoutId = aborter ? setTimeout(() => aborter.abort(), attemptTimeout) : null;
+    try {
+      const r = await fetch(API_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise'},
+        credentials: 'same-origin',
+        body: JSON.stringify({mode, ...payload}),
+        signal: aborter ? aborter.signal : undefined
+      });
+      if (timeoutId) clearTimeout(timeoutId);
+      return { response: r };
+    } catch (e) {
+      if (timeoutId) clearTimeout(timeoutId);
+      return { error: e };
+    }
+  }
+
+  // Returns true when the failure is worth retrying (transient).
+  // 504, 502, 503, 500 and AbortError/network errors all qualify.
+  // 4xx (auth, rate limit, validation) are deterministic — no retry.
+  function isTransient(result) {
+    if (result.error) {
+      const e = result.error;
+      if (e.name === 'AbortError') return true;
+      if (e.message === 'Failed to fetch') return true;
+      if (e.message && e.message.includes('network')) return true;
+      return false;
+    }
+    if (result.response && result.response.status >= 500) return true;
+    return false;
+  }
+
+  let result = await attempt(FIRST_TIMEOUT);
+  if (isTransient(result)) {
+    await new Promise(res => setTimeout(res, RETRY_DELAY));
+    result = await attempt(RETRY_TIMEOUT);
+  }
+
+  // Surface the (possibly retried) error in the same shape the rest of the
+  // function expects: throw a tagged Error or fall through with the response.
+  if (result.error) {
+    const e = result.error;
+    if (e.name === 'AbortError') return '**Taking too long.** Our AI didn\'t respond in time. Please try again.';
+    if (e.message === 'Failed to fetch' || (e.message && e.message.includes('network'))) return '**Connection issue.** Check your internet and try again.';
+    return '**Something went wrong.** Please try again in a moment.';
+  }
+
+  const r = result.response;
   try {
-    const r = await fetch(API_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise'},
-      credentials: 'same-origin',
-      body: JSON.stringify({mode, ...payload}),
-      signal: aborter ? aborter.signal : undefined
-    });
-    if (timeoutId) clearTimeout(timeoutId);
     if (r.status === 403) {
       const d = await r.json().catch(()=>({}));
       if (d.freeUsed !== undefined) {
@@ -1150,7 +1201,10 @@ async function aiCall(mode, payload) {
       }
       return d.error || 'Our AI is a bit busy right now. Please try again in a few seconds.';
     }
-    if (!r.ok) throw new Error(r.status >= 500 ? 'ai_unavailable' : 'request_failed');
+    if (!r.ok) {
+      if (r.status >= 500) return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
+      return '**Something went wrong.** Please try again.';
+    }
     const d = await r.json();
     if (typeof d.freeUsed === 'number') trackFreeUsage(d.freeUsed);
     else if (typeof d.usage === 'number') trackUsage(d.usage);
@@ -1169,11 +1223,6 @@ async function aiCall(mode, payload) {
     }
     return d.result || 'No response. Try again.';
   } catch (e) {
-    if (timeoutId) clearTimeout(timeoutId);
-    if (e.name === 'AbortError') return '**Taking too long.** Our AI didn\'t respond in time. Please try again.';
-    if (e.message === 'ai_unavailable') return '**Oops!** Our AI is temporarily unavailable. Please try again in a moment.';
-    if (e.message === 'request_failed') return '**Something went wrong.** Please try again.';
-    if (e.message === 'Failed to fetch' || (e.message && e.message.includes('network'))) return '**Connection issue.** Check your internet and try again.';
     return '**Something went wrong.** Please try again in a moment.';
   }
 }
