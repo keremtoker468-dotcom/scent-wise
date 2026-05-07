@@ -139,16 +139,88 @@ async function handler(req, res) {
     }
   }
 
+  // Send a CompletePayment conversion event to TikTok Events API so ad
+  // campaigns can optimize for purchases (browser pixel alone misses
+  // post-redirect conversions and is blocked by trackers).
+  async function sendTikTokConversion() {
+    const pixelId = process.env.TIKTOK_PIXEL_ID;
+    const accessToken = process.env.TIKTOK_ACCESS_TOKEN;
+    if (!pixelId || !accessToken) {
+      console.warn('[TikTok] Missing TIKTOK_PIXEL_ID or TIKTOK_ACCESS_TOKEN — skipping');
+      return;
+    }
+
+    const orderId = String(payload.data?.id || '');
+    const email = attrs.user_email || '';
+    const totalAmount = Number(attrs.total) ? Number(attrs.total) / 100 : 2.99;
+    const currency = attrs.currency || 'USD';
+    const ttclid = customData.ttclid;
+    const ttp = customData.ttp;
+    const userAgent = customData.user_agent;
+    const ipAddress = customData.ip;
+
+    const emailHash = email
+      ? crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex')
+      : '';
+
+    const user = {};
+    if (emailHash) user.email = emailHash;
+    if (ttclid) user.ttclid = ttclid;
+    if (ttp) user.ttp = ttp;
+    if (userAgent) user.user_agent = userAgent;
+    if (ipAddress) user.ip = ipAddress;
+
+    const body = {
+      event_source: 'web',
+      event_source_id: pixelId,
+      data: [{
+        event: 'CompletePayment',
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: `ls_${orderId}`,
+        user,
+        properties: {
+          currency,
+          value: totalAmount,
+          content_type: 'product',
+          content_id: 'scentwise_premium',
+          content_name: 'ScentWise Premium',
+          order_id: orderId
+        }
+      }]
+    };
+
+    try {
+      const resp = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
+        method: 'POST',
+        headers: {
+          'Access-Token': accessToken,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+      const result = await resp.json();
+      if (result.code !== 0) {
+        console.error(`[TikTok] Event API error: ${result.message}`);
+      } else {
+        console.log(`[TikTok] CompletePayment event sent for order ${orderId}`);
+      }
+    } catch (err) {
+      console.error(`[TikTok] Failed to send event: ${err.message}`);
+    }
+  }
+
   // Handle relevant events
   switch (eventName) {
     case 'order_created':
       console.log(`[LS Webhook] New order received`);
       await bindDeviceToOrder();
+      await sendTikTokConversion();
       break;
 
     case 'subscription_created':
       console.log(`[LS Webhook] Subscription created`);
       await bindDeviceToOrder();
+      await sendTikTokConversion();
       break;
 
     case 'subscription_updated':

@@ -40,6 +40,24 @@ module.exports = async function handler(req, res) {
     } catch { /* best-effort */ }
   }
 
+  // TikTok attribution — capture click ID + browser pixel ID at checkout time so
+  // the webhook can forward them to the Events API for Conversion optimization.
+  const cookies = req.cookies || (() => {
+    const out = {};
+    const raw = req.headers.cookie;
+    if (!raw) return out;
+    for (const part of raw.split('; ')) {
+      const eq = part.indexOf('=');
+      if (eq < 0) continue;
+      out[part.slice(0, eq)] = decodeURIComponent(part.slice(eq + 1));
+    }
+    return out;
+  })();
+  const ttclid = cookies.ttclid || '';
+  const ttp = cookies._ttp || '';
+  const userAgent = req.headers['user-agent'] || '';
+  const tiktokIp = (req.headers['x-forwarded-for'] || '').split(',')[0]?.trim() || '';
+
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -61,7 +79,13 @@ module.exports = async function handler(req, res) {
               receipt_link_url: siteUrl + '/'
             },
             checkout_data: {
-              custom: deviceId ? { device_id: deviceId } : {}
+              custom: {
+                ...(deviceId ? { device_id: deviceId } : {}),
+                ttclid,
+                ttp,
+                user_agent: userAgent,
+                ip: tiktokIp
+              }
             }
           },
           relationships: {
