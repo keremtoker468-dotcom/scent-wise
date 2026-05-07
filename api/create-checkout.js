@@ -2,6 +2,16 @@ const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 const { readOrMintDeviceId } = require('./_lib/usage');
 
+const parseCookies = (cookieHeader) => {
+  if (!cookieHeader) return {};
+  return Object.fromEntries(
+    cookieHeader.split(';').map(c => {
+      const [k, ...v] = c.trim().split('=');
+      return [k, decodeURIComponent(v.join('='))];
+    })
+  );
+};
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -42,21 +52,13 @@ module.exports = async function handler(req, res) {
 
   // TikTok attribution — capture click ID + browser pixel ID at checkout time so
   // the webhook can forward them to the Events API for Conversion optimization.
-  const cookies = req.cookies || (() => {
-    const out = {};
-    const raw = req.headers.cookie;
-    if (!raw) return out;
-    for (const part of raw.split('; ')) {
-      const eq = part.indexOf('=');
-      if (eq < 0) continue;
-      out[part.slice(0, eq)] = decodeURIComponent(part.slice(eq + 1));
-    }
-    return out;
-  })();
-  const ttclid = cookies.ttclid || '';
-  const ttp = cookies._ttp || '';
-  const userAgent = req.headers['user-agent'] || '';
-  const tiktokIp = (req.headers['x-forwarded-for'] || '').split(',')[0]?.trim() || '';
+  const cookies = parseCookies(req.headers.cookie);
+  const ttclid = cookies.ttclid || req.query?.ttclid || null;
+  const ttp = cookies._ttp || null;
+  const userAgent = req.headers['user-agent'] || null;
+  const tiktokIp = (req.headers['x-forwarded-for'] || '').split(',')[0].trim()
+    || req.socket?.remoteAddress
+    || null;
 
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
@@ -80,11 +82,11 @@ module.exports = async function handler(req, res) {
             },
             checkout_data: {
               custom: {
-                ...(deviceId ? { device_id: deviceId } : {}),
+                device_id: deviceId,
                 ttclid,
                 ttp,
                 user_agent: userAgent,
-                ip: tiktokIp
+                ip: tiktokIp,
               }
             }
           },

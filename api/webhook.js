@@ -29,6 +29,69 @@ async function readRawBody(req) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
+async function sendTikTokConversion(eventName, eventData) {
+  const PIXEL_ID = process.env.TIKTOK_PIXEL_ID;
+  const ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN;
+  if (!PIXEL_ID || !ACCESS_TOKEN) {
+    console.warn('[tiktok] PIXEL_ID or ACCESS_TOKEN missing — skipping');
+    return;
+  }
+
+  const sha256 = (s) => crypto.createHash('sha256')
+    .update(String(s).trim().toLowerCase()).digest('hex');
+
+  const payload = {
+    event_source: 'web',
+    event_source_id: PIXEL_ID,
+    data: [{
+      event: eventName,                           // 'CompletePayment'
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: eventData.event_id,               // dedupe için
+      user: {
+        email: eventData.email ? sha256(eventData.email) : undefined,
+        ttclid: eventData.ttclid || undefined,
+        ttp: eventData.ttp || undefined,
+        ip: eventData.ip || undefined,
+        user_agent: eventData.user_agent || undefined,
+      },
+      properties: {
+        currency: eventData.currency || 'USD',
+        value: Number(eventData.value || 0),
+        contents: [{
+          content_id: eventData.content_id || 'scentwise-premium-monthly',
+          content_type: 'subscription',
+          content_name: 'ScentWise Premium Monthly',
+          quantity: 1,
+          price: Number(eventData.value || 0),
+        }],
+      },
+      page: { url: eventData.page_url || 'https://scent-wise.com/' },
+    }],
+  };
+
+  try {
+    const res = await fetch(
+      'https://business-api.tiktok.com/open_api/v1.3/event/track/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Token': ACCESS_TOKEN,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    const json = await res.json();
+    if (json.code !== 0) {
+      console.error('[tiktok] API error', json);
+    } else {
+      console.log('[tiktok] event sent', eventName, eventData.event_id);
+    }
+  } catch (e) {
+    console.error('[tiktok] fetch failed', e.message);
+  }
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -139,89 +202,53 @@ async function handler(req, res) {
     }
   }
 
-  // Send a CompletePayment conversion event to TikTok Events API so ad
-  // campaigns can optimize for purchases (browser pixel alone misses
-  // post-redirect conversions and is blocked by trackers).
-  async function sendTikTokConversion() {
-    const pixelId = process.env.TIKTOK_PIXEL_ID;
-    const accessToken = process.env.TIKTOK_ACCESS_TOKEN;
-    if (!pixelId || !accessToken) {
-      console.warn('[TikTok] Missing TIKTOK_PIXEL_ID or TIKTOK_ACCESS_TOKEN — skipping');
-      return;
-    }
-
-    const orderId = String(payload.data?.id || '');
-    const email = attrs.user_email || '';
-    const totalAmount = Number(attrs.total) ? Number(attrs.total) / 100 : 2.99;
-    const currency = attrs.currency || 'USD';
-    const ttclid = customData.ttclid;
-    const ttp = customData.ttp;
-    const userAgent = customData.user_agent;
-    const ipAddress = customData.ip;
-
-    const emailHash = email
-      ? crypto.createHash('sha256').update(String(email).trim().toLowerCase()).digest('hex')
-      : '';
-
-    const user = {};
-    if (emailHash) user.email = emailHash;
-    if (ttclid) user.ttclid = ttclid;
-    if (ttp) user.ttp = ttp;
-    if (userAgent) user.user_agent = userAgent;
-    if (ipAddress) user.ip = ipAddress;
-
-    const body = {
-      event_source: 'web',
-      event_source_id: pixelId,
-      data: [{
-        event: 'CompletePayment',
-        event_time: Math.floor(Date.now() / 1000),
-        event_id: `ls_${orderId}`,
-        user,
-        properties: {
-          currency,
-          value: totalAmount,
-          content_type: 'product',
-          content_id: 'scentwise_premium',
-          content_name: 'ScentWise Premium',
-          order_id: orderId
-        }
-      }]
-    };
-
-    try {
-      const resp = await fetch('https://business-api.tiktok.com/open_api/v1.3/event/track/', {
-        method: 'POST',
-        headers: {
-          'Access-Token': accessToken,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      });
-      const result = await resp.json();
-      if (result.code !== 0) {
-        console.error(`[TikTok] Event API error: ${result.message}`);
-      } else {
-        console.log(`[TikTok] CompletePayment event sent for order ${orderId}`);
-      }
-    } catch (err) {
-      console.error(`[TikTok] Failed to send event: ${err.message}`);
-    }
-  }
-
   // Handle relevant events
   switch (eventName) {
-    case 'order_created':
+    case 'order_created': {
       console.log(`[LS Webhook] New order received`);
       await bindDeviceToOrder();
-      await sendTikTokConversion();
+      const tiktokCustom = payload.data?.attributes?.first_order_item?.product_options?.custom
+                        || payload.data?.attributes?.custom_data
+                        || customData
+                        || {};
+      const totalUsd = Number(payload.data?.attributes?.total_usd || payload.data?.attributes?.total || 0) / 100;
+      await sendTikTokConversion('CompletePayment', {
+        event_id: payload.data.id,
+        email: payload.data?.attributes?.user_email,
+        value: totalUsd || 2.99,
+        currency: payload.data?.attributes?.currency || 'USD',
+        ttclid: tiktokCustom.ttclid,
+        ttp: tiktokCustom.ttp,
+        ip: tiktokCustom.ip,
+        user_agent: tiktokCustom.user_agent,
+        page_url: 'https://scent-wise.com/',
+        content_id: 'scentwise-premium-monthly',
+      });
       break;
+    }
 
-    case 'subscription_created':
+    case 'subscription_created': {
       console.log(`[LS Webhook] Subscription created`);
       await bindDeviceToOrder();
-      await sendTikTokConversion();
+      const tiktokCustom = payload.data?.attributes?.first_order_item?.product_options?.custom
+                        || payload.data?.attributes?.custom_data
+                        || customData
+                        || {};
+      const totalUsd = Number(payload.data?.attributes?.total_usd || payload.data?.attributes?.total || 0) / 100;
+      await sendTikTokConversion('CompletePayment', {
+        event_id: payload.data.id,
+        email: payload.data?.attributes?.user_email,
+        value: totalUsd || 2.99,
+        currency: payload.data?.attributes?.currency || 'USD',
+        ttclid: tiktokCustom.ttclid,
+        ttp: tiktokCustom.ttp,
+        ip: tiktokCustom.ip,
+        user_agent: tiktokCustom.user_agent,
+        page_url: 'https://scent-wise.com/',
+        content_id: 'scentwise-premium-monthly',
+      });
       break;
+    }
 
     case 'subscription_updated':
       console.log(`[LS Webhook] Subscription updated: status=${attrs.status}`);
