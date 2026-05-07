@@ -60,6 +60,14 @@ module.exports = async function handler(req, res) {
     || req.socket?.remoteAddress
     || null;
 
+  // LemonSqueezy rejects null/undefined values in checkout_data.custom with a
+  // 422 ("must be a string"). Only include fields that are actual strings.
+  const customData = { device_id: String(deviceId || '') };
+  if (ttclid && typeof ttclid === 'string') customData.ttclid = ttclid;
+  if (ttp && typeof ttp === 'string') customData.ttp = ttp;
+  if (userAgent && typeof userAgent === 'string') customData.user_agent = userAgent;
+  if (tiktokIp && typeof tiktokIp === 'string') customData.ip = tiktokIp;
+
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
@@ -81,13 +89,7 @@ module.exports = async function handler(req, res) {
               receipt_link_url: siteUrl + '/'
             },
             checkout_data: {
-              custom: {
-                device_id: deviceId,
-                ttclid,
-                ttp,
-                user_agent: userAgent,
-                ip: tiktokIp,
-              }
+              custom: customData
             }
           },
           relationships: {
