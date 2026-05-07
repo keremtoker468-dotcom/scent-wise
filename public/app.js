@@ -2885,8 +2885,6 @@ function r_home(el) {
         <div style="display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;align-items:center;margin-top:14px;color:var(--td);font-size:12px;line-height:1.4">
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Cancel anytime</span>
           <span aria-hidden="true" style="opacity:.4">·</span>
-          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> 7-day refund</span>
-          <span aria-hidden="true" style="opacity:.4">·</span>
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Secure checkout</span>
         </div>
       </div>
