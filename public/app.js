@@ -87,7 +87,7 @@ function openModeSwitcher() {
   if (!overlay || !optionsEl) return;
   const allModes = [
     {id:'chat',name:'AI Advisor',desc:'Ask anything about fragrances'},
-    {id:'explore',name:'Explore Database',desc:'Search 75,000+ perfumes'},
+    {id:'explore',name:'Explore Database',desc:'Search 65,000+ perfumes'},
     {id:'photo',name:'Photo Style Scan',desc:'Upload a photo, get matched scents'},
     {id:'zodiac',name:'Zodiac Match',desc:'Fragrances aligned with your stars'},
     {id:'music',name:'Music Match',desc:'Your music taste reveals your scent'},
@@ -972,7 +972,7 @@ function showPaywall() {
         <span class="ph-badge"><span class="ph-badge-i">30s</span> Cancel anytime</span>
         <span class="ph-badge"><span class="ph-badge-i">SSL</span> Secured by Lemon Squeezy</span>
       </div>
-      <p class="ph-proof"><strong>75,000+</strong> fragrances · <strong>101</strong> icons · <strong>6</strong> AI modes · trusted by fragrance explorers worldwide</p>
+      <p class="ph-proof"><strong>65,000+</strong> fragrances · <strong>101</strong> icons · <strong>6</strong> AI modes · trusted by fragrance explorers worldwide</p>
       <p class="ph-login">Already subscribed? <a onclick="go('account')">Log in with your email</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
     </div>
     <div class="ph-preview" aria-hidden="true">
@@ -2130,7 +2130,7 @@ function rModeBar() {
 
 const PAGE_TITLES = {
   home: 'ScentWise — AI Fragrance Advisor | Personalized Perfume Recommendations',
-  explore: 'Explore 75,000+ Fragrances — ScentWise',
+  explore: 'Explore 65,000+ Fragrances — ScentWise',
   chat: 'AI Fragrance Advisor — ScentWise',
   photo: 'Photo Style Scan — ScentWise',
   zodiac: 'Zodiac Fragrance Match — ScentWise',
@@ -2684,7 +2684,7 @@ function showComparison() {
 
 // ═══════════════ HOME ═══════════════
 function r_home(el) {
-  const perfumeCount = SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000';
+  const perfumeCount = SI.length ? (Math.floor(SI.length/5000)*5000).toLocaleString() : '65,000';
   const celebCount = CELEBS.length;
   el.innerHTML = `<div class="hp-grain">
   <!-- Homepage Nav -->
@@ -2854,14 +2854,14 @@ function r_home(el) {
   <section class="hp-section" id="hp-pricing">
     <div class="hp-section-kicker hp-reveal">Simple Pricing</div>
     <div class="hp-section-heading hp-reveal">Start free. <em>Upgrade when you're ready.</em></div>
-    <p class="hp-section-copy hp-reveal">Browse 75,000+ fragrances and celebrity collections for free. Unlock AI-powered recommendations when you want more.</p>
+    <p class="hp-section-copy hp-reveal">Browse 65,000+ fragrances and celebrity collections for free. Unlock AI-powered recommendations when you want more.</p>
     <div style="display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-top:40px;max-width:720px;margin-left:auto;margin-right:auto">
       <div class="hp-reveal" style="flex:1;min-width:280px;max-width:340px;border:1px solid var(--d4);border-radius:var(--r);padding:36px 28px;background:rgba(255,255,255,.02);text-align:center">
         <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--td);margin-bottom:12px">Free</div>
         <div style="font-size:36px;font-weight:700;margin-bottom:6px">$0</div>
         <div style="color:var(--td);font-size:13px;margin-bottom:24px">Forever free</div>
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
-          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Search 75,000+ fragrances</li>
+          <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Search 65,000+ fragrances</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Celebrity collections (101 icons)</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> 1 free AI pick + 2 more with email</li>
           <li style="display:flex;align-items:center;gap:8px;color:var(--d5)"><span>&#10005;</span> AI Chat, Photo, Zodiac, Music, Style</li>
@@ -3117,7 +3117,7 @@ function r_chat(el) {
     <div style="margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
       <div>
         <h2 class="fd" style="font-size:28px;font-weight:400"><span class="gg" style="font-weight:600">AI</span> Fragrance Advisor</h2>
-        <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length ? (Math.ceil(SI.length/5000)*5000).toLocaleString() : '75,000'}+ perfumes with real notes, accords & ratings</p>
+        <p style="color:var(--td);font-size:13px;margin-top:6px">Powered by ${SI.length ? (Math.floor(SI.length/5000)*5000).toLocaleString() : '65,000'}+ perfumes with real notes, accords & ratings</p>
         ${scentProfile && scentProfile.queryCount > 0 ? `<p style="color:var(--g);font-size:11px;margin-top:4px;opacity:.7">Personalized from ${scentProfile.queryCount} interaction${scentProfile.queryCount !== 1 ? 's' : ''}</p>` : ''}
       </div>
       ${chatMsgs.length > 0 ? `<button class="btn-o btn-sm" onclick="chatMsgs=[];_ssw('chatMsgs',[]);r_chat(document.getElementById('page-chat'))" aria-label="Start a new conversation" style="flex-shrink:0;white-space:nowrap">New Chat</button>` : ''}
@@ -3197,7 +3197,7 @@ async function cSend(text) {
   // Build context from local DB (ensure loaded)
   await loadDB();
   const ctx = getContext(text);
-  const sysWithCtx = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 75,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ' + (ctx || '');
+  const sysWithCtx = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 65,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ' + (ctx || '');
   const apiMsgs = chatMsgs.map(m => ({role:m.role, content: m.role==='user' && m.content===text ? sysWithCtx + '\n\nUser question: ' + m.content : m.content}));
   
   const reply = await aiCall('chat', {messages: apiMsgs});
@@ -3660,7 +3660,7 @@ async function customDupe() {
   await loadDB();
   const dbResult = findDbDupes(frag);
   if (!dbResult) {
-    showToast(`"${frag}" not found in our 75,000+ database — asking the AI anyway.`, 'info', 4500);
+    showToast(`"${frag}" not found in our 65,000+ database — asking the AI anyway.`, 'info', 4500);
   }
   const grounding = _buildDupeGrounding(dbResult);
   const prompt = `The user wants affordable dupes for **${frag}**. If you don't recognize this name, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one precise sentence describing the original's actual scent experience (what spraying it feels like, not just a note list). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;

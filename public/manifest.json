@@ -1,7 +1,7 @@
 {
   "name": "ScentWise \u2014 AI Fragrance Advisor",
   "short_name": "ScentWise",
-  "description": "AI-powered fragrance advisor with 75,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.",
+  "description": "AI-powered fragrance advisor with 65,000+ perfumes. Get personalized recommendations based on your style, zodiac sign, music taste, and more.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

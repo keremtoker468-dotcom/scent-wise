@@ -3,8 +3,14 @@
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/pricing", "destination": "/" },
     { "source": "/how-it-works", "destination": "/" },
-    { "source": "/discover", "destination": "/" },
-    { "source": "/collections", "destination": "/" }
+    { "source": "/discover", "destination": "/discover.html" },
+    { "source": "/collections", "destination": "/collections.html" },
+    { "source": "/profile.html", "destination": "/" },
+    { "source": "/profile", "destination": "/" },
+    { "source": "/brands", "destination": "/brands/index.html" },
+    { "source": "/brands/", "destination": "/brands/index.html" },
+    { "source": "/brands/:slug", "destination": "/brands/index.html" },
+    { "source": "/brands/:slug/", "destination": "/brands/index.html" }
   ],
   "headers": [
     {

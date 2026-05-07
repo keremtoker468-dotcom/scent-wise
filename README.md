@@ -1,11 +1,11 @@
 # ScentWise — AI Fragrance Advisor
 
-AI-powered fragrance recommendations with a database of 75,000+ perfumes, 101 celebrities, and 6 AI recommendation modes.
+AI-powered fragrance recommendations with a database of 65,000+ perfumes, 101 celebrities, and 6 AI recommendation modes.
 
 ## Features
 
 **Free (no subscription needed):**
-- Database Explorer — search & browse 75,000+ fragrances with notes, accords, ratings, and gender filters
+- Database Explorer — search & browse 65,000+ fragrances with notes, accords, ratings, and gender filters
 - Celebrity Fragrances — browse 101 celebrities and what they actually wear (with database cross-references)
 
 **Premium ($2.99/month):**
@@ -68,7 +68,7 @@ Net profit: ~$498/month
 
 ## Architecture
 
-- Frontend: Single HTML file with 70K fragrances embedded client-side (searches are instant, no API needed)
+- Frontend: Single HTML file with 65K fragrances embedded client-side (searches are instant, no API needed)
 - Backend: Vercel serverless function calling Gemini 2.0 Flash (only for AI features)
 - Payments: Lemon Squeezy handles subscriptions
 - The database explorer and celebrity browsing work completely offline — zero API cost
