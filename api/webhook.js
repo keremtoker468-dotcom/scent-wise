@@ -32,8 +32,14 @@ async function readRawBody(req) {
 async function sendTikTokConversion(eventName, eventData) {
   const PIXEL_ID = process.env.TIKTOK_PIXEL_ID;
   const ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN;
+
+  // Step 1: env var kontrol
+  console.log('[tiktok-debug] PIXEL_ID present:', !!PIXEL_ID);
+  console.log('[tiktok-debug] ACCESS_TOKEN present:', !!ACCESS_TOKEN);
+  console.log('[tiktok-debug] ACCESS_TOKEN length:', ACCESS_TOKEN?.length);
+
   if (!PIXEL_ID || !ACCESS_TOKEN) {
-    console.warn('[tiktok] PIXEL_ID or ACCESS_TOKEN missing — skipping');
+    console.error('[tiktok-debug] MISSING ENV VARS — aborting');
     return;
   }
 
@@ -44,9 +50,9 @@ async function sendTikTokConversion(eventName, eventData) {
     event_source: 'web',
     event_source_id: PIXEL_ID,
     data: [{
-      event: eventName,                           // 'CompletePayment'
+      event: eventName,
       event_time: Math.floor(Date.now() / 1000),
-      event_id: eventData.event_id,               // dedupe için
+      event_id: String(eventData.event_id),
       user: {
         email: eventData.email ? sha256(eventData.email) : undefined,
         ttclid: eventData.ttclid || undefined,
@@ -69,8 +75,12 @@ async function sendTikTokConversion(eventName, eventData) {
     }],
   };
 
+  console.log('[tiktok-debug] Payload prepared. Event:', eventName, 'EventID:', eventData.event_id);
+  console.log('[tiktok-debug] About to call fetch()...');
+
   try {
-    const res = await fetch(
+    const startTime = Date.now();
+    const response = await fetch(
       'https://business-api.tiktok.com/open_api/v1.3/event/track/',
       {
         method: 'POST',
@@ -81,14 +91,26 @@ async function sendTikTokConversion(eventName, eventData) {
         body: JSON.stringify(payload),
       }
     );
-    const json = await res.json();
-    if (json.code !== 0) {
-      console.error('[tiktok] API error', json);
-    } else {
-      console.log('[tiktok] event sent', eventName, eventData.event_id);
+    const elapsed = Date.now() - startTime;
+    console.log('[tiktok-debug] fetch() returned in', elapsed, 'ms. HTTP status:', response.status);
+
+    const text = await response.text();
+    console.log('[tiktok-debug] Response body (raw):', text);
+
+    let json;
+    try { json = JSON.parse(text); }
+    catch (e) {
+      console.error('[tiktok-debug] Response is NOT valid JSON');
+      return;
     }
-  } catch (e) {
-    console.error('[tiktok] fetch failed', e.message);
+
+    if (json.code === 0) {
+      console.log('[tiktok-debug] ✓ SUCCESS — TikTok accepted event. request_id:', json.request_id);
+    } else {
+      console.error('[tiktok-debug] ✗ TikTok API error. code:', json.code, 'message:', json.message);
+    }
+  } catch (err) {
+    console.error('[tiktok-debug] ✗ fetch THREW an error:', err?.message, err?.stack);
   }
 }
 
