@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-// Lemon Squeezy sends webhooks for subscription events.
+// Lemon Squeezy sends webhooks for order (one-time purchase) and subscription events.
 // This endpoint logs events for monitoring; actual auth uses cookie-based verification.
 // Set LEMONSQUEEZY_WEBHOOK_SECRET in Vercel env vars (from LS dashboard > Webhooks).
 
@@ -64,9 +64,9 @@ async function sendTikTokConversion(eventName, eventData) {
         currency: eventData.currency || 'USD',
         value: Number(eventData.value || 0),
         contents: [{
-          content_id: eventData.content_id || 'scentwise-premium-monthly',
-          content_type: 'subscription',
-          content_name: 'ScentWise Premium Monthly',
+          content_id: eventData.content_id || 'scentwise-premium',
+          content_type: 'product',
+          content_name: 'ScentWise Premium',
           quantity: 1,
           price: Number(eventData.value || 0),
         }],
@@ -209,14 +209,14 @@ async function handler(req, res) {
     try {
       const key = `sw_devicesub:${deviceId}`;
       const value = JSON.stringify({ subId, custId, email, boundAt: Date.now() });
-      // 60 days — long enough to survive typical return-to-site latency,
-      // short enough to drop stale bindings if a device is sold/wiped.
+      // 365 days — Premium is a one-time lifetime purchase, so keep the device
+      // binding around long enough to auto-unlock returning buyers for a year.
       await fetch(`${url}/pipeline`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify([
           ['SET', key, value],
-          ['EXPIRE', key, 60 * 24 * 60 * 60]
+          ['EXPIRE', key, 365 * 24 * 60 * 60]
         ])
       });
     } catch (err) {
@@ -237,14 +237,14 @@ async function handler(req, res) {
       await sendTikTokConversion('CompletePayment', {
         event_id: payload.data.id,
         email: payload.data?.attributes?.user_email,
-        value: totalUsd || 2.99,
+        value: totalUsd || 10,
         currency: payload.data?.attributes?.currency || 'USD',
         ttclid: tiktokCustom.ttclid,
         ttp: tiktokCustom.ttp,
         ip: tiktokCustom.ip,
         user_agent: tiktokCustom.user_agent,
         page_url: 'https://scent-wise.com/',
-        content_id: 'scentwise-premium-monthly',
+        content_id: 'scentwise-premium',
       });
       break;
     }
@@ -260,14 +260,14 @@ async function handler(req, res) {
       await sendTikTokConversion('CompletePayment', {
         event_id: payload.data.id,
         email: payload.data?.attributes?.user_email,
-        value: totalUsd || 2.99,
+        value: totalUsd || 10,
         currency: payload.data?.attributes?.currency || 'USD',
         ttclid: tiktokCustom.ttclid,
         ttp: tiktokCustom.ttp,
         ip: tiktokCustom.ip,
         user_agent: tiktokCustom.user_agent,
         page_url: 'https://scent-wise.com/',
-        content_id: 'scentwise-premium-monthly',
+        content_id: 'scentwise-premium',
       });
       break;
     }

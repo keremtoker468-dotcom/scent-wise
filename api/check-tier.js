@@ -187,7 +187,7 @@ module.exports = async function handler(req, res) {
               })).toString('base64');
               const existing = res.getHeader('Set-Cookie') || [];
               const list = Array.isArray(existing) ? [...existing] : [existing];
-              list.push(`sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
+              list.push(`sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${365 * 24 * 60 * 60}${isProduction ? '; Secure' : ''}`);
               res.setHeader('Set-Cookie', list);
               // Re-parse cookies so the downstream check picks it up
               cookies.sw_sub = cookieValue;

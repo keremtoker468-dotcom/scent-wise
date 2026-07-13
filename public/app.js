@@ -885,17 +885,17 @@ async function unlockPaid() {
     const d = await r.json();
     if (d.url && /^https:\/\/[^/]*lemonsqueezy\.com(\/|$)/.test(d.url)) {
       LEMON_URL = d.url;
-      if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 2.99, items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
+      if (typeof gtag === 'function') gtag('event', 'begin_checkout', { currency: 'USD', value: 10, items: [{ item_name: 'ScentWise Premium', price: 10 }] });
       openLemonCheckout(d.url);
       // Reset button state — overlay closes in-page so buttons need to re-enable
-      setTimeout(() => btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; }), 800);
+      setTimeout(() => btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Get Premium'; }), 800);
     } else {
       showToast(d.error || 'Could not start checkout. Please try again.', 'error');
-      btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
+      btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Get Premium'; });
     }
   } catch {
     showToast('Could not start checkout. Please try again.', 'error');
-    btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Subscribe Now'; });
+    btns.forEach(b => { b.disabled = false; b.innerHTML = b._prev || 'Get Premium'; });
   }
 }
 
@@ -949,7 +949,7 @@ function showPaywall() {
   const trialLeft = FREE_LIMIT - freeUsed;
   const trialBanner = trialLeft > 0
     ? `<div class="ph-trial"><span style="font-size:14px">✦</span> You have <strong>${trialLeft} free quer${trialLeft === 1 ? 'y' : 'ies'}</strong> left — or unlock everything below.</div>`
-    : `<div class="ph-trial" style="color:var(--td);background:rgba(255,255,255,.4);border-color:var(--d4)">Free trial complete. Subscribe for unlimited access.</div>`;
+    : `<div class="ph-trial" style="color:var(--td);background:rgba(255,255,255,.4);border-color:var(--d4)">Free trial complete. Unlock lifetime access below.</div>`;
   return `<div class="paywall-hero fi">
     <div class="ph-pitch">
       <div class="ph-kicker">ScentWise Premium</div>
@@ -957,7 +957,7 @@ function showPaywall() {
       <p class="ph-sub">Unlimited AI advice, scent-by-scent breakdowns, dupes, zodiac, music &amp; style scans — every mode unlocked, every recommendation sharper than the last.</p>
       ${trialBanner}
       <div class="ph-price-row">
-        <div class="ph-price"><span class="ph-curr">$</span>2<span class="ph-cents">.99</span><span class="ph-period">/month</span></div>
+        <div class="ph-price"><span class="ph-curr">$</span>10<span class="ph-period">one-time</span></div>
       </div>
       <ul class="ph-perks">
         <li>500 AI queries / month</li>
@@ -969,11 +969,11 @@ function showPaywall() {
       </ul>
       <a href="#" onclick="unlockPaid(); return false;" class="btn ph-cta" data-subscribe-btn>Unlock Premium</a>
       <div class="ph-badges">
-        <span class="ph-badge"><span class="ph-badge-i">30s</span> Cancel anytime</span>
+        <span class="ph-badge"><span class="ph-badge-i">1×</span> One-time payment</span>
         <span class="ph-badge"><span class="ph-badge-i">SSL</span> Secured by Lemon Squeezy</span>
       </div>
       <p class="ph-proof"><strong>65,000+</strong> fragrances · <strong>101</strong> icons · <strong>6</strong> AI modes · trusted by fragrance explorers worldwide</p>
-      <p class="ph-login">Already subscribed? <a onclick="go('account')">Log in with your email</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
+      <p class="ph-login">Already purchased? <a onclick="go('account')">Log in with your email</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
     </div>
     <div class="ph-preview" aria-hidden="true">
       <div class="ph-preview-label">A Premium recommendation</div>
@@ -1010,7 +1010,7 @@ function showPaywall() {
 }
 
 function promptActivate() {
-  const raw = prompt('Enter your LemonSqueezy order ID to activate your subscription:');
+  const raw = prompt('Enter your LemonSqueezy order ID to activate your Premium access:');
   if (raw && raw.trim()) {
     const orderId = raw.trim().replace(/^#/, '').replace(/[^\d]/g, '');
     if (orderId) activateSubscription(orderId);
@@ -1079,7 +1079,7 @@ function setupLemonSqueezy() {
     window.LemonSqueezy.Setup({
       eventHandler: async function(event) {
         if (event.event === 'Checkout.Success') {
-          if (typeof gtag === 'function') gtag('event', 'purchase', { currency: 'USD', value: 2.99, transaction_id: event.data?.order?.data?.id || event.data?.order?.id || event.data?.id || '', items: [{ item_name: 'ScentWise Premium', price: 2.99 }] });
+          if (typeof gtag === 'function') gtag('event', 'purchase', { currency: 'USD', value: 10, transaction_id: event.data?.order?.data?.id || event.data?.order?.id || event.data?.id || '', items: [{ item_name: 'ScentWise Premium', price: 10 }] });
           const orderId = event.data?.order?.data?.id || event.data?.order?.id || event.data?.id;
           if (orderId) {
             let ok = await activateSubscription(String(orderId), true);
@@ -1113,8 +1113,8 @@ setupLemonSqueezy();
 async function aiCall(mode, payload) {
   _lastTeaser = false;
   if (!canUseAI()) {
-    if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
-    return 'Please subscribe to use AI features.';
+    if (!isPaid && freeUsed >= FREE_LIMIT) return 'You\'ve used your free AI queries. Upgrade to ScentWise Premium for unlimited AI recommendations!';
+    return 'Please upgrade to use AI features.';
   }
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     return '**You\'re offline.** AI recommendations need an internet connection. Please reconnect and try again.';
@@ -1189,9 +1189,9 @@ async function aiCall(mode, payload) {
         if (d.freeUsed >= FREE_LIMIT) {
           try { openPaywallModal('server_403'); } catch {}
         }
-        return 'You\'ve used your free AI queries. Subscribe to ScentWise Premium for unlimited AI recommendations!';
+        return 'You\'ve used your free AI queries. Upgrade to ScentWise Premium for unlimited AI recommendations!';
       }
-      isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please reactivate your subscription.';
+      isPaid = false; currentTier = 'free'; go(CP); return 'Your session has expired. Please log in again to restore your Premium access.';
     }
     if (r.status === 429) {
       const d = await r.json().catch(()=>({}));
@@ -1447,12 +1447,12 @@ function openPaywallModal(trigger) {
     <button type="button" class="gate-close" aria-label="Close" onclick="closePaywallModal()">&#215;</button>
     <div class="gate-kicker">&#10022; Free trial complete</div>
     <h3 id="sw-pw-title">You've used your <em>3 free queries</em></h3>
-    <p class="gate-sub">Go Premium to keep your AI advisor — unlimited style scans, dupes, zodiac matches, and scent-profile memory, all for less than a coffee.</p>
+    <p class="gate-sub">Go Premium to keep your AI advisor — unlimited style scans, dupes, zodiac matches, and scent-profile memory, all for one simple one-time payment.</p>
     <div class="gate-choices" style="grid-template-columns:1fr">
       <div class="gate-choice is-premium">
         <span class="gate-choice-badge">Best value</span>
         <div class="gate-choice-title">&#10022; ScentWise Premium</div>
-        <div class="gate-choice-price"><strong>$2.99/mo</strong> &middot; cancel anytime</div>
+        <div class="gate-choice-price"><strong>$10 one-time</strong> &middot; lifetime access</div>
         <ul>
           <li><span class="check">&#10003;</span> <strong>500</strong> AI queries per month</li>
           <li><span class="check">&#10003;</span> All 6 discovery modes, no limits</li>
@@ -1463,7 +1463,7 @@ function openPaywallModal(trigger) {
       </div>
     </div>
     <button type="button" class="gate-skip" onclick="closePaywallModal()">Maybe later</button>
-    <p class="gate-priv">Already subscribed? <a onclick="closePaywallModal(); go('account')">Log in with your email</a> &middot; <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
+    <p class="gate-priv">Already purchased? <a onclick="closePaywallModal(); go('account')">Log in with your email</a> &middot; <a href="/refund.html" target="_blank" rel="noopener">Refund policy</a></p>
   </div>`;
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) closePaywallModal();
@@ -1524,7 +1524,7 @@ function openEmailGate(trigger) {
       <div class="gate-choice is-premium">
         <span class="gate-choice-badge">Best value</span>
         <div class="gate-choice-title">&#10022; Go Premium</div>
-        <div class="gate-choice-price"><strong>$2.99/mo</strong> &middot; cancel anytime</div>
+        <div class="gate-choice-price"><strong>$10 one-time</strong> &middot; lifetime access</div>
         <ul>
           <li><span class="check">&#10003;</span> Unlock <strong>everything</strong> instantly</li>
           <li><span class="check">&#10003;</span> 500 AI queries per month</li>
@@ -2717,7 +2717,7 @@ function r_home(el) {
       <span aria-hidden="true">·</span>
       <span>No credit card to try</span>
       <span aria-hidden="true">·</span>
-      <span>Then <strong>$2.99/mo</strong> · cancel anytime</span>
+      <span>Then <strong>$10 one-time</strong> · lifetime access</span>
     </div>
     <div class="hp-hero-features">
       <button type="button" class="hp-feature-chip" onclick="go('photo')" aria-label="Upload a photo and get matched fragrances">
@@ -2872,8 +2872,8 @@ function r_home(el) {
       <div class="hp-reveal" style="flex:1;min-width:280px;max-width:340px;border:2px solid var(--g);border-radius:var(--r);padding:36px 28px;background:var(--gl);text-align:center;position:relative">
         <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--g);color:var(--bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;padding:4px 16px;border-radius:20px">Most Popular</div>
         <div style="font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--g);margin-bottom:12px">Premium</div>
-        <div style="font-size:36px;font-weight:700;margin-bottom:6px"><span class="gg">$2.99</span><span style="font-size:16px;color:var(--td);font-weight:400">/month</span></div>
-        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Cancel anytime · <a href="/refund.html" style="color:var(--g);text-decoration:underline">Refund policy</a></div>
+        <div style="font-size:36px;font-weight:700;margin-bottom:6px"><span class="gg">$10</span><span style="font-size:16px;color:var(--td);font-weight:400"> one-time</span></div>
+        <div style="color:var(--td);font-size:13px;margin-bottom:24px">Lifetime access · <a href="/refund.html" style="color:var(--g);text-decoration:underline">Refund policy</a></div>
         <ul style="text-align:left;list-style:none;padding:0;margin:0 0 28px;font-size:14px;color:var(--t);line-height:2.2">
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> Everything in Free</li>
           <li style="display:flex;align-items:center;gap:8px"><span style="color:var(--g)">&#10003;</span> AI Chat Advisor</li>
@@ -2883,7 +2883,7 @@ function r_home(el) {
         </ul>
         <button class="hp-btn-primary" onclick="unlockPaid()" data-subscribe-btn style="width:100%;padding:14px">Get Premium</button>
         <div style="display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:center;align-items:center;margin-top:14px;color:var(--td);font-size:12px;line-height:1.4">
-          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Cancel anytime</span>
+          <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> One-time payment</span>
           <span aria-hidden="true" style="opacity:.4">·</span>
           <span style="display:inline-flex;align-items:center;gap:5px"><span style="color:var(--g)">&#10003;</span> Secure checkout</span>
         </div>
@@ -3135,7 +3135,7 @@ function r_chat(el) {
       <div id="c-end"></div>
     </div>
     ${(!isPaid && !isOwner && freeUsed < FREE_LIMIT && chatMsgs.length > 0) ? `<div style="text-align:center;padding:6px 0 2px;font-size:11px;color:var(--g);opacity:.85">✦ ${FREE_LIMIT - freeUsed} free quer${(FREE_LIMIT - freeUsed) === 1 ? 'y' : 'ies'} remaining · <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:600">Go Premium</a></div>` : ''}
-    ${(!isPaid && !isOwner && freeUsed >= FREE_LIMIT) ? `<div style="text-align:center;padding:6px 0 2px;font-size:11px;color:var(--td)">Trial ended · <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:600">Subscribe for unlimited access</a></div>` : ''}
+    ${(!isPaid && !isOwner && freeUsed >= FREE_LIMIT) ? `<div style="text-align:center;padding:6px 0 2px;font-size:11px;color:var(--td)">Trial ended · <a onclick="unlockPaid()" style="color:var(--g);cursor:pointer;text-decoration:underline;font-weight:600">Get Premium for unlimited access</a></div>` : ''}
     <div class="inp-row" style="padding-top:8px;border-top:1px solid rgba(255,255,255,.04)">
       <label for="c-inp" class="sr-only">Ask about any fragrance</label>
       <input type="text" id="c-inp" placeholder="Ask about any fragrance..." onkeydown="if(event.key==='Enter')cSend()" autocomplete="off">
@@ -3176,7 +3176,7 @@ async function cSend(text) {
   if (!text || !text.trim() || chatLoad) return;
   if (!canUseAI()) {
     chatMsgs.push({role:'user',content:text.trim()});
-    chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used your free AI queries. Subscribe to ScentWise Premium ($2.99/month) for 500 AI queries/month.' : 'Please subscribe to ScentWise Premium ($2.99/month) to use the AI advisor.'});
+    chatMsgs.push({role:'assistant',content:freeUsed >= FREE_LIMIT ? 'You\'ve used your free AI queries. Get ScentWise Premium ($10 one-time) for 500 AI queries/month.' : 'Get ScentWise Premium ($10 one-time, lifetime access) to use the AI advisor.'});
     _ssw('chatMsgs', chatMsgs);
     _chatShouldScroll = true;
     r_chat(document.getElementById('page-chat'));
@@ -3818,11 +3818,11 @@ function r_account(el) {
       <div style="text-align:center;margin-bottom:36px">
         <div style="width:72px;height:72px;border-radius:20px;background:var(--gl);border:1px solid rgba(201,169,110,.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--g);font-weight:600">✦</div>
         <h2 class="fd" style="font-size:30px;margin-bottom:8px">Log In</h2>
-        <p style="color:var(--td);font-size:14px">Access your ScentWise Premium subscription.</p>
+        <p style="color:var(--td);font-size:14px">Access your ScentWise Premium account.</p>
       </div>
       <div class="glass-panel" style="margin-bottom:18px">
         <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Log in with email</p>
-        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter the email you used when subscribing. We'll find your subscription automatically.</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter the email you used at purchase. We'll find your Premium access automatically.</p>
         <input type="email" id="login-email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')doEmailLogin()" style="margin-bottom:14px">
         <button class="btn" id="login-btn" onclick="doEmailLogin()" style="width:100%">Log In</button>
         <div id="login-progress" style="display:none;margin-top:12px;height:3px;border-radius:2px;background:var(--d4);overflow:hidden"><div style="width:40%;height:100%;background:var(--g);border-radius:2px;animation:progressSlide 1.5s ease-in-out infinite"></div></div>
@@ -3830,7 +3830,7 @@ function r_account(el) {
       </div>
       <div class="glass-panel" style="margin-bottom:18px">
         <p style="color:var(--g);font-size:10px;font-weight:600;letter-spacing:1.2px;margin-bottom:14px;text-transform:uppercase">Have an order ID?</p>
-        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter your LemonSqueezy order number to activate your subscription.</p>
+        <p style="color:var(--td);font-size:13px;margin-bottom:18px;line-height:1.6">Enter your LemonSqueezy order number to activate your Premium access.</p>
         <div class="inp-row">
           <input type="text" id="order-id-input" placeholder="e.g. 2944561" onkeydown="if(event.key==='Enter')doOrderActivate()">
           <button class="btn btn-sm" id="order-activate-btn" onclick="doOrderActivate()">Activate</button>
@@ -3839,7 +3839,7 @@ function r_account(el) {
       </div>
       ${_renderCollection()}
       <div style="text-align:center">
-        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Subscribe for $2.99/month</a></p>
+        <p style="color:var(--td);font-size:13px">Don't have an account? <a href="#" onclick="unlockPaid(); return false;" style="color:var(--g);text-decoration:underline;font-weight:500">Get lifetime access for $10</a></p>
       </div>
     </div>`;
     document.getElementById('login-email')?.focus();

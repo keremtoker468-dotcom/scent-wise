@@ -2,14 +2,14 @@
 
 ## Project Overview
 
-ScentWise is an AI-powered fragrance advisor web application with a database of 65,000+ perfumes, 101 celebrities, and 6 AI recommendation modes. It uses a freemium model: database browsing is free, AI features require a $2.99/month subscription via Lemon Squeezy.
+ScentWise is an AI-powered fragrance advisor web application with a database of 65,000+ perfumes, 101 celebrities, and 6 AI recommendation modes. It uses a freemium model: database browsing is free, AI features require a one-time $10 purchase (lifetime access) via Lemon Squeezy.
 
 ## Tech Stack
 
 - **Frontend**: Single-page app — vanilla HTML/CSS/JS (no framework), served from `public/`
 - **Backend**: Vercel Serverless Functions (Node.js, CommonJS), located in `api/`
 - **AI**: Google Gemini 2.0 Flash API for recommendations
-- **Payments**: Lemon Squeezy (subscriptions, webhooks)
+- **Payments**: Lemon Squeezy (one-time purchase, webhooks)
 - **Hosting**: Vercel
 - **Rate Limiting / Free Usage Tracking**: Upstash Redis (with in-memory fallback)
 - **PWA**: Service Worker (`public/sw.js`) with offline support
@@ -92,7 +92,7 @@ Required in Vercel dashboard:
 - **No framework, no build**: The frontend is a single `index.html` + `app.js` with no transpilation or bundling. Edit and deploy directly.
 - **Client-side search**: The 65K perfume database is embedded in `perfumes.js` and `perfumes-rich.js`, loaded client-side for instant search with zero API cost.
 - **AI features are server-side only**: All Gemini API calls go through `api/recommend.js`. The API key is never exposed to the client.
-- **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (subscription cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
+- **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (one-time purchase; access cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
 - **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get up to 3 trial queries (device + IP-tracked via Redis to prevent incognito bypass). Pre-email queries after #1 return a `teaser` flag; the client blurs items past the first two picks until the user submits their email.
 - **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v5`.
