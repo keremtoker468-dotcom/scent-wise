@@ -116,7 +116,7 @@ module.exports = async function handler(req, res) {
     })).toString('base64');
 
     const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
-    const maxAge = 30 * 24 * 60 * 60;
+    const maxAge = 365 * 24 * 60 * 60; // one-time lifetime purchase
 
     res.setHeader('Set-Cookie', [
       `sw_sub=${cookieValue}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}${isProduction ? '; Secure' : ''}`

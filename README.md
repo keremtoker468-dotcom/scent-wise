@@ -4,11 +4,11 @@ AI-powered fragrance recommendations with a database of 65,000+ perfumes, 101 ce
 
 ## Features
 
-**Free (no subscription needed):**
+**Free (no purchase needed):**
 - Database Explorer — search & browse 65,000+ fragrances with notes, accords, ratings, and gender filters
 - Celebrity Fragrances — browse 101 celebrities and what they actually wear (with database cross-references)
 
-**Premium ($2.99/month):**
+**Premium ($10 one-time — lifetime access):**
 - AI Chat Advisor — ask about dupes, seasonal picks, budget rotations, blind buys (with database context)
 - Style Scan — upload a photo, get fragrance matches for your aesthetic
 - Zodiac Match — scents matched to your birth sign's energy
@@ -54,7 +54,7 @@ Your site goes live at your-project.vercel.app in ~30 seconds.
 
 ### Step 4: Set up payments (Lemon Squeezy)
 1. Go to lemonsqueezy.com → Create account
-2. Create a product: "ScentWise Premium" at $2.99/month recurring
+2. Create a product: "ScentWise Premium" as a one-time $10 purchase (not a subscription)
 3. Copy the checkout URL
 4. In public/index.html, find LEMON_URL and replace with your checkout URL
 5. Set checkout success redirect to: https://your-site.vercel.app/?paid=true
@@ -62,14 +62,13 @@ Your site goes live at your-project.vercel.app in ~30 seconds.
 
 ## Revenue Projection
 
-At $2.99/month with 200 subscribers = $598/month
-Gemini API cost: ~$0.001 per query × 500 queries × 200 users = ~$100/month
-Net profit: ~$498/month
+At $10 one-time with 200 buyers = $2,000 in revenue
+Gemini API cost: ~$0.001 per query × up to 500 queries × 200 users = ~$100/month at peak usage
 
 ## Architecture
 
 - Frontend: Single HTML file with 65K fragrances embedded client-side (searches are instant, no API needed)
 - Backend: Vercel serverless function calling Gemini 2.0 Flash (only for AI features)
-- Payments: Lemon Squeezy handles subscriptions
+- Payments: Lemon Squeezy handles one-time purchases
 - The database explorer and celebrity browsing work completely offline — zero API cost
 - AI features send relevant database context to Gemini for accurate recommendations
