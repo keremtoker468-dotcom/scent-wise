@@ -215,34 +215,48 @@
   }
 
   // ───────────────────────── images (/api/img proxy) ─────────────────────────
-  const IMG = { mem: new Map(), pending: new Map() };
-  async function imageFor(name, brand) {
+  // Lookups go through a small queue (4 in flight) so a card grid never floods the proxy or
+  // the per-IP limits. Hits are remembered in localStorage; misses for 12 hours only.
+  const IMG = { mem: new Map(), pending: new Map(), queue: [], active: 0, MAX: 4, NEG_TTL: 12 * 3600 * 1000 };
+  function pumpImages() {
+    while (IMG.active < IMG.MAX && IMG.queue.length) {
+      const job = IMG.queue.shift(); IMG.active++;
+      job().finally(() => { IMG.active--; pumpImages(); });
+    }
+  }
+  function imageFor(name, brand) {
     const key = 'sw2_img_' + (name + '|' + (brand || '')).toLowerCase();
-    if (IMG.mem.has(key)) return IMG.mem.get(key);
+    if (IMG.mem.has(key)) return Promise.resolve(IMG.mem.get(key));
     const cached = lsGet(key, undefined);
-    if (cached !== undefined) { IMG.mem.set(key, cached); return cached; }
+    if (cached && typeof cached === 'object') {
+      if (cached.u) { IMG.mem.set(key, cached.u); return Promise.resolve(cached.u); }
+      if (cached.u === null && Date.now() - (cached.t || 0) < IMG.NEG_TTL) return Promise.resolve(null);
+    } else if (typeof cached === 'string' && cached) { IMG.mem.set(key, cached); return Promise.resolve(cached); }
     if (IMG.pending.has(key)) return IMG.pending.get(key);
-    const p = (async () => {
-      try {
-        const r = await fetch('/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand || ''), { headers: { 'X-Requested-With': 'ScentWise' } });
-        if (!r.ok) return null;
-        const arr = await r.json();
-        const url = Array.isArray(arr) && arr[0] && (arr[0].thumb || arr[0].url) ? (arr[0].thumb || arr[0].url) : null;
-        IMG.mem.set(key, url); lsSet(key, url); return url;
-      } catch (e) { return null; } finally { IMG.pending.delete(key); }
-    })();
+    const p = new Promise((resolve) => {
+      IMG.queue.push(async () => {
+        try {
+          const r = await fetch('/api/img?name=' + encodeURIComponent(name) + '&brand=' + encodeURIComponent(brand || ''), { headers: { 'X-Requested-With': 'ScentWise' } });
+          if (r.status === 429) { resolve(null); return; }
+          const arr = r.ok ? await r.json() : [];
+          const url = Array.isArray(arr) && arr[0] && (arr[0].thumb || arr[0].url) ? (arr[0].thumb || arr[0].url) : null;
+          IMG.mem.set(key, url); lsSet(key, { u: url, t: Date.now() }); resolve(url);
+        } catch (e) { resolve(null); } finally { IMG.pending.delete(key); }
+      });
+      pumpImages();
+    });
     IMG.pending.set(key, p);
     return p;
   }
   const imgObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries) => {
     for (const en of entries) { if (en.isIntersecting) { imgObserver.unobserve(en.target); paintImage(en.target); } }
-  }, { rootMargin: '240px' }) : null;
+  }, { rootMargin: '120px' }) : null;
   function paintImage(art) {
     const name = art.getAttribute('data-img-name'), brand = art.getAttribute('data-img-brand') || '';
     if (!name || art.querySelector('img')) return;
     imageFor(name, brand).then((url) => {
       if (!url || art.querySelector('img')) return;
-      const img = new Image(); img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+      const img = new Image(); img.alt = ''; img.decoding = 'async';
       img.onload = () => { art.appendChild(img); };
       img.src = url;
     });

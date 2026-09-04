@@ -7,6 +7,7 @@ const GLOBAL_RATE_LIMIT = 120;        // Max requests per IP per window
 const GLOBAL_WINDOW_MS = 60_000;      // 1-minute sliding window
 const API_RATE_LIMIT = 60;            // Stricter limit for /api/* routes
 const API_WINDOW_MS = 60_000;
+const IMG_RATE_LIMIT = 240;           // /api/img has its own budget: one card grid can request dozens of thumbnails
 
 // Known malicious/scanner User-Agent patterns
 const BAD_UA_PATTERNS = [
@@ -109,6 +110,20 @@ export default function middleware(request) {
       status: 403,
       headers: { 'Content-Type': 'application/json' }
     });
+  }
+
+  // 3a. Image lookups: separate, more generous budget. They are cheap (Redis cache hits
+  //     bypass external APIs) and a single Explore page can trigger dozens of them, so they
+  //     must not eat into the global or API counters and knock out /api/recommend.
+  if (pathname === '/api/img') {
+    const imgCheck = checkRate(ip, 'i', IMG_RATE_LIMIT, API_WINDOW_MS);
+    if (!imgCheck.allowed) {
+      return new Response(JSON.stringify([]), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': String(imgCheck.retryAfter || 60) }
+      });
+    }
+    return;
   }
 
   // 3. Global rate limit (all non-static requests)

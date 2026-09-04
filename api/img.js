@@ -27,25 +27,37 @@ async function redisGet(key) {
   } catch { return null; }
 }
 
-async function redisSet(key, value) {
+async function redisSet(key, value, ttlSeconds) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return;
   try {
-    // Set with 30-day TTL to avoid serving stale/broken image URLs indefinitely
+    // Hits live a year (each refetch costs Brave quota); negative markers a week.
     await fetch(`${url}/pipeline`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify([
         ['SET', key, JSON.stringify(value)],
-        ['EXPIRE', key, 2592000]
+        ['EXPIRE', key, ttlSeconds || 31536000]
       ])
     });
   } catch {}
 }
 
-// Monthly Brave API quota cap (free tier: 1000 queries/month)
-const BRAVE_MONTHLY_LIMIT = 1000;
+// Monthly Brave API quota cap (free tier: 1000 queries/month). Raise BRAVE_MONTHLY_LIMIT in the
+// Vercel env when the Brave plan is upgraded.
+const BRAVE_MONTHLY_LIMIT = parseInt(process.env.BRAVE_MONTHLY_LIMIT, 10) || 1000;
+
+// Cached entries were written in two shapes over time ({u,t,a} and {url,thumb,alt}); some are
+// empty objects. Normalise, and treat anything without a usable URL as a cache miss.
+function normalizeCached(c) {
+  if (!c || typeof c !== 'object') return null;
+  if (c.none) return { none: true };
+  const t = c.t || c.thumb || '';
+  const u = c.u || c.url || t;
+  if (!t && !u) return null;
+  return { u, t: t || u, a: c.a || c.alt || '' };
+}
 
 function braveCountKey() {
   const d = new Date();
@@ -151,8 +163,8 @@ module.exports = async function handler(req, res) {
     const redisKey = 'fi:' + (name + '|' + brand).toLowerCase();
 
     // Check Redis cache first — cache hits bypass rate limit (they cost nothing)
-    const cached = await redisGet(redisKey);
-    if (cached) {
+    const cached = normalizeCached(await redisGet(redisKey));
+    if (cached && !cached.none) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
       return res.status(200).json([{ url: cached.u, thumb: cached.t, alt: cached.a }]);
     }
@@ -161,17 +173,19 @@ module.exports = async function handler(req, res) {
     const rl = await rateLimit(`img:${ip}`, 60, 60000);
     if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json([]); }
 
-    // Try Brave Image Search (with monthly quota cap)
-    const underQuota = await braveQuotaCheck();
+    // Try Brave Image Search (with monthly quota cap). A recent Brave miss is remembered for a
+    // week so the same name does not burn quota on every card render.
+    const underQuota = !(cached && cached.none) && await braveQuotaCheck();
     if (underQuota) {
       const braveQuery = name + (brand ? ' ' + brand : '') + ' perfume bottle';
       const braveResult = await searchBrave(braveQuery);
+      await braveIncrement();
       if (braveResult && braveResult.t) {
-        await braveIncrement();
         await redisSet(redisKey, braveResult);
         res.setHeader('Cache-Control', 'public, max-age=86400');
         return res.status(200).json([{ url: braveResult.u, thumb: braveResult.t, alt: braveResult.a }]);
       }
+      await redisSet(redisKey, { none: 1 }, 604800);
     }
 
     // Fallback to Unsplash
