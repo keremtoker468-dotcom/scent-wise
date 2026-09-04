@@ -442,7 +442,7 @@
     if (name === 'open-gate') return showGate(true);
     if (name === 'go-explore') return navigate('/explore');
     if (name === 'open-compare') return openCompareSheet();
-    if (name === 'clear-compare') { compareList = []; saveCompare(); return; }
+    if (name === 'clear-compare') { compareList = []; saveCompare(); if ($('#sheet .cmp-sheet')) closeSheet(); return; }
   }
 
   // ───────────────────────── home ─────────────────────────
@@ -974,12 +974,19 @@
   let compareList = lsGet(CMP_KEY, []).filter((k) => typeof k === 'string').slice(0, CMP_MAX);
   function inCompare(n, b) { return compareList.indexOf(likeKey(n, b)) !== -1; }
   function saveCompare() { lsSet(CMP_KEY, compareList); renderTray(); $$('.cmp[data-cmp-name]').forEach((el) => el.classList.toggle('is-on', inCompare(el.getAttribute('data-cmp-name'), el.getAttribute('data-cmp-brand')))); }
-  function toggleCompare(n, b) {
+  // Pressing Compare anywhere adds the fragrance and opens the compare view straight away;
+  // more fragrances (up to three) are added from the search inside that view.
+  function addToCompare(n, b) {
     const k = likeKey(n, b);
-    const i = compareList.indexOf(k);
-    if (i !== -1) { compareList.splice(i, 1); saveCompare(); toast('Removed from compare', 1600); return; }
-    if (compareList.length >= CMP_MAX) { toast(`Compare holds ${CMP_MAX}. Remove one first.`, 2600); return; }
-    compareList.push(k); saveCompare(); toast(compareList.length < 2 ? 'Added. Pick one more to compare.' : 'Added to compare', 1800);
+    if (compareList.indexOf(k) === -1) {
+      if (compareList.length >= CMP_MAX) toast(`Compare holds ${CMP_MAX}. Remove one to add another.`, 2600);
+      else { compareList.push(k); saveCompare(); }
+    }
+    openCompareSheet();
+  }
+  function removeFromCompare(k) {
+    compareList = compareList.filter((x) => x !== k); saveCompare();
+    if ($('#sheet .cmp-sheet')) { if (compareList.length) renderCompareSheet(); else closeSheet(); }
   }
   function compareItem(k) {
     const [n, b] = k.split('|');
@@ -992,23 +999,35 @@
     tray.innerHTML = `<div class="tray-inner">
       <span class="t-foot muted" style="flex-shrink:0">Compare</span>
       <div class="chips scroll" style="margin:0;padding:0;flex:1;min-width:0">${compareList.map((k) => { const it = compareItem(k); return `<span class="chip" style="height:36px;font-size:13px;padding-right:6px">${esc(it.n)}<button class="icon-btn" type="button" data-cmp-remove="${esc(k)}" aria-label="Remove ${esc(it.n)}" style="width:28px;height:28px;margin-left:2px">${icon('close', 14, 2)}</button></span>`; }).join('')}</div>
-      <button class="btn btn-primary btn-md" type="button" data-action="open-compare" ${compareList.length < 2 ? 'disabled' : ''}>Compare ${compareList.length}</button>
+      <button class="btn btn-primary btn-md" type="button" data-action="open-compare">${compareList.length < 2 ? 'Add and compare' : 'Compare ' + compareList.length}</button>
       <button class="btn btn-text btn-md" type="button" data-action="clear-compare">Clear</button></div>`;
   }
   document.addEventListener('click', (e) => {
     const rm = e.target.closest('[data-cmp-remove]');
-    if (rm) { e.preventDefault(); const k = rm.getAttribute('data-cmp-remove'); compareList = compareList.filter((x) => x !== k); saveCompare(); return; }
+    if (rm) { e.preventDefault(); e.stopPropagation(); removeFromCompare(rm.getAttribute('data-cmp-remove')); return; }
+    const add = e.target.closest('[data-cmp-add-name]');
+    if (add) { e.preventDefault(); e.stopPropagation(); addToCompare(add.getAttribute('data-cmp-add-name'), add.getAttribute('data-cmp-add-brand') || ''); return; }
     const c = e.target.closest('[data-cmp-name]');
-    if (c) { e.preventDefault(); e.stopPropagation(); toggleCompare(c.getAttribute('data-cmp-name'), c.getAttribute('data-cmp-brand') || ''); return; }
+    if (c) { e.preventDefault(); e.stopPropagation(); addToCompare(c.getAttribute('data-cmp-name'), c.getAttribute('data-cmp-brand') || ''); return; }
     const p = e.target.closest('[data-profile-name]');
     if (p) { e.preventDefault(); e.stopPropagation(); const n = p.getAttribute('data-profile-name'), b = p.getAttribute('data-profile-brand') || ''; S.profileWanted = likeKey(n, b); openSheet(n, b); return; }
     const gen = e.target.closest('[data-profile-generate]');
     if (gen) { e.preventDefault(); const box = gen.closest('[data-name]'); if (box) loadProfileInto(box.getAttribute('data-name'), box.getAttribute('data-brand') || '', box); return; }
   });
   function openCompareSheet() {
-    if (compareList.length < 2) { toast('Pick at least two fragrances to compare.'); return; }
-    const sheet = $('#sheet'); sheetLastFocus = document.activeElement;
-    sheet.hidden = false; document.body.style.overflow = 'hidden';
+    const sheet = $('#sheet');
+    if (sheet.hidden) { sheetLastFocus = document.activeElement; sheet.hidden = false; document.body.style.overflow = 'hidden'; }
+    if (!DB.loaded) sheet.innerHTML = `<div class="sheet cmp-sheet"><div class="body"><div class="skel" style="height:28px;width:40%"></div><div class="skel" style="height:200px"></div></div></div>`;
+    loadDB().then(() => renderCompareSheet());
+  }
+  function compareResultsHTML(q) {
+    if (!q || q.length < 2) return `<span class="t-foot muted-2">Type a name, a brand or a note.</span>`;
+    const res = search(q).filter((it) => !inCompare(it.n, it.b)).slice(0, 6);
+    if (!res.length) return `<span class="t-foot muted-2">No matches for “${esc(q)}”.</span>`;
+    return res.map((it) => `<button class="rowcard" type="button" data-cmp-add-name="${esc(it.n)}" data-cmp-add-brand="${esc(it.b)}"><span class="art ${famClass(it)}" data-img-name="${esc(it.n)}" data-img-brand="${esc(it.b)}">${bottle(22, 33)}</span><span class="meta"><span class="name">${esc(it.n)}</span><span class="brand">${esc(it.b)}</span></span>${icon('layers', 18)}</button>`).join('');
+  }
+  function renderCompareSheet(query) {
+    const sheet = $('#sheet'); if (sheet.hidden) return;
     const items = compareList.map(compareItem);
     const cols = items.map((it) => {
       const rec = richOf(it); const tiers = rec ? notesTiers(rec.t) : null; const prof = profileCached(it.n, it.b);
@@ -1024,10 +1043,21 @@
         <div class="row" style="gap:6px;margin-top:auto"><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored">Shop</a><button class="btn btn-text btn-sm" type="button" data-cmp-remove="${esc(likeKey(it.n, it.b))}">Remove</button></div>
       </div>`;
     }).join('');
+    const addCol = items.length < CMP_MAX ? `<div class="cmp-col cmp-add" style="border-style:dashed">
+        <div class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">${items.length ? 'Add another' : 'Pick a fragrance'}</span><span class="t-foot muted">${items.length} of ${CMP_MAX} chosen. Search the library to add one.</span></div>
+        <div class="field sm">${icon('search', 18)}<input id="cmp-search" type="search" placeholder="Name, brand or note" aria-label="Search fragrances to compare" value="${esc(query || '')}" maxlength="80"></div>
+        <div class="stack" style="gap:8px" id="cmp-results">${compareResultsHTML(query)}</div>
+      </div>` : '';
+    const n = Math.max(2, items.length + (addCol ? 1 : 0));
     sheet.innerHTML = `<div class="sheet cmp-sheet" role="document"><div class="body">
-      <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:2px"><h2 class="t-3">Compare</h2><span class="t-foot muted">Side by side. Scent profiles are AI estimates and use one advisor query each.</span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
-      <div class="cmp-grid" style="grid-template-columns:repeat(${items.length}, minmax(0, 1fr))">${cols}</div></div></div>`;
+      <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:2px"><h2 class="t-3">Compare</h2><span class="t-foot muted">Up to three side by side. Scent profiles are AI estimates and use one advisor query each.</span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
+      <div class="cmp-grid" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${cols}${addCol}</div></div></div>`;
     watchImages(sheet);
+    const inp = $('#cmp-search');
+    if (inp) {
+      inp.addEventListener('input', debounce(() => { const box = $('#cmp-results'); if (box) { box.innerHTML = compareResultsHTML(inp.value.trim()); watchImages(box); } }, 120));
+      if (!items.length || query || innerWidth > 860) inp.focus();
+    }
   }
 
   // ───────────────────────── scent profile (AI, cached) ─────────────────────────

@@ -1,4 +1,4 @@
-const CACHE = 'sw-v21';
+const CACHE = 'sw-v22';
 const SHELL = [
   '/',
   '/app.js',
