@@ -40,10 +40,10 @@
   --f-green: #dfeadb;    --f-green-ink: #3c6238;
   --f-gourmand: #f1e0d0; --f-gourmand-ink: #7a4a2b;
   --f-other: #f3f1ec;    --f-other-ink: #5b574f;
-  color-scheme: light dark;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
+/* Dark palette: opt-in only via <html data-theme="dark">. The site renders light by default. */
+:root[data-theme="dark"] {
     --bg: #0e0d0b;
     --bg2: #1a1917;
     --surface: #161513;
@@ -61,7 +61,6 @@
     --shadow: 0 18px 50px rgba(0, 0, 0, .5);
     --danger: #e08a82;
     --ok: #a4c9a0;
-  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -224,15 +223,13 @@ main { padding-top: var(--nav-h); }
 .fam-other { background: var(--f-other); color: var(--f-other-ink); }
 .ink-fresh { color: var(--f-fresh-ink); } .ink-citrus { color: var(--f-citrus-ink); } .ink-floral { color: var(--f-floral-ink); } .ink-woody { color: var(--f-woody-ink); }
 .ink-amber { color: var(--f-amber-ink); } .ink-green { color: var(--f-green-ink); } .ink-gourmand { color: var(--f-gourmand-ink); } .ink-other { color: var(--f-other-ink); }
-@media (prefers-color-scheme: dark) {
-  .ink-fresh { color: #8fc0cf; } .ink-citrus { color: #d9d27a; } .ink-floral { color: #e9a3b0; } .ink-woody { color: #d9b58c; }
-  .ink-amber { color: #c9a6d8; } .ink-green { color: #a4c9a0; } .ink-gourmand { color: #dcb08d; } .ink-other { color: #a9a49b; }
-}
+html[data-theme="dark"] .ink-fresh { color: #8fc0cf; } html[data-theme="dark"] .ink-citrus { color: #d9d27a; } html[data-theme="dark"] .ink-floral { color: #e9a3b0; } html[data-theme="dark"] .ink-woody { color: #d9b58c; }
+html[data-theme="dark"] .ink-amber { color: #c9a6d8; } html[data-theme="dark"] .ink-green { color: #a4c9a0; } html[data-theme="dark"] .ink-gourmand { color: #dcb08d; } html[data-theme="dark"] .ink-other { color: #a9a49b; }
 
 /* skeletons */
 .skel { position: relative; overflow: hidden; background: var(--bg2); border-radius: 12px; }
 .skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent); animation: shimmer 1.4s infinite; }
-@media (prefers-color-scheme: dark) { .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); } }
+html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); }
 @keyframes shimmer { to { transform: translateX(100%); } }
 
 /* ---------- home ---------- */
