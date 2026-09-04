@@ -46,13 +46,37 @@
   // Filter families (chips) map onto category codes; colours come from famOf().
   const CAT_FAM = { F: 'fresh', Q: 'fresh', L: 'floral', O: 'amber', P: 'amber', W: 'woody', S: 'gourmand', A: 'green', U: 'citrus', M: 'other', '': 'other' };
   const GENDER_NAME = { M: 'For men', F: 'For women', U: 'For everyone', '': '' };
-  const famOf = (code) => CAT_FAM[code] || 'other';
+  // Filter families. Rich records (7.9k with accords) are classified by their leading accords, which is
+  // far more useful than the single category code; everything else falls back to the category.
+  const FAM_LABEL = { fresh: 'Fresh', citrus: 'Fruity', floral: 'Floral', woody: 'Woody', amber: 'Amber', gourmand: 'Sweet', green: 'Aromatic', other: 'Musky' };
+  const FAM_ACCORDS = {
+    fresh: ['fresh', 'aquatic', 'marine', 'ozonic', 'fresh spicy', 'citrus'],
+    citrus: ['fruity', 'tropical', 'citrus', 'cherry'],
+    floral: ['floral', 'white floral', 'yellow floral', 'rose', 'tuberose', 'iris', 'violet'],
+    woody: ['woody', 'oud', 'conifer', 'earthy', 'mossy', 'patchouli'],
+    amber: ['amber', 'warm spicy', 'balsamic', 'animalic', 'leather', 'smoky', 'tobacco', 'oud'],
+    gourmand: ['sweet', 'vanilla', 'caramel', 'chocolate', 'cacao', 'coffee', 'honey', 'almond', 'lactonic', 'coconut', 'nutty', 'rum', 'whiskey'],
+    green: ['aromatic', 'green', 'herbal', 'anis', 'lavender'],
+    other: ['musky', 'powdery', 'soapy', 'aldehydic']
+  };
+  const ACCORD_FAMS = {};
+  Object.keys(FAM_ACCORDS).forEach((f) => FAM_ACCORDS[f].forEach((a) => { (ACCORD_FAMS[a] = ACCORD_FAMS[a] || []).push(f); }));
+  function famsFromAccords(accords) {
+    const out = []; (accords || []).slice(0, 4).forEach((a) => (ACCORD_FAMS[a] || []).forEach((f) => { if (out.indexOf(f) === -1) out.push(f); }));
+    return out;
+  }
+  const famOf = (codeOrItem) => {
+    if (codeOrItem && typeof codeOrItem === 'object') { const it = codeOrItem; if (it.f && it.f.length) return it.f[0]; const r = richOf(it); if (r && r.f && r.f.length) return r.f[0]; return CAT_FAM[it.c] || 'other'; }
+    return CAT_FAM[codeOrItem] || 'other';
+  };
   const catLabel = (code) => CAT_NAME[code] || '';
+  function famLabel(it) { const r = richOf(it); if (r && r.f && r.f.length) return FAM_LABEL[r.f[0]]; return catLabel(it.c) || 'Fragrance'; }
+  function hasFam(it, fam) { const r = richOf(it); if (r && r.f && r.f.length) return r.f.indexOf(fam) !== -1; return (CAT_FAM[it.c] || 'other') === fam; }
 
   // ───────────────────────── database ─────────────────────────
   // ITEMS: every perfume (69k) as {n, b, c, g, k}. RICH: 7.9k records with
   // rating/accords/notes keyed by "name|brand" (lowercase).
-  const DB = { items: [], rich: new Map(), richList: [], top: [], loaded: false, promise: null };
+  const DB = { items: [], rich: new Map(), richList: [], top: [], byKey: new Map(), popular: [], popRank: new Map(), loaded: false, promise: null };
 
   function loadScript(src) {
     return new Promise((resolve, reject) => {
@@ -64,7 +88,7 @@
   function loadDB() {
     if (DB.loaded) return Promise.resolve();
     if (DB.promise) return DB.promise;
-    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js')]).then(decodeDB).catch((err) => {
+    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js'), loadScript('/popular.js').catch(() => {})]).then(decodeDB).catch((err) => {
       console.error(err); DB.loaded = true; toast('Could not load the perfume library. Please retry.');
     });
     return DB.promise;
@@ -77,6 +101,7 @@
           const p = _SI[i].split('|');
           const n = p[0], b = _SB[+p[1]] || '', c = (p[2] || '').length === 1 ? p[2] : '', g = (p[3] || '').length === 1 ? p[3] : '';
           items[i] = { n, b, c, g, k: (n + ' ' + b).toLowerCase() };
+          DB.byKey.set((n + '|' + b).toLowerCase(), items[i]);
         }
         DB.items = items;
       }
@@ -86,11 +111,21 @@
             const rec = { n: e[0], b: _RB[e[1]] || '', c: e[2] || '', g: e[3] || '', r: e[4] || 0, a: (e[5] || []).map((i) => _RA[i]).filter(Boolean), t: e[6] || '' };
             rec.k = (rec.n + '|' + rec.b).toLowerCase();
             rec.words = noteWords(rec.t);
+            rec.f = famsFromAccords(rec.a); if (!rec.f.length) rec.f = [CAT_FAM[rec.c] || 'other'];
             DB.rich.set(rec.k, rec);
             DB.richList.push(rec);
           }
           DB.top = DB.richList.slice().sort((a, b) => b.r - a.r);
         }
+        // Curated popularity: exact "Name|Brand" keys from popular.js, rank = position.
+        (window.SW_POPULAR || []).forEach((k, i) => {
+          const key = k.toLowerCase(); const it = DB.byKey.get(key);
+          if (it && !DB.popRank.has(key)) {
+            DB.popRank.set(key, i); DB.popular.push(it);
+            // Rich records sometimes spell the brand differently (e.g. Christian Dior vs Dior); rank those too.
+            const rec = DB.rich.get(key) || find(it.n, it.b); if (rec && !DB.popRank.has(rec.k)) DB.popRank.set(rec.k, i);
+          }
+        });
         DB.loaded = true; resolve();
       }, 0);
     });
@@ -110,9 +145,8 @@
       const rn = rec.n.toLowerCase();
       if (rn === nl) { if (!brand || rec.b.toLowerCase().includes(brand.toLowerCase())) return rec; if (!best) best = rec; }
     }
-    if (best) return best;
-    for (const rec of DB.richList) { if (rec.n.toLowerCase().startsWith(nl + ' ')) return rec; }
-    return null;
+    // No prefix fallback: a click on "Sauvage" must never open a flanker's notes.
+    return best;
   }
   function itemFor(name, brand) {
     // Any perfume from the big index (no notes), used for images/family colour.
@@ -129,10 +163,13 @@
     const terms = String(q || '').toLowerCase().split(/\s+/).filter((t) => t.length > 1);
     const fam = opts.fam || '', gender = opts.gender || '';
     const out = [];
-    const passFilter = (it) => (!fam || famOf(it.c) === fam) && (!gender || it.g === gender);
+    const passFilter = (it) => (!fam || hasFam(it, fam)) && (!gender || it.g === gender);
+    const popRank = (it) => { const r = DB.popRank.get((it.n + '|' + it.b).toLowerCase()); return r === undefined ? -1 : r; };
     if (!terms.length) {
-      // No query: curated top picks by rating, then the rest of the index.
-      for (const rec of DB.top) { if (passFilter(rec)) out.push(rec); }
+      // No query: the curated popularity list first, then the best-rated of the rest.
+      const seen = new Set();
+      for (const it of DB.popular) { if (passFilter(it)) { out.push(it); seen.add((it.n + '|' + it.b).toLowerCase()); } }
+      for (const rec of DB.top) { if (!seen.has(rec.k) && passFilter(rec)) out.push(rec); }
       return out;
     }
     const scored = [];
@@ -145,6 +182,7 @@
       let score = 0;
       for (const t of terms) { if (nl === t) score += 100; else if (nl.startsWith(t)) score += 60; else if (nl.indexOf(t) !== -1) score += 30; else score += 10; }
       if (DB.rich.has(it.n.toLowerCase() + '|' + it.b.toLowerCase())) score += 15;
+      const pr = popRank(it); if (pr >= 0) score += 400 - pr;
       score -= Math.min(20, nl.length / 4);
       scored.push([score, it]);
     }
@@ -303,8 +341,9 @@
   }
 
   // ───────────────────────── card renderers ─────────────────────────
-  function famClass(it) { return 'fam-' + famOf(it && it.c); }
-  function inkClass(it) { return 'ink-' + famOf(it && it.c); }
+  function famClass(it) { return 'fam-' + famOf(it || {}); }
+  function inkClass(it) { return 'ink-' + famOf(it || {}); }
+  function popBadge(it) { const r = DB.popRank.get(((it.n || '') + '|' + (it.b || '')).toLowerCase()); return r === undefined ? '' : `<span class="badge pop" title="Curated popularity rank">#${r + 1} popular</span>`; }
   function heartHTML(n, b, extra) {
     const k = likeKey(n, b);
     return `<button class="heart${likes.has(k) ? ' is-on' : ''}${extra ? ' ' + extra : ''}" type="button" data-like="${esc(k)}" data-like-name="${esc(n)}" data-like-brand="${esc(b || '')}" aria-label="Save ${esc(n)}">${icon('heart', 18)}</button>`;
@@ -316,7 +355,7 @@
     return `<article class="pcard" data-open-name="${esc(it.n)}" data-open-brand="${esc(it.b)}">
       <div class="art ${famClass(it)}" data-img-name="${esc(it.n)}" data-img-brand="${esc(it.b)}">${bottle()}${heartHTML(it.n, it.b)}</div>
       <div class="meta"><div class="name">${esc(it.n)}</div><div class="brand">${esc(it.b)}</div><div class="notes">${esc(notes || '')}</div></div>
-      <div class="foot"><span class="fam ${inkClass(it)}">${esc(catLabel(it.c) || (opts.fam || 'Fragrance'))}</span><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></div>
+      <div class="foot"><span class="fam ${inkClass(it)}">${esc(famLabel(it))}</span><span class="row" style="gap:6px"><button class="icon-btn sm cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><button class="btn btn-quiet btn-sm btn-profile" type="button" data-profile-name="${esc(it.n)}" data-profile-brand="${esc(it.b)}" data-stop>Profile</button><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
     </article>`;
   }
   function rowcardHTML(it, trailing) {
@@ -402,6 +441,8 @@
     if (name === 'clear-thread') return clearThread();
     if (name === 'open-gate') return showGate(true);
     if (name === 'go-explore') return navigate('/explore');
+    if (name === 'open-compare') return openCompareSheet();
+    if (name === 'clear-compare') { compareList = []; saveCompare(); return; }
   }
 
   // ───────────────────────── home ─────────────────────────
@@ -464,7 +505,8 @@
       $('#explore-results').innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="t-head">Nothing matched “${esc(st.q)}”.</span><span>Try a brand, a note like “vanilla”, or fewer words.</span><button class="btn btn-quiet btn-md" type="button" data-action="ask-about" data-prompt="${esc('Recommend fragrances similar to ' + st.q)}">Ask the advisor instead</button></div>`;
       $('#explore-more').hidden = true; return;
     }
-    status.textContent = st.q ? `${st.results.length.toLocaleString()} result${st.results.length === 1 ? '' : 's'} for “${st.q}”` : `Showing curated top picks first · ${DB.items.length.toLocaleString()} fragrances in the library`;
+    const famName = st.fam ? FAM_LABEL[st.fam] : '';
+    status.textContent = st.q ? `${st.results.length.toLocaleString()} result${st.results.length === 1 ? '' : 's'} for “${st.q}”${famName ? ' · ' + famName : ''}` : (famName ? `${st.results.length.toLocaleString()} ${famName.toLowerCase()} picks, most popular first · ${DB.items.length.toLocaleString()} fragrances in the library` : `Most popular first · ${DB.items.length.toLocaleString()} fragrances in the library`);
     renderExploreChunk();
   }
   function renderExploreChunk() {
@@ -497,6 +539,7 @@
     if (it.c) chips.push(`<span class="chip ${famClass(it)}" style="height:32px;font-size:13px;font-weight:600"><span class="dot" style="background:currentColor"></span>${esc(catLabel(it.c))}</span>`);
     if (it.g) chips.push(`<span class="chip" style="height:32px;font-size:13px;font-weight:600;color:var(--fg2)">${esc(GENDER_NAME[it.g] || '')}</span>`);
     if (rec && rec.r) chips.push(`<span class="chip" style="height:32px;font-size:13px;font-weight:600;color:var(--fg2)">${rec.r.toFixed(1)} / 5</span>`);
+    const pb = popBadge(it); if (pb) chips.push(pb);
     let notesHTML = '';
     if (tiers) {
       notesHTML = `<div class="stack" style="gap:10px"><span class="t-head" style="font-size:17px">Notes</span><div class="notes-table">${tiers.top ? `<div><b>Top</b><span>${esc(tiers.top)}</span></div>` : ''}${tiers.heart ? `<div><b>Heart</b><span>${esc(tiers.heart)}</span></div>` : ''}${tiers.base ? `<div><b>Base</b><span>${esc(tiers.base)}</span></div>` : ''}${tiers.all ? `<div><b>Notes</b><span>${esc(tiers.all)}</span></div>` : ''}</div></div>`;
@@ -509,12 +552,15 @@
       <div class="hero-art ${famClass(it)}" data-img-name="${esc(it.n)}" data-img-brand="${esc(it.b)}">${bottle(88, 132)}${heartHTML(it.n, it.b, 'icon-btn glass')}<button class="icon-btn glass close" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
       <div class="body">
         <div class="stack" style="gap:12px"><div class="stack" style="gap:4px"><span class="eyebrow">${esc(it.b)}</span><h2 class="t-3">${esc(it.n)}</h2></div><div class="chips">${chips.join('')}</div></div>
-        ${notesHTML}${accords}${simHTML}
-        <div class="actions"><a class="btn btn-primary btn-lg" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" style="flex:1">${icon('bag', 18)}Shop on Amazon</a></div>
+        ${notesHTML}${accords}
+        <div class="stack" style="gap:10px" id="sheet-profile" data-name="${esc(it.n)}" data-brand="${esc(it.b)}">${profileSectionHTML(it.n, it.b)}</div>
+        ${simHTML}
+        <div class="actions"><a class="btn btn-primary btn-lg" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" style="flex:1">${icon('bag', 18)}Shop on Amazon</a><button class="btn btn-quiet btn-lg cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}">${icon('layers', 18)}Compare</button></div>
         <span class="t-cap muted-2" style="text-align:center">Affiliate link. You pay the same.</span>
       </div></div>`;
     watchImages(sheet);
     const closeBtn = $('.close', sheet); if (closeBtn) closeBtn.focus();
+    if (S.profileWanted && S.profileWanted === likeKey(it.n, it.b)) { S.profileWanted = null; loadProfileInto(it.n, it.b); }
   }
   function closeSheet() {
     const sheet = $('#sheet'); if (sheet.hidden) return;
@@ -646,7 +692,7 @@
       <div class="stack" style="gap:8px;min-width:0;flex:1">
         <div class="meta"><div class="stack"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
         ${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
-        <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
+        <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
       </div>`;
     return `<article class="rec${locked ? ' is-locked' : ''}" ${locked ? 'aria-hidden="true"' : `data-open-name="${esc(p.name)}" data-open-brand="${esc(p.brand)}"`}>${inner}</article>`;
   }
@@ -923,6 +969,113 @@
     el.innerHTML = `<div class="row" style="justify-content:space-between"><span class="t-call" style="font-weight:600">Free picks</span><span class="t-foot muted">${used} of ${FREE_LIMIT} used</span></div><div class="progress"><i style="width:${(used / FREE_LIMIT) * 100}%"></i></div><span class="t-foot muted">Lifetime access is $10 once: all modes, ${MAX_PAID} queries a month.</span><button class="btn btn-text btn-sm" type="button" data-action="checkout" style="align-self:flex-start;padding:0">Unlock lifetime</button>`;
   }
 
+  // ───────────────────────── compare tray ─────────────────────────
+  const CMP_KEY = 'sw2_compare', CMP_MAX = 3;
+  let compareList = lsGet(CMP_KEY, []).filter((k) => typeof k === 'string').slice(0, CMP_MAX);
+  function inCompare(n, b) { return compareList.indexOf(likeKey(n, b)) !== -1; }
+  function saveCompare() { lsSet(CMP_KEY, compareList); renderTray(); $$('.cmp[data-cmp-name]').forEach((el) => el.classList.toggle('is-on', inCompare(el.getAttribute('data-cmp-name'), el.getAttribute('data-cmp-brand')))); }
+  function toggleCompare(n, b) {
+    const k = likeKey(n, b);
+    const i = compareList.indexOf(k);
+    if (i !== -1) { compareList.splice(i, 1); saveCompare(); toast('Removed from compare', 1600); return; }
+    if (compareList.length >= CMP_MAX) { toast(`Compare holds ${CMP_MAX}. Remove one first.`, 2600); return; }
+    compareList.push(k); saveCompare(); toast(compareList.length < 2 ? 'Added. Pick one more to compare.' : 'Added to compare', 1800);
+  }
+  function compareItem(k) {
+    const [n, b] = k.split('|');
+    return (DB.loaded && (find(n, b) || itemFor(n, b))) || { n: titleCase(n), b: titleCase(b), c: '' };
+  }
+  function renderTray() {
+    const tray = $('#compare-tray'); if (!tray) return;
+    if (!compareList.length) { tray.hidden = true; tray.innerHTML = ''; document.body.classList.remove('has-tray'); return; }
+    tray.hidden = false; document.body.classList.add('has-tray');
+    tray.innerHTML = `<div class="tray-inner">
+      <span class="t-foot muted" style="flex-shrink:0">Compare</span>
+      <div class="chips scroll" style="margin:0;padding:0;flex:1;min-width:0">${compareList.map((k) => { const it = compareItem(k); return `<span class="chip" style="height:36px;font-size:13px;padding-right:6px">${esc(it.n)}<button class="icon-btn" type="button" data-cmp-remove="${esc(k)}" aria-label="Remove ${esc(it.n)}" style="width:28px;height:28px;margin-left:2px">${icon('close', 14, 2)}</button></span>`; }).join('')}</div>
+      <button class="btn btn-primary btn-md" type="button" data-action="open-compare" ${compareList.length < 2 ? 'disabled' : ''}>Compare ${compareList.length}</button>
+      <button class="btn btn-text btn-md" type="button" data-action="clear-compare">Clear</button></div>`;
+  }
+  document.addEventListener('click', (e) => {
+    const rm = e.target.closest('[data-cmp-remove]');
+    if (rm) { e.preventDefault(); const k = rm.getAttribute('data-cmp-remove'); compareList = compareList.filter((x) => x !== k); saveCompare(); return; }
+    const c = e.target.closest('[data-cmp-name]');
+    if (c) { e.preventDefault(); e.stopPropagation(); toggleCompare(c.getAttribute('data-cmp-name'), c.getAttribute('data-cmp-brand') || ''); return; }
+    const p = e.target.closest('[data-profile-name]');
+    if (p) { e.preventDefault(); e.stopPropagation(); const n = p.getAttribute('data-profile-name'), b = p.getAttribute('data-profile-brand') || ''; S.profileWanted = likeKey(n, b); openSheet(n, b); return; }
+    const gen = e.target.closest('[data-profile-generate]');
+    if (gen) { e.preventDefault(); const box = gen.closest('[data-name]'); if (box) loadProfileInto(box.getAttribute('data-name'), box.getAttribute('data-brand') || '', box); return; }
+  });
+  function openCompareSheet() {
+    if (compareList.length < 2) { toast('Pick at least two fragrances to compare.'); return; }
+    const sheet = $('#sheet'); sheetLastFocus = document.activeElement;
+    sheet.hidden = false; document.body.style.overflow = 'hidden';
+    const items = compareList.map(compareItem);
+    const cols = items.map((it) => {
+      const rec = richOf(it); const tiers = rec ? notesTiers(rec.t) : null; const prof = profileCached(it.n, it.b);
+      const row = (label, val) => `<div class="cmp-row"><span class="t-foot muted-2">${label}</span><span class="t-call">${val || '—'}</span></div>`;
+      return `<div class="cmp-col" data-name="${esc(it.n)}" data-brand="${esc(it.b)}">
+        <div class="art ${famClass(it)}" data-img-name="${esc(it.n)}" data-img-brand="${esc(it.b)}" style="position:relative;display:flex;align-items:center;justify-content:center;height:140px;border-radius:14px;overflow:hidden">${bottle(40, 60)}</div>
+        <div class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">${esc(it.n)}</span><span class="t-call muted">${esc(it.b)}</span></div>
+        <div class="row" style="gap:6px;flex-wrap:wrap">${popBadge(it)}${rec && rec.r ? `<span class="badge">${rec.r.toFixed(1)} / 5</span>` : ''}</div>
+        ${row('Family', esc(famLabel(it)))}${row('For', esc(GENDER_NAME[it.g] || '—'))}
+        ${row('Accords', rec && rec.a.length ? esc(rec.a.slice(0, 6).join(', ')) : (prof && prof.accords ? esc(prof.accords) : ''))}
+        ${row('Top', tiers && tiers.top ? esc(tiers.top) : (tiers && tiers.all ? esc(tiers.all) : (prof && prof.notes && !tiers ? esc(prof.notes) : '')))}${tiers && tiers.heart ? row('Heart', esc(tiers.heart)) : ''}${tiers && tiers.base ? row('Base', esc(tiers.base)) : ''}
+        <div class="stack" style="gap:8px" id="cmp-profile-${esc(likeKey(it.n, it.b)).replace(/[^a-z0-9]/g, '_')}">${prof ? profileScoresHTML(prof) : `<button class="btn btn-quiet btn-sm" type="button" data-profile-generate style="align-self:flex-start">${icon('sparkle', 14)}Scent profile</button>`}</div>
+        <div class="row" style="gap:6px;margin-top:auto"><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored">Shop</a><button class="btn btn-text btn-sm" type="button" data-cmp-remove="${esc(likeKey(it.n, it.b))}">Remove</button></div>
+      </div>`;
+    }).join('');
+    sheet.innerHTML = `<div class="sheet cmp-sheet" role="document"><div class="body">
+      <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:2px"><h2 class="t-3">Compare</h2><span class="t-foot muted">Side by side. Scent profiles are AI estimates and use one advisor query each.</span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
+      <div class="cmp-grid" style="grid-template-columns:repeat(${items.length}, minmax(0, 1fr))">${cols}</div></div></div>`;
+    watchImages(sheet);
+  }
+
+  // ───────────────────────── scent profile (AI, cached) ─────────────────────────
+  const profileKey = (n, b) => 'sw2_profile_' + likeKey(n, b);
+  const profileInflight = new Map();
+  function profileCached(n, b) { const v = lsGet(profileKey(n, b), null); return v && typeof v === 'object' ? v : null; }
+  async function fetchProfile(n, b) {
+    const cached = profileCached(n, b); if (cached) return cached;
+    const k = profileKey(n, b); if (profileInflight.has(k)) return profileInflight.get(k);
+    const prompt = `For the fragrance "${n}${b ? ' by ' + b : ''}":\n\nReturn ONLY a JSON object (no markdown, no code fences, no prose) with these exact keys:\n{"longevity":1-5,"projection":1-5,"sillage":1-5,"versatility":1-5,"blindBuyRisk":"Low"|"Medium"|"Test first","blindBuyReason":"one short sentence explaining why","gender":"Male/Female/Unisex","concentration":"EDP/EDT/Parfum/etc","accords":"comma separated","notes":"comma separated top/heart/base notes","rating":1-5 or null,"summary":"two sentences on how it smells and when to wear it"}\n\nBase scores on community consensus and typical performance. If the fragrance is unknown, use null for all fields.`;
+    const p = (async () => {
+      const r = await callAI({ mode: 'chat', messages: [{ role: 'user', content: prompt }] });
+      const d = r.data;
+      if (typeof d.freeUsed === 'number') S.freeUsed = d.freeUsed; else if (typeof d.usage === 'number') S.usage = d.usage;
+      if (typeof d.emailGiven === 'boolean') S.emailGiven = d.emailGiven;
+      renderMeter(); renderTrust(); track('ai_recommendation', { mode: 'profile', tier: S.tier || 'free' });
+      const raw = String(d.result || '').replace(/```json?/gi, '').replace(/```/g, '').trim();
+      const m = raw.match(/\{[\s\S]*\}/); if (!m) throw new Error('No profile returned.');
+      const info = JSON.parse(m[0]); if (!info || typeof info !== 'object' || !info.longevity) throw new Error('The advisor did not recognise this fragrance.');
+      lsSet(k, info); return info;
+    })().finally(() => profileInflight.delete(k));
+    profileInflight.set(k, p); return p;
+  }
+  function scoreRow(label, val) { const n = parseInt(val, 10); if (!n || n < 1 || n > 5) return ''; return `<div class="score"><span class="t-foot muted-2" style="width:84px">${label}</span><span class="progress" style="flex:1"><i style="width:${(n / 5) * 100}%"></i></span><span class="t-foot" style="width:28px;text-align:right">${n}/5</span></div>`; }
+  function profileScoresHTML(p) {
+    const risk = p.blindBuyRisk ? `<span class="badge" style="align-self:flex-start;color:${/low/i.test(p.blindBuyRisk) ? 'var(--ok)' : (/test/i.test(p.blindBuyRisk) ? 'var(--danger)' : 'var(--fg2)')}">${esc(p.blindBuyRisk)}${/low/i.test(p.blindBuyRisk) ? ' risk blind buy' : ''}</span>` : '';
+    const meta = [p.concentration, p.gender].filter(Boolean).map((x) => `<span class="badge">${esc(x)}</span>`).join('');
+    return `<div class="stack" style="gap:6px">${scoreRow('Longevity', p.longevity)}${scoreRow('Projection', p.projection)}${scoreRow('Sillage', p.sillage)}${scoreRow('Versatility', p.versatility)}</div>${risk || meta ? `<div class="row" style="gap:6px;flex-wrap:wrap">${risk}${meta}</div>` : ''}${p.blindBuyReason ? `<span class="t-call muted">${esc(p.blindBuyReason)}</span>` : ''}`;
+  }
+  function profileSectionHTML(n, b) {
+    const p = profileCached(n, b);
+    const head = `<div class="row" style="justify-content:space-between"><span class="t-head" style="font-size:17px">Scent profile</span><span class="badge">${icon('sparkle', 12)}AI estimate</span></div>`;
+    if (p) return head + (p.summary ? `<p class="t-call muted">${esc(p.summary)}</p>` : '') + profileScoresHTML(p) + (!DB.rich.has(likeKey(n, b)) && p.notes ? `<span class="t-foot muted-2">Notes: ${esc(p.notes)}</span>` : '');
+    return head + `<span class="t-call muted">Longevity, projection, sillage, versatility and blind-buy risk, estimated by the advisor. Uses one query.</span><button class="btn btn-quiet btn-md" type="button" data-profile-generate style="align-self:flex-start">${icon('sparkle', 16)}Generate scent profile</button>`;
+  }
+  async function loadProfileInto(n, b, box) {
+    box = box || $('#sheet-profile'); if (!box) return;
+    if (!profileCached(n, b) && !canUseAI()) { box.innerHTML = `<div class="gate"><span class="t-call">You have used your free picks. Lifetime access is $10, once.</span><div class="row" style="gap:8px"><button class="btn btn-primary btn-md" type="button" data-action="checkout">Get lifetime access</button><a class="btn btn-quiet btn-md" href="/account" data-nav="account">I already paid</a></div></div>`; return; }
+    box.innerHTML = `<div class="row" style="gap:10px"><span class="typing"><i></i><i></i><i></i></span><span class="t-call muted">Reading the community consensus…</span></div>`;
+    try {
+      const p = await fetchProfile(n, b);
+      if (box.id === 'sheet-profile') box.innerHTML = profileSectionHTML(n, b); else box.innerHTML = profileScoresHTML(p);
+    } catch (e) {
+      const msg = e.status === 403 ? 'Free picks used. Lifetime access is $10, once.' : (e.status === 429 ? 'Too many requests right now. Try again in a minute.' : (e.message || 'Could not build the profile.'));
+      box.innerHTML = `<span class="t-call" style="color:var(--danger)">${esc(msg)}</span><button class="btn btn-quiet btn-sm" type="button" data-profile-generate style="align-self:flex-start">Try again</button>`;
+    }
+  }
+
   // ───────────────────────── celebrities view ─────────────────────────
   let celebsPromise = null, celebsReady = false;
   function loadCelebs() {
@@ -1067,6 +1220,7 @@
   // ───────────────────────── boot ─────────────────────────
   async function boot() {
     initHome();
+    renderTray();
     route();
     const params = new URLSearchParams(location.search);
     const orderId = params.get('order_id') || params.get('orderId');
