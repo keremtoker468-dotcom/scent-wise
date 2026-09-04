@@ -3,25 +3,28 @@
    Every text/background pair below is ≥ 4.5:1 in both appearances. */
 
 :root {
-  --bg: #fbfaf7;
-  --bg2: #f3f1ec;
+  /* White, beige and gold: cream ground, white cards, gold for actions and selected states. */
+  --bg: #f7f1e6;
+  --bg2: #efe6d6;
   --surface: #ffffff;
-  --line: rgba(29, 27, 24, .08);
-  --line2: rgba(29, 27, 24, .18);
-  --fg: #1d1b18;
-  --fg2: #5b574f;
-  --fg3: #6e6963;
-  --accent: #8a6a2b;
-  --accent-soft: rgba(138, 106, 43, .12);
-  --glass: rgba(251, 250, 247, .72);
-  --btn: #1d1b18;
-  --btn-fg: #ffffff;
-  --band: #131211;
-  --band-fg: #f4f2ed;
-  --band-fg2: #a9a49b;
+  --line: rgba(120, 95, 40, .12);
+  --line2: rgba(120, 95, 40, .26);
+  --fg: #2a2218;
+  --fg2: #5b5040;
+  --fg3: #6e6350;
+  --accent: #7f6226;
+  --accent-soft: rgba(201, 169, 110, .18);
+  --gold: #c9a96e;
+  --gold-dark: #a78747;
+  --glass: rgba(247, 241, 230, .74);
+  --btn: linear-gradient(135deg, #c9a96e, #a78747);
+  --btn-fg: #1a1410;
+  --band: #2a2218;
+  --band-fg: #f7f1e6;
+  --band-fg2: #c8bfae;
   --danger: #a3372f;
   --ok: #3c6238;
-  --shadow: 0 18px 50px rgba(29, 27, 24, .14);
+  --shadow: 0 18px 50px rgba(74, 56, 24, .16);
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Instrument Sans", "Helvetica Neue", sans-serif;
   --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Instrument Sans", "Helvetica Neue", sans-serif;
   --r-sm: 12px;
@@ -127,7 +130,7 @@ main { padding-top: var(--nav-h); }
 }
 .nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: var(--fg); }
-.brand-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--accent); }
+.brand-dot { width: 10px; height: 10px; border-radius: 999px; background: var(--gold); }
 .nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; color: var(--fg2); }
 .nav-links a { color: var(--fg2); padding: 8px 0; }
 .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--fg); font-weight: 600; }
@@ -152,7 +155,7 @@ main { padding-top: var(--nav-h); }
 .btn:active { transform: scale(.98); }
 .btn:disabled { opacity: .5; cursor: default; }
 .btn-primary { background: var(--btn); color: var(--btn-fg); }
-.btn-primary:hover { opacity: .9; color: var(--btn-fg); }
+.btn-primary:hover { opacity: .92; color: var(--btn-fg); box-shadow: 0 8px 24px rgba(201, 169, 110, .35); }
 .btn-quiet { background: transparent; color: var(--fg); border: 1px solid var(--line2); }
 .btn-quiet:hover { background: var(--bg2); }
 .btn-text { color: var(--accent); padding: 0 12px; }
@@ -185,7 +188,7 @@ main { padding-top: var(--nav-h); }
 .field .btn { flex-shrink: 0; }
 
 .progress { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
-.progress > i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .3s ease; }
+.progress > i { display: block; height: 100%; border-radius: 999px; background: var(--gold); transition: width .3s ease; }
 
 .badge { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border-radius: 999px; background: var(--bg2); color: var(--fg2); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .badge svg { color: var(--accent); }
@@ -233,7 +236,7 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 @keyframes shimmer { to { transform: translateX(100%); } }
 
 /* ---------- home ---------- */
-.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; padding: 128px 0 104px; }
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 24px; padding: 128px 0 104px; background: radial-gradient(ellipse at 50% -10%, rgba(201, 169, 110, .26), transparent 62%); }
 .hero .t-display { max-width: 960px; }
 .hero .lead { max-width: 640px; font-size: 21px; line-height: 1.4; color: var(--fg2); }
 .hero .field { width: 100%; max-width: 760px; margin-top: 8px; }
@@ -241,9 +244,9 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .band .muted { color: var(--band-fg2); }
 .band .btn-quiet { color: var(--band-fg); border-color: rgba(255,255,255,.22); }
 .band .btn-quiet:hover { background: rgba(255,255,255,.06); }
-.band .pcard { background: #1a1917; border-color: rgba(255,255,255,.1); color: var(--band-fg); }
+.band .pcard { background: #3a2f22; border-color: rgba(255,255,255,.12); color: var(--band-fg); }
 .band .pcard .brand { color: var(--band-fg2); }
-.band .pcard .notes { color: #8f8a82; }
+.band .pcard .notes { color: #b3a892; }
 .band .pcard .btn-quiet { color: var(--band-fg); border-color: rgba(255,255,255,.22); }
 .stat { display: flex; flex-direction: column; gap: 6px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
 .stat b { font-family: var(--font-display); font-size: clamp(40px, 4vw, 56px); line-height: 1.05; letter-spacing: -.025em; font-weight: 700; }
