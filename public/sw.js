@@ -1,7 +1,9 @@
-const CACHE = 'sw-v18';
+const CACHE = 'sw-v20';
 const SHELL = [
   '/',
   '/app.js',
+  '/styles.css?v=2',
+  '/celebs.js',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
