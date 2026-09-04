@@ -347,6 +347,18 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .alert { padding: 14px 18px; border-radius: var(--r-sm); background: var(--bg2); font-size: 14px; line-height: 1.45; color: var(--fg2); }
 .alert.error { color: var(--danger); }
 
+/* ---------- compare tray + sheet, scent profile ---------- */
+.tray { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom, 0px)); background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%); border-top: 1px solid var(--line); }
+.tray-inner { display: flex; align-items: center; gap: 12px; max-width: var(--max); margin: 0 auto; }
+body.has-tray main { padding-bottom: 96px; }
+.icon-btn.cmp.is-on, .btn.cmp.is-on { background: var(--btn); color: var(--btn-fg); border-color: transparent; }
+.badge.pop { color: var(--accent); }
+.cmp-sheet { grid-template-columns: 1fr; max-width: 1100px; }
+.cmp-grid { display: grid; gap: 16px; }
+.cmp-col { display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: var(--r); border: 1px solid var(--line); min-width: 0; }
+.cmp-row { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid var(--line); }
+.score { display: flex; align-items: center; gap: 10px; }
+
 /* ---------- footer / toast / cookie ---------- */
 .footer { border-top: 1px solid var(--line); padding: 40px 0 56px; margin-top: auto; }
 .footer .links { display: flex; gap: 24px; flex-wrap: wrap; font-size: 14px; font-weight: 500; }
@@ -377,6 +389,10 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
   .nav-links { display: none; }
   .tabbar { display: flex; }
   main { padding-bottom: calc(var(--tab-h) + 24px); }
+  .tray { bottom: calc(49px + env(safe-area-inset-bottom, 0px)); padding-bottom: 10px; }
+  body.has-tray main { padding-bottom: calc(var(--tab-h) + 110px); }
+  .tray .btn-text { display: none; }
+  .cmp-grid { grid-template-columns: 1fr !important; }
   .section { padding: 64px 0; }
   .hero { padding: 48px 0 40px; gap: 16px; align-items: flex-start; text-align: left; }
   .hero .lead { font-size: 17px; }
@@ -407,6 +423,7 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
   .pcard .art { height: 150px; }
   .pcard .name { font-size: 15px; }
   .chip { height: 44px; }
+  .pcard .btn-profile { display: none; }
   .field.lg { height: 56px; padding-left: 18px; }
   .field.lg .btn { height: 44px; padding: 0 16px; font-size: 14px; }
   .footer .links { gap: 16px; }
