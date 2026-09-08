@@ -607,6 +607,7 @@
     setMode(S.mode, true);
     loadDB();
   }
+  const PLACEHOLDER_SHORT = { chat: 'Describe what you want…', dupe: 'Which fragrance to dupe?', photo: 'Optional: add a hint', zodiac: 'Your sign or birthday', music: 'Artists or genres', style: 'Describe your style', celeb: 'A celebrity name' };
   function autosize(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(160, ta.scrollHeight) + 'px'; }
   function setMode(mode, silent) {
     if (!MODES[mode]) mode = 'chat';
@@ -614,7 +615,8 @@
     $$('#mode-list .mode').forEach((b) => { if (b.getAttribute('data-mode') === mode) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
     $$('#mode-chips .chip').forEach((b) => b.setAttribute('aria-pressed', b.getAttribute('data-mode-chip') === mode ? 'true' : 'false'));
     $('#mode-title').textContent = MODES[mode].title; $('#mode-hint').textContent = MODES[mode].hint;
-    $('#composer-input').placeholder = MODES[mode].placeholder;
+    // narrow screens get a placeholder that fits on one line; a wrapped placeholder gets clipped in the field
+    $('#composer-input').placeholder = window.innerWidth < 600 && PLACEHOLDER_SHORT[mode] ? PLACEHOLDER_SHORT[mode] : MODES[mode].placeholder;
     $('#dropzone').hidden = mode !== 'photo';
     $('#composer-note').textContent = mode === 'celeb' ? 'Lists come from published interviews and features. Availability changes.' : 'Answers can be wrong. Check the notes and try a sample before you buy.';
     if (mode === 'celeb') loadCelebs().then(renderThread); else renderThread();
@@ -688,12 +690,11 @@
     const scores = p.scores ? `<div class="scores">${Object.keys(p.scores).map((k) => `<span>${esc(k)} ${p.scores[k]}/5</span>`).join('')}</div>` : '';
     const similar = p.similar ? `<div class="notes">Similar to ${formatInline(p.similar)}</div>` : '';
     const extra = !p.why && p.extra ? `<div class="why">${formatInline(p.extra)}</div>` : '';
+    // art, head, meta and foot are direct children so the phone layout can place art and head side by side
     const inner = `<div class="art ${famClass(it)}" ${locked ? '' : `data-img-name="${esc(p.name)}" data-img-brand="${esc(p.brand)}"`}>${bottle(40, 60)}</div>
-      <div class="stack" style="gap:8px;min-width:0;flex:1">
-        <div class="meta"><div class="stack"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
-        ${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
-        <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
-      </div>`;
+      <div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
+      <div class="meta">${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
+      <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>`;
     return `<article class="rec${locked ? ' is-locked' : ''}" ${locked ? 'aria-hidden="true"' : `data-open-name="${esc(p.name)}" data-open-brand="${esc(p.brand)}"`}>${inner}</article>`;
   }
   function feedbackHTML(idx, m) {
@@ -997,8 +998,8 @@
     if (!compareList.length) { tray.hidden = true; tray.innerHTML = ''; document.body.classList.remove('has-tray'); return; }
     tray.hidden = false; document.body.classList.add('has-tray');
     tray.innerHTML = `<div class="tray-inner">
-      <span class="t-foot muted" style="flex-shrink:0">Compare</span>
-      <div class="chips scroll" style="margin:0;padding:0;flex:1;min-width:0">${compareList.map((k) => { const it = compareItem(k); return `<span class="chip" style="height:36px;font-size:13px;padding-right:6px">${esc(it.n)}<button class="icon-btn" type="button" data-cmp-remove="${esc(k)}" aria-label="Remove ${esc(it.n)}" style="width:28px;height:28px;margin-left:2px">${icon('close', 14, 2)}</button></span>`; }).join('')}</div>
+      <span class="t-foot muted tray-label" style="flex-shrink:0">Compare<span class="tray-count"> · ${compareList.length} chosen</span></span>
+      <div class="chips scroll tray-chips" style="margin:0;padding:0;flex:1;min-width:0">${compareList.map((k) => { const it = compareItem(k); return `<span class="chip" style="height:36px;font-size:13px;padding-right:4px">${esc(it.n)}<button class="icon-btn" type="button" data-cmp-remove="${esc(k)}" aria-label="Remove ${esc(it.n)}" style="width:32px;height:32px">${icon('close', 14, 2)}</button></span>`; }).join('')}</div>
       <button class="btn btn-primary btn-md" type="button" data-action="open-compare">${compareList.length < 2 ? 'Add and compare' : 'Compare ' + compareList.length}</button>
       <button class="btn btn-text btn-md" type="button" data-action="clear-compare">Clear</button></div>`;
   }
@@ -1050,7 +1051,7 @@
       </div>` : '';
     const n = Math.max(2, items.length + (addCol ? 1 : 0));
     sheet.innerHTML = `<div class="sheet cmp-sheet" role="document"><div class="body">
-      <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:2px"><h2 class="t-3">Compare</h2><span class="t-foot muted">Up to three side by side. Scent profiles are AI estimates and use one advisor query each.</span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
+      <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:2px"><h2 class="t-3">Compare</h2><span class="t-foot muted">Up to three side by side. Scent profiles are AI estimates and use one advisor query each.${items.length > 1 ? '<span class="cmp-hint"> Swipe sideways to see each one.</span>' : ''}</span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
       <div class="cmp-grid" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${cols}${addCol}</div></div></div>`;
     watchImages(sheet);
     const inp = $('#cmp-search');

@@ -1,8 +1,8 @@
-const CACHE = 'sw-v23';
+const CACHE = 'sw-v24';
 const SHELL = [
   '/',
   '/app.js',
-  '/styles.css?v=3',
+  '/styles.css?v=4',
   '/celebs.js',
   '/popular.js',
   '/manifest.json',

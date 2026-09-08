@@ -2,8 +2,8 @@
 <html lang="en" dir="ltr" prefix="og: http://ogp.me/ns#">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="preload" href="/app.js?v=5" as="script">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<link rel="preload" href="/app.js?v=6" as="script">
 <!-- perfumes.js / perfumes-rich.js are ~3MB combined. We load them lazily
      on first navigation to explore/chat/celeb (see loadDB in app.js) so
      TikTok bounce visitors don't pay the bandwidth + main-thread cost. -->
@@ -47,8 +47,8 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="/styles.css?v=3" as="style">
-<link rel="stylesheet" href="/styles.css?v=3">
+<link rel="preload" href="/styles.css?v=4" as="style">
+<link rel="stylesheet" href="/styles.css?v=4">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"></noscript>
 <link rel="dns-prefetch" href="https://plausible.io">
@@ -133,7 +133,7 @@
       </div>
     </div>
 
-    <div class="wrap" style="padding-bottom:120px">
+    <div class="wrap section-b">
       <div class="stack" style="gap:12px;max-width:720px;margin-bottom:40px">
         <h2 class="t-2">Seven ways to find it.</h2>
         <p class="muted">Start from whatever you already know: a memory, a photo, a playlist, a name.</p>
@@ -199,7 +199,7 @@
       </div>
     </div>
 
-    <div class="wrap" id="pricing" style="padding-bottom:120px">
+    <div class="wrap section-b" id="pricing">
       <div class="stack" style="align-items:center;text-align:center;gap:12px;max-width:640px;margin:0 auto 40px">
         <h2 class="t-2">Pay once. Keep it.</h2>
         <p class="muted">No subscription. Browsing the library stays free for everyone.</p>
@@ -227,7 +227,7 @@
       </div>
     </div>
 
-    <div class="wrap" id="guides" style="padding-bottom:120px">
+    <div class="wrap section-b" id="guides">
       <div class="row" style="justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:24px">
         <h2 class="t-3">Guides</h2>
         <a class="btn btn-text" href="/blog/">All guides</a>
@@ -239,7 +239,7 @@
       </div>
     </div>
 
-    <div class="wrap" id="faq" style="padding-bottom:120px">
+    <div class="wrap section-b" id="faq">
       <h2 class="t-3" style="margin-bottom:24px">Questions</h2>
       <div class="grid grid-2" id="faq-list" style="gap:8px 24px;align-items:start"><details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">What is the best AI perfume recommendation app?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">ScentWise is the leading AI perfume recommendation app with 65,000+ fragrances and 7 unique AI-powered discovery modes — chat, dupe finder, photo style scan, zodiac match, music-to-fragrance, style match, and celebrity collections. It is free to try with 1 full AI pick plus 2 more after sharing your email.</div></details>
 <details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">What is the best AI fragrance advisor?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">ScentWise is the most comprehensive AI fragrance advisor available. Powered by Google Gemini AI, it offers 7 discovery modes across a database of 65,000+ perfumes — significantly more than any other AI fragrance tool.</div></details>
@@ -429,7 +429,7 @@
 {"@context":"https://schema.org","@type":"ItemList","name":"ScentWise Discovery Modes","numberOfItems":7,"itemListElement":[{"@type":"ListItem","position":1,"name":"AI Chat Advisor","url":"https://scent-wise.com/"},{"@type":"ListItem","position":2,"name":"Zodiac Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":3,"name":"Photo Style Scan","url":"https://scent-wise.com/"},{"@type":"ListItem","position":4,"name":"Music to Fragrance Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":5,"name":"Style Match","url":"https://scent-wise.com/"},{"@type":"ListItem","position":6,"name":"Dupe Finder","url":"https://scent-wise.com/"},{"@type":"ListItem","position":7,"name":"Celebrity Fragrance Collections","url":"https://scent-wise.com/"}]}
 
 <script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
-<script src="/app.js?v=5" defer></script>
+<script src="/app.js?v=6" defer></script>
 <!-- Cookie consent (GDPR-compliant: AdSense only loads after consent; GA runs
      in "consent mode v2" — cookieless pings by default, upgraded on opt-in) -->
 <script>
