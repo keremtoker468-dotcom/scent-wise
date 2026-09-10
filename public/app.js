@@ -1202,26 +1202,60 @@
     } catch (e) { S.tier = 'free'; S.isOwner = false; S.isPaid = false; }
     renderTrust(); renderMeter(); if (S.view === 'account') renderAccount();
   }
+  // Checkout leaves the site, so the sale is reported to GA4 from the Lemon
+  // Squeezy webhook (api/webhook.js). That server-side event can only be
+  // credited to this visit — and so to the Google Ads click that paid for it —
+  // if it carries the ids that live in this browser, so collect them here and
+  // hand them to /api/create-checkout, which forwards them to Lemon Squeezy.
+  const CLICK_KEY = 'sw_click_id';
+  const CLICK_TTL = 90 * 24 * 60 * 60 * 1000;  // Google Ads attribution window
+  const CLICK_RE = /^[\w.-]{1,200}$/;
+
+  // First touch wins: the ad click that started the visit is the one Google
+  // attributes the sale to, and it is usually several page views behind the
+  // moment the buyer decides to pay.
+  function captureClickId() {
+    try {
+      const q = new URLSearchParams(location.search);
+      const id = q.get('gclid') || q.get('wbraid') || q.get('gbraid');
+      if (id && CLICK_RE.test(id)) lsSet(CLICK_KEY, { id: id, ts: Date.now() });
+    } catch (e) { /* noop */ }
+  }
+  function storedClickId() {
+    const rec = lsGet(CLICK_KEY, null);
+    if (!rec || !rec.id || !CLICK_RE.test(rec.id) || (Date.now() - (rec.ts || 0)) > CLICK_TTL) return '';
+    return rec.id;
+  }
+  const cookieMatch = (re) => { const m = document.cookie.match(re); return m ? m[1] : ''; };
+  // _ga=GA1.1.<client id>; _ga_<stream>=GS1.1.<session id>… (or GS2.1.s<session id>$…)
+  const gaClientId = () => cookieMatch(/(?:^|;\s*)_ga=GA\d+\.\d+\.(\d+\.\d+)/);
+  const gaSessionId = () => cookieMatch(/(?:^|;\s*)_ga_[A-Z0-9]+=GS\d+\.\d+\.s?(\d{6,20})/);
+  // Consent Mode starts denied; only the cookie banner can grant ads consent.
+  const adsConsent = () => ((lsGet('sw_cookie_consent', null) || {}).ads ? 'granted' : 'denied');
+
   let checkoutUrl = '';
   async function checkout(btn) {
     if (S.isPaid) { navigate('/advisor'); return; }
     if (checkoutUrl) { location.href = checkoutUrl; return; }
     const label = btn ? btn.innerHTML : ''; if (btn) { btn.disabled = true; btn.textContent = 'Opening checkout…'; }
     try {
-      const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: HEADERS, body: '{}' });
+      const r = await fetch('/api/create-checkout', { method: 'POST', credentials: 'same-origin', headers: HEADERS, body: JSON.stringify({ gclid: storedClickId(), gaClientId: gaClientId(), gaSessionId: gaSessionId(), adsConsent: adsConsent() }) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok || !d.url || !/^https:\/\/[^/]*lemonsqueezy\.com(\/|$)/.test(d.url)) throw new Error(d.error || 'Checkout is unavailable right now.');
       checkoutUrl = d.url; track('begin_checkout', { currency: 'USD', value: 10, items: [{ item_name: 'ScentWise Lifetime', price: 10 }] });
       location.href = d.url;
     } catch (e) { toast(e.message || 'Checkout is unavailable right now.', 5000); if (btn) { btn.disabled = false; btn.innerHTML = label; } }
   }
+  // No 'purchase' event here: GA4 gets it from the Lemon Squeezy webhook, which
+  // fires for every sale rather than only the ones that make it back to the tab.
+  // Sending both would double-count revenue and Google Ads conversions.
   async function verifyOrder(orderId, silent) {
     orderId = String(orderId || '').replace(/^#/, '').replace(/[^\d]/g, '').slice(0, 20);
     if (!orderId) { accountMsg('Enter the numeric order number from your receipt.', true); return false; }
     try {
       const r = await fetch('/api/verify-subscription', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ orderId }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.success) { S.isPaid = true; S.tier = d.tier || 'premium'; if (d.email) S.email = d.email; if (!silent) accountMsg('Lifetime access activated. Welcome.'); toast('Lifetime access activated.'); track('purchase', { currency: 'USD', value: 10, transaction_id: orderId }); renderTrust(); renderMeter(); renderAccount(); return true; }
+      if (r.ok && d.success) { S.isPaid = true; S.tier = d.tier || 'premium'; if (d.email) S.email = d.email; if (!silent) accountMsg('Lifetime access activated. Welcome.'); toast('Lifetime access activated.'); renderTrust(); renderMeter(); renderAccount(); return true; }
       if (!silent) accountMsg(r.status === 429 ? 'Too many attempts. Try again in a minute.' : (d.error || 'Could not verify that order.'), true);
       return false;
     } catch (e) { if (!silent) accountMsg('Network error. Please try again.', true); return false; }
@@ -1250,6 +1284,7 @@
 
   // ───────────────────────── boot ─────────────────────────
   async function boot() {
+    captureClickId();
     initHome();
     renderTray();
     route();

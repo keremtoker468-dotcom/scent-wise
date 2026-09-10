@@ -1,6 +1,7 @@
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/csrf');
 const { readOrMintDeviceId } = require('./_lib/usage');
+const { gaIdsFromCookies, gclidFromCookies, cleanClientId, cleanSessionId, cleanClickId } = require('./_lib/ga4');
 
 const parseCookies = (cookieHeader) => {
   if (!cookieHeader) return {};
@@ -22,6 +23,12 @@ module.exports = async function handler(req, res) {
   const ip = getClientIp(req);
   const rl = await rateLimit(`checkout:${ip}`, 5, 60000); // 5 attempts/min
   if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
+
+  // The client posts the analytics ids it can read from document.cookie; every
+  // one of them is re-validated below and falls back to the request cookies.
+  let body = req.body;
+  if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
+  if (!body || typeof body !== 'object') body = {};
 
   const apiKey = process.env.LEMONSQUEEZY_API_KEY;
   const storeId = process.env.LEMONSQUEEZY_STORE_ID;
@@ -60,6 +67,17 @@ module.exports = async function handler(req, res) {
     || req.socket?.remoteAddress
     || null;
 
+  // Google attribution — the purchase itself is reported to GA4 from the webhook
+  // (see api/_lib/ga4.js), which only fires after the buyer has left the site.
+  // Carry the ids GA4 needs to credit the sale to the right session, and the
+  // Google Ads click id as a manual-upload fallback, through the checkout.
+  const gaFromCookies = gaIdsFromCookies(req.headers.cookie);
+  const gaClientId = cleanClientId(body.gaClientId) || gaFromCookies.clientId;
+  const gaSessionId = cleanSessionId(body.gaSessionId) || gaFromCookies.sessionId;
+  const gclid = cleanClickId(body.gclid) || gclidFromCookies(req.headers.cookie);
+  // Consent Mode defaults to denied, so only an explicit grant counts as one.
+  const adsConsent = body.adsConsent === 'granted' ? 'granted' : 'denied';
+
   // LemonSqueezy rejects null/undefined values in checkout_data.custom with a
   // 422 ("must be a string"). Only include fields that are actual strings.
   const customData = { device_id: String(deviceId || '') };
@@ -67,6 +85,10 @@ module.exports = async function handler(req, res) {
   if (ttp && typeof ttp === 'string') customData.ttp = ttp;
   if (userAgent && typeof userAgent === 'string') customData.user_agent = userAgent;
   if (tiktokIp && typeof tiktokIp === 'string') customData.ip = tiktokIp;
+  if (gaClientId) customData.ga_client_id = gaClientId;
+  if (gaSessionId) customData.ga_session_id = gaSessionId;
+  if (gclid) customData.gclid = gclid;
+  customData.ga_consent = adsConsent;
 
   try {
     const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {

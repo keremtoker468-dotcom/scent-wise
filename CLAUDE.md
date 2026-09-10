@@ -21,11 +21,13 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 ├── api/                        # Vercel serverless functions
 │   ├── _lib/                   # Shared server utilities
 │   │   ├── csrf.js             # CSRF protection via Origin/Referer validation
+│   │   ├── ga4.js              # GA4 Measurement Protocol + Google Ads click-id store
 │   │   ├── owner-token.js      # Owner auth with weekly rotating HMAC tokens
 │   │   ├── rate-limit.js       # Rate limiter (Upstash Redis + in-memory fallback)
 │   │   ├── usage.js            # Usage tracking (premium cookie-based, free IP-based via Redis)
 │   │   └── user-profile.js     # User fragrance profile storage (Upstash Redis)
 │   ├── check-tier.js           # Check user subscription tier
+│   ├── conversions-export.js   # Owner-only CSV of click IDs for Google Ads offline upload
 │   ├── create-checkout.js      # Create Lemon Squeezy checkout session
 │   ├── debug-config.js         # Debug endpoint for config verification
 │   ├── img.js                  # Image proxy endpoint
@@ -86,6 +88,10 @@ Required in Vercel dashboard:
 | `OWNER_KEY` | Owner authentication key (admin access) |
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis URL (optional — enables persistent rate limiting & free usage tracking) |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis auth token |
+| `GA4_MEASUREMENT_ID` | GA4 measurement ID (`G-769WY8EYH6`) — enables server-side purchase tracking |
+| `GA4_API_SECRET` | GA4 Measurement Protocol API secret (Admin → Data Streams → Measurement Protocol API secrets) |
+| `GA4_DEBUG` | Optional — set to `1` to send events to GA4's validation endpoint and log the response |
+| `GOOGLE_ADS_CONVERSION_NAME` | Optional — conversion action name used in the offline-conversion CSV (default: `ScentWise Purchase`) |
 
 ## Architecture Notes
 
@@ -105,6 +111,45 @@ Required in Vercel dashboard:
 - **Placement**: "Shop on Amazon" buttons appear on perfume cards (`perfCard()`), AI recommendation responses (`fmt()`), celebrity fragrance lists (`r_celeb()`), and blog articles (`frag-images.js`).
 - **`amazonLink(name, brand)`**: Helper function that builds a search URL with the correct regional domain and affiliate tag.
 
+## Conversion Tracking (GA4 + Google Ads)
+
+Checkout completes on Lemon Squeezy's domain, so the browser never sees the purchase:
+ad blockers, closed tabs and mobile app switches lose a client-side event. `purchase` is
+therefore reported **server-side only**, from the Lemon Squeezy webhook. Never add a
+client-side `purchase` event back — two sources double-count revenue and Ads conversions.
+
+The flow:
+
+1. **Landing** — `captureClickId()` in `app.js` stores `gclid` / `wbraid` / `gbraid` in
+   `localStorage` under `sw_click_id` (first touch wins, 90-day TTL).
+2. **Checkout** — `checkout()` posts that click ID plus the GA4 `client_id` and `session_id`
+   read from the `_ga` / `_ga_<stream>` cookies and the banner's ads-consent state.
+   `api/create-checkout.js` re-validates all of it (falling back to the request cookies) and
+   passes it as Lemon Squeezy `checkout_data.custom`.
+3. **Webhook** — `order_created` sends a GA4 `purchase` via the Measurement Protocol
+   (`api/_lib/ga4.js`). The `client_id`/`session_id` are what let GA4 credit the sale to the
+   original session, and so to the Google Ads click. `order_refunded` sends a `refund`.
+   A Redis `SET NX` guard makes webhook retries idempotent across serverless instances.
+4. **Fallback** — the click ID is kept in Redis for 90 days. Sales GA4 could not attribute
+   (cookies cleared, paid on another device) can be recovered from
+   `GET /api/conversions-export` (owner cookie required) as a Google Ads offline-conversion
+   CSV; `?format=json` shows the raw records. Refunded orders drop out of that list.
+
+Consent Mode v2 defaults to denied, so the Measurement Protocol event carries
+`ad_user_data`/`ad_personalization` from the banner state and sets `non_personalized_ads`
+unless the buyer accepted ads cookies.
+
+**Dashboard setup (one-time):**
+1. GA4 → Admin → Data Streams → the ScentWise stream → Measurement Protocol API secrets →
+   create one → set `GA4_API_SECRET` (and `GA4_MEASUREMENT_ID`) in Vercel.
+2. Lemon Squeezy → Settings → Webhooks: the endpoint must include the `order_created` and
+   `order_refunded` events.
+3. Make a test purchase in LS test mode and watch `purchase` land in GA4 Realtime
+   (set `GA4_DEBUG=1` first if it does not — the validation endpoint says why).
+4. GA4 → Admin → Key events → mark `purchase` as a key event.
+5. Google Ads → Goals → Conversions → New conversion action → Import → GA4 → Web →
+   import `purchase`, then switch the campaign's conversion goal from `begin_checkout`.
+
 ## Google AdSense
 
 - **Publisher ID**: `ca-pub-9709272849743576`
@@ -118,5 +163,7 @@ Required in Vercel dashboard:
 - All crypto operations use **timing-safe comparisons** (`crypto.timingSafeEqual`).
 - API endpoints return JSON and use standard HTTP status codes (400, 403, 405, 413, 429, 500).
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
+- `localStorage` keys: `sw_cookie_consent` (banner choice), `sw_click_id` (first-touch Google Ads click ID).
+- Bump the `?v=` query on `/app.js` in `index.html` whenever `app.js` changes — that string is the cache key.
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
 - Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.

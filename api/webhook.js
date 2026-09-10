@@ -1,4 +1,14 @@
 const crypto = require('crypto');
+const {
+  sendGa4Ecommerce,
+  claimOnce,
+  rememberConversion,
+  getConversion,
+  forgetConversion,
+  cleanClientId,
+  cleanSessionId,
+  cleanClickId
+} = require('./_lib/ga4');
 
 // Lemon Squeezy sends webhooks for order (one-time purchase) and subscription events.
 // This endpoint logs events for monitoring; actual auth uses cookie-based verification.
@@ -224,6 +234,92 @@ async function handler(req, res) {
     }
   }
 
+  // Checkout custom data comes back on the webhook, but Lemon Squeezy has put it
+  // in different places over time. Merge every spot rather than picking the
+  // first one present — an empty object in an earlier spot would otherwise mask
+  // the real data — and let meta.custom_data, the documented location, win.
+  function attributionData() {
+    const sources = [
+      attrs.first_order_item?.product_options?.custom,
+      attrs.custom_data,
+      customData
+    ].filter((src) => src && typeof src === 'object' && !Array.isArray(src));
+    return Object.assign({}, ...sources);
+  }
+
+  // GA4 conversion. The browser never witnesses the purchase (checkout finishes
+  // on Lemon Squeezy), so this webhook is the only reliable source for it.
+  async function reportPurchaseToGa4() {
+    const orderId = String(payload.data?.id || '');
+    if (!orderId) return;
+    // Redis SET NX: a retry landing on a cold instance must not report the same
+    // sale twice — the in-memory guard above only covers one instance.
+    if (!(await claimOnce(`sw_ga4sent:${orderId}`, 30 * 24 * 60 * 60))) {
+      console.log('[ga4] purchase already reported for order', orderId);
+      return;
+    }
+
+    const custom = attributionData();
+    // attrs.total is in cents of attrs.currency; total_usd covers orders that
+    // report only the converted amount.
+    const value = (Number(attrs.total || 0) / 100) || (Number(attrs.total_usd || 0) / 100);
+    const currency = attrs.total ? (attrs.currency || 'USD') : 'USD';
+    const createdAt = Date.parse(attrs.created_at || '') || Date.now();
+    const clientId = cleanClientId(custom.ga_client_id);
+    const gclid = cleanClickId(custom.gclid);
+
+    await sendGa4Ecommerce('purchase', {
+      transactionId: orderId,
+      value,
+      currency,
+      tax: Number(attrs.tax || 0) / 100,
+      clientId,
+      sessionId: cleanSessionId(custom.ga_session_id),
+      adsConsent: custom.ga_consent,
+      timestampMs: createdAt,
+      fallbackSeed: custom.device_id || orderId
+    });
+
+    // Kept for 90 days so a sale GA4 could not attribute (cookies cleared, paid
+    // on another device) can still be uploaded to Google Ads by hand.
+    if (gclid) {
+      await rememberConversion({
+        transactionId: orderId,
+        gclid,
+        clientId,
+        value,
+        currency,
+        createdAt: new Date(createdAt).toISOString()
+      });
+    }
+  }
+
+  async function reportRefundToGa4() {
+    const orderId = String(payload.data?.id || '');
+    if (!orderId) return;
+    if (!(await claimOnce(`sw_ga4refund:${orderId}`, 30 * 24 * 60 * 60))) return;
+
+    const custom = attributionData();
+    // Refund payloads often arrive without the original checkout custom data,
+    // so fall back to the client_id captured when the order was placed.
+    const stored = await getConversion(orderId);
+    const refunded = Number(attrs.refunded_amount || attrs.total || 0) / 100;
+
+    await sendGa4Ecommerce('refund', {
+      transactionId: orderId,
+      value: refunded,
+      currency: attrs.currency || 'USD',
+      clientId: cleanClientId(custom.ga_client_id) || (stored?.clientId || ''),
+      sessionId: cleanSessionId(custom.ga_session_id),
+      adsConsent: custom.ga_consent,
+      timestampMs: Date.parse(attrs.refunded_at || attrs.updated_at || '') || Date.now(),
+      fallbackSeed: custom.device_id || orderId
+    });
+
+    // Drop it from the manual-upload queue — a refunded sale is not a conversion.
+    await forgetConversion(orderId);
+  }
+
   // Handle relevant events
   switch (eventName) {
     case 'order_created': {
@@ -246,6 +342,7 @@ async function handler(req, res) {
         page_url: 'https://scent-wise.com/',
         content_id: 'scentwise-premium',
       });
+      await reportPurchaseToGa4();
       break;
     }
 
@@ -298,6 +395,7 @@ async function handler(req, res) {
 
     case 'order_refunded':
       console.log(`[LS Webhook] Order refunded`);
+      await reportRefundToGa4();
       break;
 
     default:
