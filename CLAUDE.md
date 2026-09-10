@@ -27,12 +27,11 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   │   ├── usage.js            # Usage tracking (premium cookie-based, free IP-based via Redis)
 │   │   └── user-profile.js     # User fragrance profile storage (Upstash Redis)
 │   ├── check-tier.js           # Check user subscription tier
-│   ├── conversions-export.js   # Owner-only CSV of click IDs for Google Ads offline upload
 │   ├── create-checkout.js      # Create Lemon Squeezy checkout session
 │   ├── debug-config.js         # Debug endpoint for config verification
 │   ├── img.js                  # Image proxy endpoint
 │   ├── login.js                # Login endpoint
-│   ├── owner-auth.js           # Owner authentication
+│   ├── owner-auth.js           # Owner authentication + Google Ads conversion CSV export
 │   ├── perfumes.js             # Perfume data API
 │   ├── recommend.js            # Main AI recommendation endpoint (Gemini API)
 │   ├── subscribe.js            # Subscription management endpoint
@@ -132,8 +131,9 @@ The flow:
    A Redis `SET NX` guard makes webhook retries idempotent across serverless instances.
 4. **Fallback** — the click ID is kept in Redis for 90 days. Sales GA4 could not attribute
    (cookies cleared, paid on another device) can be recovered from
-   `GET /api/conversions-export` (owner cookie required) as a Google Ads offline-conversion
-   CSV; `?format=json` shows the raw records. Refunded orders drop out of that list.
+   `GET /api/owner-auth?export=conversions` (owner cookie required) as a Google Ads
+   offline-conversion CSV; add `&format=json` to see the raw records. Refunded orders drop
+   out of that list.
 
 Consent Mode v2 defaults to denied, so the Measurement Protocol event carries
 `ad_user_data`/`ad_personalization` from the banner state and sets `non_personalized_ads`
@@ -160,6 +160,10 @@ unless the buyer accepted ads cookies.
 ## Conventions
 
 - All server code uses **CommonJS** (`require`/`module.exports`), not ESM.
+- **The Hobby plan allows 12 Serverless Functions per deployment and `api/` is at exactly 12.**
+  Adding a new `api/*.js` file fails the deploy with `exceeded_serverless_functions_per_deployment`
+  (the build succeeds, then the deploy step rejects it), so add new endpoints as a method or
+  `?action=` branch on an existing function instead.
 - All crypto operations use **timing-safe comparisons** (`crypto.timingSafeEqual`).
 - API endpoints return JSON and use standard HTTP status codes (400, 403, 405, 413, 429, 500).
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
