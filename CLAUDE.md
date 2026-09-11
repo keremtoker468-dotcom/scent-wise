@@ -31,7 +31,7 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   ├── debug-config.js         # Debug endpoint for config verification
 │   ├── img.js                  # Image proxy endpoint
 │   ├── login.js                # Login endpoint
-│   ├── owner-auth.js           # Owner authentication + Google Ads conversion CSV export
+│   ├── owner-auth.js           # Owner auth + conversion CSV export + GA4 wiring diagnostic
 │   ├── perfumes.js             # Perfume data API
 │   ├── recommend.js            # Main AI recommendation endpoint (Gemini API)
 │   ├── subscribe.js            # Subscription management endpoint
@@ -134,6 +134,14 @@ The flow:
    `GET /api/owner-auth?export=conversions` (owner cookie required) as a Google Ads
    offline-conversion CSV; add `&format=json` to see the raw records. Refunded orders drop
    out of that list.
+
+**Verifying the wiring:** `GET /api/owner-auth?ga4ping=1` (owner cookie required) makes the
+deployment send a throwaway `server_ping` to GA4 with its own `GA4_MEASUREMENT_ID` /
+`GA4_API_SECRET`, and returns Google's validation response verbatim. Use it after changing
+either variable — a secret that works from a laptop proves nothing about the one stored in
+Vercel. It never sends a `purchase`, so checking the wiring cannot invent revenue in the
+reports Google Ads bids on. Note that GA4 answers 204 to events signed with a wrong secret,
+so `accepted: true` is not the proof: the event appearing in GA4 Realtime is.
 
 Consent Mode v2 defaults to denied, so the Measurement Protocol event carries
 `ad_user_data`/`ad_personalization` from the banner state and sets `non_personalized_ads`

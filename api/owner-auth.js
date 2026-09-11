@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { validateOrigin, validateContentType } = require('./_lib/csrf');
 const { makeOwnerToken, verifyOwnerToken } = require('./_lib/owner-token');
-const { listConversions } = require('./_lib/ga4');
+const { listConversions, sendGa4Ping } = require('./_lib/ga4');
 
 const parseCookies = (cookieHeader) => {
   if (!cookieHeader) return {};
@@ -80,7 +80,9 @@ module.exports = async function handler(req, res) {
   // because the Hobby plan caps a deployment at 12 Serverless Functions, and
   // api/ is already at the limit.
   if (req.method === 'GET') {
-    if (req.query?.export !== 'conversions') return res.status(400).json({ error: 'Unknown request' });
+    const wantsExport = req.query?.export === 'conversions';
+    const wantsPing = req.query?.ga4ping === '1';
+    if (!wantsExport && !wantsPing) return res.status(400).json({ error: 'Unknown request' });
 
     const ip = getClientIp(req);
     const rl = await rateLimit(`owner-export:${ip}`, 10, 60000);
@@ -92,12 +94,27 @@ module.exports = async function handler(req, res) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
+    res.setHeader('Cache-Control', 'no-store');
+
+    // Fires a throwaway event at GA4 using this deployment's own credentials,
+    // so the Measurement Protocol wiring can be proven before a sale depends
+    // on it. See sendGa4Ping in _lib/ga4.js.
+    if (wantsPing) {
+      const result = await sendGa4Ping();
+      return res.status(result.configured ? 200 : 503).json({
+        ...result,
+        // GA4 accepts events signed with a wrong api_secret and answers 204 all
+        // the same, so the response cannot be the proof — Realtime is.
+        next: `Open GA4 > Reports > Realtime and look for the "${result.eventName || 'server_ping'}" event. `
+            + 'If it does not appear within a minute, GA4_API_SECRET on this deployment is wrong.'
+      });
+    }
+
     const rows = await listConversions(req.query.limit);
     if (rows === null) {
       return res.status(503).json({ error: 'No conversion store — set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN' });
     }
 
-    res.setHeader('Cache-Control', 'no-store');
     if (req.query.format === 'json') return res.status(200).json({ count: rows.length, conversions: rows });
 
     const conversionName = process.env.GOOGLE_ADS_CONVERSION_NAME || 'ScentWise Purchase';

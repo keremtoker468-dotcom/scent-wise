@@ -20,6 +20,10 @@ const MP_DEBUG_ENDPOINT = 'https://www.google-analytics.com/debug/mp/collect';
 const SEND_TIMEOUT_MS = 3000;                 // never let Google stall the webhook ACK
 const MAX_BACKDATE_MS = 71 * 60 * 60 * 1000;  // GA4 drops events older than 72h
 
+// Deliberately not 'purchase': the owner diagnostic must never add revenue to
+// the reports Google Ads bidding runs on.
+const PING_EVENT = 'server_ping';
+
 const CONVERSION_PREFIX = 'sw_conv:';
 const CONVERSION_INDEX = 'sw_conv_index';
 const CONVERSION_INDEX_MAX = 500;
@@ -77,8 +81,11 @@ function ga4Configured() {
   return Boolean(process.env.GA4_MEASUREMENT_ID && process.env.GA4_API_SECRET);
 }
 
-async function postToGa4(payload) {
-  const debug = process.env.GA4_DEBUG === '1';
+// Returns { ok, status, body }. On the debug endpoint the body carries Google's
+// validationMessages — the only feedback it ever gives, and worth reading,
+// because the live endpoint answers 204 to malformed payloads just the same.
+async function postToGa4(payload, options) {
+  const debug = typeof options?.debug === 'boolean' ? options.debug : process.env.GA4_DEBUG === '1';
   const endpoint = debug ? MP_DEBUG_ENDPOINT : MP_ENDPOINT;
   const url = `${endpoint}?measurement_id=${encodeURIComponent(process.env.GA4_MEASUREMENT_ID)}`
     + `&api_secret=${encodeURIComponent(process.env.GA4_API_SECRET)}`;
@@ -92,21 +99,15 @@ async function postToGa4(payload) {
       body: JSON.stringify(payload),
       signal: controller.signal
     });
-    if (debug) {
-      // The live endpoint answers 204 to malformed payloads too; only the debug
-      // endpoint says what is wrong, so surface it verbatim while testing.
-      console.log('[ga4] debug response:', resp.status, await resp.text());
-      return true;
-    }
-    if (resp.status !== 204 && resp.status !== 200) {
-      console.error('[ga4] Measurement Protocol returned', resp.status);
-      return false;
-    }
-    return true;
+    const body = debug ? await resp.text() : '';
+    if (debug) console.log('[ga4] debug response:', resp.status, body);
+    const ok = resp.status === 204 || resp.status === 200;
+    if (!ok) console.error('[ga4] Measurement Protocol returned', resp.status);
+    return { ok, status: resp.status, body };
   } catch (err) {
     const reason = err?.name === 'AbortError' ? `timed out after ${SEND_TIMEOUT_MS}ms` : err?.message;
     console.error('[ga4] send failed:', reason);
-    return false;
+    return { ok: false, status: 0, body: '', error: reason };
   } finally {
     clearTimeout(timer);
   }
@@ -172,7 +173,7 @@ async function sendGa4Ecommerce(eventName, order) {
   const age = Date.now() - ts;
   if (ts > 0 && age >= 0 && age < MAX_BACKDATE_MS) payload.timestamp_micros = ts * 1000;
 
-  const ok = await postToGa4(payload);
+  const { ok } = await postToGa4(payload);
   console.log(`[ga4] ${eventName} ${ok ? 'sent' : 'failed'}`, {
     transactionId,
     value,
@@ -181,6 +182,45 @@ async function sendGa4Ecommerce(eventName, order) {
     session: Boolean(sessionId)
   });
   return ok;
+}
+
+// Owner-only smoke test: proves that THIS deployment's GA4_MEASUREMENT_ID and
+// GA4_API_SECRET reach Google. A secret that works from a laptop says nothing
+// about the one stored in the host's environment, and without this the first
+// real sale is the first test.
+//
+// It sends a throwaway 'server_ping', never a 'purchase', so verifying the
+// wiring cannot invent revenue in the reports Google Ads bids on.
+async function sendGa4Ping() {
+  if (!ga4Configured()) {
+    return {
+      configured: false,
+      error: 'GA4_MEASUREMENT_ID / GA4_API_SECRET are not set on this deployment'
+    };
+  }
+
+  const clientId = fallbackClientId(`ping-${Date.now()}-${Math.random()}`);
+  const payload = {
+    client_id: clientId,
+    non_personalized_ads: true,
+    consent: { ad_user_data: 'DENIED', ad_personalization: 'DENIED' },
+    events: [{ name: PING_EVENT, params: { engagement_time_msec: 1 } }]
+  };
+
+  // Validation first (records nothing), then the real send so the event shows
+  // up in GA4 Realtime.
+  const validation = await postToGa4(payload, { debug: true });
+  const sent = await postToGa4(payload, { debug: false });
+
+  return {
+    configured: true,
+    measurementId: process.env.GA4_MEASUREMENT_ID,
+    eventName: PING_EVENT,
+    clientId,
+    validation: validation.body || validation.error || '',
+    accepted: sent.ok,
+    status: sent.status
+  };
 }
 
 // --- Conversion store (Upstash Redis) ---
@@ -284,6 +324,7 @@ module.exports = {
   fallbackClientId,
   ga4Configured,
   sendGa4Ecommerce,
+  sendGa4Ping,
   claimOnce,
   rememberConversion,
   getConversion,
