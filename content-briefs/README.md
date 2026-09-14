@@ -17,4 +17,4 @@ Faz 2 iş listesi. Her dosya bir yazı için iskelet: hangi bölümler eklenecek
 
 Bir yazıyı bitirince: `npm run content` (okuma süresi, tarih, disclosure otomatik güncellenir) → `npm run audit` → commit.
 
-Bu listede olmayan ama hâlâ 400 kelimenin altında olan yazılar (bir sonraki tur): best-date-night-fragrances (253), vanilla-in-perfumery (282), what-is-oud (353), ysl-libre-dupes (232), best-summer-fragrances (386). Music guide (1.045) da altı bölümüyle ince; kendi playlist-parfüm eşleşmelerinle derinleştirilebilir.
+Kalan beş ince yazı (ysl-libre-dupes, best-date-night, vanilla-in-perfumery, what-is-oud, best-summer) da aynı yöntemle derinleştirildi; artık 400 kelimenin altında yazı yok. Bunlar için ayrı brief yazılmadı; birinci elden katman (kalıcılık, fotoğraf, tarihli fiyat) aynı şablonla eklenebilir.
