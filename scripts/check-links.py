@@ -18,6 +18,7 @@ bad=[]
 files=glob.glob(os.path.join(PUB,"**","*.html"),recursive=True)+[os.path.join(PUB,x) for x in ("sitemap.xml","blog/feed.xml","llms.txt","llms-full.txt","blog/frag-images.js")]
 for f in files:
     s=open(f,encoding="utf-8",errors="replace").read()
+    s=re.sub(r"<!--.*?-->","",s,flags=re.S)
     links=set(re.findall(r'(?:href|src|url)\s*[:=]\s*["\']((?:https?://scent-wise\.com)?/[^"\'#?\s]*)',s))
     links|=set(re.findall(r'<loc>https://scent-wise\.com(/[^<]*)</loc>',s))
     links|=set(re.findall(r'<link>https://scent-wise\.com(/[^<]*)</link>',s))
