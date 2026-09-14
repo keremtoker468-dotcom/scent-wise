@@ -350,7 +350,6 @@
       {url:'/blog/best-date-night-fragrances.html', title:'Best Date Night Fragrances', cat:'guide'},
       {url:'/blog/best-office-fragrances.html', title:'Best Office Fragrances', cat:'guide'},
       {url:'/blog/best-summer-fragrances.html', title:'Best Summer Fragrances', cat:'guide'},
-      {url:'/blog/best-long-lasting-perfumes.html', title:'Best Long-Lasting Perfumes', cat:'guide'},
       {url:'/blog/best-perfumes-under-50.html', title:'Best Perfumes Under $50', cat:'guide'},
       {url:'/blog/best-niche-fragrances.html', title:'Best Niche Fragrances', cat:'guide'},
       {url:'/blog/smellmaxxing-guide-2026.html', title:'Smellmaxxing Guide 2026', cat:'guide'},
@@ -360,8 +359,8 @@
       {url:'/blog/best-budget-colognes-for-teens.html', title:'Best Budget Colognes for Teens', cat:'guide'},
       {url:'/blog/what-is-oud.html', title:'What Is Oud?', cat:'edu'},
       {url:'/blog/vanilla-in-perfumery.html', title:'Vanilla in Perfumery', cat:'edu'},
-      {url:'/blog/trending-pistachio-fragrances.html', title:'Trending Pistachio Fragrances', cat:'trend'},
-      {url:'/blog/trending-marshmallow-fragrances.html', title:'Trending Marshmallow Fragrances', cat:'trend'},
+      {url:'/blog/zodiac-fragrance-guide.html', title:'Zodiac Fragrance Guide', cat:'guide'},
+      {url:'/blog/music-fragrance-guide.html', title:'Music to Fragrance Guide', cat:'guide'},
       {url:'/blog/fragrance-faq.html', title:'Fragrance FAQ', cat:'edu'},
       {url:'/blog/ai-perfume-recommendations.html', title:'AI Perfume Recommendations', cat:'guide'}
     ];

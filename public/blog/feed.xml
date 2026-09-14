@@ -5,13 +5,27 @@
     <link>https://scent-wise.com/blog/</link>
     <description>Expert fragrance guides, perfume dupes, zodiac scent matches, trending notes, and AI-powered perfume recommendations from ScentWise.</description>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Apr 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 14 Sep 2026 09:00:00 GMT</lastBuildDate>
     <atom:link href="https://scent-wise.com/blog/feed.xml" rel="self" type="application/rss+xml"/>
     <image>
       <url>https://scent-wise.com/icon-192.png</url>
       <title>ScentWise</title>
       <link>https://scent-wise.com</link>
     </image>
+    <item>
+      <title>Zodiac Fragrance Guide — The Best Perfume for Every Star Sign</title>
+      <link>https://scent-wise.com/blog/zodiac-fragrance-guide.html</link>
+      <guid isPermaLink="true">https://scent-wise.com/blog/zodiac-fragrance-guide.html</guid>
+      <description>One guide, all twelve signs: fragrance families, key notes, and top picks for Aries through Pisces.</description>
+      <pubDate>Mon, 14 Sep 2026 09:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Music to Fragrance Guide — Scents for Six Genres</title>
+      <link>https://scent-wise.com/blog/music-fragrance-guide.html</link>
+      <guid isPermaLink="true">https://scent-wise.com/blog/music-fragrance-guide.html</guid>
+      <description>Hip-hop, R&amp;B, jazz, indie rock, electronic, and classical: how each genre maps to fragrance families, with picks for every one.</description>
+      <pubDate>Mon, 14 Sep 2026 09:00:00 GMT</pubDate>
+    </item>
 
     <item>
       <title>Fragrance FAQ: 25 Most Common Perfume Questions Answered</title>
@@ -46,15 +60,6 @@
       <guid isPermaLink="true">https://scent-wise.com/blog/best-summer-fragrances.html</guid>
       <pubDate>Fri, 27 Feb 2026 00:00:00 +0000</pubDate>
       <description>Fresh, citrusy, and aquatic fragrances perfect for summer heat. Lightweight perfumes that last without being overpowering.</description>
-      <dc:creator>ScentWise</dc:creator>
-    </item>
-
-    <item>
-      <title>Best Long-Lasting Perfumes That Actually Survive All Day</title>
-      <link>https://scent-wise.com/blog/best-long-lasting-perfumes.html</link>
-      <guid isPermaLink="true">https://scent-wise.com/blog/best-long-lasting-perfumes.html</guid>
-      <pubDate>Fri, 27 Feb 2026 00:00:00 +0000</pubDate>
-      <description>Perfumes with 8+ hour longevity tested in real conditions. From budget-friendly to niche, these fragrances actually last.</description>
       <dc:creator>ScentWise</dc:creator>
     </item>
 
@@ -172,24 +177,6 @@
       <guid isPermaLink="true">https://scent-wise.com/blog/best-budget-colognes-for-teens.html</guid>
       <pubDate>Thu, 26 Feb 2026 00:00:00 +0000</pubDate>
       <description>Affordable colognes perfect for teenage guys. Fresh, clean scents under $30 that get compliments at school.</description>
-      <dc:creator>ScentWise</dc:creator>
-    </item>
-
-    <item>
-      <title>Trending Pistachio Fragrances: The Hottest Note of 2026</title>
-      <link>https://scent-wise.com/blog/trending-pistachio-fragrances.html</link>
-      <guid isPermaLink="true">https://scent-wise.com/blog/trending-pistachio-fragrances.html</guid>
-      <pubDate>Thu, 26 Feb 2026 00:00:00 +0000</pubDate>
-      <description>Pistachio is the trendiest note in perfumery right now. Discover the best pistachio fragrances of 2026.</description>
-      <dc:creator>ScentWise</dc:creator>
-    </item>
-
-    <item>
-      <title>Trending Marshmallow Fragrances: Sweet Gourmand Scents</title>
-      <link>https://scent-wise.com/blog/trending-marshmallow-fragrances.html</link>
-      <guid isPermaLink="true">https://scent-wise.com/blog/trending-marshmallow-fragrances.html</guid>
-      <pubDate>Thu, 26 Feb 2026 00:00:00 +0000</pubDate>
-      <description>The best marshmallow fragrances for sweet, cozy vibes. Gourmand perfumes that smell like a warm hug.</description>
       <dc:creator>ScentWise</dc:creator>
     </item>
   </channel>

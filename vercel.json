@@ -1,4 +1,111 @@
 {
+  "redirects": [
+    {
+      "source": "/blog/zodiac-aries-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#aries",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-taurus-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#taurus",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-gemini-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#gemini",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-cancer-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#cancer",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-leo-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#leo",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-virgo-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#virgo",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-libra-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#libra",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-scorpio-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#scorpio",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-sagittarius-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#sagittarius",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-capricorn-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#capricorn",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-aquarius-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#aquarius",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-pisces-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#pisces",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-hip-hop-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#hip-hop",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-rnb-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#rnb",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-jazz-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#jazz",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-indie-rock-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#indie-rock",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-electronic-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#electronic",
+      "permanent": true
+    },
+    {
+      "source": "/blog/music-classical-fragrances.html",
+      "destination": "/blog/music-fragrance-guide.html#classical",
+      "permanent": true
+    },
+    {
+      "source": "/blog/best-long-lasting-perfumes.html",
+      "destination": "/blog/how-to-make-perfume-last-longer.html#long-lasting-perfumes",
+      "permanent": true
+    },
+    {
+      "source": "/blog/trending-marshmallow-fragrances.html",
+      "destination": "/blog/vanilla-in-perfumery.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/trending-pistachio-fragrances.html",
+      "destination": "/blog/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",
