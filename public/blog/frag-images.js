@@ -308,6 +308,7 @@
     if (!article) return;
     var meta = article.querySelector('.meta');
     if (!meta || meta.querySelector('.reading-time')) return;
+    if (/\d+\s*min read/.test(meta.textContent || '')) return; // static read time already rendered by scripts/build-content.js
     var text = article.textContent || '';
     var words = text.trim().split(/\s+/).length;
     var mins = Math.max(1, Math.round(words / 230));
@@ -321,7 +322,7 @@
   // ═══ AFFILIATE DISCLOSURE (FTC compliance) ═══
   function addAffiliateDisclosure() {
     var article = document.querySelector('article.article');
-    if (!article || article.querySelector('.affiliate-disclosure')) return;
+    if (!article || article.querySelector('.affiliate-disclosure') || article.querySelector('.affiliate-note')) return; // static disclosure already rendered by scripts/build-content.js
     var meta = article.querySelector('.meta');
     var anchor = meta || article.querySelector('h1');
     if (!anchor) return;
