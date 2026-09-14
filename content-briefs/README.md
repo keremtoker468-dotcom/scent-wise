@@ -1,5 +1,7 @@
 # Content briefs
 
+**Durum (14 Eyl 2026):** altı yazı ve müzik rehberi, nota tabanlı karşılaştırma tabloları, "hangi versiyonu kopyalıyorsun" bölümleri, test/numune tavsiyesi, sahte-klon ayrımı ve SSS (FAQPage schema) ile derinleştirildi. Her yazının başında bunun bir *nota tabanlı kısa liste* olduğu, giyim testi olmadığı açıkça yazıyor. Aşağıdaki brief'lerde hâlâ açık olan tek katman, yalnızca senin sağlayabileceğin şeyler: kendi kalıcılık ölçümlerin, kendi fotoğrafların, tarihli fiyatlar ve owned/sampled/not tested etiketleri. Bunlar eklendikçe yazıdaki "not a wear test" cümlesi kaldırılır.
+
 Faz 2 iş listesi. Her dosya bir yazı için iskelet: hangi bölümler eklenecek, hangi özgün katman gerekli (kendi fotoğrafın, kendi kalıcılık testin, tarihli fiyat tablosu, karşılaştırma). Metni Kerem yazar; brief'ler metin değildir.
 
 Öncelik sırası (trafik potansiyeli × mevcut incelik):

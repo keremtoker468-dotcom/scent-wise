@@ -2,6 +2,8 @@
 
 URL: https://scent-wise.com/blog/le-labo-santal-33-dupes.html · Şu anki uzunluk: 207 kelime
 
+> **Güncelleme 14 Eyl 2026:** nota tabanlı karşılaştırma tablosu, versiyon/konsantrasyon bölümü, numune tavsiyesi ve SSS eklendi (metin sitede). Kalan işler yalnızca birinci elden katman: kalıcılık tablosu, fotoğraflar, tarihli fiyat, owned/sampled/not tested etiketleri.
+>
 > Bu brief bir iskelet. Metni Kerem yazacak; buradaki hiçbir madde "AI ile doldur" değildir.
 > Kural: her bölümde en az bir şey **senin** olmalı (kendi fotoğrafın, kendi süre ölçümün, kendi fiyat notun, kendi "almazdım çünkü" cümlen). Elinde olmayanı yazma, bölümü boş bırakıp sonra doldur.
 > Hedef uzunluk, kelime saymak için değil; her bölüm gerçekten dolunca kendiliğinden oluşur.
