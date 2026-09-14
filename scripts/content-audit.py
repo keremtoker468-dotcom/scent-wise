@@ -43,7 +43,7 @@ DISCLOSURE_RE = re.compile(
 AMAZON_RE = re.compile(r"amazon\.(com|de|fr|es|it|co\.uk|com\.be)|tag=scentwise|amzn\.to", re.I)
 READ_RE = re.compile(r"(\d+)\s*min(?:ute)?s?\s+read", re.I)
 BYLINE_RE = re.compile(r'class="meta"[^>]*>.*?<span[^>]*>\s*By\s+(?:<a[^>]*>)?([^<]{2,60}?)\s*(?:</a>)?\s*</span>', re.S | re.I)
-DROP_TAGS = ("script", "style", "nav", "footer", "header", "noscript", "svg", "template")
+DROP_TAGS = ("script", "style", "nav", "footer", "header", "noscript", "svg", "template", "aside")
 
 
 def load_sitemap(path):
@@ -74,10 +74,14 @@ def fetch(url):
         return r.read().decode("utf-8", "replace")
 
 
-def visible_text(doc):
+def visible_text(doc, keep_boilerplate=False):
     d = doc
     for t in DROP_TAGS:
         d = re.sub(r"<%s\b[^>]*>.*?</%s>" % (t, t), " ", d, flags=re.S | re.I)
+    # boilerplate that is not content: byline block and the affiliate disclosure box
+    if not keep_boilerplate:
+        d = re.sub(r'<div class="meta">.*?</div>', " ", d, flags=re.S)
+        d = re.sub(r'<div class="affiliate-note".*?</div>', " ", d, flags=re.S)
     d = re.sub(r"<!--.*?-->", " ", d, flags=re.S)
     d = re.sub(r"<[^>]+>", " ", d)
     d = htmllib.unescape(d)
@@ -103,13 +107,13 @@ def audit_page(url, doc):
     text = visible_text(doc)
     ws = words(text)
     wc = len(ws)
-    stated = READ_RE.search(text)
+    stated = READ_RE.search(visible_text(doc, keep_boilerplate=True))
     stated = int(stated.group(1)) if stated else None
     computed = max(1, round(wc / WPM)) if wc else 0
     byline = BYLINE_RE.search(doc)
     has_frag_cards = "frag-images.js" in doc and 'class="frag-card"' in doc
     affiliate = (bool(AMAZON_RE.search(doc)) or has_frag_cards) and not url.rstrip("/").endswith(("privacy.html", "terms.html"))
-    disclosure = bool(DISCLOSURE_RE.search(text))
+    disclosure = bool(DISCLOSURE_RE.search(visible_text(doc, keep_boilerplate=True)))
     noindex = bool(re.search(r'name="robots"[^>]*noindex', doc, re.I))
     title = re.search(r"<title[^>]*>(.*?)</title>", doc, re.S | re.I)
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", doc, re.S | re.I)
@@ -134,8 +138,14 @@ def main():
     ap.add_argument("--json", help="write raw results to this file")
     ap.add_argument("--min-words", type=int, default=400)
     ap.add_argument("--dup-threshold", type=float, default=0.5)
-    ap.add_argument("--sitemap", default=SITEMAP)
+    ap.add_argument("--sitemap", default=None)
+    ap.add_argument("--public", default=None, help="audit a different public/ directory (e.g. an old checkout)")
     args = ap.parse_args()
+    global PUBLIC
+    if args.public:
+        PUBLIC = os.path.abspath(args.public)
+    if not args.sitemap:
+        args.sitemap = os.path.join(PUBLIC, "sitemap.xml")
 
     urls = load_sitemap(args.sitemap)
     pages, missing = [], []

@@ -46,8 +46,10 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   ├── sw.js                   # Service Worker (offline caching)
 │   ├── manifest.json           # PWA manifest
 │   ├── ads.txt                 # Google AdSense domain verification
-│   ├── blog/                   # SEO blog articles (static HTML)
-│   │   └── frag-images.js      # Shared blog script (perfume images + Amazon links)
+│   ├── author/kerem-toker.html # Author page (Person/ProfilePage schema); every guide links here
+│   ├── brands/index.html       # /brands/:slug hub — noindexed (one file behind every slug)
+│   ├── blog/                   # 24 guides (static HTML) + index.html + feed.xml
+│   │   └── frag-images.js      # Shared blog script (perfume images + Amazon links + related links)
 │   ├── privacy.html            # Privacy policy
 │   ├── terms.html              # Terms of service
 │   ├── refund.html             # Refund policy
@@ -55,7 +57,15 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   ├── robots.txt              # Crawler directives
 │   ├── llms.txt                # LLM-friendly site description
 │   └── llms-full.txt           # Extended LLM site description
-├── package.json                # Project metadata (minimal — no build step)
+├── scripts/
+│   ├── build-content.js        # `npm run content` — bylines, read time, JSON-LD, disclosure/author partials
+│   ├── partials/               # affiliate-disclosure.html, author-box.html (single source, injected by build)
+│   ├── content-audit.py        # `npm run audit` — word counts, duplicate overlap, missing disclosures
+│   └── check-links.py          # internal-link checker (files + vercel.json rewrites/redirects)
+├── content-briefs/             # Phase-2 writing briefs for Kerem (not site content)
+├── reports/                    # audit-before / audit-after snapshots
+├── ADSENSE-FIX-REPORT.md       # What changed for the AdSense resubmission and what is still manual
+├── package.json                # Project metadata (no deploy build step; `content`/`audit` scripts are run locally)
 ├── vercel.json                 # Vercel config (rewrites, security headers, caching)
 └── README.md                   # Deployment guide
 ```
@@ -176,6 +186,11 @@ unless the buyer accepted ads cookies.
 - API endpoints return JSON and use standard HTTP status codes (400, 403, 405, 413, 429, 500).
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
 - `localStorage` keys: `sw_cookie_consent` (banner choice), `sw_click_id` (first-touch Google Ads click ID).
+- `/brands/:slug` pages are one noindexed file; do not add them back to the sitemap.
 - Bump the `?v=` query on `/app.js` in `index.html` whenever `app.js` changes — that string is the cache key.
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
 - Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.
+- **After editing any blog post run `npm run content` and commit the result.** It recomputes "N min read" from the word count, sets published/updated dates (updated = last git commit of the file, or today if dirty), rewrites the byline to link `/author/kerem-toker.html`, syncs the Article JSON-LD, and injects the affiliate-disclosure and author-box partials between `<!-- sw:disclosure -->` / `<!-- sw:author -->` markers. Never hand-edit those blocks or the byline; edit `scripts/partials/*` instead.
+- `npm run audit` must report 0 duplicate pairs, 0 affiliate pages without disclosure, 0 broken links before pushing content changes.
+- Do not add new AI-written guides. The site was rejected by AdSense for thin/scaled content; consolidate or deepen existing pages instead (see `content-briefs/`).
+- Removed URLs get a permanent redirect in `vercel.json` (`redirects`), and are dropped from `sitemap.xml`, `blog/feed.xml`, `blog/index.html`, `llms.txt` and the related-links list in `frag-images.js`.
