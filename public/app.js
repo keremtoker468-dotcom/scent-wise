@@ -303,29 +303,12 @@
     $$('[data-img-name]', root || document).forEach((el) => { if (imgObserver) imgObserver.observe(el); else paintImage(el); });
   }
 
-  // ───────────────────────── Amazon (geo-targeted affiliate links) ─────────────────────────
-  const _AMZ_GEO = (function () {
-    const STORES = {
-      de: { domain: 'amazon.de', tag: 'scentwisede20-21' }, fr: { domain: 'amazon.fr', tag: 'scentwisede0e-21' },
-      es: { domain: 'amazon.es', tag: 'scentwised09f-21' }, it: { domain: 'amazon.it', tag: 'scentwisede09-21' },
-      uk: { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' }, be: { domain: 'amazon.com.be', tag: 'scentwisebe-21' },
-      us: { domain: 'amazon.com', tag: 'scentwise20-20' }
-    };
-    let tz = ''; try { tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase(); } catch (e) { /* noop */ }
-    const TZ_MAP = { 'europe/paris': 'fr', 'europe/monaco': 'fr', 'europe/berlin': 'de', 'europe/vienna': 'de', 'europe/zurich': 'de', 'europe/luxembourg': 'de', 'europe/madrid': 'es', 'europe/rome': 'it', 'europe/london': 'uk', 'europe/dublin': 'uk', 'europe/brussels': 'be', 'europe/amsterdam': 'be' };
-    if (TZ_MAP[tz]) return STORES[TZ_MAP[tz]];
-    const langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en']).map((l) => String(l).toLowerCase());
-    for (const lang of langs) {
-      if (lang === 'nl-be' || lang === 'fr-be') return STORES.be;
-      if (lang === 'en-gb' || lang === 'cy-gb') return STORES.uk;
-      if (lang.startsWith('de')) return STORES.de; if (lang.startsWith('fr')) return STORES.fr;
-      if (lang.startsWith('es')) return STORES.es; if (lang.startsWith('it')) return STORES.it; if (lang.startsWith('nl')) return STORES.be;
-    }
-    return STORES.us;
-  })();
-  function amazonLink(name, brand) {
-    const q = encodeURIComponent((name || '') + ' ' + (brand || '') + ' perfume');
-    return 'https://www.' + _AMZ_GEO.domain + '/s?k=' + q + '&tag=' + _AMZ_GEO.tag;
+  // ───────────────────────── Amazon (affiliate links) ─────────────────────────
+  // Store selection, tags, ASIN product links and the localized search fallback live in /amazon.js
+  // (shared with the blog). `surface` selects a per-surface tracking ID when one is configured there.
+  function amazonLink(name, brand, surface) {
+    if (window.SW_AMZ) return window.SW_AMZ.link(name, brand, { surface: surface || 'app' });
+    return 'https://www.amazon.com/s?k=' + encodeURIComponent((brand || '') + ' ' + (name || '') + ' perfume') + '&i=beauty&tag=scentwise20-20';
   }
 
   // ───────────────────────── likes (local collection) ─────────────────────────
@@ -355,7 +338,7 @@
     return `<article class="pcard" data-open-name="${esc(it.n)}" data-open-brand="${esc(it.b)}">
       <div class="art ${famClass(it)}" data-img-name="${esc(it.n)}" data-img-brand="${esc(it.b)}">${bottle()}${heartHTML(it.n, it.b)}</div>
       <div class="meta"><div class="name">${esc(it.n)}</div><div class="brand">${esc(it.b)}</div><div class="notes">${esc(notes || '')}</div></div>
-      <div class="foot"><span class="fam ${inkClass(it)}">${esc(famLabel(it))}</span><span class="row" style="gap:6px"><button class="icon-btn sm cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><button class="btn btn-quiet btn-sm btn-profile" type="button" data-profile-name="${esc(it.n)}" data-profile-brand="${esc(it.b)}" data-stop>Profile</button><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
+      <div class="foot"><span class="fam ${inkClass(it)}">${esc(famLabel(it))}</span><span class="row" style="gap:6px"><button class="icon-btn sm cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><button class="btn btn-quiet btn-sm btn-profile" type="button" data-profile-name="${esc(it.n)}" data-profile-brand="${esc(it.b)}" data-stop>Profile</button><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b, 'explore')}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>
     </article>`;
   }
   function rowcardHTML(it, trailing) {
@@ -555,7 +538,7 @@
         ${notesHTML}${accords}
         <div class="stack" style="gap:10px" id="sheet-profile" data-name="${esc(it.n)}" data-brand="${esc(it.b)}">${profileSectionHTML(it.n, it.b)}</div>
         ${simHTML}
-        <div class="actions"><a class="btn btn-primary btn-lg" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored" style="flex:1">${icon('bag', 18)}Shop on Amazon</a><button class="btn btn-quiet btn-lg cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}">${icon('layers', 18)}Compare</button></div>
+        <div class="actions"><a class="btn btn-primary btn-lg" href="${amazonLink(it.n, it.b, 'profile')}" target="_blank" rel="noopener sponsored" style="flex:1">${icon('bag', 18)}Shop on Amazon</a><button class="btn btn-quiet btn-lg cmp${inCompare(it.n, it.b) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(it.n)}" data-cmp-brand="${esc(it.b)}">${icon('layers', 18)}Compare</button></div>
         <span class="t-cap muted-2" style="text-align:center">Affiliate link. You pay the same.</span>
       </div></div>`;
     watchImages(sheet);
@@ -694,7 +677,7 @@
     const inner = `<div class="art ${famClass(it)}" ${locked ? '' : `data-img-name="${esc(p.name)}" data-img-brand="${esc(p.brand)}"`}>${bottle(40, 60)}</div>
       <div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
       <div class="meta">${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
-      <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand)}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>`;
+      <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand, 'advisor')}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>`;
     return `<article class="rec${locked ? ' is-locked' : ''}" ${locked ? 'aria-hidden="true"' : `data-open-name="${esc(p.name)}" data-open-brand="${esc(p.brand)}"`}>${inner}</article>`;
   }
   function feedbackHTML(idx, m) {
@@ -956,7 +939,7 @@
     saveThread('celeb'); renderThread();
   }
   function celebAnswerHTML(m) {
-    const rows = (m.frags || []).map((k) => { const [n, b] = k.split('|'); const it = (DB.loaded && (find(n, b) || itemFor(n, b))) || { n, b, c: '' }; return `<div class="row" style="gap:8px">${rowcardHTML(Object.assign({}, it, { n, b }))}<a class="btn btn-quiet btn-sm" href="${amazonLink(n, b)}" target="_blank" rel="noopener sponsored">Shop</a></div>`; }).join('');
+    const rows = (m.frags || []).map((k) => { const [n, b] = k.split('|'); const it = (DB.loaded && (find(n, b) || itemFor(n, b))) || { n, b, c: '' }; return `<div class="row" style="gap:8px">${rowcardHTML(Object.assign({}, it, { n, b }))}<a class="btn btn-quiet btn-sm" href="${amazonLink(n, b, 'celebs')}" target="_blank" rel="noopener sponsored">Shop</a></div>`; }).join('');
     const names = (m.frags || []).map((k) => k.replace('|', ' by ')).join(', ');
     return `<div class="msg-ai"><div class="intro">${esc(m.name)} wears ${m.frags.length === 1 ? 'this' : 'these'}:</div><div class="stack" style="gap:8px;max-width:640px">${rows}</div><div><button class="btn btn-quiet btn-md" type="button" data-action="ask-about" data-prompt="${esc('Which of these fragrances that ' + m.name + ' wears would suit me, and what are cheaper alternatives to each: ' + names + '?')}">Ask which suits me</button></div></div>`;
   }
@@ -1041,7 +1024,7 @@
         ${row('Accords', rec && rec.a.length ? esc(rec.a.slice(0, 6).join(', ')) : (prof && prof.accords ? esc(prof.accords) : ''))}
         ${row('Top', tiers && tiers.top ? esc(tiers.top) : (tiers && tiers.all ? esc(tiers.all) : (prof && prof.notes && !tiers ? esc(prof.notes) : '')))}${tiers && tiers.heart ? row('Heart', esc(tiers.heart)) : ''}${tiers && tiers.base ? row('Base', esc(tiers.base)) : ''}
         <div class="stack" style="gap:8px" id="cmp-profile-${esc(likeKey(it.n, it.b)).replace(/[^a-z0-9]/g, '_')}">${prof ? profileScoresHTML(prof) : `<button class="btn btn-quiet btn-sm" type="button" data-profile-generate style="align-self:flex-start">${icon('sparkle', 14)}Scent profile</button>`}</div>
-        <div class="row" style="gap:6px;margin-top:auto"><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b)}" target="_blank" rel="noopener sponsored">Shop</a><button class="btn btn-text btn-sm" type="button" data-cmp-remove="${esc(likeKey(it.n, it.b))}">Remove</button></div>
+        <div class="row" style="gap:6px;margin-top:auto"><a class="btn btn-quiet btn-sm" href="${amazonLink(it.n, it.b, 'compare')}" target="_blank" rel="noopener sponsored">Shop</a><button class="btn btn-text btn-sm" type="button" data-cmp-remove="${esc(likeKey(it.n, it.b))}">Remove</button></div>
       </div>`;
     }).join('');
     const addCol = items.length < CMP_MAX ? `<div class="cmp-col cmp-add" style="border-style:dashed">
@@ -1135,7 +1118,7 @@
   function openCelebSheet(c) {
     const sheet = $('#sheet'); sheetLastFocus = document.activeElement;
     sheet.hidden = false; document.body.style.overflow = 'hidden';
-    const rows = c.frags.map((k) => { const [n, b] = k.split('|'); const it = (DB.loaded && (find(n, b) || itemFor(n, b))) || { n, b, c: '' }; return `<div class="row" style="gap:8px">${rowcardHTML(Object.assign({}, it, { n, b }))}<a class="btn btn-quiet btn-sm" href="${amazonLink(n, b)}" target="_blank" rel="noopener sponsored">Shop</a></div>`; }).join('');
+    const rows = c.frags.map((k) => { const [n, b] = k.split('|'); const it = (DB.loaded && (find(n, b) || itemFor(n, b))) || { n, b, c: '' }; return `<div class="row" style="gap:8px">${rowcardHTML(Object.assign({}, it, { n, b }))}<a class="btn btn-quiet btn-sm" href="${amazonLink(n, b, 'celebs')}" target="_blank" rel="noopener sponsored">Shop</a></div>`; }).join('');
     const names = c.frags.map((k) => k.replace('|', ' by ')).join(', ');
     sheet.innerHTML = `<div class="sheet" role="document" style="grid-template-columns:1fr;max-width:640px">
       <div class="body">

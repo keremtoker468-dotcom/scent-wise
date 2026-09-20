@@ -40,6 +40,7 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   └── webhook.js              # Lemon Squeezy webhook handler (signature-verified)
 ├── public/                     # Static frontend files (served by Vercel)
 │   ├── index.html              # Main SPA (~61KB, contains all UI)
+│   ├── amazon.js               # Shared Amazon link builder (geo, tags, ASINs, localized search, click analytics)
 │   ├── app.js                  # Main application JavaScript (~100KB)
 │   ├── perfumes.js             # Full perfume database (~2MB, client-side search)
 │   ├── perfumes-rich.js        # Extended perfume data (~1.1MB)
@@ -58,11 +59,12 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   ├── llms.txt                # LLM-friendly site description
 │   └── llms-full.txt           # Extended LLM site description
 ├── scripts/
+│   ├── asin-map.js             # `npm run asins` — asin-map.csv → ASIN block in public/amazon.js
 │   ├── build-content.js        # `npm run content` — bylines, read time, JSON-LD, disclosure/author partials
 │   ├── partials/               # affiliate-disclosure.html, author-box.html (single source, injected by build)
 │   ├── content-audit.py        # `npm run audit` — word counts, duplicate overlap, missing disclosures
 │   └── check-links.py          # internal-link checker (files + vercel.json rewrites/redirects)
-├── content-briefs/             # Phase-2 writing briefs for Kerem (not site content)
+├── content-briefs/             # Phase-2 writing briefs for Kerem (not site content) + asin-map.csv
 ├── reports/                    # audit-before / audit-after snapshots
 ├── ADSENSE-FIX-REPORT.md       # What changed for the AdSense resubmission and what is still manual
 ├── package.json                # Project metadata (no deploy build step; `content`/`audit` scripts are run locally)
@@ -114,11 +116,43 @@ Required in Vercel dashboard:
 
 ## Amazon Affiliate Integration
 
-- **Geo-targeting**: `_AMZ_GEO` in `app.js` detects browser language and routes to the nearest Amazon store (US, DE, FR, ES, IT, UK, BE).
-- **OneLink**: Amazon OneLink is configured server-side for automatic redirection across 10 countries (US, FR, DE, IT, ES, UK, CA, NL, PL, SE). No client-side script needed.
-- **Affiliate tags**: US `scentwise20-20`, DE `scentwisede20-21`, FR `scentwisede0e-21`, ES `scentwised09f-21`, IT `scentwisede09-21`, UK `scentwiseuk-21`, BE `scentwisebe-21`.
-- **Placement**: "Shop on Amazon" buttons appear on perfume cards (`perfCard()`), AI recommendation responses (`fmt()`), celebrity fragrance lists (`r_celeb()`), and blog articles (`frag-images.js`).
-- **`amazonLink(name, brand)`**: Helper function that builds a search URL with the correct regional domain and affiliate tag.
+All Amazon links come from **`public/amazon.js`** (`window.SW_AMZ.link(name, brand, { surface })`),
+loaded by `index.html` before `app.js` and by every blog guide before `blog/frag-images.js`.
+`amazonLink()` in `app.js` and `amzLink()` in `frag-images.js` are thin wrappers around it. Do not
+build Amazon URLs anywhere else.
+
+- **Why it exists**: the 2026 Associates report showed 286 of 290 clicks in category "Unknown" with $0
+  earned and an empty Linked Product report all year. Search-result links (`/s?k=`) never identify a
+  product, so Amazon could not attribute a category, an item or a commission rate.
+- **Product links first**: when an ASIN is known for the visitor's store the link is
+  `https://www.{domain}/dp/{ASIN}?tag={tag}`. ASINs live in the `/* sw:asins */` block of `amazon.js`,
+  generated from `content-briefs/asin-map.csv` by `npm run asins` (never hand-edit the block). The CSV
+  lists every perfume that gets a Shop button (top 200 of `popular.js`, `celebs.js`, blog cards);
+  fill one ASIN per marketplace, most-clicked perfumes first, then run `npm run asins` and bump
+  `/amazon.js?v=` in `index.html`.
+- **Search fallback**: `https://www.{domain}/s?k={brand name} {localized word}&i=beauty&tag={tag}`.
+  The keyword is `parfum` (FR/BE), `Parfüm` (DE), `profumo` (IT), `parfüm` (TR), `perfume` (US/UK/ES);
+  `i=beauty` restricts results to the Beauty department, which drops unrelated sponsored products and
+  moves the sale out of the "Unknown" commission bucket.
+- **Geo-targeting**: timezone first, then `navigator.languages`. Stores: US, UK, DE, FR, ES, IT, BE and
+  TR (`amazon.com.tr`, tag empty until an Amazon Türkiye Associates account exists). Countries without
+  a store map to the one locals use (AT/CH/PL/CZ/HU/Nordics/Balkans → DE, PT → ES, IE → UK, NL → BE).
+  Everything else, including the Americas, falls back to amazon.com.
+- **OneLink**: configured on the US account for automatic redirection across 10 countries (US, FR, DE,
+  IT, ES, UK, CA, NL, PL, SE). No client-side script needed.
+- **Affiliate tags**: US `scentwise20-20`, DE `scentwisede20-21`, FR `scentwisede0e-21`,
+  ES `scentwised09f-21`, IT `scentwisede09-21`, UK `scentwiseuk-21`, BE `scentwisebe-21`. The `-21`
+  tags report in the EU (amazon.de) Associates account, `scentwiseuk-21` in the UK account — earnings
+  there never appear in the US dashboard.
+- **Per-surface tracking IDs**: `SURFACE_TAGS` in `amazon.js` maps `explore`, `profile`, `advisor`,
+  `celebs`, `compare`, `blog` to a tracking ID per store. Create the IDs in Associates Central
+  (Account Settings → Manage Your Tracking IDs) **before** filling them in; unknown IDs are not credited.
+- **Click analytics**: `amazon.js` sends `affiliate_click` (GA4) / `Affiliate Click` (Plausible) with
+  `store`, `surface`, `link_type` (`product`|`search`) and `asin` for every outbound Amazon click.
+- **Placement**: perfume cards (`pcardHTML()`), the profile sheet, AI recommendation responses (`fmt()`),
+  celebrity lists, the compare view and blog fragrance cards (`frag-images.js`, rendered for every card
+  on load; images and scent profiles stay lazy). Blog links are JS-rendered, so a static scan of the
+  HTML shows none — check the rendered DOM.
 
 ## Conversion Tracking (GA4 + Google Ads)
 
@@ -187,7 +221,7 @@ unless the buyer accepted ads cookies.
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
 - `localStorage` keys: `sw_cookie_consent` (banner choice), `sw_click_id` (first-touch Google Ads click ID).
 - `/brands/:slug` pages are one noindexed file; do not add them back to the sitemap.
-- Bump the `?v=` query on `/app.js` in `index.html` whenever `app.js` changes — that string is the cache key.
+- Bump the `?v=` query on `/app.js` in `index.html` whenever `app.js` changes, and on `/amazon.js` whenever `amazon.js` changes — that string is the cache key.
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
 - Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.
 - **After editing any blog post run `npm run content` and commit the result.** It recomputes "N min read" from the word count, sets published/updated dates (updated = last git commit of the file, or today if dirty), rewrites the byline to link `/author/kerem-toker.html`, syncs the Article JSON-LD, and injects the affiliate-disclosure and author-box partials between `<!-- sw:disclosure -->` / `<!-- sw:author -->` markers. Never hand-edit those blocks or the byline; edit `scripts/partials/*` instead.
