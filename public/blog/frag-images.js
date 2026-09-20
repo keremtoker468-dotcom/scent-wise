@@ -32,42 +32,18 @@
 
   function cleanBrand(s) { return s.replace(/[\u2014\-].*$/, '').replace(/~?\$[\d.]+.*$/, '').trim(); }
 
-  var STORES = {
-    de: { domain: 'amazon.de', tag: 'scentwisede20-21' },
-    fr: { domain: 'amazon.fr', tag: 'scentwisede0e-21' },
-    es: { domain: 'amazon.es', tag: 'scentwised09f-21' },
-    it: { domain: 'amazon.it', tag: 'scentwisede09-21' },
-    uk: { domain: 'amazon.co.uk', tag: 'scentwiseuk-21' },
-    be: { domain: 'amazon.com.be', tag: 'scentwisebe-21' },
-    us: { domain: 'amazon.com', tag: 'scentwise20-20' }
-  };
-  var _amzGeo = (function() {
-    var tz = '';
-    try { tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase(); } catch (e) {}
-    var TZ_MAP = { 'europe/paris':'fr','europe/monaco':'fr','europe/berlin':'de','europe/vienna':'de','europe/zurich':'de','europe/luxembourg':'de','europe/madrid':'es','europe/rome':'it','europe/london':'uk','europe/dublin':'uk','europe/brussels':'be','europe/amsterdam':'be' };
-    if (TZ_MAP[tz]) return STORES[TZ_MAP[tz]];
-    var langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || navigator.userLanguage || 'en']).map(function(l) { return String(l).toLowerCase(); });
-    for (var i = 0; i < langs.length; i++) {
-      var lang = langs[i];
-      if (lang === 'nl-be' || lang === 'fr-be') return STORES.be;
-      if (lang === 'en-gb') return STORES.uk;
-      if (lang.indexOf('de') === 0) return STORES.de;
-      if (lang.indexOf('fr') === 0) return STORES.fr;
-      if (lang.indexOf('es') === 0) return STORES.es;
-      if (lang.indexOf('it') === 0) return STORES.it;
-      if (lang.indexOf('nl') === 0) return STORES.be;
-    }
-    return STORES.us;
-  })();
+  // Store selection, tags, ASIN links and the localized Beauty-department search live in /amazon.js
+  // (shared with the app). Every guide loads it right before this file.
   function amzLink(name, brand) {
-    return 'https://www.' + _amzGeo.domain + '/s?k=' + encodeURIComponent(name + ' ' + brand + ' perfume') + '&tag=' + _amzGeo.tag;
+    if (window.SW_AMZ) return window.SW_AMZ.link(name, brand, { surface: 'blog' });
+    return 'https://www.amazon.com/s?k=' + encodeURIComponent(brand + ' ' + name + ' perfume') + '&i=beauty&tag=scentwise20-20';
   }
   function addAmazonBtn(card, name, brand) {
     if (card.querySelector('.amz-btn')) return;
     var a = document.createElement('a');
     a.href = amzLink(name, brand);
     a.target = '_blank';
-    a.rel = 'noopener noreferrer';
+    a.rel = 'noopener sponsored';
     a.className = 'amz-btn frag-action-btn';
     a.textContent = 'Shop on Amazon';
     a.style.cssText = 'color:#b97600;background:rgba(255,153,0,.08);border-color:rgba(255,153,0,.2)';
@@ -287,8 +263,18 @@
       .catch(function () {});
   }
 
+  function cardIdentity(card) {
+    var nameEl = card.querySelector('.frag-name');
+    if (!nameEl) return null;
+    var brandEl = card.querySelector('.frag-brand');
+    return { name: nameEl.textContent.trim(), brand: brandEl ? cleanBrand(brandEl.textContent) : '' };
+  }
+
   function init() {
     var cards = document.querySelectorAll('.frag-card');
+    // The Amazon link is the page's revenue; add it to every card immediately. Images and the
+    // scent-profile fetches stay lazy (IntersectionObserver below).
+    cards.forEach(function (c) { var id = cardIdentity(c); if (id) addAmazonBtn(c, id.name, id.brand); });
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {

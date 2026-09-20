@@ -1,6 +1,7 @@
-const CACHE = 'sw-v24';
+const CACHE = 'sw-v25';
 const SHELL = [
   '/',
+  '/amazon.js',
   '/app.js',
   '/styles.css?v=4',
   '/celebs.js',
