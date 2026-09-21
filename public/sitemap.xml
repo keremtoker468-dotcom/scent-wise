@@ -8,25 +8,6 @@
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
-  <!-- AI assistant discovery files (llms.txt convention + ai.txt) -->
-  <url>
-    <loc>https://scent-wise.com/llms.txt</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scent-wise.com/llms-full.txt</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://scent-wise.com/ai.txt</loc>
-    <lastmod>2026-05-04</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
   <!-- Blog index -->
   <url>
     <loc>https://scent-wise.com/blog/</loc>
@@ -37,156 +18,149 @@
   <!-- AI Perfume Recommendation (high-priority) -->
   <url>
     <loc>https://scent-wise.com/blog/ai-perfume-recommendations.html</loc>
-    <lastmod>2026-03-26</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/fragrance-faq.html</loc>
-    <lastmod>2026-04-07</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- High-traffic blog articles -->
   <url>
     <loc>https://scent-wise.com/blog/best-mens-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-womens-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/baccarat-rouge-540-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/dior-sauvage-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/celebrity-fragrances-guide.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/smellmaxxing-guide-2026.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <!-- Dupe & guide articles -->
   <url>
     <loc>https://scent-wise.com/blog/best-budget-colognes-for-teens.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-date-night-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-office-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-summer-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-perfumes-under-50.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/best-niche-fragrances.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/fragrance-layering-guide.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/le-labo-santal-33-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/tom-ford-lost-cherry-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/ysl-libre-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/creed-aventus-dupes.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/what-is-oud.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/vanilla-in-perfumery.html</loc>
-    <lastmod>2026-04-08</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/how-to-make-perfume-last-longer.html</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  <!-- RSS feed -->
   <url>
     <loc>https://scent-wise.com/blog/zodiac-fragrance-guide.html</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://scent-wise.com/blog/music-fragrance-guide.html</loc>
-    <lastmod>2026-09-14</lastmod>
+    <lastmod>2026-09-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://scent-wise.com/blog/feed.xml</loc>
-    <lastmod>2026-04-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
   </url>
   <!-- Discovery and collection hubs -->
   <url>
