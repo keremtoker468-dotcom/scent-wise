@@ -102,7 +102,32 @@
     },
     {
       "source": "/blog/trending-pistachio-fragrances.html",
+      "destination": "/blog/vanilla-in-perfumery.html",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/index.html",
       "destination": "/blog/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/best-womens-perfumes.html",
+      "destination": "/blog/best-womens-fragrances.html",
+      "permanent": true
+    },
+    {
+      "source": "/blog/zodiac-libr-fragrances.html",
+      "destination": "/blog/zodiac-fragrance-guide.html#libra",
+      "permanent": true
+    },
+    {
+      "source": "/blog/libra-fragrance-guide-2026-ScentWise",
+      "destination": "/blog/zodiac-fragrance-guide.html#libra",
       "permanent": true
     }
   ],
