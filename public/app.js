@@ -88,7 +88,7 @@
   function loadDB() {
     if (DB.loaded) return Promise.resolve();
     if (DB.promise) return DB.promise;
-    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js'), loadScript('/popular.js').catch(() => {})]).then(decodeDB).catch((err) => {
+    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js'), loadScript('/popular.js').catch(() => {}), loadScript('/perfumes-core.js?v=1').catch(() => {})]).then(decodeDB).catch((err) => {
       console.error(err); DB.loaded = true; toast('Could not load the perfume library. Please retry.');
     });
     return DB.promise;
@@ -115,8 +115,22 @@
             DB.rich.set(rec.k, rec);
             DB.richList.push(rec);
           }
-          DB.top = DB.richList.slice().sort((a, b) => b.r - a.r);
         }
+        // Curated core notes (perfumes-core.js) for the bestsellers the rich index lacks.
+        // They replace an existing rich record of the same key so the real pyramid always wins.
+        if (window._RC && !DB.coreMerged) {
+          DB.coreMerged = true;
+          for (const e of window._RC) {
+            const rec = { n: e[0], b: e[1] || '', c: e[2] || '', g: e[3] || '', r: e[4] || 0, a: (e[5] || []).slice(), t: e[6] || '' };
+            rec.k = (rec.n + '|' + rec.b).toLowerCase();
+            rec.words = noteWords(rec.t);
+            rec.f = famsFromAccords(rec.a); if (!rec.f.length) rec.f = [CAT_FAM[rec.c] || 'other'];
+            const prev = DB.rich.get(rec.k);
+            if (prev) { const i = DB.richList.indexOf(prev); if (i !== -1) DB.richList[i] = rec; } else DB.richList.push(rec);
+            DB.rich.set(rec.k, rec);
+          }
+        }
+        if (DB.richList.length) DB.top = DB.richList.slice().sort((a, b) => b.r - a.r);
         // Curated popularity: exact "Name|Brand" keys from popular.js, rank = position.
         (window.SW_POPULAR || []).forEach((k, i) => {
           const key = k.toLowerCase(); const it = DB.byKey.get(key);
@@ -216,11 +230,20 @@
     scored.sort((a, b) => b[0] - a[0]);
     return scored.slice(0, limit || 6).map((s) => ({ rec: s[1], score: s[0] }));
   }
+  // Common shorthand users type in the dupe box; expanded before matching against "name brand".
+  const BRAND_ALIASES = { ysl: 'yves saint laurent', mfk: 'maison francis kurkdjian', br540: 'baccarat rouge 540', jpg: 'jean paul gaultier', ck: 'calvin klein', tf: 'tom ford', adp: 'acqua di parma', pdm: 'parfums de marly', mmm: 'maison margiela', 'd&g': 'dolce gabbana', 'a&f': 'abercrombie fitch', 'cdg': 'comme des garcons', 'le labo': 'le labo', 'xerjoff': 'xerjoff' };
   function bestMatch(name) {
-    const fl = String(name || '').toLowerCase().trim();
-    if (fl.length < 3) return null;
+    let q = String(name || '').toLowerCase().replace(/\s+by\s+/g, ' ').replace(/[^\w&\s.'-]/g, ' ').trim();
+    if (q.length < 3) return null;
+    q = q.split(/\s+/).map((w) => BRAND_ALIASES[w] || w).join(' ');
+    // 1) Full-text match on "name brand" (handles "Dior Sauvage", "Sauvage by Dior", "Creed Aventus").
+    //    search() already ranks popular and note-rich entries first, so the first rich hit is the right one.
+    for (const it of search(q).slice(0, 40)) { const r = richOf(it); if (r && r.a.length) return r; }
+    // 2) Name-only prefix / substring fallback for partial names ("Lost Cherry", "Santal").
+    const fl = q;
     let target = null, best = 0;
     for (const p of DB.richList) {
+      if (!p.a.length) continue;
       const nl = p.n.toLowerCase(); let s = 0;
       if (nl === fl) s = 100; else if (nl.startsWith(fl + ' ')) s = 90 - (nl.length - fl.length); else if (nl.startsWith(fl)) s = 70 - (nl.length - fl.length); else if (fl.length >= 5 && nl.indexOf(fl) !== -1) s = 60 - (nl.length - fl.length);
       if (s > best) { best = s; target = p; }
@@ -233,8 +256,8 @@
     if (!target || !target.a.length) return '';
     const matches = similarTo(target, 15);
     if (!matches.length) return '';
-    let text = `\n\n[DATABASE MATCHES — use these real perfumes from our database as your primary source for recommendations. Prioritize these over your own knowledge. Similarity scores are based on accord & note overlap.]\nOriginal: ${target.n} by ${target.b} | Accords: ${target.a.join(', ')}${target.t ? ' | Notes: ' + target.t : ''}\n\nTop matches by similarity:\n`;
-    matches.forEach((m, i) => { text += `${i + 1}. ${m.rec.n} by ${m.rec.b} (score: ${(m.score * 100).toFixed(0)}%) | Accords: ${m.rec.a.join(', ')}${m.rec.t ? ' | Notes: ' + m.rec.t : ''} | Rating: ${m.rec.r}/5\n`; });
+    let text = `\n\n[DATABASE MATCHES — ground truth from our 65,000-perfume database. The original's notes below are correct; describe it from these, not from memory. Build your dupes from the candidates listed (they are ranked by accord and note overlap), unless you know a well-known clone with a closer match — then name it explicitly with its brand. Skip any candidate that is not cheaper than the original.]\nOriginal: ${target.n} by ${target.b} | Accords: ${target.a.join(', ')}${target.t ? ' | Notes: ' + target.t : ''}\n\nCandidates by similarity:\n`;
+    matches.forEach((m, i) => { text += `${i + 1}. ${m.rec.n} by ${m.rec.b} (match: ${Math.min(99, Math.round(m.score * 100))}%) | Accords: ${m.rec.a.join(', ')}${m.rec.t ? ' | Notes: ' + m.rec.t : ''} | Rating: ${m.rec.r}/5\n`; });
     return text;
   }
   function dbContext(query) {
@@ -810,8 +833,8 @@
     if (mode === 'dupe') {
       if (prevAi && !opts.preset) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I asked for affordable dupes and got these recommendations', prevAi) }] };
       const grounding = DB.loaded ? dupeGrounding(text) : '';
-      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one precise sentence describing the original's actual scent experience (what spraying it feels like, not just a note list). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
-      return { mode: 'chat', messages: [{ role: 'user', content: body }] };
+      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name and no database match is listed, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: open with one precise sentence describing what the original actually smells like on skin (not just a note list). Then deliver exactly 5 dupes, cheapest first, prioritising picks under $80 — every one must be a genuine scent match (same main accords, at least two shared signature notes). For each pick use exactly this layout:\n1. **Name by Brand** — shared notes; ~$price\nWHY IT MATCHES YOU: how close it is in honest words ("near clone", "85% there but lighter", "same DNA, sweeter dry-down") and the main thing you lose (longevity, projection, a specific note). No fake 100% matches.\nBLIND BUY RISK: Low-risk blind buy / Medium risk — only if you like [note] / Test first — polarizing\nSCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5\n\nEnd with one honest line — which dupe you'd personally pick, and why.${grounding}`;
+      return { mode: 'dupe', messages: [{ role: 'user', content: body }] };
     }
     if (mode === 'zodiac') {
       const sign = signFromText(text);
@@ -889,12 +912,12 @@
         return { data };
       } finally { clearTimeout(timer); }
     };
-    try { return await attempt(30000); }
+    try { return await attempt(55000); }
     catch (e) {
       const transient = e.name === 'AbortError' || /Failed to fetch|network/i.test(e.message || '') || (e.status && e.status >= 500);
       if (!transient) { if (!e.data) e.data = {}; throw e; }
       await sleep(600);
-      try { return await attempt(30000); } catch (e2) { if (!e2.data) e2.data = {}; if (!e2.status && e2.name === 'AbortError') e2.status = 504; throw e2; }
+      try { return await attempt(55000); } catch (e2) { if (!e2.data) e2.data = {}; if (!e2.status && e2.name === 'AbortError') e2.status = 504; throw e2; }
     }
   }
 

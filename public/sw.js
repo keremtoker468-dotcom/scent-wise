@@ -1,4 +1,4 @@
-const CACHE = 'sw-v25';
+const CACHE = 'sw-v26';
 const SHELL = [
   '/',
   '/amazon.js',
@@ -11,7 +11,7 @@ const SHELL = [
   '/icon-512.png'
 ];
 // Large DB files — prefetched after install to speed up first explore/chat navigation
-const DB_FILES = ['/perfumes.js', '/perfumes-rich.js'];
+const DB_FILES = ['/perfumes.js', '/perfumes-rich.js', '/perfumes-core.js'];
 
 // Install: cache app shell
 self.addEventListener('install', e => {

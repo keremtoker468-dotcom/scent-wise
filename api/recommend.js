@@ -15,6 +15,112 @@ const { validateSecrets } = require('./_lib/validate-secrets');
 
 validateSecrets();
 
+// Model selection. Gemini 2.5 reached its announced shutdown date (16 Oct 2026),
+// so the default is the current Flash generation; GEMINI_MODEL overrides it and
+// the chain below is tried in order whenever a model answers 404/400/5xx so a
+// retired ID never takes the advisor down. The first model that answers is
+// remembered for the life of the instance.
+const DEFAULT_MODEL = 'gemini-3.5-flash';
+const MODEL_CHAIN = Array.from(new Set([
+  process.env.GEMINI_MODEL,
+  DEFAULT_MODEL,
+  'gemini-3.1-flash-lite',
+  'gemini-2.5-flash'
+].filter(Boolean)));
+let resolvedModel = null;
+// Total time budget for the AI call; maxDuration below leaves headroom for the
+// usage bookkeeping after it. The client waits 55s.
+const GEN_DEADLINE_MS = 50000;
+
+function generationConfig(model) {
+  // Thinking tokens share maxOutputTokens with the visible answer, so a 3000
+  // cap on a thinking model truncated replies mid-pick. 8192 leaves room for
+  // five full picks plus the reasoning the model spends before writing.
+  const cfg = { maxOutputTokens: 8192 };
+  if (/^gemini-[3-9]/.test(model)) {
+    // Gemini 3.x: thinking_level replaces thinking_budget; temperature is best left at default.
+    cfg.thinkingConfig = { thinkingLevel: (process.env.GEMINI_THINKING_LEVEL || 'low').toLowerCase() };
+  } else {
+    cfg.temperature = 0.5;
+    cfg.thinkingConfig = { thinkingBudget: 1024 };
+  }
+  return cfg;
+}
+
+async function callModel(model, { systemText, contents, timeoutMs, apiKey }) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemText }] },
+          contents,
+          generationConfig: generationConfig(model)
+        }),
+        signal: controller.signal
+      }
+    );
+    if (!response.ok) {
+      const errText = await response.text().catch(() => '');
+      const err = new Error(`Gemini ${model} HTTP ${response.status}: ${errText.slice(0, 300)}`);
+      err.status = response.status;
+      // Auth problems are ours, not the model's — no point trying the next model.
+      err.code = (response.status === 401 || response.status === 403) ? 'AUTH' : 'MODEL';
+      throw err;
+    }
+    const data = await response.json();
+    const cand = data.candidates && data.candidates[0];
+    const blockReason = data.promptFeedback && data.promptFeedback.blockReason;
+    if (!cand || cand.finishReason === 'SAFETY' || cand.finishReason === 'PROHIBITED_CONTENT' || blockReason) {
+      const err = new Error(`Gemini ${model} blocked: ${blockReason || (cand && cand.finishReason)}`);
+      err.code = 'BLOCKED';
+      throw err;
+    }
+    // Thinking models can return several parts (and thought parts when enabled) — join every visible text part.
+    const text = (cand.content && cand.content.parts || [])
+      .filter((p) => typeof p.text === 'string' && !p.thought)
+      .map((p) => p.text).join('').trim();
+    if (!text) {
+      const err = new Error(`Gemini ${model} returned no text (finishReason=${cand.finishReason})`);
+      err.code = 'MODEL';
+      throw err;
+    }
+    return { text, model, truncated: cand.finishReason === 'MAX_TOKENS' };
+  } catch (e) {
+    if (e.name === 'AbortError') { const err = new Error('timeout'); err.code = 'TIMEOUT'; throw err; }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function generate({ systemText, contents, deadlineMs }) {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const deadline = Date.now() + deadlineMs;
+  const order = resolvedModel ? [resolvedModel].concat(MODEL_CHAIN.filter((m) => m !== resolvedModel)) : MODEL_CHAIN;
+  let lastErr = null;
+  for (const model of order) {
+    const remaining = deadline - Date.now();
+    if (remaining < 8000) break;
+    try {
+      const out = await callModel(model, { systemText, contents, timeoutMs: remaining, apiKey });
+      if (resolvedModel !== model) console.log(`Gemini model in use: ${model}`);
+      resolvedModel = model;
+      return out;
+    } catch (e) {
+      lastErr = e;
+      if (e.code === 'TIMEOUT' || e.code === 'BLOCKED' || e.code === 'AUTH') throw e;
+      console.error(`Gemini model ${model} failed, trying next:`, e.message);
+      if (resolvedModel === model) resolvedModel = null;
+    }
+  }
+  throw lastErr || Object.assign(new Error('no model available'), { code: 'MODEL' });
+}
+
 function verifyAccess(req) {
   const cookies = parseCookies(req.headers.cookie);
   const ownerKey = process.env.OWNER_KEY;
@@ -142,7 +248,8 @@ module.exports = async function handler(req, res) {
     } catch { /* profile loading is non-blocking */ }
     const profileContext = profile ? buildProfilePrompt(profile) : '';
 
-    let parts = [];
+    const isDupe = mode === 'dupe';
+    let contents = [];
     let systemText = '';
     let userTextForProfile = ''; // track user input for profile extraction
 
@@ -162,6 +269,14 @@ ORDER & BRAND BALANCE:
 - Picks #1, #2, #3 should lean designer or niche Western houses (Dior, YSL, Tom Ford, Versace, Chanel, Givenchy, Maison Margiela, Le Labo, Byredo, Maison Francis Kurkdjian, Diptyque, Creed, etc.).
 - Picks #4 and #5 can include Middle-Eastern / attar houses (Al Haramain, Lattafa, Al-Rehab, Rasasi, Armaf) — at most 2 of these across the whole response, never more.
 - Each pick from a different brand — no repeats in one response.
+
+ACCURACY RULES (non-negotiable):
+- Only name fragrances that really exist from the house you attribute them to. Never invent a name, a flanker or a brand. If you are not sure a fragrance exists, pick one you are sure about instead.
+- Notes must be the real pyramid of that fragrance. If you don't know the notes with confidence, name only the 2-3 notes you are certain of rather than guessing.
+- When the message includes database matches (notes, accords, ratings), treat them as ground truth: prefer those perfumes, use their listed notes, and never contradict them.
+- Price tiers must be realistic for the house ($ under 60, $$ 60-150, $$$ over 150 for a full bottle).
+- Prefer well-distributed, currently sold fragrances over discontinued or ultra-rare ones unless the user asks for them.
+- Finish every pick completely. Never stop mid-sentence or mid-list; if you are running long, shorten the prose, not the number of picks.
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
@@ -185,12 +300,24 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
 - Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
 - SCORES line must read literally: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 - Do NOT use markdown headers (# or ##), do NOT use nested bullets inside picks, do NOT bold notes or section labels.` + profileContext;
-      parts = [
+      const hint = messages && messages.length ? String(messages[messages.length - 1].content || '').slice(0, 2000) : '';
+      contents = [{ role: 'user', parts: [
         { inlineData: { mimeType: imageMime || 'image/jpeg', data: imageBase64 } },
-        { text: systemText + '\n\nAnalyze this style and recommend matching fragrances.' }
-      ];
+        { text: 'Analyze this style and recommend matching fragrances.' + (hint ? '\n\nUser note: ' + hint : '') }
+      ] }];
       userTextForProfile = 'photo style scan';
     } else {
+      const brandBalance = isDupe ? `DUPE MODE RULES (this request is a dupe / cheaper-alternative search — these override the usual brand balance):
+- The user wants fragrances that SMELL LIKE the original. Similarity is the only ranking criterion; brand prestige, region and variety do not matter. Clone houses (Lattafa, Armaf, Al Haramain, Afnan, Rasasi, Maison Alhambra, Fragrance World, Zara, Dossier, ALT Fragrances, Dua, Oil Perfumery, Alexandria Fragrances, Ard Al Zaafaran, Paris Corner, Swiss Arabian) are welcome and may fill every slot when they are the closest matches.
+- Each pick must share the original's main accords and at least two of its signature notes. Do not list a fragrance that merely shares one note or a general mood — if a pick is not a genuine scent match, replace it.
+- Every pick must be cheaper than the original. Order from cheapest to most expensive, favour picks under $80.
+- If the original is already budget (under $50) say so and offer the closest alternatives at any price under it.
+- Head line: **Name by Brand** — the shared notes, then "~$price". WHY IT MATCHES YOU must say how close it is in honest words ("near clone", "85% there but lighter", "same DNA, sweeter dry-down") and name the main thing you lose (longevity, projection, a specific note). Never claim a 100% match.
+` : `ORDER & BRAND BALANCE:
+- Picks #1, #2, #3 should lean designer or niche Western houses (Dior, YSL, Tom Ford, Versace, Chanel, Givenchy, Maison Margiela, Le Labo, Byredo, Maison Francis Kurkdjian, Diptyque, Creed, etc.).
+- Picks #4 and #5 can include Middle-Eastern / attar houses (Al Haramain, Lattafa, Al-Rehab, Rasasi, Armaf) — at most 2 of these across the whole response, never more.
+- Each pick from a different brand — no repeats in one response.
+`;
       systemText = `You are ScentWise AI — a world-class fragrance advisor with the warmth of a friend who genuinely loves this world. You have deep working knowledge of designer, niche, artisanal, vintage, Middle-Eastern attar and indie houses, and you give recommendations with calm confidence. Think: a trusted advisor who happens to be a fragrance lover — expert first, enthusiast second.
 
 VOICE & TONE:
@@ -204,10 +331,14 @@ VOICE & TONE:
 
 FORMAT: Use **bold** for fragrance names. Open with 1 short sentence acknowledging the user's vibe/request so they feel heard. Then deliver picks.
 
-ORDER & BRAND BALANCE:
-- Picks #1, #2, #3 should lean designer or niche Western houses (Dior, YSL, Tom Ford, Versace, Chanel, Givenchy, Maison Margiela, Le Labo, Byredo, Maison Francis Kurkdjian, Diptyque, Creed, etc.).
-- Picks #4 and #5 can include Middle-Eastern / attar houses (Al Haramain, Lattafa, Al-Rehab, Rasasi, Armaf) — at most 2 of these across the whole response, never more.
-- Each pick from a different brand — no repeats in one response.
+${brandBalance}
+ACCURACY RULES (non-negotiable):
+- Only name fragrances that really exist from the house you attribute them to. Never invent a name, a flanker or a brand. If you are not sure a fragrance exists, pick one you are sure about instead.
+- Notes must be the real pyramid of that fragrance. If you don't know the notes with confidence, name only the 2-3 notes you are certain of rather than guessing.
+- When the message includes database matches (notes, accords, ratings), treat them as ground truth: prefer those perfumes, use their listed notes, and never contradict them.
+- Price tiers must be realistic for the house ($ under 60, $$ 60-150, $$$ over 150 for a full bottle).
+- Prefer well-distributed, currently sold fragrances over discontinued or ultra-rare ones unless the user asks for them.
+- Finish every pick completely. Never stop mid-sentence or mid-list; if you are running long, shorten the prose, not the number of picks.
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
@@ -235,49 +366,30 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
 - Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
 - SCORES line must read literally: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 - Do NOT use markdown headers (# or ##), do NOT use nested bullets inside picks, do NOT bold notes or section labels.` + profileContext;
-      const lastMsg = messages && messages.length > 0 ? messages[messages.length - 1].content : '';
-      const history = messages && messages.length > 1
-        ? messages.slice(0, -1).map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
-        : '';
-      parts = [{ text: systemText + (history ? '\n\nConversation so far:\n' + history : '') + '\n\nUser: ' + lastMsg }];
+      // Real conversation turns (user/model roles) keep the model grounded in the
+      // thread instead of reading a flattened transcript inside one user message.
+      const turns = (messages || []).filter((m) => m && typeof m.content === 'string' && m.content.trim());
+      contents = turns.map((m) => ({ role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: m.content.slice(0, 12000) }] }));
+      // Gemini requires the thread to start with a user turn and alternate roles.
+      while (contents.length && contents[0].role !== 'user') contents.shift();
+      const lastMsg = turns.length ? turns[turns.length - 1].content : '';
+      if (!contents.length) return res.status(400).json({ error: 'Empty message' });
       userTextForProfile = lastMsg;
     }
 
-    const controller = new AbortController();
-    // Abort 2s before the Vercel function ceiling (30s) so we can return a
-    // clean 504 with a friendly message instead of the platform-level kill.
-    const timeout = setTimeout(() => controller.abort(), 28000);
-    let response;
+    const started = Date.now();
+    let generated;
     try {
-      response = await fetch(
-        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
-          body: JSON.stringify({
-            contents: [{ parts }],
-            generationConfig: { maxOutputTokens: 3000, temperature: 0.8 }
-          }),
-          signal: controller.signal
-        }
-      );
-    } catch (fetchErr) {
-      clearTimeout(timeout);
-      if (fetchErr.name === 'AbortError') {
-        return res.status(504).json({ error: 'AI service took too long to respond. Please try again.' });
-      }
-      throw fetchErr;
-    }
-    clearTimeout(timeout);
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`Gemini API error: ${response.status}`, errText);
+      generated = await generate({ systemText, contents, deadlineMs: GEN_DEADLINE_MS });
+    } catch (genErr) {
+      if (genErr.code === 'TIMEOUT') return res.status(504).json({ error: 'AI service took too long to respond. Please try again.' });
+      if (genErr.code === 'BLOCKED') return res.status(400).json({ error: 'That request could not be processed. Please rephrase and try again.' });
+      console.error('Gemini generate failed:', genErr.message);
       return res.status(500).json({ error: 'AI service temporarily unavailable' });
     }
-
-    const data = await response.json();
-    const result = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response generated.';
+    let result = generated.text;
+    if (generated.truncated) result += '\n\nThat reply hit my length limit, so the last pick may be cut short. Ask me to continue and I will finish it.';
+    console.log(`recommend ok model=${generated.model} mode=${mode || 'chat'} ms=${Date.now() - started} chars=${result.length}${generated.truncated ? ' truncated' : ''}`);
 
     // Update user scent profile with preferences from this interaction (non-blocking)
     if (profile) {
@@ -338,8 +450,7 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
   }
 };
 
-// Vercel default function timeout is 10s on Hobby. gemini-2.5-flash with
-// a long system prompt + 6000 max output tokens regularly takes 12-18s,
-// so the platform was killing the request before Gemini answered → 504.
-// Hobby supports up to 60s; 30s is plenty of headroom.
-module.exports.config = { maxDuration: 30 };
+// Vercel's default function timeout is 10s on Hobby, which killed slower Gemini
+// answers with a platform 504. Hobby allows up to 60s; the AI call itself is
+// capped at GEN_DEADLINE_MS so a clean 504 is returned before this ceiling.
+module.exports.config = { maxDuration: 60 };
