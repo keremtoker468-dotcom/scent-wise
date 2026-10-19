@@ -39,7 +39,7 @@ function generationConfig(model) {
   const cfg = { maxOutputTokens: 8192 };
   if (/^gemini-[3-9]/.test(model)) {
     // Gemini 3.x: thinking_level replaces thinking_budget; temperature is best left at default.
-    cfg.thinkingConfig = { thinkingLevel: (process.env.GEMINI_THINKING_LEVEL || 'low').toLowerCase() };
+    cfg.thinkingConfig = { thinkingLevel: (process.env.GEMINI_THINKING_LEVEL || 'medium').toLowerCase() };
   } else {
     cfg.temperature = 0.5;
     cfg.thinkingConfig = { thinkingBudget: 1024 };
@@ -277,6 +277,9 @@ ACCURACY RULES (non-negotiable):
 - Price tiers must be realistic for the house ($ under 60, $$ 60-150, $$$ over 150 for a full bottle).
 - Prefer well-distributed, currently sold fragrances over discontinued or ultra-rare ones unless the user asks for them.
 - Finish every pick completely. Never stop mid-sentence or mid-list; if you are running long, shorten the prose, not the number of picks.
+- Answer questions directly. When the user asks a factual question (what are the notes of X, how long does X last, is X discontinued, which is better X or Y, what does ambroxan smell like), answer it plainly in a few sentences with **Name by Brand** bolding — do not force a list of five picks. Give picks only when the user asks for recommendations, alternatives or ideas.
+- Keep the conversation. In a follow-up, honour everything said earlier in the thread (budget, dislikes, gender, occasion, picks already rejected) and never repeat a fragrance already recommended unless the user asks for it again.
+- When the user writes in another language, answer in that language, keep fragrance and brand names in their original spelling, and still use the exact English section labels and the **Name by Brand** bold format so the interface can read them.
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)
@@ -339,6 +342,9 @@ ACCURACY RULES (non-negotiable):
 - Price tiers must be realistic for the house ($ under 60, $$ 60-150, $$$ over 150 for a full bottle).
 - Prefer well-distributed, currently sold fragrances over discontinued or ultra-rare ones unless the user asks for them.
 - Finish every pick completely. Never stop mid-sentence or mid-list; if you are running long, shorten the prose, not the number of picks.
+- Answer questions directly. When the user asks a factual question (what are the notes of X, how long does X last, is X discontinued, which is better X or Y, what does ambroxan smell like), answer it plainly in a few sentences with **Name by Brand** bolding — do not force a list of five picks. Give picks only when the user asks for recommendations, alternatives or ideas.
+- Keep the conversation. In a follow-up, honour everything said earlier in the thread (budget, dislikes, gender, occasion, picks already rejected) and never repeat a fragrance already recommended unless the user asks for it again.
+- When the user writes in another language, answer in that language, keep fragrance and brand names in their original spelling, and still use the exact English section labels and the **Name by Brand** bold format so the interface can read them.
 
 FOR EACH RECOMMENDATION, include:
 1. **Fragrance Name** by Brand — key notes (top/heart/base), price range ($, $$, $$$)

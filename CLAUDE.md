@@ -93,7 +93,7 @@ Required in Vercel dashboard:
 |---|---|
 | `GEMINI_API_KEY` | Google Gemini API key for AI features |
 | `GEMINI_MODEL` | Optional — Gemini model ID to try first (default `gemini-3.5-flash`); `api/recommend.js` falls back along its chain when a model answers 404/400/5xx |
-| `GEMINI_THINKING_LEVEL` | Optional — `minimal`/`low`/`medium`/`high` for Gemini 3.x (default `low`; higher is more careful but slower) |
+| `GEMINI_THINKING_LEVEL` | Optional — `minimal`/`low`/`medium`/`high` for Gemini 3.x (default `medium`; `low` is faster, `high` more careful but slower) |
 | `SUBSCRIPTION_SECRET` | HMAC secret for signing subscription cookies |
 | `LEMONSQUEEZY_API_KEY` | Lemon Squeezy API key for order verification |
 | `LEMONSQUEEZY_WEBHOOK_SECRET` | Webhook signature verification secret |
@@ -111,7 +111,7 @@ Required in Vercel dashboard:
 
 - **No framework, no build**: The frontend is a single `index.html` + `app.js` with no transpilation or bundling. Edit and deploy directly.
 - **Client-side search**: The 65K perfume database is embedded in `perfumes.js` and `perfumes-rich.js`, loaded client-side for instant search with zero API cost.
-- **AI features are server-side only**: All Gemini API calls go through `api/recommend.js`. The API key is never exposed to the client. The prompt goes in `systemInstruction`, the thread in role-tagged `contents`; the client sends `mode: 'dupe'` for the dupe finder so the server swaps the brand-balance rules for similarity-only rules. Dupe and chat requests carry database grounding (`dupeGrounding()` / `dbContext()` in `app.js`), which depends on `perfumes-core.js` for the bestsellers.
+- **AI features are server-side only**: All Gemini API calls go through `api/recommend.js`. The API key is never exposed to the client. The prompt goes in `systemInstruction`, the thread in role-tagged `contents`; the client sends `mode: 'dupe'` for the dupe finder so the server swaps the brand-balance rules for similarity-only rules. Dupe requests carry `dupeGrounding()` and every other mode carries `chatGrounding()` (real notes for fragrances the user names, accord-ranked candidates, thumbs up/down history) from `app.js`; both depend on `perfumes-core.js` for the bestsellers. Follow-ups send the last 10 thread turns as role-tagged history.
 - **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (one-time purchase; access cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
 - **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get up to 3 trial queries (device + IP-tracked via Redis to prevent incognito bypass). Pre-email queries after #1 return a `teaser` flag; the client blurs items past the first two picks until the user submits their email.
