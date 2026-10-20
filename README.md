@@ -68,7 +68,7 @@ Gemini API cost: ~$0.001 per query × up to 500 queries × 200 users = ~$100/mon
 ## Architecture
 
 - Frontend: Single HTML file with 65K fragrances embedded client-side (searches are instant, no API needed)
-- Backend: Vercel serverless function calling Gemini 2.0 Flash (only for AI features)
+- Backend: Vercel serverless function calling Google Gemini (model set by `GEMINI_MODEL`, default `gemini-3.5-flash`) (only for AI features)
 - Payments: Lemon Squeezy handles one-time purchases
 - The database explorer and celebrity browsing work completely offline — zero API cost
 - AI features send relevant database context to Gemini for accurate recommendations

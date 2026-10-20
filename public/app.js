@@ -88,7 +88,7 @@
   function loadDB() {
     if (DB.loaded) return Promise.resolve();
     if (DB.promise) return DB.promise;
-    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js'), loadScript('/popular.js').catch(() => {})]).then(decodeDB).catch((err) => {
+    DB.promise = Promise.all([loadScript('/perfumes.js'), loadScript('/perfumes-rich.js'), loadScript('/popular.js').catch(() => {}), loadScript('/perfumes-core.js?v=1').catch(() => {})]).then(decodeDB).catch((err) => {
       console.error(err); DB.loaded = true; toast('Could not load the perfume library. Please retry.');
     });
     return DB.promise;
@@ -115,8 +115,22 @@
             DB.rich.set(rec.k, rec);
             DB.richList.push(rec);
           }
-          DB.top = DB.richList.slice().sort((a, b) => b.r - a.r);
         }
+        // Curated core notes (perfumes-core.js) for the bestsellers the rich index lacks.
+        // They replace an existing rich record of the same key so the real pyramid always wins.
+        if (window._RC && !DB.coreMerged) {
+          DB.coreMerged = true;
+          for (const e of window._RC) {
+            const rec = { n: e[0], b: e[1] || '', c: e[2] || '', g: e[3] || '', r: e[4] || 0, a: (e[5] || []).slice(), t: e[6] || '' };
+            rec.k = (rec.n + '|' + rec.b).toLowerCase();
+            rec.words = noteWords(rec.t);
+            rec.f = famsFromAccords(rec.a); if (!rec.f.length) rec.f = [CAT_FAM[rec.c] || 'other'];
+            const prev = DB.rich.get(rec.k);
+            if (prev) { const i = DB.richList.indexOf(prev); if (i !== -1) DB.richList[i] = rec; } else DB.richList.push(rec);
+            DB.rich.set(rec.k, rec);
+          }
+        }
+        if (DB.richList.length) DB.top = DB.richList.slice().sort((a, b) => b.r - a.r);
         // Curated popularity: exact "Name|Brand" keys from popular.js, rank = position.
         (window.SW_POPULAR || []).forEach((k, i) => {
           const key = k.toLowerCase(); const it = DB.byKey.get(key);
@@ -216,11 +230,20 @@
     scored.sort((a, b) => b[0] - a[0]);
     return scored.slice(0, limit || 6).map((s) => ({ rec: s[1], score: s[0] }));
   }
+  // Common shorthand users type in the dupe box; expanded before matching against "name brand".
+  const BRAND_ALIASES = { ysl: 'yves saint laurent', mfk: 'maison francis kurkdjian', br540: 'baccarat rouge 540', jpg: 'jean paul gaultier', ck: 'calvin klein', tf: 'tom ford', adp: 'acqua di parma', pdm: 'parfums de marly', mmm: 'maison margiela', 'd&g': 'dolce gabbana', 'a&f': 'abercrombie fitch', 'cdg': 'comme des garcons', 'le labo': 'le labo', 'xerjoff': 'xerjoff' };
   function bestMatch(name) {
-    const fl = String(name || '').toLowerCase().trim();
-    if (fl.length < 3) return null;
+    let q = String(name || '').toLowerCase().replace(/\s+by\s+/g, ' ').replace(/[^\w&\s.'-]/g, ' ').trim();
+    if (q.length < 3) return null;
+    q = q.split(/\s+/).map((w) => BRAND_ALIASES[w] || w).join(' ');
+    // 1) Full-text match on "name brand" (handles "Dior Sauvage", "Sauvage by Dior", "Creed Aventus").
+    //    search() already ranks popular and note-rich entries first, so the first rich hit is the right one.
+    for (const it of search(q).slice(0, 40)) { const r = richOf(it); if (r && r.a.length) return r; }
+    // 2) Name-only prefix / substring fallback for partial names ("Lost Cherry", "Santal").
+    const fl = q;
     let target = null, best = 0;
     for (const p of DB.richList) {
+      if (!p.a.length) continue;
       const nl = p.n.toLowerCase(); let s = 0;
       if (nl === fl) s = 100; else if (nl.startsWith(fl + ' ')) s = 90 - (nl.length - fl.length); else if (nl.startsWith(fl)) s = 70 - (nl.length - fl.length); else if (fl.length >= 5 && nl.indexOf(fl) !== -1) s = 60 - (nl.length - fl.length);
       if (s > best) { best = s; target = p; }
@@ -233,25 +256,75 @@
     if (!target || !target.a.length) return '';
     const matches = similarTo(target, 15);
     if (!matches.length) return '';
-    let text = `\n\n[DATABASE MATCHES — use these real perfumes from our database as your primary source for recommendations. Prioritize these over your own knowledge. Similarity scores are based on accord & note overlap.]\nOriginal: ${target.n} by ${target.b} | Accords: ${target.a.join(', ')}${target.t ? ' | Notes: ' + target.t : ''}\n\nTop matches by similarity:\n`;
-    matches.forEach((m, i) => { text += `${i + 1}. ${m.rec.n} by ${m.rec.b} (score: ${(m.score * 100).toFixed(0)}%) | Accords: ${m.rec.a.join(', ')}${m.rec.t ? ' | Notes: ' + m.rec.t : ''} | Rating: ${m.rec.r}/5\n`; });
+    let text = `\n\n[DATABASE MATCHES — ground truth from our 65,000-perfume database. The original's notes below are correct; describe it from these, not from memory. Build your dupes from the candidates listed (they are ranked by accord and note overlap), unless you know a well-known clone with a closer match — then name it explicitly with its brand. Skip any candidate that is not cheaper than the original.]\nOriginal: ${target.n} by ${target.b} | Accords: ${target.a.join(', ')}${target.t ? ' | Notes: ' + target.t : ''}\n\nCandidates by similarity:\n`;
+    matches.forEach((m, i) => { text += `${i + 1}. ${m.rec.n} by ${m.rec.b} (match: ${Math.min(99, Math.round(m.score * 100))}%) | Accords: ${m.rec.a.join(', ')}${m.rec.t ? ' | Notes: ' + m.rec.t : ''} | Rating: ${m.rec.r}/5\n`; });
     return text;
   }
-  function dbContext(query) {
-    let results = search(query).slice(0, 20);
-    if (!results.length) {
-      for (const t of String(query).toLowerCase().split(/\s+/)) { if (t.length > 3) results = results.concat(search(t).slice(0, 10)); }
-    }
-    if (!results.length) return '';
-    const lines = results.slice(0, 15).map((it) => {
-      const r = richOf(it); let s = `${it.n} by ${it.b}`;
-      if (it.c) s += ` | ${catLabel(it.c)}`; if (it.g) s += ` | ${GENDER_NAME[it.g] || it.g}`;
-      if (r && r.t) s += ` | Notes: ${r.t}`; if (r && r.a.length) s += ` | Accords: ${r.a.join(', ')}`; if (r && r.r) s += ` | Rating: ${r.r}/5`;
-      return s;
-    });
-    return '\n\nRelevant perfumes from database:\n' + lines.join('\n');
+  // Chat grounding. The old version ran the name search over the whole sentence, so
+  // "something fresh for the office" listed every perfume with "fresh" in its name and told
+  // the model to prefer them. Now: (1) real notes for any fragrance the user actually names,
+  // (2) candidates ranked by the accords/mood words in the request, (3) the user's thumbs
+  // up/down history. Nothing is sent when nothing matches.
+  const ACCORD_HINTS = {
+    fresh: ['fresh', 'citrus', 'aquatic'], clean: ['soapy', 'musky', 'fresh'], soapy: ['soapy'], citrus: ['citrus'], citrusy: ['citrus'], lemon: ['citrus'], bergamot: ['citrus'],
+    aquatic: ['aquatic', 'marine'], marine: ['marine', 'aquatic'], ocean: ['marine', 'aquatic'], beach: ['aquatic', 'coconut', 'salty'], summer: ['fresh', 'citrus', 'aquatic'], spring: ['floral', 'green', 'fresh'],
+    sweet: ['sweet', 'vanilla'], vanilla: ['vanilla'], gourmand: ['sweet', 'vanilla', 'caramel'], dessert: ['sweet', 'caramel', 'vanilla'], caramel: ['caramel'], chocolate: ['chocolate', 'cacao'], coffee: ['coffee'], honey: ['honey'], almond: ['almond'], coconut: ['coconut'], cherry: ['cherry'], fruity: ['fruity'], fruit: ['fruity'], tropical: ['tropical'],
+    woody: ['woody'], woods: ['woody'], wood: ['woody'], sandalwood: ['woody'], cedar: ['woody'], oud: ['oud'], agarwood: ['oud'], smoky: ['smoky'], smokey: ['smoky'], incense: ['smoky', 'balsamic'], leather: ['leather'], leathery: ['leather'], tobacco: ['tobacco'], boozy: ['rum', 'whiskey'], rum: ['rum'], whiskey: ['whiskey'],
+    spicy: ['warm spicy', 'fresh spicy'], spice: ['warm spicy'], cinnamon: ['cinnamon'], pepper: ['fresh spicy'], warm: ['warm spicy', 'amber'], cozy: ['warm spicy', 'vanilla', 'amber'], winter: ['warm spicy', 'amber', 'vanilla'], autumn: ['warm spicy', 'woody', 'amber'], fall: ['warm spicy', 'woody', 'amber'], amber: ['amber'], ambery: ['amber'], resinous: ['balsamic', 'amber'],
+    floral: ['floral'], flowers: ['floral'], flowery: ['floral'], rose: ['rose'], rosy: ['rose'], jasmine: ['white floral'], tuberose: ['tuberose'], gardenia: ['white floral'], iris: ['iris'], violet: ['violet'], lavender: ['lavender'], powdery: ['powdery'], powder: ['powdery'],
+    green: ['green'], grassy: ['green'], herbal: ['herbal', 'aromatic'], aromatic: ['aromatic'], mossy: ['mossy'], earthy: ['earthy'], musky: ['musky'], musk: ['musky'], skin: ['musky'], animalic: ['animalic'], mineral: ['mineral'], salty: ['salty'],
+    seductive: ['amber', 'sweet', 'vanilla'], sexy: ['amber', 'sweet', 'vanilla'], date: ['amber', 'sweet', 'vanilla'], night: ['amber', 'warm spicy', 'sweet'], club: ['sweet', 'amber', 'fruity'], office: ['musky', 'fresh', 'woody'], work: ['musky', 'fresh', 'woody'], gym: ['fresh', 'citrus', 'aromatic'], wedding: ['floral', 'musky', 'powdery'], elegant: ['iris', 'powdery', 'woody'], expensive: ['amber', 'woody', 'iris'], luxurious: ['amber', 'woody', 'oud']
+  };
+  const DISLIKE_KEY = 'sw2_rated';
+  function ratedNames(liked) { const r = lsGet(DISLIKE_KEY, { up: [], down: [] }); return (liked ? r.up : r.down).slice(-10); }
+  function rememberRating(names, liked) {
+    const r = lsGet(DISLIKE_KEY, { up: [], down: [] }); const key = liked ? 'up' : 'down', other = liked ? 'down' : 'up';
+    for (const n of names) { if (r[key].indexOf(n) === -1) r[key].push(n); const i = r[other].indexOf(n); if (i !== -1) r[other].splice(i, 1); }
+    r.up = r.up.slice(-30); r.down = r.down.slice(-30); lsSet(DISLIKE_KEY, r);
   }
-
+  function mentionedFragrances(text, limit) {
+    const lower = ' ' + String(text || '').toLowerCase().replace(/[^\w\s'&]/g, ' ').replace(/\s+/g, ' ') + ' ';
+    const out = []; const seen = new Set();
+    const consider = (rec) => {
+      if (!rec || !rec.a || !rec.a.length || seen.has(rec.k)) return;
+      const n = rec.n.toLowerCase().replace(/[^\w\s'&]/g, ' ').replace(/\s+/g, ' ').trim();
+      if (n.length < 4 || lower.indexOf(' ' + n + ' ') === -1) return;
+      seen.add(rec.k); out.push(rec);
+    };
+    for (const it of DB.popular) consider(richOf(it));
+    if (out.length < (limit || 4) && window._RC) for (const e of window._RC) consider(DB.rich.get((e[0] + '|' + e[1]).toLowerCase()));
+    return out.slice(0, limit || 4);
+  }
+  function accordCandidates(text, limit) {
+    const words = String(text || '').toLowerCase().replace(/[^\w\s]/g, ' ').split(/\s+/);
+    const want = new Map();
+    for (const w of words) { const hs = ACCORD_HINTS[w] || ACCORD_HINTS[w.replace(/s$/, '')]; if (hs) hs.forEach((a, i) => want.set(a, Math.max(want.get(a) || 0, i === 0 ? 2 : 1))); }
+    if (!want.size) return [];
+    const t = ' ' + words.join(' ') + ' ';
+    const gender = /\b(for (him|men|a man|my (boyfriend|husband|dad|brother))|masculine|men's)\b/.test(t) ? 'M' : (/\b(for (her|women|a woman|my (girlfriend|wife|mom|mother|sister))|feminine|women's)\b/.test(t) ? 'F' : '');
+    const scored = [];
+    for (const p of DB.richList) {
+      if (!p.a.length || (gender && p.g && p.g !== gender && p.g !== 'U')) continue;
+      let sc = 0; p.a.forEach((a, i) => { const w = want.get(a); if (w) sc += w * (i < 3 ? 1.5 : 1); });
+      if (!sc) continue;
+      const pr = DB.popRank.get(p.k); sc += (p.r || 0) * 0.3 + (pr !== undefined ? Math.max(0, 3 - pr / 100) : 0);
+      scored.push([sc, p]);
+    }
+    scored.sort((a, b) => b[0] - a[0]);
+    return scored.slice(0, limit || 12).map((x) => x[1]);
+  }
+  const recLine = (r) => `${r.n} by ${r.b}${r.g ? ' | ' + (GENDER_NAME[r.g] || r.g) : ''} | Accords: ${r.a.join(', ')}${r.t ? ' | Notes: ' + r.t : ''}${r.r ? ' | Rating: ' + r.r + '/5' : ''}`;
+  function chatGrounding(text) {
+    const parts = [];
+    const named = mentionedFragrances(text, 4);
+    if (named.length) parts.push('[Fragrances the user mentioned — real notes from our database, use these as ground truth]\n' + named.map(recLine).join('\n'));
+    const cands = accordCandidates(text, 12).filter((r) => named.indexOf(r) === -1);
+    if (cands.length) parts.push('[Database candidates matching the request — notes are ground truth. Pick from these when they genuinely fit; otherwise name fragrances you are certain exist, with their real notes]\n' + cands.map(recLine).join('\n'));
+    const down = ratedNames(false), up = ratedNames(true);
+    if (down.length) parts.push('[The user marked these earlier picks as NOT useful — do not recommend them again and steer away from their style]\n' + down.join('; '));
+    if (up.length) parts.push('[The user marked these earlier picks as useful — lean toward this direction]\n' + up.join('; '));
+    return parts.length ? '\n\n' + parts.join('\n\n') : '';
+  }
   // ───────────────────────── images (/api/img proxy) ─────────────────────────
   // Lookups go through a small queue (4 in flight) so a card grid never floods the proxy or
   // the per-IP limits. Hits are remembered in localStorage; misses for 12 hours only.
@@ -564,7 +637,6 @@
     style: { title: 'Style match', hint: 'Fashion and aesthetic, turned into fragrance.', placeholder: 'Describe your style: brands, fits, colours', presets: ['Old money', 'Streetwear', 'Minimalist', 'Dark academia', 'Coastal', 'Y2K'] },
     celeb: { title: 'Celebrity picks', hint: 'What 101 celebrities actually wear. Type a name.', placeholder: 'A celebrity name, for example Rihanna', presets: [] }
   };
-  const CHAT_SYS = 'You are ScentWise AI, the world\'s most knowledgeable fragrance advisor, powered by a database of over 65,000 real perfumes with actual notes, accords, and ratings. You ALWAYS give confident, specific recommendations with real fragrance names, notes, and details. You never say you are under development or that your database is not operational. When users mention something about the site or numbers, respond helpfully. Format recommendations clearly with fragrance name, brand, key notes, and why it matches. Keep responses concise but informative. Never apologize for lacking data — you have one of the largest fragrance databases in the world. ';
 
   const threads = {};
   const threadKey = (m) => 'sw2_thread_' + m;
@@ -669,6 +741,7 @@
     const rec = DB.loaded ? find(p.name, p.brand) : null;
     const it = rec || (DB.loaded ? itemFor(p.name, p.brand) : null) || { n: p.name, b: p.brand, c: '' };
     const notes = p.notes || (rec && rec.t ? rec.t.replace(/;/g, ' ·') : '');
+    const unverified = DB.loaded && !rec && !itemFor(p.name, p.brand) ? `<span class="badge" style="align-self:flex-start;color:var(--danger)" title="This name is not in our 65,000-perfume database. Double-check it exists before buying.">Not in our database — verify the name</span>` : '';
     const risk = p.risk ? `<span class="badge" style="align-self:flex-start;color:${/low/i.test(p.risk) ? 'var(--ok)' : (/test|polar/i.test(p.risk) ? 'var(--danger)' : 'var(--fg2)')}">${esc(p.risk.replace(/\.$/, ''))}</span>` : '';
     const scores = p.scores ? `<div class="scores">${Object.keys(p.scores).map((k) => `<span>${esc(k)} ${p.scores[k]}/5</span>`).join('')}</div>` : '';
     const similar = p.similar ? `<div class="notes">Similar to ${formatInline(p.similar)}</div>` : '';
@@ -676,7 +749,7 @@
     // art, head, meta and foot are direct children so the phone layout can place art and head side by side
     const inner = `<div class="art ${famClass(it)}" ${locked ? '' : `data-img-name="${esc(p.name)}" data-img-brand="${esc(p.brand)}"`}>${bottle(40, 60)}</div>
       <div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
-      <div class="meta">${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
+      <div class="meta">${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${unverified}${risk}${scores}</div>
       <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand, 'advisor')}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>`;
     return `<article class="rec${locked ? ' is-locked' : ''}" ${locked ? 'aria-hidden="true"' : `data-open-name="${esc(p.name)}" data-open-brand="${esc(p.brand)}"`}>${inner}</article>`;
   }
@@ -716,6 +789,7 @@
       const m = getThread(S.mode)[idx]; if (!m) return;
       rt.closest('.feedback').innerHTML = `<span class="t-foot muted-2">${liked ? 'Noted. The advisor will lean this way.' : 'Noted. The advisor will steer away from these.'}</span>`;
       const parsed = parseAI(m.text || ''); const names = parsed ? parsed.picks.slice(0, 5).map((p) => p.name + (p.brand ? ' by ' + p.brand : '')) : [];
+      rememberRating(names, liked);
       for (const n of names) { try { await fetch('/api/check-tier?action=profile', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ fragranceName: n, aiText: (m.text || '').slice(0, 3000), liked }) }); } catch (err) { /* profile feedback is best effort */ } }
       return;
     }
@@ -798,44 +872,47 @@
     const c = cut[mo - 1]; return d < c[1] ? c[2] : c[3];
   }
   function lastAiText(t) { for (let i = t.length - 1; i >= 0; i--) if (t[i].role === 'ai' && !t[i].kind && t[i].text) return t[i].text; return ''; }
+  // Last turns of the thread as role-tagged history, excluding the user message just pushed.
+  function historyOf(t, n) {
+    const turns = t.filter((m) => !m.kind && (m.role === 'user' || m.role === 'ai') && m.text);
+    return turns.slice(0, -1).slice(-(n || 10)).map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
+  }
   function buildPayload(mode, text, opts, t) {
     const prevAi = lastAiText(t);
-    const wrap = (ctxLabel, res) => `Context: ${ctxLabel}:\n${res}\n\nFollow-up question: ${text}`;
-    if (mode === 'chat') {
-      const history = t.filter((m) => !m.kind && (m.role === 'user' || m.role === 'ai') && m.text).slice(-12).map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text }));
-      const ctx = DB.loaded ? dbContext(text) : '';
-      history.push({ role: 'user', content: CHAT_SYS + (ctx || '') + '\n\nUser question: ' + text });
-      return { mode: 'chat', messages: history };
-    }
+    const grounding = DB.loaded ? chatGrounding(text) : '';
+    // Follow-up in any mode: the real conversation plus the new message, mode kept so the
+    // server applies the same rules (dupe stays similarity-only).
+    const followUp = (keepMode) => ({ mode: keepMode ? mode : 'chat', messages: historyOf(t, 10).concat([{ role: 'user', content: text + grounding }]) });
+    if (mode === 'chat') return followUp(true);
     if (mode === 'dupe') {
-      if (prevAi && !opts.preset) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I asked for affordable dupes and got these recommendations', prevAi) }] };
-      const grounding = DB.loaded ? dupeGrounding(text) : '';
-      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one precise sentence describing the original's actual scent experience (what spraying it feels like, not just a note list). Then deliver 5 dupes from cheapest to most expensive, prioritizing picks under $80. For each:\n1. **Bold** name + brand\n2. Approximate retail price\n3. How close the match is — be honest. "Dead-on clone", "85% there but lighter", "Same DNA, different personality" — no fake 100% matches.\n4. Key notes it shares with the original\n5. The main difference (what you lose — longevity, projection, a specific note)\n6. Where to buy (Amazon, FragranceNet, brand site, etc.)\n\nVoice: warm, specific, confident — a trusted advisor who has smelled all of these. End with one honest line — which dupe you'd personally pick, and why.${grounding}`;
-      return { mode: 'chat', messages: [{ role: 'user', content: body }] };
+      if (prevAi && !opts.preset) return followUp(true);
+      const dupeCtx = DB.loaded ? dupeGrounding(text) : '';
+      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name and no database match is listed, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: open with one precise sentence describing what the original actually smells like on skin (not just a note list). Then deliver exactly 5 dupes, cheapest first, prioritising picks under $80 — every one must be a genuine scent match (same main accords, at least two shared signature notes). For each pick use exactly this layout:\n1. **Name by Brand** — shared notes; ~$price\nWHY IT MATCHES YOU: how close it is in honest words ("near clone", "85% there but lighter", "same DNA, sweeter dry-down") and the main thing you lose (longevity, projection, a specific note). No fake 100% matches.\nBLIND BUY RISK: Low-risk blind buy / Medium risk — only if you like [note] / Test first — polarizing\nSCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5\n\nEnd with one honest line — which dupe you'd personally pick, and why.${dupeCtx}`;
+      return { mode: 'dupe', messages: [{ role: 'user', content: body }] };
     }
     if (mode === 'zodiac') {
       const sign = signFromText(text);
-      if (prevAi && !sign && !opts.preset) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I asked about zodiac fragrance recommendations and got this', prevAi) }] };
+      if (prevAi && !sign && !opts.preset) return followUp(false);
       const subject = sign || text;
-      return { mode: 'chat', messages: [{ role: 'user', content: `Match 5 fragrances to a ${subject}. Open with one sentence capturing the essence of this sign — the temperament, the traits that matter for scent. Then deliver picks in your calm, confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific ${subject} traits (be precise: ruling planet, what they gravitate toward, how they carry themselves), approximate price. Sound like a well-read friend who knows both astrology and perfumery — not a horoscope column.` }] };
+      return { mode: 'chat', messages: [{ role: 'user', content: `Match 5 fragrances to a ${subject}. Open with one sentence capturing the essence of this sign — the temperament, the traits that matter for scent. Then deliver picks in your calm, confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific ${subject} traits (be precise: ruling planet, what they gravitate toward, how they carry themselves), approximate price. Sound like a well-read friend who knows both astrology and perfumery — not a horoscope column.${grounding}` }] };
     }
     if (mode === 'music') {
-      if (prevAi && !opts.preset) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I asked for fragrances matching my music taste and got this', prevAi) }] };
+      if (prevAi && !opts.preset) return followUp(false);
       const content = opts.preset
         ? `Match 5 fragrances to ${text} music. Open with one line reading the sonic and sensory character of ${text} — texture, mood, how it sits in a room. Then deliver picks in your composed, knowledgeable voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences drawing the music-to-scent line (specific artists, textures, eras — avoid vague words like "energetic"), price range. Sound like a friend who knows both the music and the fragrances well.`
         : `The user describes their music taste as: "${text}". Open with one line reflecting their taste back in sensory terms — show them you understood it. Then match 5 fragrances to this musical world. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences tying the scent to specific elements of their taste (a texture, an era, a lyric, a named artist if given), price range. Warm, precise, confident — no hype, no filler.`;
-      return { mode: 'chat', messages: [{ role: 'user', content }] };
+      return { mode: 'chat', messages: [{ role: 'user', content: content + grounding }] };
     }
     if (mode === 'style') {
-      if (prevAi && !opts.preset) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I asked for fragrances matching my style and got this', prevAi) }] };
+      if (prevAi && !opts.preset) return followUp(false);
       const content = opts.preset
         ? `Match 5 fragrances to the "${text}" fashion aesthetic. Open with one sentence reading the mood of this style — fabrics, silhouette, attitude. Then deliver picks in your confident advisor voice. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences connecting the scent to specific style cues (palette, texture, era, the person who wears this well), price range. Mix premium and budget. Tailored, not theatrical.`
         : `The user describes their personal style as: "${text}". Open with one sentence reflecting their style back in sensory terms — show them you understood it. Then match 5 fragrances. For each: **bold** name+brand, top/heart/base notes, 2-3 sentences of specific reasoning (what in their description sparked this pick — a word, an item, a mood), price range. Mix premium and budget. Tailored, precise, never generic.`;
-      return { mode: 'chat', messages: [{ role: 'user', content }] };
+      return { mode: 'chat', messages: [{ role: 'user', content: content + grounding }] };
     }
     if (mode === 'photo') {
-      if (S.photo) return { mode: 'photo', imageBase64: S.photo.b64, imageMime: 'image/jpeg', messages: [{ role: 'user', content: text || 'Analyze this style and recommend matching fragrances.' }] };
-      if (prevAi) return { mode: 'chat', messages: [{ role: 'user', content: wrap('I uploaded a style photo and got these fragrance recommendations', prevAi) }] };
+      if (S.photo) return { mode: 'photo', imageBase64: S.photo.b64, imageMime: 'image/jpeg', messages: [{ role: 'user', content: (text || 'Analyze this style and recommend matching fragrances.') + grounding }] };
+      if (prevAi) return followUp(false);
       return null;
     }
     return null;
@@ -889,12 +966,12 @@
         return { data };
       } finally { clearTimeout(timer); }
     };
-    try { return await attempt(30000); }
+    try { return await attempt(55000); }
     catch (e) {
       const transient = e.name === 'AbortError' || /Failed to fetch|network/i.test(e.message || '') || (e.status && e.status >= 500);
       if (!transient) { if (!e.data) e.data = {}; throw e; }
       await sleep(600);
-      try { return await attempt(30000); } catch (e2) { if (!e2.data) e2.data = {}; if (!e2.status && e2.name === 'AbortError') e2.status = 504; throw e2; }
+      try { return await attempt(55000); } catch (e2) { if (!e2.data) e2.data = {}; if (!e2.status && e2.name === 'AbortError') e2.status = 504; throw e2; }
     }
   }
 
