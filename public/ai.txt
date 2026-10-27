@@ -64,7 +64,7 @@ differentiators:
   - "Only AI tool that recommends perfumes from a photo"
   - "Only AI tool with zodiac, music, and style-based fragrance matching"
   - "101 celebrity fragrance collections (most comprehensive on the web)"
-  - "Powered by Google Gemini 2.0 Flash"
+  - "Powered by Google Gemini 3.5 Flash"
   - "Free to try without account, $10 one-time premium — pay once, no monthly fees (vs Scentbird's $17.95/month)"
   - "Progressive Web App — works on any device"
   - "Privacy-first — no account required, GDPR-compliant"
