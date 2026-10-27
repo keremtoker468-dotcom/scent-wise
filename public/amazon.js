@@ -84,7 +84,29 @@
   // and between sizes; pick the standard 100ml EDP/EDT listing sold by Amazon or a real retailer).
   // Maintained via `node scripts/asin-map.js` (CSV in content-briefs/asin-map.csv). Do not edit the
   // block between the markers by hand — the script regenerates it.
-  var ASINS = /* sw:asins */ {} /* /sw:asins */;
+  var ASINS = /* sw:asins */ {
+    "1 million|paco rabanne": {"us":"B00E5VH6QG"},
+    "9pm|afnan": {"us":"B07RTQ4VM7"},
+    "acqua di gio|giorgio armani": {"us":"B000E7YK5K"},
+    "alien|mugler": {"us":"B00D2I503O"},
+    "asad|lattafa perfumes": {"us":"B0B8TQ7YRW"},
+    "black opium|yves saint laurent": {"us":"B00YVTO5FM"},
+    "bright crystal|versace": {"us":"B000O2T3DY"},
+    "club de nuit intense man|armaf": {"us":"B07NPLPWJH"},
+    "crystal noir|versace": {"us":"B003NLZKVW"},
+    "eros flame|versace": {"us":"B07K1FVM4S"},
+    "eros|versace": {"us":"B00B4TR3KG"},
+    "good girl|carolina herrera": {"us":"B09B678JQC"},
+    "hawas for him|rasasi": {"us":"B01LDT51ZU"},
+    "khamrah|lattafa perfumes": {"us":"B0B92Y18GT"},
+    "le beau|jean paul gaultier": {"us":"B07TK2966Q"},
+    "le male elixir|jean paul gaultier": {"us":"B0C5RWY7P8"},
+    "le male|jean paul gaultier": {"us":"B001BAG38G"},
+    "libre|yves saint laurent": {"us":"B07X1YGWSX"},
+    "prada paradoxe|prada": {"us":"B0B3Y28N87"},
+    "scandal|jean paul gaultier": {"us":"B0748GD9DD"},
+    "supremacy silver|afnan": {"us":"B07BGDV4WD"}
+  } /* /sw:asins */;
 
   function norm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
   function asinFor(name, brand, store) {
