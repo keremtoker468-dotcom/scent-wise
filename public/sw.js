@@ -1,4 +1,4 @@
-const CACHE = 'sw-v26';
+const CACHE = 'sw-v27';
 const SHELL = [
   '/',
   '/amazon.js',

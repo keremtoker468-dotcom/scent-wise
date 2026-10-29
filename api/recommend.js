@@ -12,6 +12,7 @@ const {
 } = require('./_lib/usage');
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
 const { validateSecrets } = require('./_lib/validate-secrets');
+const { isOrderRevoked } = require('./_lib/revocation');
 
 validateSecrets();
 
@@ -138,7 +139,7 @@ function verifyAccess(req) {
         const expected = crypto.createHmac('sha256', subSecret).update(subId + ':' + custId).digest('hex');
         if (Buffer.byteLength(token) === Buffer.byteLength(expected) &&
             crypto.timingSafeEqual(Buffer.from(token), Buffer.from(expected))) {
-          return { authorized: true, tier: 'premium', userId: `${custId}` };
+          return { authorized: true, tier: 'premium', userId: `${custId}`, subId: `${subId}` };
         }
       }
     } catch {}
@@ -157,7 +158,10 @@ module.exports = async function handler(req, res) {
   const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
   if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' }); }
 
-  const access = verifyAccess(req);
+  let access = verifyAccess(req);
+  if (access.tier === 'premium' && await isOrderRevoked(access.subId)) {
+    access = { authorized: false, tier: 'free', userId: null };
+  }
   const isProduction = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
   const subSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
   let usageCount = 0;

@@ -17,13 +17,21 @@ module.exports = async function handler(req, res) {
   const rl = await rateLimit(`verify-sub:${ip}`, 10, 60000); // 10 attempts/min
   if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Too many attempts. Try again later.' }); }
 
-  let { orderId } = req.body;
-  if (!orderId) return res.status(400).json({ error: 'Missing orderId' });
-  if (typeof orderId !== 'string') return res.status(400).json({ error: 'Invalid order ID format' });
+  // Both the order number and the checkout email are required. Order numbers are
+  // sequential and emails are often public, so either one alone would let anyone
+  // claim someone else's purchase (and learn the buyer's email from the response).
+  let { orderId, email } = req.body || {};
+  if (typeof orderId !== 'string' || typeof email !== 'string') {
+    return res.status(400).json({ error: 'Enter the email you used at checkout and the order number from your receipt.' });
+  }
   // Sanitize: strip #, spaces, and non-numeric characters
   orderId = orderId.trim().replace(/^#/, '').replace(/[^\d]/g, '');
   if (!orderId || orderId.length > 20) {
     return res.status(400).json({ error: 'Invalid order ID format. Enter the numeric order number (e.g. 2944561).' });
+  }
+  const emailClean = email.trim().toLowerCase();
+  if (emailClean.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailClean)) {
+    return res.status(400).json({ error: 'Enter a valid email address.' });
   }
 
   const lsApiKey = process.env.LEMONSQUEEZY_API_KEY;
@@ -41,6 +49,10 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
+  // One answer for every mismatch, so the endpoint can't be used to check
+  // whether an email or an order number belongs to a buyer.
+  const NOT_FOUND = { error: 'No paid ScentWise order matches that email and order number. Check both against your receipt, or contact scentwise.com@gmail.com.' };
+
   try {
     const lsHeaders = {
       'Authorization': `Bearer ${lsApiKey}`,
@@ -48,58 +60,41 @@ module.exports = async function handler(req, res) {
       'Content-Type': 'application/vnd.api+json'
     };
 
-    let orderData = null;
-
-    // First, try direct lookup by API id
-    const orderRes = await fetch(`https://api.lemonsqueezy.com/v1/orders/${orderId}`, {
-      headers: lsHeaders
-    });
-
-    if (orderRes.ok) {
-      orderData = await orderRes.json();
-    } else if (orderRes.status === 401 || orderRes.status === 403) {
-      const errBody = await orderRes.text().catch(() => '');
-      console.error(`LS API auth error: ${orderRes.status} — ${errBody}`);
+    // The customer's own orders, matched on either the API id or the receipt's order number.
+    let listUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=50&filter[user_email]=${encodeURIComponent(emailClean)}`;
+    if (expectedStoreId) listUrl += `&filter[store_id]=${encodeURIComponent(expectedStoreId)}`;
+    const listRes = await fetch(listUrl, { headers: lsHeaders });
+    if (listRes.status === 401 || listRes.status === 403) {
+      console.error(`LS API auth error: ${listRes.status}`);
       return res.status(502).json({ error: 'Subscription service authentication failed. The site owner needs to check the LEMONSQUEEZY_API_KEY setting.' });
-    } else {
-      // ID lookup failed — try searching by order_number as fallback
-      // (customers often enter their order_number from confirmation emails)
-      const errBody = await orderRes.text().catch(() => '');
-      console.error(`LS API order-by-id miss: ${orderRes.status} for ${orderId} — ${errBody}`);
-
-      // Don't include store_id filter in URL — validate locally instead
-      const searchUrl = `https://api.lemonsqueezy.com/v1/orders?page[size]=25`;
-
-      const listRes = await fetch(searchUrl, { headers: lsHeaders });
-      if (listRes.ok) {
-        const listData = await listRes.json();
-        const match = (listData.data || []).find(o =>
-          String(o.attributes.order_number) === orderId
-        );
-        if (match) orderData = { data: match };
-      }
     }
-
-    if (!orderData) {
-      return res.status(400).json({ error: 'Order not found. Please check your order number and try again, or log in with your email.' });
+    if (!listRes.ok) {
+      console.error(`LS orders lookup failed: ${listRes.status}`);
+      return res.status(502).json({ error: 'Could not look up your order. Please try again later.' });
     }
+    const listData = await listRes.json();
+    const match = (listData.data || []).find(o =>
+      String(o.id) === orderId || String(o.attributes?.order_number) === orderId
+    );
+    const orderData = match ? { data: match } : null;
+    const order = orderData?.data?.attributes;
 
-    const order = orderData.data?.attributes;
-
-    if (!order || order.status === 'refunded') {
-      return res.status(400).json({ error: 'This order is not valid or has been refunded. Please contact support if you believe this is an error.' });
+    // LS filters by email already; re-check locally in case the filter is ignored.
+    if (!order || String(order.user_email || '').toLowerCase() !== emailClean) {
+      return res.status(404).json(NOT_FOUND);
     }
-
-    // Validate order belongs to our store
+    // Only a settled payment unlocks Premium: pending, failed, refunded and
+    // partially refunded orders do not.
+    if (order.status !== 'paid') {
+      return res.status(404).json(NOT_FOUND);
+    }
     if (expectedStoreId && String(order.store_id) !== expectedStoreId) {
       console.error(`Order store_id mismatch: ${order.store_id}`);
-      return res.status(400).json({ error: 'This order ID does not belong to ScentWise. Please check your order number and try again.' });
+      return res.status(404).json(NOT_FOUND);
     }
-
-    // Validate order is for our product
     if (String(order.first_order_item?.product_id) !== expectedProductId) {
       console.error(`Order product_id mismatch: ${order.first_order_item?.product_id}`);
-      return res.status(400).json({ error: 'This order is for a different product. Please use your ScentWise order number.' });
+      return res.status(404).json(NOT_FOUND);
     }
 
     const subscriptionId = String(orderData.data?.id || '');

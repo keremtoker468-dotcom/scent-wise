@@ -1,0 +1,12 @@
+The font files in this directory are redistributed unmodified from Google Fonts
+(https://fonts.google.com) under the SIL Open Font License, Version 1.1
+(https://openfontlicense.org):
+
+- Instrument Sans   — Copyright The Instrument Sans Project Authors
+- DM Sans           — Copyright The DM Sans Project Authors
+- Playfair Display  — Copyright The Playfair Display Project Authors
+- Outfit            — Copyright The Outfit Project Authors
+- Cormorant Garamond — Copyright The Cormorant Project Authors
+
+They are self-hosted so that loading a page never sends the visitor's IP address
+to Google's font servers.

@@ -328,7 +328,8 @@
   // ───────────────────────── images (/api/img proxy) ─────────────────────────
   // Lookups go through a small queue (4 in flight) so a card grid never floods the proxy or
   // the per-IP limits. Hits are remembered in localStorage; misses for 12 hours only.
-  const IMG = { mem: new Map(), pending: new Map(), queue: [], active: 0, MAX: 4, NEG_TTL: 12 * 3600 * 1000 };
+  // Hits expire after a week so a copyright takedown (see api/owner-auth.js) reaches every browser.
+  const IMG = { mem: new Map(), pending: new Map(), queue: [], active: 0, MAX: 4, NEG_TTL: 12 * 3600 * 1000, POS_TTL: 7 * 24 * 3600 * 1000 };
   function pumpImages() {
     while (IMG.active < IMG.MAX && IMG.queue.length) {
       const job = IMG.queue.shift(); IMG.active++;
@@ -340,9 +341,9 @@
     if (IMG.mem.has(key)) return Promise.resolve(IMG.mem.get(key));
     const cached = lsGet(key, undefined);
     if (cached && typeof cached === 'object') {
-      if (cached.u) { IMG.mem.set(key, cached.u); return Promise.resolve(cached.u); }
+      if (cached.u && Date.now() - (cached.t || 0) < IMG.POS_TTL) { IMG.mem.set(key, cached.u); return Promise.resolve(cached.u); }
       if (cached.u === null && Date.now() - (cached.t || 0) < IMG.NEG_TTL) return Promise.resolve(null);
-    } else if (typeof cached === 'string' && cached) { IMG.mem.set(key, cached); return Promise.resolve(cached); }
+    }
     if (IMG.pending.has(key)) return IMG.pending.get(key);
     const p = new Promise((resolve) => {
       IMG.queue.push(async () => {
@@ -489,6 +490,7 @@
   });
   function runAction(name, el) {
     if (name === 'checkout') return checkout(el);
+    if (name === 'checkout-confirm') { const box = $('#co-waiver'); if (!box || !box.checked) return; checkoutAgreed = true; closeSheet(); return checkout(checkoutBtn); }
     if (name === 'close-sheet') return closeSheet();
     if (name === 'ask-dupes') return openAdvisor('dupe', el.getAttribute('data-name') || '');
     if (name === 'ask-about') return openAdvisor('chat', el.getAttribute('data-prompt') || '');
@@ -760,8 +762,9 @@
   function gateHTML() {
     return `<div class="gate" id="gate">
       <div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">Unlock the rest of these picks</span><span class="t-call muted">Add your email for the two remaining free picks. Or skip the limit entirely with lifetime access, $10 once.</span></div>
-      <form class="row" style="gap:8px;flex-wrap:wrap" id="gate-form"><input class="input" type="email" name="email" placeholder="you@example.com" required autocomplete="email" style="flex:1;min-width:200px"><button class="btn btn-primary" type="submit">Unlock picks</button><button class="btn btn-text" type="button" data-action="checkout">Lifetime access</button></form>
-      <span class="t-cap muted-2">Occasional fragrance guides by email. Unsubscribe any time.</span></div>`;
+      <form class="stack" style="gap:10px" id="gate-form"><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" type="email" name="email" placeholder="you@example.com" required autocomplete="email" style="flex:1;min-width:200px"><button class="btn btn-primary" type="submit">Unlock picks</button><button class="btn btn-text" type="button" data-action="checkout">Lifetime access</button></div>
+      <label class="row t-cap muted" style="gap:8px;align-items:flex-start"><input type="checkbox" name="marketing" style="margin-top:2px">Optional: send me occasional fragrance guides and offers by email. Unsubscribe any time. Not needed to unlock the picks.</label></form>
+      <span class="t-cap muted-2">How we use your email: <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="/kvkk.html" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a></span></div>`;
   }
   function paywallHTML(m) {
     return `<div class="msg-ai"><div class="gate"><div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">${esc(m.title || 'You have used your free picks.')}</span><span class="t-call muted">${esc(m.text || 'Lifetime access is $10, once: all seven modes and 500 queries a month.')}</span></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Get lifetime access · $10</button><a class="btn btn-quiet" href="/account" data-nav="account">I already paid</a></div></div></div>`;
@@ -774,7 +777,7 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Enter a valid email address.'); return; }
     const btn = $('button[type=submit]', e.target); btn.disabled = true;
     try {
-      const r = await fetch('/api/subscribe', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ email, action: 'gate' }) });
+      const r = await fetch('/api/subscribe', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ email, action: 'gate', marketing: !!(e.target.marketing && e.target.marketing.checked) }) });
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || 'Could not save your email.');
       S.emailGiven = true; track('email_captured', { method: 'gate' });
@@ -1218,9 +1221,8 @@
     if (S.isOwner) status = `<div class="card" style="padding:24px"><div class="kv"><span class="muted">Status</span><b>Owner</b></div><div class="kv"><span class="muted">Queries</span><b>Unlimited</b></div><div class="row" style="gap:8px;padding-top:14px"><button class="btn btn-quiet btn-md" type="button" data-action="logout">Log out</button></div></div>`;
     else if (S.isPaid) status = `<div class="card" style="padding:24px"><div class="kv"><span class="muted">Status</span><b>Lifetime access</b></div><div class="kv"><span class="muted">Email</span><b>${esc(S.email || '—')}</b></div><div class="kv"><span class="muted">AI queries this month</span><b>${S.usage} of ${MAX_PAID}</b></div><div class="progress" style="margin:14px 0"><i style="width:${Math.min(100, (S.usage / MAX_PAID) * 100)}%"></i></div><div class="row" style="gap:8px"><a class="btn btn-primary btn-md" href="/advisor" data-nav="advisor">Open the advisor</a><button class="btn btn-quiet btn-md" type="button" data-action="logout">Log out</button></div></div>`;
     else status = `<div class="card" style="padding:24px;display:flex;flex-direction:column;gap:16px"><div class="stack" style="gap:4px"><span class="t-head">Free</span><span class="t-call muted">${Math.max(0, FREE_LIMIT - S.freeUsed)} of ${FREE_LIMIT} free picks left on this device.</span></div><div class="progress"><i style="width:${(Math.min(FREE_LIMIT, S.freeUsed) / FREE_LIMIT) * 100}%"></i></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Get lifetime access · $10</button><a class="btn btn-quiet" href="/advisor" data-nav="advisor">Use free picks</a></div></div>
-      <div class="card" style="padding:24px;display:flex;flex-direction:column;gap:20px"><div class="stack" style="gap:4px"><span class="t-head">Already paid?</span><span class="t-call muted">Sign in with the email you used at checkout, or paste your order number from the receipt.</span></div>
-        <form class="form" id="login-form"><label class="t-foot muted" for="login-email">Email</label><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" id="login-email" type="email" autocomplete="email" placeholder="you@example.com" required style="flex:1;min-width:220px"><button class="btn btn-primary btn-md" type="submit">Sign in</button></div></form>
-        <form class="form" id="order-form"><label class="t-foot muted" for="order-id">Order number</label><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" id="order-id" type="text" inputmode="numeric" placeholder="e.g. 2944561" required style="flex:1;min-width:220px"><button class="btn btn-quiet btn-md" type="submit">Activate</button></div></form>
+      <div class="card" style="padding:24px;display:flex;flex-direction:column;gap:20px"><div class="stack" style="gap:4px"><span class="t-head">Already paid?</span><span class="t-call muted">Enter the email you used at checkout and the order number from your receipt. Both are needed, so nobody else can claim your purchase.</span></div>
+        <form class="form" id="order-form"><label class="t-foot muted" for="order-email">Email</label><input class="input" id="order-email" type="email" autocomplete="email" placeholder="you@example.com" required><label class="t-foot muted" for="order-id">Order number</label><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" id="order-id" type="text" inputmode="numeric" placeholder="e.g. 2944561" required style="flex:1;min-width:220px"><button class="btn btn-primary btn-md" type="submit">Activate</button></div></form>
         <div class="alert" id="account-msg" hidden></div></div>`;
     const profileHTML = (S.isPaid || S.isOwner) ? `<div class="card" style="padding:24px;display:flex;flex-direction:column;gap:12px" id="profile-card"><div class="row" style="justify-content:space-between"><span class="t-head">Scent profile</span><button class="btn btn-text btn-sm" type="button" data-action="reset-profile">Reset</button></div><div id="profile-body"><span class="t-call muted">Loading…</span></div></div>` : '';
     const adminHTML = admin && !S.isOwner ? `<form class="card form" id="owner-form" style="padding:24px"><span class="t-head">Owner access</span><div class="row" style="gap:8px"><input class="input" id="owner-key" type="password" placeholder="Owner key" required style="flex:1"><button class="btn btn-primary btn-md" type="submit">Unlock</button></div></form>` : '';
@@ -1232,8 +1234,7 @@
   function titleCase(s) { return String(s || '').replace(/\b\w/g, (c) => c.toUpperCase()); }
   document.addEventListener('submit', async (e) => {
     const f = e.target;
-    if (f.id === 'login-form') { e.preventDefault(); return loginEmail($('#login-email').value.trim()); }
-    if (f.id === 'order-form') { e.preventDefault(); return verifyOrder($('#order-id').value.trim(), false); }
+    if (f.id === 'order-form') { e.preventDefault(); return verifyOrder($('#order-id').value.trim(), $('#order-email').value.trim()); }
     if (f.id === 'owner-form') { e.preventDefault(); return ownerLogin($('#owner-key').value); }
   });
   function accountMsg(text, isError) { const el = $('#account-msg'); if (!el) { toast(text, 5000); return; } el.hidden = false; el.textContent = text; el.classList.toggle('error', !!isError); }
@@ -1294,8 +1295,34 @@
   const adsConsent = () => ((lsGet('sw_cookie_consent', null) || {}).ads ? 'granted' : 'denied');
 
   let checkoutUrl = '';
+  // Pre-contract information and the buyer's express request for immediate access
+  // (TKHK 6502 m.48 + Mesafeli Sözleşmeler Yönetmeliği m.5 and m.15/1-ğ; EU Directive
+  // 2011/83 art. 6 and 16(m)). Shown once per page load before leaving for checkout.
+  let checkoutAgreed = false, checkoutBtn = null;
+  function openCheckoutSheet(btn) {
+    checkoutBtn = btn || null;
+    const sheet = $('#sheet'); sheetLastFocus = document.activeElement;
+    sheet.hidden = false; document.body.style.overflow = 'hidden';
+    sheet.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="co-title" style="grid-template-columns:1fr;max-width:560px">
+      <div class="body">
+        <div class="row" style="justify-content:space-between;align-items:flex-start"><h2 class="t-3" id="co-title">Before you pay</h2><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
+        <div class="stack" style="gap:6px">
+          <div class="kv"><span class="muted">What you get</span><b>ScentWise Lifetime: all AI modes, 500 AI queries a month</b></div>
+          <div class="kv"><span class="muted">Price</span><b>$10 once, no renewal</b></div>
+          <div class="kv"><span class="muted">Seller</span><b>Lemon Squeezy (reseller of record)</b></div>
+        </div>
+        <p class="t-call muted">Lemon Squeezy sells and invoices the purchase, shows the final price, including any tax for your country, before you pay, and takes the payment. Access starts as soon as the payment clears.</p>
+        <label class="row t-call" style="gap:10px;align-items:flex-start"><input type="checkbox" id="co-waiver" style="margin-top:3px">I ask for access to start immediately, and I understand that once it starts I lose the 14-day right of withdrawal for this digital service. Refunds for technical problems are still available under the Refund Policy.</label>
+        <span class="t-cap muted-2"><a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund Policy</a> · <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="/kvkk.html" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a></span>
+        <button class="btn btn-primary btn-lg" type="button" data-action="checkout-confirm" id="co-go" disabled>Continue to secure checkout</button>
+      </div></div>`;
+    const box = $('#co-waiver'), go = $('#co-go');
+    box.addEventListener('change', () => { go.disabled = !box.checked; });
+    box.focus();
+  }
   async function checkout(btn) {
     if (S.isPaid) { navigate('/advisor'); return; }
+    if (!checkoutAgreed) { openCheckoutSheet(btn); return; }
     if (checkoutUrl) { location.href = checkoutUrl; return; }
     const label = btn ? btn.innerHTML : ''; if (btn) { btn.disabled = true; btn.textContent = 'Opening checkout…'; }
     try {
@@ -1309,25 +1336,17 @@
   // No 'purchase' event here: GA4 gets it from the Lemon Squeezy webhook, which
   // fires for every sale rather than only the ones that make it back to the tab.
   // Sending both would double-count revenue and Google Ads conversions.
-  async function verifyOrder(orderId, silent) {
+  async function verifyOrder(orderId, email) {
     orderId = String(orderId || '').replace(/^#/, '').replace(/[^\d]/g, '').slice(0, 20);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || '')) { accountMsg('Enter the email you used at checkout.', true); return false; }
     if (!orderId) { accountMsg('Enter the numeric order number from your receipt.', true); return false; }
     try {
-      const r = await fetch('/api/verify-subscription', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ orderId }) });
+      const r = await fetch('/api/verify-subscription', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ orderId, email }) });
       const d = await r.json().catch(() => ({}));
-      if (r.ok && d.success) { S.isPaid = true; S.tier = d.tier || 'premium'; if (d.email) S.email = d.email; if (!silent) accountMsg('Lifetime access activated. Welcome.'); toast('Lifetime access activated.'); renderTrust(); renderMeter(); renderAccount(); return true; }
-      if (!silent) accountMsg(r.status === 429 ? 'Too many attempts. Try again in a minute.' : (d.error || 'Could not verify that order.'), true);
+      if (r.ok && d.success) { S.isPaid = true; S.tier = d.tier || 'premium'; if (d.email) S.email = d.email; accountMsg('Lifetime access activated. Welcome.'); toast('Lifetime access activated.'); renderTrust(); renderMeter(); renderAccount(); return true; }
+      accountMsg(r.status === 429 ? 'Too many attempts. Try again in a minute.' : (d.error || 'Could not verify that order.'), true);
       return false;
-    } catch (e) { if (!silent) accountMsg('Network error. Please try again.', true); return false; }
-  }
-  async function loginEmail(email) {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { accountMsg('Enter a valid email address.', true); return; }
-    try {
-      const r = await fetch('/api/login', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ email }) });
-      const d = await r.json().catch(() => ({}));
-      if (r.ok && d.success) { S.isPaid = true; S.tier = d.tier || 'premium'; S.email = d.email || email; toast('Signed in. Lifetime access active.'); renderTrust(); renderMeter(); renderAccount(); return; }
-      accountMsg(r.status === 404 ? 'No purchase found for this email. Try the order number instead.' : (r.status === 429 ? 'Too many attempts. Try again in a minute.' : (d.error || 'Could not sign in.')), true);
-    } catch (e) { accountMsg('Network error. Please try again.', true); }
+    } catch (e) { accountMsg('Network error. Please try again.', true); return false; }
   }
   async function ownerLogin(key) {
     try {
@@ -1350,14 +1369,18 @@
     route();
     const params = new URLSearchParams(location.search);
     const orderId = params.get('order_id') || params.get('orderId');
+    // Drop the order id from the address bar before analytics tags can record it.
+    if (orderId) history.replaceState(null, '', location.pathname);
     await checkTier();
     if (orderId) {
+      // The payment webhook ties this device to the order; check-tier picks that up.
+      // A bare order id is never enough on its own (order numbers are guessable).
       toast('Confirming your order…', 4000);
-      let ok = false;
-      for (let i = 0; i < 4 && !ok; i++) { ok = await verifyOrder(orderId, true); if (!ok) await sleep(1500 * (i + 1)); }
-      history.replaceState(null, '', ok ? '/advisor' : '/account');
-      if (ok) { route(); toast('Lifetime access activated. Welcome.', 5000); }
-      else { route(); accountMsg('We could not confirm the order automatically. Paste the order number below, or sign in with your checkout email.', true); }
+      for (let i = 0; i < 5 && !S.isPaid; i++) { await sleep(1500 * (i + 1)); await checkTier(); }
+      history.replaceState(null, '', S.isPaid ? '/advisor' : '/account');
+      route();
+      if (S.isPaid) toast('Lifetime access activated. Welcome.', 5000);
+      else accountMsg('Payment received. To activate on this device, enter your checkout email and the order number from your receipt.', true);
     }
     if ('serviceWorker' in navigator && location.protocol === 'https:') {
       navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(() => {});

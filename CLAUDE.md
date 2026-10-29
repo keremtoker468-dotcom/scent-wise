@@ -40,6 +40,9 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   └── webhook.js              # Lemon Squeezy webhook handler (signature-verified)
 ├── public/                     # Static frontend files (served by Vercel)
 │   ├── index.html              # Main SPA (~61KB, contains all UI)
+│   ├── consent.js              # Cookie consent for static pages (Consent Mode defaults + banner); load before any Google tag
+│   ├── fonts/                  # Self-hosted Google Fonts (fonts.css + woff2, OFL) — never link fonts.googleapis.com
+│   ├── kvkk.html               # Turkish KVKK Aydınlatma Metni + Çerez Politikası
 │   ├── amazon.js               # Shared Amazon link builder (geo, tags, ASINs, localized search, click analytics)
 │   ├── app.js                  # Main application JavaScript (~100KB)
 │   ├── perfumes.js             # Full perfume database (~2MB, client-side search)
@@ -115,7 +118,7 @@ Required in Vercel dashboard:
 - **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (one-time purchase; access cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
 - **Usage limits**: Premium users get 500 queries/month (cookie-based tracking). Free users get up to 3 trial queries (device + IP-tracked via Redis to prevent incognito bypass). Pre-email queries after #1 return a `teaser` flag; the client blurs items past the first two picks until the user submits their email.
-- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v26`; bump it when a precached shell/DB file changes.
+- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v27`; bump it when a precached shell/DB file changes.
 
 ## Amazon Affiliate Integration
 
@@ -211,6 +214,26 @@ unless the buyer accepted ads cookies.
 - **ads.txt**: Located at `public/ads.txt` for domain verification.
 - **CSP headers**: `vercel.json` includes `googlesyndication.com`, `doubleclick.net`, `adservice.google.com` in script-src, connect-src, img-src, and frame-src.
 - **AdSense script**: Added to `index.html` and all blog HTML files.
+
+## Legal / Compliance (Turkey KVKK, 6563 ETK, 6502 TKHK, FSEK, 5651 + GDPR)
+
+- **No third-party requests before consent** beyond what Consent Mode allows: fonts are self-hosted in
+  `public/fonts/` (a Google Fonts link sends every visitor's IP abroad — KVKK m.9). Every page with a
+  Google tag loads `/consent.js` *before* gtag/AdSense. The TikTok pixel loads only after ad consent,
+  and the webhook sends TikTok conversions only when checkout carried `ga_consent: granted`.
+- **Email gate ≠ newsletter consent.** `/api/subscribe` only stores the email / calls Beehiiv when the
+  separate, unticked `marketing` box was checked (consent record versioned by `CONSENT_VERSION`).
+- **Checkout** opens a pre-contract sheet (`openCheckoutSheet` in `app.js`) with the withdrawal-right
+  waiver checkbox before redirecting to Lemon Squeezy. Do not bypass it.
+- **Premium activation** (`/api/verify-subscription`, `/api/login` re-exports it) needs the checkout
+  email AND the order number, and only `status === 'paid'`. Post-checkout auto-unlock goes through the
+  webhook's device binding (`check-tier`), never a bare `?order_id=`.
+- **Refunds revoke access**: `order_refunded` → `sw_revoked:{orderId}` (`api/_lib/revocation.js`),
+  checked in `recommend.js` and `check-tier.js`.
+- **Copyright takedown**: `GET /api/owner-auth?takedown=1&name=…&brand=…` (owner cookie) blocks the
+  photo for that perfume; clients drop cached hits within 7 days.
+- Legal pages: `privacy.html` (EN), `kvkk.html` (TR), `terms.html`, `refund.html`, `contact.html`
+  (operator/künye). Keep them in sync when adding a processor, cookie or tracker.
 
 ## Conventions
 

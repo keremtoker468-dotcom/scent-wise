@@ -3,6 +3,7 @@ const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const { readUsage, readDeviceFreeUsage, readFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
 const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
+const { isOrderRevoked } = require('./_lib/revocation');
 
 function verifySubToken(cookieValue, secret) {
   try {
@@ -202,6 +203,10 @@ module.exports = async function handler(req, res) {
 
   if (subSecret && cookies.sw_sub) {
     const sub = verifySubToken(cookies.sw_sub, subSecret);
+    if (sub && await isOrderRevoked(sub.subId)) {
+      res.setHeader('Set-Cookie', [`sw_sub=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${isProduction ? '; Secure' : ''}`]);
+      return res.status(200).json({ tier: 'free' });
+    }
     if (sub) {
       // Periodically re-validate subscription with LS API
       // Use sw_revalidated cookie to throttle (once per 24h)

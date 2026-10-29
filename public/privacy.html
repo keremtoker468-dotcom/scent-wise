@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="/consent.js"></script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
 <script>
@@ -27,8 +28,7 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Privacy Policy — ScentWise">
     <meta name="twitter:description" content="How ScentWise collects, uses, and protects your data.">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/fonts/fonts.css">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -217,9 +217,11 @@
 
 <main>
     <h1>Privacy Policy</h1>
-    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: April 18, 2026</p>
+    <p class="effective-date">Effective Date: February 19, 2026 &middot; Last Updated: October 29, 2026 &middot; <a href="/kvkk.html" lang="tr">Türkçe KVKK Aydınlatma Metni</a></p>
 
     <p>At ScentWise ("we," "our," or "us"), we respect your privacy. This Privacy Policy explains what information we collect, how we use it, and the choices you have. By using our website at <a href="https://scent-wise.com">scent-wise.com</a> (the "Service"), you agree to the practices described here.</p>
+
+    <p><strong>Who is responsible:</strong> ScentWise is operated by Kerem Toker as an individual, who is the data controller (veri sorumlusu under Turkish law no. 6698, "KVKK") for the processing described here. Contact: <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. Visitors in Turkey can read the KVKK notice in Turkish at <a href="/kvkk.html">/kvkk.html</a>.</p>
 
     <h2>1. Information We Collect</h2>
     <p>We collect the following information to provide and improve the Service:</p>
@@ -228,11 +230,11 @@
         <strong>What we collect:</strong><br>
         &mdash; <strong>IP address:</strong> Used for rate limiting, free trial tracking, abuse prevention, and user profile identification (for free users). Stored in our server infrastructure (Upstash Redis) with automatic expiration.<br>
         &mdash; <strong>Purchase details:</strong> Order ID, customer ID, and email address from Lemon Squeezy when you purchase Premium. Email is stored in your authentication cookie.<br>
-        &mdash; <strong>Email address (newsletter / free-pick unlock):</strong> If you submit your email to unlock additional free AI picks or to subscribe to our newsletter, we store it (a) in our server infrastructure (Upstash Redis) keyed by your device identifier so we can deliver the unlock, and (b) with our newsletter provider (Beehiiv) and transactional email provider (Resend) so we can send you fragrance updates and a welcome email. You can unsubscribe at any time via the link in any email or by emailing <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.<br>
+        &mdash; <strong>Email address (free-pick unlock and newsletter):</strong> To unlock two more free AI picks you enter your email. Unlocking does <em>not</em> subscribe you to anything: unless you also tick the separate, optional newsletter box, the address is not stored and we send you nothing. If you tick the box, we record your opt-in (email, time, source and the wording you agreed to) in our database (Upstash Redis) and pass your email to our newsletter provider (Beehiiv), which sends occasional fragrance guides and offers. Unsubscribe any time via the link in any email or by emailing <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.<br>
         &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features. These are sent to Google's Gemini API for processing. Google may retain this data for up to 30 days for abuse detection per their policies.<br>
         &mdash; <strong>Scent profile data:</strong> Your fragrance preferences (liked/disliked notes, favorite brands, occasions, skin chemistry, etc.) are automatically extracted from your AI interactions and stored in our database to personalize future recommendations. See Section 5 for retention details.<br>
-        &mdash; <strong>Analytics data:</strong> We use Google Analytics (GA4) to collect page-view and usage data, which includes cookies and may associate data with your Google account. We also use Vercel Analytics and Speed Insights for performance monitoring.<br>
-        &mdash; <strong>Advertising data:</strong> Google AdSense displays personalized ads on our site and may set cookies for ad targeting and behavioral advertising. See Section 2 for details.
+        &mdash; <strong>Analytics data:</strong> With your consent we use Google Analytics (GA4), which sets cookies to measure page views and usage. Without consent, Google tags run in consent mode "denied" and set no analytics cookies. We also use Plausible, Vercel Web Analytics and Speed Insights, which are cookieless and do not identify you.<br>
+        &mdash; <strong>Advertising data:</strong> Google AdSense shows ads on the site. With your consent it may set cookies for personalised ads; without it, only non-personalised ads are requested. With your consent for advertising cookies, the TikTok pixel and, after a purchase, TikTok's server-side Events API (hashed email, IP address, browser user agent) measure ad conversions. Without that consent nothing is sent to TikTok. See Section 2.
     </div>
 
     <p>We do <strong>not</strong> collect names, physical addresses, or phone numbers beyond what is listed above. We do not use browser fingerprinting.</p>
@@ -267,7 +269,7 @@
         <tr><td>Google AdSense</td><td>Displays personalized ads. Sets cookies for ad targeting, frequency capping, and behavioral profiling across websites.</td><td><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads Privacy</a></td></tr>
     </table>
 
-    <p>You can manage your cookie preferences via our cookie consent banner. Analytics and advertising cookies are only loaded with your consent. You can also opt out of Google's personalized ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
+    <p>You choose in the cookie banner shown on your first visit (Accept all / Statistics only / Essential only). Analytics and advertising cookies are only set after you accept them; until then Google tags run in Consent Mode v2 "denied" and AdSense requests non-personalised ads. Fonts are served from our own domain, so loading a page does not send your IP address to Google Fonts. You can change your choice by clearing this site's data in your browser, and opt out of Google's personalised ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
 
     <h2>3. How We Use Your Information</h2>
     <p>We use the information we collect to:</p>
@@ -275,7 +277,7 @@
     &mdash; Build and maintain your scent preference profile for increasingly personalized recommendations.<br>
     &mdash; Enforce usage limits and prevent abuse (rate limiting, free trial enforcement).<br>
     &mdash; Process and verify subscription payments through Lemon Squeezy.<br>
-    &mdash; Send a welcome email and (if you opt in) a periodic fragrance newsletter. Legal basis: your consent, which you gave by submitting your email. You can withdraw consent at any time via the unsubscribe link in any email.<br>
+    &mdash; Send a periodic fragrance newsletter, only if you ticked the separate opt-in box. Legal basis: your consent (GDPR Art. 6(1)(a); KVKK m.5/1; Turkish law no. 6563 m.6). Withdraw it at any time via the unsubscribe link in any email.<br>
     &mdash; Analyze usage patterns and site performance to improve the Service.<br>
     &mdash; Display relevant advertisements via Google AdSense.<br>
     &mdash; Respond to your support inquiries.</p>
@@ -291,8 +293,11 @@
         &mdash; <strong>Vercel:</strong> Hosts the Service and provides analytics/speed insights. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">Vercel's Privacy Policy</a>.<br>
         &mdash; <strong>Upstash:</strong> Provides server-side data storage (Redis) for rate limiting, usage tracking, and user profiles. Subject to <a href="https://upstash.com/trust/privacy.html" target="_blank" rel="noopener">Upstash's Privacy Policy</a>.<br>
         &mdash; <strong>Amazon Associates:</strong> Affiliate product links. Clicking "Shop on Amazon" links may set Amazon tracking cookies. Subject to <a href="https://www.amazon.com/gp/help/customer/display.html?nodeId=GX7NJQ4ZB8MHFRNJ" target="_blank" rel="noopener">Amazon's Privacy Notice</a>.<br>
-        &mdash; <strong>Beehiiv:</strong> Newsletter subscription management. When you submit your email to unlock free picks or subscribe to the newsletter, we share your email with Beehiiv so they can deliver our newsletter and manage your subscription preferences. Subject to <a href="https://www.beehiiv.com/tou/privacy" target="_blank" rel="noopener">Beehiiv's Privacy Policy</a>.<br>
-        &mdash; <strong>Resend:</strong> Transactional email delivery (welcome email). Your email is passed to Resend solely to deliver a single welcome message. Subject to <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener">Resend's Privacy Policy</a>.
+        &mdash; <strong>Beehiiv:</strong> Newsletter delivery, only for people who ticked the newsletter opt-in box. Subject to <a href="https://www.beehiiv.com/tou/privacy" target="_blank" rel="noopener">Beehiiv's Privacy Policy</a>.<br>
+        &mdash; <strong>TikTok:</strong> Ad conversion measurement, only with your consent to advertising cookies. Subject to <a href="https://www.tiktok.com/legal/page/global/privacy-policy/en" target="_blank" rel="noopener">TikTok's Privacy Policy</a>.<br>
+        &mdash; <strong>Plausible:</strong> Cookieless, aggregate page statistics. No personal data is stored. Subject to <a href="https://plausible.io/privacy" target="_blank" rel="noopener">Plausible's Privacy Policy</a>.<br>
+        &mdash; <strong>Brave Search, Unsplash:</strong> Perfume image lookups. Only the perfume name is sent, never data about you.
+
     </div>
 
     <h2>5. Data Retention</h2>
@@ -302,7 +307,7 @@
     &mdash; <strong>Cookies:</strong> Expire automatically as listed in Section 2 above.<br>
     &mdash; <strong>Purchase data:</strong> Retained while your Premium access is active and for a reasonable period afterward for billing purposes.<br>
     &mdash; <strong>Free trial usage data:</strong> IP-based usage records are stored in Redis with a 33-day automatic expiration.<br>
-    &mdash; <strong>Gate / newsletter email:</strong> Stored in Redis for up to 1 year so we can honor your unlock. Stored with Beehiiv until you unsubscribe. Email us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a> at any time to have your email removed from all systems.<br>
+    &mdash; <strong>Newsletter opt-in:</strong> Stored with Beehiiv until you unsubscribe. The opt-in record (email, time, wording) is kept in Redis for 4 years from opt-in, because Turkish law requires consent records to be kept for 3 years after consent ends. An unlock without newsletter consent stores no email at all. Email us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a> to have your email removed from all systems.<br>
     &mdash; <strong>Rate-limit data:</strong> Automatically purged after 10 minutes (in-memory) or at end of the rate-limit window.</p>
 
     <h2>6. Your Rights</h2>
@@ -320,6 +325,9 @@
     &mdash; Right to lodge a complaint with your local data protection authority.<br>
     &mdash; We process your data on the basis of: (a) consent for analytics and advertising cookies, (b) legitimate interest for security and abuse prevention, and (c) contract performance for subscription services.</p>
 
+    <p><strong>For residents of Turkey (KVKK):</strong></p>
+    <p>&mdash; You have the rights in Article 11 of law no. 6698 (to learn whether your data is processed, request information, learn the purpose, know the recipients in Turkey and abroad, request correction or deletion, object to automated decisions, and claim compensation). See the full <a href="/kvkk.html">KVKK Aydınlatma Metni</a> for how to apply. You may complain to the Personal Data Protection Board (Kişisel Verileri Koruma Kurulu) if we refuse or do not answer within 30 days.</p>
+
     <p><strong>For California residents (CCPA/CPRA):</strong></p>
     <p>&mdash; <strong>Right to Know:</strong> You may request details about the categories of personal information we collect, the purposes for collection, and the categories of third parties with whom we share it.<br>
     &mdash; <strong>Right to Delete:</strong> You may request deletion of your personal data. Use the "Reset Profile" option or contact us.<br>
@@ -329,7 +337,7 @@
     <p>To exercise any of these rights, contact us at <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>. We will respond within 30 days (45 days for complex CCPA requests).</p>
 
     <h2>7. International Data Transfers</h2>
-    <p>Your data may be transferred to and processed in the United States and other countries where our service providers operate (Google, Vercel, Upstash, Lemon Squeezy). These transfers are necessary to provide the Service. Where required, we rely on appropriate safeguards including standard contractual clauses.</p>
+    <p>Our service providers (Vercel, Upstash, Google, Lemon Squeezy and, where you consented, Beehiiv and TikTok) process data in the United States and other countries outside Turkey and the EU. For EU/EEA users we rely on the providers' Standard Contractual Clauses or the EU–US Data Privacy Framework where applicable. For users in Turkey, transfers abroad are made under KVKK Article 9: on the basis of your explicit consent for cookies, analytics and advertising, and because they are necessary to perform the contract for hosting, payment and AI processing. Details are in the <a href="/kvkk.html">KVKK notice</a>.</p>
 
     <h2>8. Security</h2>
     <p>We implement industry-standard security measures to protect your data, including HMAC-SHA256 signed cookies, HTTPS enforcement, Content Security Policy headers, CSRF protection, rate limiting, and timing-safe token comparisons. However, no method of transmission or storage is 100% secure, and we cannot guarantee absolute security.</p>
