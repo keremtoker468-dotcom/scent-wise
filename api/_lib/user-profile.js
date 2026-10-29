@@ -1,5 +1,5 @@
 // User Learning Profile — stores fragrance preferences extracted from interactions in Redis.
-// Profile key: "sw_profile:{userId}" where userId is custId (premium), "owner" (owner), or IP (free).
+// Profile key: "sw_profile:{userId}" where userId is custId (premium), "owner" (owner), or "dev:{deviceId}" (free, per browser).
 // Profile data is a JSON object with preference signals accumulated over time.
 
 const MAX_PROFILE_SIZE = 8192; // 8KB max stored profile

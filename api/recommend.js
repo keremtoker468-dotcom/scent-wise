@@ -4,12 +4,58 @@ const { validateOrigin, validateContentType, isBodyTooLarge } = require('./_lib/
 const { verifyOwnerToken } = require('./_lib/owner-token');
 const {
   readUsage, writeUsage,
-  readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage, readOrMintDeviceId,
-  readFreeUsage, redisIncrFreeUsage, writeCookieFreeUsage,
+  readDeviceFreeUsage, writeCookieDeviceFreeUsage, readOrMintDeviceId,
+  readFreeUsage, writeCookieFreeUsage,
   readEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
-  getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
+  getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies,
+  ipBucket, freeDeviceKey, freeIpKey, premiumKey, redisReserve, redisRelease
 } = require('./_lib/usage');
+
+const COUNTER_TTL = 33 * 24 * 60 * 60;
+const TEASER_TTL = 24 * 60 * 60;
+
+function redisCreds() {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  return url && token ? { url, token } : null;
+}
+
+// Teaser answers (free query 2-3 without an email) used to carry every pick and
+// rely on CSS blur, so the hidden picks were readable in the network response.
+// Picks 3+ are now cut here and parked in Redis until the email gate unlocks.
+function splitTeaser(text) {
+  const m = String(text || '').match(/\n\s*(?:[3-9]|[1-9]\d+)[.)]\s/);
+  if (!m) return null;
+  const hidden = text.slice(m.index + 1);
+  const picks = (hidden.match(/^\s*\d{1,2}[.)]\s+.*\*\*/gm) || []).length;
+  return { visible: text.slice(0, m.index), hidden, picks: Math.max(1, picks) };
+}
+
+async function storeTeaser(deviceId, hidden) {
+  const r = redisCreds();
+  if (!r || !deviceId) return null;
+  const id = crypto.randomBytes(12).toString('hex');
+  try {
+    const resp = await fetch(`${r.url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${r.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['SET', `sw_teaser:${id}`, JSON.stringify({ d: deviceId, h: hidden }), 'EX', TEASER_TTL]])
+    });
+    return resp.ok ? id : null;
+  } catch { return null; }
+}
+
+async function loadTeaser(id) {
+  const r = redisCreds();
+  if (!r || !/^[a-f0-9]{24}$/.test(id || '')) return null;
+  try {
+    const resp = await fetch(`${r.url}/GET/${encodeURIComponent('sw_teaser:' + id)}`, { headers: { Authorization: `Bearer ${r.token}` } });
+    if (!resp.ok) return null;
+    const body = await resp.json();
+    return body.result ? JSON.parse(body.result) : null;
+  } catch { return null; }
+}
 const { getProfile, saveProfile, extractPreferences, updateProfile, buildProfilePrompt } = require('./_lib/user-profile');
 const { validateSecrets } = require('./_lib/validate-secrets');
 const { isOrderRevoked } = require('./_lib/revocation');
@@ -158,6 +204,24 @@ module.exports = async function handler(req, res) {
   const rl = await rateLimit(`recommend:${ip}`, 20, 60000); // 20 requests/min
   if (!rl.allowed) { res.setHeader('Retry-After', rl.retryAfter || 60); return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment.' }); }
 
+  // Reveal the picks held back from a teaser, once this device has passed the
+  // email gate (or holds Premium).
+  if (req.body && req.body.action === 'reveal') {
+    const subSecretR = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
+    const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+    const ids = Array.isArray(req.body.teaserIds) ? req.body.teaserIds.slice(0, 20) : [];
+    if (!subSecretR || !ids.length) return res.status(400).json({ error: 'Nothing to reveal' });
+    const { deviceId } = readOrMintDeviceId(req, res, subSecretR, isProd);
+    const acc = verifyAccess(req);
+    if (!acc.authorized && !readEmailFlag(req, deviceId, subSecretR)) return res.status(403).json({ error: 'Add your email first.' });
+    const out = {};
+    for (const id of ids) {
+      const t = await loadTeaser(String(id));
+      if (t && t.d === deviceId) out[id] = t.h;
+    }
+    return res.status(200).json({ revealed: out });
+  }
+
   let access = verifyAccess(req);
   if (access.tier === 'premium' && await isOrderRevoked(access.subId)) {
     access = { authorized: false, tier: 'free', userId: null };
@@ -169,6 +233,10 @@ module.exports = async function handler(req, res) {
 
   let freeDeviceId = null;
   let emailGiven = false;
+  const freeIp = ipBucket(ip);
+  let reserved = null;       // Redis counter keys taken for this request
+  let reservedCounts = null; // their values after the reservation
+  let succeeded = false;
   if (!access.authorized) {
     // Free trial: allow a few queries so users can experience the AI
     if (subSecret) {
@@ -179,7 +247,7 @@ module.exports = async function handler(req, res) {
       // Abuse guard: per-IP soft daily cap so a single IP can't mint unlimited
       // device cookies in a loop. Returns a distinct reason so the client can
       // show a shared-IP-friendly message instead of the usual paywall.
-      const ipCap = await checkIpDailyCap(ip);
+      const ipCap = await checkIpDailyCap(freeIp);
       if (!ipCap.allowed) {
         return res.status(429).json({
           error: 'This network has been very busy today. Please try again later, or subscribe to continue.',
@@ -196,7 +264,7 @@ module.exports = async function handler(req, res) {
       // loophole: MAX(device, ip) is what we enforce against FREE_TRIAL_QUERIES.
       const [freeUsage, ipUsage] = await Promise.all([
         readDeviceFreeUsage(req, deviceId, subSecret),
-        readFreeUsage(req, ip, subSecret)
+        readFreeUsage(req, freeIp, subSecret)
       ]);
       const effectiveUsed = Math.max(freeUsage.count, ipUsage.count);
       if (effectiveUsed >= FREE_TRIAL_QUERIES) {
@@ -207,6 +275,31 @@ module.exports = async function handler(req, res) {
           freeLimit: FREE_TRIAL_QUERIES
         });
       }
+      // Reserve the query now, before the slow AI call, so parallel requests
+      // can't all slip under the cap. Released again if generation fails.
+      const month = getCurrentMonth();
+      const keys = [freeDeviceKey(deviceId, month), freeIpKey(freeIp, month)];
+      const [resDevice, resIp] = await Promise.all(keys.map(k => redisReserve(k, COUNTER_TTL)));
+      if (resDevice !== null && resIp !== null) {
+        reserved = keys;
+        const after = Math.max(resDevice, resIp);
+        if (after > FREE_TRIAL_QUERIES) {
+          await Promise.all(keys.map(redisRelease));
+          reserved = null;
+          return res.status(403).json({
+            error: 'Free trial queries used. Subscribe for unlimited access!',
+            tier: 'free',
+            freeUsed: FREE_TRIAL_QUERIES,
+            freeLimit: FREE_TRIAL_QUERIES
+          });
+        }
+        reservedCounts = { device: resDevice, ip: resIp };
+      } else {
+        // Redis down: one of the two may have counted; give it back and fall
+        // back to the cookie counters below.
+        if (resDevice !== null) await redisRelease(keys[0]);
+        if (resIp !== null) await redisRelease(keys[1]);
+      }
       usageCount = effectiveUsed;
       isFreeTrialRequest = true;
     } else {
@@ -216,8 +309,26 @@ module.exports = async function handler(req, res) {
 
   // Server-side usage enforcement for premium users
   if (access.tier === 'premium' && subSecret) {
+    // The monthly cap used to live only in the sw_usage cookie, so deleting the
+    // cookie reset it. Redis is now the source of truth (seeded once from the
+    // cookie); the cookie is only the fallback when Redis is down.
     const usage = readUsage(req, access.userId, subSecret);
-    usageCount = usage.count;
+    const key = premiumKey(access.userId, getCurrentMonth());
+    const after = await redisReserve(key, COUNTER_TTL, usage.count);
+    if (after !== null) {
+      reserved = [key];
+      reservedCounts = { premium: after };
+      if (after > MAX_MONTHLY_QUERIES) {
+        await redisRelease(key);
+        reserved = null;
+        return res.status(429).json({
+          error: 'Monthly query limit reached (500/month). Resets next month.',
+          usage: MAX_MONTHLY_QUERIES,
+          limit: MAX_MONTHLY_QUERIES
+        });
+      }
+    }
+    usageCount = after !== null ? after - 1 : usage.count;
     if (usageCount >= MAX_MONTHLY_QUERIES) {
       return res.status(429).json({
         error: 'Monthly query limit reached (500/month). Resets next month.',
@@ -228,7 +339,10 @@ module.exports = async function handler(req, res) {
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'API key not configured' });
+  if (!apiKey) {
+    if (reserved) await Promise.all(reserved.map(redisRelease));
+    return res.status(500).json({ error: 'API key not configured' });
+  }
 
   try {
     const { mode, messages, imageBase64, imageMime } = req.body;
@@ -245,7 +359,8 @@ module.exports = async function handler(req, res) {
     }
 
     // Load user scent profile for personalized recommendations
-    const profileUserId = access.authorized ? access.userId : ip;
+    // Free users get one profile per browser, not one per (possibly shared) IP.
+    const profileUserId = access.authorized ? access.userId : (freeDeviceId ? 'dev:' + freeDeviceId : ip);
     let profile = null;
     try {
       profile = await getProfile(profileUserId);
@@ -415,24 +530,22 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
       // Atomic Redis INCR on both device-bound AND IP-bound keys (prevents
       // TOCTOU and closes the incognito bypass: a new private tab gets a fresh
       // device id, but the IP counter survives across tabs).
-      const month = getCurrentMonth();
-      const [atomicDevice, atomicIp] = await Promise.all([
-        redisIncrDeviceFreeUsage(freeDeviceId, month),
-        redisIncrFreeUsage(ip, month)
-      ]);
-      const nextDevice = atomicDevice !== null ? atomicDevice : usageCount + 1;
-      const nextIp = atomicIp !== null ? atomicIp : usageCount + 1;
+      // Counted up front when Redis is up (see the reservation above);
+      // otherwise only the signed cookies count.
+      const nextDevice = reservedCounts ? reservedCounts.device : usageCount + 1;
+      const nextIp = reservedCounts ? reservedCounts.ip : usageCount + 1;
       usageCount = Math.max(nextDevice, nextIp);
       // Signed cookie fallbacks (only layer when Redis is down).
       writeCookieDeviceFreeUsage(res, freeDeviceId, nextDevice, subSecret, isProduction);
-      writeCookieFreeUsage(res, ip, nextIp, subSecret, isProduction);
+      writeCookieFreeUsage(res, freeIp, nextIp, subSecret, isProduction);
       // Light per-IP abuse counter — bumps even for legit free users, but the
       // cap (100/day) is generous enough that real users never hit it.
-      redisIncrIpDaily(ip).catch(() => {});
+      redisIncrIpDaily(freeIp).catch(() => {});
     } else if (access.tier === 'premium' && subSecret) {
-      usageCount++;
+      usageCount = reservedCounts ? reservedCounts.premium : usageCount + 1;
       writeUsage(res, access.userId, usageCount, subSecret, isProduction);
     }
+    succeeded = true;
 
     const responseData = { result };
     if (isFreeTrialRequest) {
@@ -442,7 +555,16 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
       responseData.emailGiven = emailGiven;
       // After query 1, if the user skipped the email gate, mark the response
       // as a teaser so the client blurs everything past the first 2 picks.
-      if (!emailGiven && usageCount > 1) responseData.teaser = true;
+      if (!emailGiven && usageCount > 1) {
+        responseData.teaser = true;
+        const split = splitTeaser(result);
+        const id = split && await storeTeaser(freeDeviceId, split.hidden);
+        if (id) {
+          responseData.result = split.visible;
+          responseData.teaserId = id;
+          responseData.hiddenPicks = split.picks;
+        }
+      }
     } else if (access.tier === 'premium') {
       responseData.usage = usageCount;
       responseData.limit = MAX_MONTHLY_QUERIES;
@@ -457,6 +579,10 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
   } catch (err) {
     console.error('Recommend error:', err);
     return res.status(500).json({ error: 'An internal error occurred. Please try again.' });
+  } finally {
+    // Any exit before the answer was produced (bad input, AI error, timeout)
+    // gives the reserved query back.
+    if (reserved && !succeeded) await Promise.all(reserved.map(redisRelease));
   }
 };
 

@@ -724,20 +724,26 @@
     const locked = !!m.teaser && !S.isPaid && !S.emailGiven;
     const parsed = parseAI(m.text || '');
     let html = '<div class="msg-ai">';
+    // Picks held back on the server (teaserId) arrive later; draw blurred stand-ins.
+    const held = locked && m.teaserId ? Array.from({ length: m.hiddenPicks || 1 }, lockedStubHTML).join('') : '';
     if (!parsed) {
-      if (locked) {
+      if (held) html += `<div class="intro">${formatInline(m.text)}</div><div class="recs">${held}</div>${gateHTML()}`;
+      else if (locked) {
         const split = splitTeaser(m.text);
         html += `<div class="intro">${formatInline(split.visible)}</div>`;
         if (split.hidden) html += `<div class="rec is-locked" style="padding:20px"><div class="intro">${formatInline(split.hidden)}</div></div>${gateHTML()}`;
       } else html += `<div class="intro">${formatInline(m.text)}</div>`;
     } else {
       if (parsed.intro) html += `<div class="intro">${formatInline(parsed.intro)}</div>`;
-      html += `<div class="recs">${parsed.picks.map((p, i) => recHTML(p, locked && i >= 2)).join('')}</div>`;
-      if (locked && parsed.picks.length > 2) html += gateHTML();
+      html += `<div class="recs">${parsed.picks.map((p, i) => recHTML(p, locked && i >= 2)).join('')}${held}</div>`;
+      if (held || (locked && parsed.picks.length > 2)) html += gateHTML();
       if (parsed.outro) html += `<div class="intro t-call muted">${formatInline(parsed.outro)}</div>`;
     }
     html += feedbackHTML(idx, m) + '</div>';
     return html;
+  }
+  function lockedStubHTML() {
+    return `<article class="rec is-locked" aria-hidden="true"><div class="art fam-other">${bottle(40, 60)}</div><div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">Another pick for you</div><div class="brand" style="font-size:14px;color:var(--fg2)">Unlock to see it</div></div><div class="meta"><div class="why">Why it suits you, how it wears and what it smells close to.</div></div></article>`;
   }
   function recHTML(p, locked) {
     const rec = DB.loaded ? find(p.name, p.brand) : null;
@@ -769,6 +775,23 @@
   function paywallHTML(m) {
     return `<div class="msg-ai"><div class="gate"><div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">${esc(m.title || 'You have used your free picks.')}</span><span class="t-call muted">${esc(m.text || 'Lifetime access is $10, once: all seven modes and 500 queries a month.')}</span></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Get lifetime access · $10</button><a class="btn btn-quiet" href="/account" data-nav="account">I already paid</a></div></div></div>`;
   }
+  // Fetch the picks the server held back from teaser answers and splice them in.
+  async function revealTeasers() {
+    const msgs = [];
+    MODE_IDS.forEach((m) => getThread(m).forEach((x) => { if (x.teaserId) msgs.push([m, x]); }));
+    if (!msgs.length) return;
+    try {
+      const r = await fetch('/api/recommend', { method: 'POST', headers: HEADERS, credentials: 'same-origin', body: JSON.stringify({ action: 'reveal', teaserIds: msgs.map(([, x]) => x.teaserId) }) });
+      const d = await r.json().catch(() => ({}));
+      const got = (d && d.revealed) || {};
+      const changed = new Set();
+      msgs.forEach(([m, x]) => {
+        if (typeof got[x.teaserId] === 'string') x.text = x.text.replace(/\s*$/, '') + '\n' + got[x.teaserId];
+        delete x.teaserId; delete x.hiddenPicks; changed.add(m);
+      });
+      changed.forEach(saveThread);
+    } catch (e) { /* the visible picks stay; nothing else to do */ }
+  }
   function showGate() { const g = $('#gate'); if (g) { g.scrollIntoView({ behavior: 'smooth', block: 'center' }); const i = $('input', g); if (i) i.focus(); } }
   document.addEventListener('submit', async (e) => {
     if (e.target.id !== 'gate-form') return;
@@ -781,6 +804,7 @@
       const d = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(d.error || 'Could not save your email.');
       S.emailGiven = true; track('email_captured', { method: 'gate' });
+      await revealTeasers();
       MODE_IDS.forEach((m) => { const t = getThread(m); let ch = false; t.forEach((x) => { if (x.teaser) { x.teaser = false; ch = true; } }); if (ch) saveThread(m); });
       toast('Unlocked. Enjoy the picks.'); renderThread(); renderMeter(); renderTrust();
     } catch (err) { toast(err.message || 'Could not save your email.'); btn.disabled = false; }
@@ -953,7 +977,7 @@
     if (typeof d.freeUsed === 'number') S.freeUsed = d.freeUsed; else if (typeof d.usage === 'number') S.usage = d.usage; else if (S.isPaid) S.usage++;
     if (typeof d.emailGiven === 'boolean') S.emailGiven = d.emailGiven;
     const teaser = !!d.teaser && !S.isPaid && !S.isOwner && !S.emailGiven;
-    t.push({ role: 'ai', text: d.result || 'No response. Try again.', teaser }); S.scrollNext = true;
+    t.push(Object.assign({ role: 'ai', text: d.result || 'No response. Try again.', teaser }, teaser && d.teaserId ? { teaserId: d.teaserId, hiddenPicks: d.hiddenPicks || 1 } : {})); S.scrollNext = true;
     if (hasImage) S.photo = null, resetDropzone();
     saveThread(mode); renderThread(); renderMeter(); renderTrust();
     track('ai_recommendation', { mode, tier: S.tier || 'free' });

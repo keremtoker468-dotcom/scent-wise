@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const { rateLimit, getClientIp } = require('./_lib/rate-limit');
 const { verifyOwnerToken } = require('./_lib/owner-token');
-const { readUsage, readDeviceFreeUsage, readFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies } = require('./_lib/usage');
+const { readUsage, readDeviceFreeUsage, readFreeUsage, readOrMintDeviceId, readEmailFlag, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies, ipBucket } = require('./_lib/usage');
 const { getProfile, saveProfile, deleteProfile, applyFeedback, emptyProfile } = require('./_lib/user-profile');
 const { isOrderRevoked } = require('./_lib/revocation');
 
@@ -60,7 +60,14 @@ module.exports = async function handler(req, res) {
     const profileCookies = parseCookies(req.headers.cookie || '');
     const profileSubSecret = process.env.SUBSCRIPTION_SECRET;
     const profileOwnerKey = process.env.OWNER_KEY;
-    let profileUserId = ip; // default: IP for free users
+    // Free users: one profile per browser. Keying on IP made everyone behind the
+    // same office Wi-Fi or mobile carrier NAT read and edit one shared profile.
+    let profileUserId = ip;
+    const deviceSecret = process.env.SUBSCRIPTION_SECRET || process.env.OWNER_KEY;
+    if (deviceSecret) {
+      const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
+      profileUserId = 'dev:' + readOrMintDeviceId(req, res, deviceSecret, isProd).deviceId;
+    }
 
     if (profileOwnerKey && profileCookies.sw_owner && verifyOwnerToken(profileCookies.sw_owner, profileOwnerKey)) {
       profileUserId = 'owner';
@@ -271,7 +278,7 @@ module.exports = async function handler(req, res) {
     const { deviceId } = readOrMintDeviceId(req, res, trialSecret, isProduction);
     const [freeUsage, ipUsage] = await Promise.all([
       readDeviceFreeUsage(req, deviceId, trialSecret),
-      readFreeUsage(req, ip, trialSecret)
+      readFreeUsage(req, ipBucket(ip), trialSecret)
     ]);
     const freeUsed = Math.max(freeUsage.count, ipUsage.count);
     const emailGiven = readEmailFlag(req, deviceId, trialSecret);
