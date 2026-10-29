@@ -52,6 +52,7 @@ const BRAVE_MONTHLY_LIMIT = parseInt(process.env.BRAVE_MONTHLY_LIMIT, 10) || 100
 // empty objects. Normalise, and treat anything without a usable URL as a cache miss.
 function normalizeCached(c) {
   if (!c || typeof c !== 'object') return null;
+  if (c.blocked) return { blocked: true };
   if (c.none) return { none: true };
   const t = c.t || c.thumb || '';
   const u = c.u || c.url || t;
@@ -164,6 +165,12 @@ module.exports = async function handler(req, res) {
 
     // Check Redis cache first — cache hits bypass rate limit (they cost nothing)
     const cached = normalizeCached(await redisGet(redisKey));
+    // Taken down after a rights-holder notice (owner-auth ?takedown=1): never
+    // search again, the card keeps its drawn bottle.
+    if (cached && cached.blocked) {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.status(200).json([]);
+    }
     if (cached && !cached.none) {
       res.setHeader('Cache-Control', 'public, max-age=86400');
       return res.status(200).json([{ url: cached.u, thumb: cached.t, alt: cached.a }]);

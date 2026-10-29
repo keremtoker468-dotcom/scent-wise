@@ -56,4 +56,5 @@ ScentWise is an independent site written and maintained by Kerem Toker. Recommen
 - [Author: Kerem Toker](https://scent-wise.com/author/kerem-toker.html)
 - [All guides](https://scent-wise.com/blog/)
 - [Privacy policy](https://scent-wise.com/privacy.html)
+- [KVKK Aydınlatma Metni (Turkish data-protection notice)](https://scent-wise.com/kvkk.html)
 - [Contact](https://scent-wise.com/contact.html): scentwise.com@gmail.com

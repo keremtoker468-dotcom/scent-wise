@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { revokeOrder } = require('./_lib/revocation');
 const {
   sendGa4Ecommerce,
   claimOnce,
@@ -43,11 +44,6 @@ async function sendTikTokConversion(eventName, eventData) {
   const PIXEL_ID = process.env.TIKTOK_PIXEL_ID;
   const ACCESS_TOKEN = process.env.TIKTOK_ACCESS_TOKEN;
 
-  // Step 1: env var kontrol
-  console.log('[tiktok-debug] PIXEL_ID present:', !!PIXEL_ID);
-  console.log('[tiktok-debug] ACCESS_TOKEN present:', !!ACCESS_TOKEN);
-  console.log('[tiktok-debug] ACCESS_TOKEN length:', ACCESS_TOKEN?.length);
-
   if (!PIXEL_ID || !ACCESS_TOKEN) {
     console.error('[tiktok-debug] MISSING ENV VARS — aborting');
     return;
@@ -86,7 +82,6 @@ async function sendTikTokConversion(eventName, eventData) {
   };
 
   console.log('[tiktok-debug] Payload prepared. Event:', eventName, 'EventID:', eventData.event_id);
-  console.log('[tiktok-debug] About to call fetch()...');
 
   try {
     const startTime = Date.now();
@@ -105,7 +100,6 @@ async function sendTikTokConversion(eventName, eventData) {
     console.log('[tiktok-debug] fetch() returned in', elapsed, 'ms. HTTP status:', response.status);
 
     const text = await response.text();
-    console.log('[tiktok-debug] Response body (raw):', text);
 
     let json;
     try { json = JSON.parse(text); }
@@ -330,7 +324,8 @@ async function handler(req, res) {
                         || customData
                         || {};
       const totalUsd = Number(payload.data?.attributes?.total_usd || payload.data?.attributes?.total || 0) / 100;
-      await sendTikTokConversion('CompletePayment', {
+      // Hashed email + IP go to TikTok only with the buyer's ad-cookie consent.
+      if (attributionData().ga_consent === 'granted') await sendTikTokConversion('CompletePayment', {
         event_id: payload.data.id,
         email: payload.data?.attributes?.user_email,
         value: totalUsd || 10,
@@ -354,7 +349,8 @@ async function handler(req, res) {
                         || customData
                         || {};
       const totalUsd = Number(payload.data?.attributes?.total_usd || payload.data?.attributes?.total || 0) / 100;
-      await sendTikTokConversion('CompletePayment', {
+      // Hashed email + IP go to TikTok only with the buyer's ad-cookie consent.
+      if (attributionData().ga_consent === 'granted') await sendTikTokConversion('CompletePayment', {
         event_id: payload.data.id,
         email: payload.data?.attributes?.user_email,
         value: totalUsd || 10,
@@ -395,6 +391,9 @@ async function handler(req, res) {
 
     case 'order_refunded':
       console.log(`[LS Webhook] Order refunded`);
+      // A full refund ends Premium for every copy of the cookie, not only the
+      // browser that next calls check-tier.
+      if (attrs.status === 'refunded') await revokeOrder(String(payload.data?.id || ''));
       await reportRefundToGa4();
       break;
 

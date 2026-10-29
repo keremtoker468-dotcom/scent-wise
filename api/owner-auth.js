@@ -82,7 +82,8 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     const wantsExport = req.query?.export === 'conversions';
     const wantsPing = req.query?.ga4ping === '1';
-    if (!wantsExport && !wantsPing) return res.status(400).json({ error: 'Unknown request' });
+    const wantsTakedown = req.query?.takedown === '1';
+    if (!wantsExport && !wantsPing && !wantsTakedown) return res.status(400).json({ error: 'Unknown request' });
 
     const ip = getClientIp(req);
     const rl = await rateLimit(`owner-export:${ip}`, 10, 60000);
@@ -95,6 +96,28 @@ module.exports = async function handler(req, res) {
     }
 
     res.setHeader('Cache-Control', 'no-store');
+
+    // Copyright takedown (FSEK 5846 / 5651 m.9 notice): perfume photos come from a
+    // web image search, so when a rights holder objects the owner opens
+    //   /api/owner-auth?takedown=1&name=<perfume>&brand=<brand>
+    // and /api/img stops serving any photo for that perfume. Browsers drop their
+    // cached copy within 7 days (see imageFor in app.js).
+    if (wantsTakedown) {
+      const name = String(req.query.name || '').trim();
+      const brand = String(req.query.brand || '').trim();
+      if (!name || name.length > 200 || brand.length > 200) return res.status(400).json({ error: 'name (and brand) required' });
+      const url = process.env.UPSTASH_REDIS_REST_URL;
+      const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (!url || !token) return res.status(503).json({ error: 'No Redis configured' });
+      const key = 'fi:' + (name + '|' + brand).toLowerCase(); // same key as api/img.js
+      const r = await fetch(`${url}/pipeline`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify([['SET', key, JSON.stringify({ blocked: 1, at: new Date().toISOString() })]])
+      }).catch(() => null);
+      if (!r || !r.ok) return res.status(502).json({ error: 'Could not save the takedown' });
+      return res.status(200).json({ ok: true, blocked: { name, brand } });
+    }
 
     // Fires a throwaway event at GA4 using this deployment's own credentials,
     // so the Measurement Protocol wiring can be proven before a sale depends

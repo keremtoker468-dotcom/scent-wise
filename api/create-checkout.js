@@ -81,10 +81,14 @@ module.exports = async function handler(req, res) {
   // LemonSqueezy rejects null/undefined values in checkout_data.custom with a
   // 422 ("must be a string"). Only include fields that are actual strings.
   const customData = { device_id: String(deviceId || '') };
-  if (ttclid && typeof ttclid === 'string') customData.ttclid = ttclid;
-  if (ttp && typeof ttp === 'string') customData.ttp = ttp;
-  if (userAgent && typeof userAgent === 'string') customData.user_agent = userAgent;
-  if (tiktokIp && typeof tiktokIp === 'string') customData.ip = tiktokIp;
+  // TikTok's Events API gets the buyer's IP, user agent and click ids. That is
+  // advertising tracking, so it only travels when the buyer accepted ad cookies.
+  if (adsConsent === 'granted') {
+    if (ttclid && typeof ttclid === 'string') customData.ttclid = ttclid;
+    if (ttp && typeof ttp === 'string') customData.ttp = ttp;
+    if (userAgent && typeof userAgent === 'string') customData.user_agent = userAgent;
+    if (tiktokIp && typeof tiktokIp === 'string') customData.ip = tiktokIp;
+  }
   if (gaClientId) customData.ga_client_id = gaClientId;
   if (gaSessionId) customData.ga_session_id = gaSessionId;
   if (gclid) customData.gclid = gclid;

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <link rel="preload" href="/amazon.js?v=3" as="script">
-<link rel="preload" href="/app.js?v=10" as="script">
+<link rel="preload" href="/app.js?v=12" as="script">
 <!-- perfumes.js / perfumes-rich.js are ~3MB combined. We load them lazily
      on first navigation to explore/chat/celeb (see loadDB in app.js) so
      TikTok bounce visitors don't pay the bandwidth + main-thread cost. -->
@@ -46,18 +46,16 @@
 <link rel="alternate" type="application/rss+xml" title="ScentWise Blog RSS" href="/blog/feed.xml">
 <meta name="theme-color" content="#f7f1e6">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="/styles.css?v=4" as="style">
 <link rel="stylesheet" href="/styles.css?v=4">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap"></noscript>
+<link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="dns-prefetch" href="https://plausible.io">
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
 <!-- AdSense: loaded unconditionally so Google's crawler and AdSense bot can see the ad code.
-     GDPR compliance is enforced via gtag('consent','default',{ad_storage:'denied',...}) below,
-     which causes AdSense to serve non-personalized ads until the user accepts the cookie banner. -->
+     /consent.js (above) sets the Consent Mode v2 defaults from the stored choice and
+     requestNonPersonalizedAds=1 until the visitor accepts advertising cookies. -->
+<script src="/consent.js"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576" crossorigin="anonymous"></script>
 
 <style>summary::-webkit-details-marker{display:none}summary{list-style:none}details[open] summary{color:var(--accent)}</style>
@@ -372,7 +370,7 @@
     <div class="row" style="justify-content:space-between;gap:24px;flex-wrap:wrap">
       <a class="brand" href="/" data-nav="home" style="font-size:15px"><span class="brand-dot"></span>ScentWise</a>
       <div class="links">
-        <a href="/discover.html">Discovery modes</a><a href="/collections.html">Collections</a><a href="/about.html">About</a><a href="/blog/">Guides</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a><a href="/contact.html">Contact</a>
+        <a href="/discover.html">Discovery modes</a><a href="/collections.html">Collections</a><a href="/about.html">About</a><a href="/blog/">Guides</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a><a href="/kvkk.html">KVKK</a><a href="/contact.html">Contact</a>
       </div>
     </div>
     <p class="t-foot muted-2">© 2026 ScentWise · As an Amazon Associate, ScentWise earns from qualifying purchases.</p>
@@ -393,7 +391,7 @@
 
 <div id="cookie-banner" class="cookie" style="display:none" role="dialog" aria-label="Cookie preferences">
   <strong style="color:var(--fg)">Cookie preferences</strong>
-  <p class="ck-long">We use essential cookies (login and free-trial tracking) plus optional analytics and ad cookies. Choose what you're comfortable with. <a href="/privacy.html">Privacy policy</a></p>
+  <p class="ck-long">We use essential cookies (login and free-trial tracking) plus optional analytics and ad cookies. Choose what you're comfortable with. <a href="/privacy.html">Privacy policy</a> · <a href="/kvkk.html">KVKK</a></p>
   <div class="actions">
     <button class="btn btn-primary btn-md" type="button" onclick="acceptAllCookies()">Accept all</button>
     <button class="btn btn-quiet btn-md" type="button" onclick="acceptEssentialOnly()">Essential only</button>
@@ -434,20 +432,20 @@
 
 <script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
 <script src="/amazon.js?v=3" defer></script>
-<script src="/app.js?v=10" defer></script>
+<script src="/app.js?v=12" defer></script>
 <!-- Cookie consent (GDPR-compliant: AdSense only loads after consent; GA runs
      in "consent mode v2" — cookieless pings by default, upgraded on opt-in) -->
 <script>
 function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
 function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
-function _gaConsentUpdate(a,d){if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
-function _ttqConsentUpdate(a){if(typeof window.ttq==='undefined')return;try{if(a){ttq.grantConsent&&ttq.grantConsent()}else{ttq.revokeConsent&&ttq.revokeConsent()}}catch(e){}}
+function _gaConsentUpdate(a,d){window.adsbygoogle=window.adsbygoogle||[];window.adsbygoogle.requestNonPersonalizedAds=d?0:1;if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
+function _ttqConsentUpdate(a){try{if(a){window._swLoadTikTok&&window._swLoadTikTok()}else if(window.ttq){ttq.revokeConsent&&ttq.revokeConsent()}}catch(e){}}
 function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);_ttqConsentUpdate(true);loadConsentedScripts()}
 function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false);_ttqConsentUpdate(false)}
 function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
-function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);_ttqConsentUpdate(a||d);loadConsentedScripts()}
+function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);_ttqConsentUpdate(d);loadConsentedScripts()}
 function loadConsentedScripts(){/* AdSense now loads unconditionally in <head>; consent is handled via gtag Consent Mode v2 which downgrades to non-personalized ads when ad_storage is denied. */}
-document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);_ttqConsentUpdate(!!c.analytics||!!c.ads);loadConsentedScripts()}});
+document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);_ttqConsentUpdate(!!c.ads);loadConsentedScripts()}});
 </script>
 
 <script defer src="/_vercel/speed-insights/script.js"></script>
@@ -462,15 +460,7 @@ document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent()
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
-gtag('consent', 'default', {
-  ad_storage: 'denied',
-  analytics_storage: 'denied',
-  ad_user_data: 'denied',
-  ad_personalization: 'denied',
-  functionality_storage: 'granted',
-  security_storage: 'granted',
-  wait_for_update: 500
-});
+// Consent Mode defaults are set by /consent.js in <head>, before any Google tag.
 // URL passthrough keeps TikTok/UTM click IDs across the pre-consent hop;
 // ads_data_redaction strips PII from pre-consent pings.
 gtag('set', 'url_passthrough', true);
@@ -478,23 +468,26 @@ gtag('set', 'ads_data_redaction', true);
 gtag('js', new Date());
 gtag('config', 'G-769WY8EYH6', { anonymize_ip: true });
 </script>
-<!-- TikTok Pixel — consent-gated. Script loads async on every page view so
-     TikTok ad tracking keeps working inside the TikTok in-app browser where
-     GA is often blocked. holdConsent() withholds cookies until the user
-     accepts the cookie banner (grantConsent fires in acceptAllCookies). -->
+<!-- TikTok Pixel — consent-gated. Only the ttq stub is defined on page view;
+     the pixel itself loads once the visitor accepts advertising cookies
+     (_swLoadTikTok, called from the cookie banner or for a stored choice). -->
 <script>
 !function (w, d, t) {
   w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
 var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
 ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-  try { ttq.holdConsent(); } catch(e){}
-  ttq.load('D7HLCTJC77UFJPI0A7AG');
-  ttq.page();
-  // If the user previously accepted analytics/ads cookies, grant now so the
-  // pixel can set cookies immediately instead of waiting for DOMContentLoaded.
+  // The pixel is only downloaded after consent: fetching it sends the visitor's
+  // IP to TikTok, which already needs consent under KVKK/GDPR.
+  var loaded = false;
+  w._swLoadTikTok = function () {
+    if (loaded) return; loaded = true;
+    ttq.load('D7HLCTJC77UFJPI0A7AG');
+    ttq.grantConsent();
+    ttq.page();
+  };
   try {
     var _c = (function(){try{return JSON.parse(localStorage.getItem('sw_cookie_consent')||'null')}catch(e){return null}})();
-    if (_c && (_c.analytics || _c.ads)) { ttq.grantConsent(); }
+    if (_c && _c.ads) w._swLoadTikTok();
   } catch(e) {}
 }(window, document, 'ttq');
 </script>

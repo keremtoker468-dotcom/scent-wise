@@ -458,11 +458,73 @@ async function checkIpDailyCap(ip) {
   }
 }
 
+// ═══════════════ RESERVE-BEFORE-GENERATE COUNTERS ═══════════════
+// The old flow read the counters, waited up to 50s for Gemini, and only then
+// incremented, so 20 parallel requests all read 0 and all got answers. Callers
+// now INCR first (atomic in Redis), refuse when the new value passes the cap,
+// and DECR again if generation fails.
+
+// IPv6 users usually control a whole /64, so counting single addresses lets one
+// client rotate through billions of fresh counters. Count the /64 instead.
+function ipBucket(ip) {
+  const s = String(ip || '');
+  if (!s.includes(':')) return s;
+  const [head, tail = ''] = s.split('::');
+  const h = head ? head.split(':') : [];
+  const t = tail ? tail.split(':') : [];
+  if (t.length && t[t.length - 1].includes('.')) return s; // IPv4-mapped, leave as is
+  const groups = h.concat(Array(Math.max(0, 8 - h.length - t.length)).fill('0'), t);
+  return groups.slice(0, 4).map(g => (parseInt(g, 16) || 0).toString(16)).join(':') + '::/64';
+}
+
+const freeDeviceKey = (deviceId, month) => `sw_free:dev:${deviceId}:${month}`;
+const freeIpKey = (ip, month) => `sw_free:${ip}:${month}`;
+const premiumKey = (userId, month) => `sw_usage:${userId}:${month}`;
+
+// INCR key and return the new value, or null when Redis is unavailable.
+// `seed` initialises a missing key (SET NX) so moving a counter from a cookie to
+// Redis does not hand out a fresh allowance.
+async function redisReserve(key, ttlSeconds, seed) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  const cmds = [];
+  if (seed > 0) cmds.push(['SET', key, String(seed), 'NX', 'EX', ttlSeconds]);
+  cmds.push(['INCR', key], ['EXPIRE', key, ttlSeconds]);
+  try {
+    const resp = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(cmds)
+    });
+    if (!resp.ok) return null;
+    const results = await resp.json();
+    const n = results[cmds.length - 2]?.result;
+    return typeof n === 'number' ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+async function redisRelease(key) {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return;
+  try {
+    await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify([['DECR', key]])
+    });
+  } catch { /* best effort */ }
+}
+
 module.exports = {
   readUsage, writeUsage,
   readFreeUsage, writeFreeUsage, writeCookieFreeUsage, redisIncrFreeUsage,
   readOrMintDeviceId, readDeviceFreeUsage, redisIncrDeviceFreeUsage, writeCookieDeviceFreeUsage,
   readEmailFlag, writeEmailFlag, signEmailFlag,
   checkIpDailyCap, redisIncrIpDaily, IP_DAILY_FREE_CAP,
-  getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies
+  getCurrentMonth, MAX_MONTHLY_QUERIES, FREE_TRIAL_QUERIES, parseCookies,
+  ipBucket, freeDeviceKey, freeIpKey, premiumKey, redisReserve, redisRelease
 };
