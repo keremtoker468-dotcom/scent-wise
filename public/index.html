@@ -52,11 +52,12 @@
 <link rel="dns-prefetch" href="https://plausible.io">
 <link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
 <link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
-<!-- AdSense: loaded unconditionally so Google's crawler and AdSense bot can see the ad code.
-     /consent.js (above) sets the Consent Mode v2 defaults from the stored choice and
-     requestNonPersonalizedAds=1 until the visitor accepts advertising cookies. -->
+<!-- AdSense and GA4 are not linked here: /consent.js injects gtag.js only after
+     statistics consent and adsbygoogle.js only after advertising consent. The
+     google-adsense-account meta keeps the site verified for AdSense without
+     loading its script. -->
+<meta name="google-adsense-account" content="ca-pub-9709272849743576">
 <script src="/consent.js"></script>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576" crossorigin="anonymous"></script>
 
 <style>summary::-webkit-details-marker{display:none}summary{list-style:none}details[open] summary{color:var(--accent)}</style>
 </head>
@@ -433,30 +434,25 @@
 <script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
 <script src="/amazon.js?v=3" defer></script>
 <script src="/app.js?v=12" defer></script>
-<!-- Cookie consent (GDPR-compliant: AdSense only loads after consent; GA runs
-     in "consent mode v2" — cookieless pings by default, upgraded on opt-in) -->
+<!-- Cookie consent: Google Analytics and AdSense load only after the matching
+     consent (see /consent.js); nothing is sent to Google before a choice. -->
 <script>
 function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
 function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
-function _gaConsentUpdate(a,d){window.adsbygoogle=window.adsbygoogle||[];window.adsbygoogle.requestNonPersonalizedAds=d?0:1;if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
+function _gaConsentUpdate(a,d){if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
 function _ttqConsentUpdate(a){try{if(a){window._swLoadTikTok&&window._swLoadTikTok()}else if(window.ttq){ttq.revokeConsent&&ttq.revokeConsent()}}catch(e){}}
 function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);_ttqConsentUpdate(true);loadConsentedScripts()}
 function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false);_ttqConsentUpdate(false)}
 function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
 function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);_ttqConsentUpdate(d);loadConsentedScripts()}
-function loadConsentedScripts(){/* AdSense now loads unconditionally in <head>; consent is handled via gtag Consent Mode v2 which downgrades to non-personalized ads when ad_storage is denied. */}
+function loadConsentedScripts(){var c=getCookieConsent();if(c&&window.swLoadGoogle)window.swLoadGoogle(!!c.analytics,!!c.ads)}
 document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);_ttqConsentUpdate(!!c.ads);loadConsentedScripts()}});
 </script>
 
 <script defer src="/_vercel/speed-insights/script.js"></script>
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
-<!-- Google Analytics 4 — Consent Mode v2.
-     Defaults: all denied. GA still sends cookieless "consent pings" so we
-     capture basic pageviews + traffic source (TikTok, referrals) while
-     staying GDPR-compliant. Upgraded to granted via gtag('consent','update')
-     when the user accepts the cookie banner. -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
+<!-- Google Analytics 4 config. These calls only queue in dataLayer: gtag.js
+     itself is loaded by /consent.js once the visitor accepts statistics
+     cookies, and then runs them with the consent state already applied. -->
 <script>
 window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
