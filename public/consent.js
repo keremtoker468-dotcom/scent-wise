@@ -1,9 +1,11 @@
-/* Consent for the static pages (blog, legal pages, author, collections…).
-   Must load synchronously in <head>, BEFORE gtag.js and adsbygoogle.js, so that
-   Google tags start in "denied" (Consent Mode v2) and AdSense requests
-   non-personalised ads until the visitor accepts. Shares the
-   `sw_cookie_consent` localStorage choice with the app's own banner in
-   index.html, so a choice made in one place applies everywhere.
+/* Cookie consent for every page, and the only place Google's scripts are loaded.
+   gtag.js (Analytics) is injected only after the visitor accepts statistics
+   cookies and adsbygoogle.js (AdSense) only after they accept advertising
+   cookies; before that no request goes to Google at all, so not even the IP
+   address leaves the site (KVKK m.5/m.9). Pages keep their inline
+   gtag('config') snippets: those calls queue in dataLayer and run once gtag.js
+   arrives. Loads synchronously in <head>. Shares the `sw_cookie_consent`
+   localStorage choice with the app's own banner in index.html.
    KVKK m.5 / GDPR Art. 6-7 + ePrivacy: analytics and advertising cookies need
    prior, opt-in consent. */
 (function () {
@@ -26,9 +28,26 @@
     wait_for_update: 500
   });
   window.gtag('set', 'ads_data_redaction', true);
-  // AdSense: no personalised ads without consent.
-  window.adsbygoogle = window.adsbygoogle || [];
-  window.adsbygoogle.requestNonPersonalizedAds = ads ? 0 : 1;
+
+  var GA_SRC = 'https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6';
+  var ADS_SRC = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9709272849743576';
+  var loaded = {};
+  function inject(src, crossorigin) {
+    if (loaded[src]) return;
+    loaded[src] = true;
+    var el = document.createElement('script');
+    el.async = true; el.src = src;
+    if (crossorigin) el.crossOrigin = 'anonymous';
+    (document.head || document.documentElement).appendChild(el);
+  }
+  // Loads whatever the given choice allows. Withdrawing consent later cannot
+  // unload a script, but the consent update above stops it setting cookies.
+  function load(a, d) {
+    if (a) inject(GA_SRC, false);
+    if (d) inject(ADS_SRC, true);
+  }
+  window.swLoadGoogle = load;
+  load(analytics, ads);
 
   function apply(a, d) {
     save({ essential: true, analytics: a, ads: d, ts: Date.now() });
@@ -38,7 +57,7 @@
       ad_user_data: d ? 'granted' : 'denied',
       ad_personalization: d ? 'granted' : 'denied'
     });
-    window.adsbygoogle.requestNonPersonalizedAds = d ? 0 : 1;
+    load(a, d);
     var b = document.getElementById('sw-consent');
     if (b) b.parentNode.removeChild(b);
   }
@@ -51,11 +70,11 @@
     if (!force && document.getElementById('cookie-banner')) return;
     var tr = /^tr\b/i.test(navigator.language || '');
     var t = tr ? {
-      msg: 'Siteyi çalıştırmak için zorunlu çerezler kullanıyoruz. İzninizle, ziyaret istatistikleri (Google Analytics) ve kişiselleştirilmiş reklamlar (Google AdSense) için de çerez kullanırız. Reddederseniz bu çerezler yüklenmez.',
+      msg: 'Siteyi çalıştırmak için zorunlu çerezler kullanıyoruz. İzninizle ziyaret istatistikleri (Google Analytics) ve reklamlar (Google AdSense) için Google hizmetlerini de yükleriz. Reddederseniz bu hizmetler hiç yüklenmez.',
       more: 'Çerez ve gizlilik politikası', kvkk: 'KVKK Aydınlatma Metni',
       all: 'Tümünü kabul et', min: 'Yalnızca zorunlu', stats: 'Yalnızca istatistik'
     } : {
-      msg: 'We use essential cookies to run the site. With your permission we also use cookies for visit statistics (Google Analytics) and personalised ads (Google AdSense). If you decline, those cookies are not set.',
+      msg: 'We use essential cookies to run the site. With your permission we also load Google services for visit statistics (Google Analytics) and ads (Google AdSense). If you decline, they are not loaded at all.',
       more: 'Cookie & privacy policy', kvkk: 'KVKK notice (TR)',
       all: 'Accept all', min: 'Essential only', stats: 'Statistics only'
     };
