@@ -213,13 +213,15 @@ unless the buyer accepted ads cookies.
 - **Publisher ID**: `ca-pub-9709272849743576`
 - **ads.txt**: Located at `public/ads.txt` for domain verification.
 - **CSP headers**: `vercel.json` includes `googlesyndication.com`, `doubleclick.net`, `adservice.google.com` in script-src, connect-src, img-src, and frame-src.
-- **AdSense script**: Added to `index.html` and all blog HTML files.
+- **AdSense script**: never linked in HTML. `public/consent.js` injects `adsbygoogle.js` only after advertising consent (and `gtag.js` only after statistics consent). Pages carry `<meta name="google-adsense-account">` so AdSense site verification does not depend on the script.
 
 ## Legal / Compliance (Turkey KVKK, 6563 ETK, 6502 TKHK, FSEK, 5651 + GDPR)
 
-- **No third-party requests before consent** beyond what Consent Mode allows: fonts are self-hosted in
-  `public/fonts/` (a Google Fonts link sends every visitor's IP abroad — KVKK m.9). Every page with a
-  Google tag loads `/consent.js` *before* gtag/AdSense. The TikTok pixel loads only after ad consent,
+- **No third-party requests before consent**: fonts are self-hosted in `public/fonts/` (a Google Fonts
+  link sends every visitor's IP abroad — KVKK m.9). Never add a `<script src>` for gtag.js or
+  adsbygoogle.js: every page loads `/consent.js` in `<head>`, which sets Consent Mode defaults and
+  injects GA only with statistics consent and AdSense only with advertising consent (`swLoadGoogle`).
+  Inline `gtag('config')` snippets stay — they queue in `dataLayer` until gtag.js arrives. The TikTok pixel loads only after ad consent,
   and the webhook sends TikTok conversions only when checkout carried `ga_consent: granted`.
 - **Email gate ≠ newsletter consent.** `/api/subscribe` only stores the email / calls Beehiiv when the
   separate, unticked `marketing` box was checked (consent record versioned by `CONSENT_VERSION`).

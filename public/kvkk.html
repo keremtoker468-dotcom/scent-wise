@@ -2,8 +2,7 @@
 <html lang="tr">
 <head>
 <script src="/consent.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
+<!-- Google tag config (gtag.js itself is loaded by /consent.js after consent) -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -247,7 +246,7 @@
         <tr><th>Alıcı</th><th>Aktarılan veri ve amaç</th></tr>
         <tr><td>Vercel Inc. (ABD)</td><td>Barındırma; her istekte IP adresi ve tarayıcı bilgisi</td></tr>
         <tr><td>Upstash Inc.</td><td>Kullanım sayaçları, koku profili, bülten izin kaydı (veritabanı)</td></tr>
-        <tr><td>Google LLC (ABD/İrlanda)</td><td>Gemini API: yapay zekâ girdileri. Google Analytics ve AdSense: yalnızca çerez onayı ile</td></tr>
+        <tr><td>Google LLC (ABD/İrlanda)</td><td>Gemini API: yapay zekâ girdileri. Google Analytics ve AdSense: yalnızca ilgili çerez onayından sonra yüklenir</td></tr>
         <tr><td>Lemon Squeezy LLC (ABD)</td><td>Satışı yapan aracı satıcı (merchant of record): ödeme, fatura, iade</td></tr>
         <tr><td>Beehiiv Inc. (ABD)</td><td>Yalnızca bülten izni verdiyseniz e-posta adresi</td></tr>
         <tr><td>TikTok (ByteDance)</td><td>Yalnızca reklam çerezlerine onay verdiyseniz: satın alma dönüşümü ölçümü</td></tr>
@@ -266,7 +265,7 @@
     <p>Koku profilinizi hesap sayfasındaki "Reset" ile, bülten aboneliğinizi her e-postadaki abonelikten çık bağlantısıyla dilediğiniz an kendiniz sonlandırabilirsiniz.</p>
 
     <h2 id="cerez">8. Çerez Politikası</h2>
-    <p>Siteyi ilk ziyaretinizde çıkan çerez bandında tercihinizi yaparsınız. Zorunlu olmayan çerezler siz onay vermeden yüklenmez; Google etiketleri onaya kadar "reddedildi" modunda (Consent Mode v2) çalışır ve AdSense yalnızca kişiselleştirilmemiş reklam ister. Tercihinizi tarayıcınızın site verilerini silerek veya <a href="#" onclick="if(window.swOpenConsent){localStorage.removeItem('sw_cookie_consent');swOpenConsent();}return false;">buradan</a> değiştirebilirsiniz.</p>
+    <p>Siteyi ilk ziyaretinizde çıkan çerez bandında tercihinizi yaparsınız. Zorunlu olmayan çerezler siz onay vermeden yüklenmez; Google Analytics yalnızca istatistik çerezlerine, Google AdSense yalnızca reklam çerezlerine onay verdiğinizde yüklenir; tercih yapılmadan Google'a hiçbir istek gönderilmez ve IP adresiniz aktarılmaz. Tercihinizi tarayıcınızın site verilerini silerek veya <a href="#" onclick="if(window.swOpenConsent){localStorage.removeItem('sw_cookie_consent');swOpenConsent();}return false;">buradan</a> değiştirebilirsiniz.</p>
     <table>
         <tr><th>Tür</th><th>Çerezler</th><th>Amaç ve süre</th></tr>
         <tr><td>Zorunlu</td><td><code>sw_device</code>, <code>sw_free</code>, <code>sw_email</code>, <code>sw_sub</code>, <code>sw_usage</code>, <code>sw_revalidated</code>, <code>sw_owner</code></td><td>Ücretsiz deneme sınırı, erişim doğrulama, güvenlik. 1 gün – 1 yıl. HMAC ile imzalı, HttpOnly.</td></tr>

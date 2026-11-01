@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <script src="/consent.js"></script>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-769WY8EYH6"></script>
+<!-- Google tag config (gtag.js itself is loaded by /consent.js after consent) -->
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -233,8 +232,8 @@
         &mdash; <strong>Email address (free-pick unlock and newsletter):</strong> To unlock two more free AI picks you enter your email. Unlocking does <em>not</em> subscribe you to anything: unless you also tick the separate, optional newsletter box, the address is not stored and we send you nothing. If you tick the box, we record your opt-in (email, time, source and the wording you agreed to) in our database (Upstash Redis) and pass your email to our newsletter provider (Beehiiv), which sends occasional fragrance guides and offers. Unsubscribe any time via the link in any email or by emailing <a href="mailto:scentwise.com@gmail.com">scentwise.com@gmail.com</a>.<br>
         &mdash; <strong>AI inputs:</strong> Text queries and uploaded photos sent to our AI features. These are sent to Google's Gemini API for processing. Google may retain this data for up to 30 days for abuse detection per their policies.<br>
         &mdash; <strong>Scent profile data:</strong> Your fragrance preferences (liked/disliked notes, favorite brands, occasions, skin chemistry, etc.) are automatically extracted from your AI interactions and stored in our database to personalize future recommendations. See Section 5 for retention details.<br>
-        &mdash; <strong>Analytics data:</strong> With your consent we use Google Analytics (GA4), which sets cookies to measure page views and usage. Without consent, Google tags run in consent mode "denied" and set no analytics cookies. We also use Plausible, Vercel Web Analytics and Speed Insights, which are cookieless and do not identify you.<br>
-        &mdash; <strong>Advertising data:</strong> Google AdSense shows ads on the site. With your consent it may set cookies for personalised ads; without it, only non-personalised ads are requested. With your consent for advertising cookies, the TikTok pixel and, after a purchase, TikTok's server-side Events API (hashed email, IP address, browser user agent) measure ad conversions. Without that consent nothing is sent to TikTok. See Section 2.
+        &mdash; <strong>Analytics data:</strong> With your consent we use Google Analytics (GA4), which sets cookies to measure page views and usage. Without consent, Google Analytics is not loaded at all and nothing is sent to Google. We also use Plausible, Vercel Web Analytics and Speed Insights, which are cookieless and do not identify you.<br>
+        &mdash; <strong>Advertising data:</strong> Google AdSense shows ads on the site. AdSense is loaded only after you accept advertising cookies; without that consent no AdSense script loads and no ads are shown. With your consent for advertising cookies, the TikTok pixel and, after a purchase, TikTok's server-side Events API (hashed email, IP address, browser user agent) measure ad conversions. Without that consent nothing is sent to TikTok. See Section 2.
     </div>
 
     <p>We do <strong>not</strong> collect names, physical addresses, or phone numbers beyond what is listed above. We do not use browser fingerprinting.</p>
@@ -269,7 +268,7 @@
         <tr><td>Google AdSense</td><td>Displays personalized ads. Sets cookies for ad targeting, frequency capping, and behavioral profiling across websites.</td><td><a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener">Google Ads Privacy</a></td></tr>
     </table>
 
-    <p>You choose in the cookie banner shown on your first visit (Accept all / Statistics only / Essential only). Analytics and advertising cookies are only set after you accept them; until then Google tags run in Consent Mode v2 "denied" and AdSense requests non-personalised ads. Fonts are served from our own domain, so loading a page does not send your IP address to Google Fonts. You can change your choice by clearing this site's data in your browser, and opt out of Google's personalised ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
+    <p>You choose in the cookie banner shown on your first visit (Accept all / Statistics only / Essential only). Google Analytics loads only after you accept statistics cookies, and Google AdSense only after you accept advertising cookies; before you choose, no request is made to Google. Fonts are served from our own domain, so loading a page does not send your IP address to Google Fonts. You can change your choice by clearing this site's data in your browser, and opt out of Google's personalised ads at <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google Ad Settings</a>.</p>
 
     <h2>3. How We Use Your Information</h2>
     <p>We use the information we collect to:</p>
