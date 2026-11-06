@@ -44,7 +44,7 @@
   // Timezone first (most reliable proxy for where the shopper physically is), then language.
   // Countries without a ScentWise store map to the store that ships to them and that locals
   // already use (e.g. Austria/Poland/Nordics → amazon.de, Portugal → amazon.es, Ireland → .co.uk).
-  // The Americas and everything else fall back to amazon.com — Amazon OneLink then redirects CA/NL/PL/SE visitors.
+  // The Americas and everything else fall back to amazon.com; see OneLink below for when a covered EU visitor gets an amazon.com product link.
   var TZ_MAP = {
     'europe/london': 'uk', 'europe/belfast': 'uk', 'europe/jersey': 'uk', 'europe/guernsey': 'uk', 'europe/isle_of_man': 'uk', 'europe/dublin': 'uk',
     'europe/berlin': 'de', 'europe/busingen': 'de', 'europe/vienna': 'de', 'europe/zurich': 'de', 'europe/luxembourg': 'de',
@@ -77,6 +77,30 @@
     return STORES.us;
   }
   var STORE = resolveStore();
+
+  // ── OneLink (Associates Central → "Global earning preferences") ────────────────────────────
+  // Active for US, CA, UK, DE, FR, IT, ES, NL, PL, SE: an amazon.com link carrying the US tag is
+  // redirected by Amazon to the visitor's own store — to the same product for a /dp/ link — and
+  // the sale is credited. So when the visitor is in a OneLink country and we only know the US
+  // ASIN, an amazon.com product link beats a local search link. BE and TR are not covered.
+  // Decided on the visitor's own country, not on the store we map them to: Austria, Switzerland,
+  // Ireland or the Nordics share a store with a OneLink country but are not covered themselves.
+  var ONELINK_TZ = {
+    'europe/london': 1, 'europe/belfast': 1, 'europe/berlin': 1, 'europe/busingen': 1, 'europe/paris': 1,
+    'europe/madrid': 1, 'atlantic/canary': 1, 'africa/ceuta': 1, 'europe/rome': 1,
+    'europe/amsterdam': 1, 'europe/warsaw': 1, 'europe/stockholm': 1
+  };
+  var ONELINK_LANG = /^(en-gb|de|de-de|fr|fr-fr|es|es-es|it|it-it|nl|nl-nl|pl|pl-pl|sv|sv-se)$/;
+  var ONELINK_HERE = (function () {
+    var tz = '';
+    try { tz = String(Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase(); } catch (e) { /* noop */ }
+    if (ONELINK_TZ[tz]) return true;
+    if (TZ_MAP[tz]) return false; // a European country OneLink does not cover (BE, TR, AT, IE, …)
+    var lang = '';
+    try { lang = String((navigator.languages && navigator.languages[0]) || navigator.language || '').toLowerCase(); } catch (e) { /* noop */ }
+    return ONELINK_LANG.test(lang);
+  })();
+  function inOneLinkCountry(store) { return store === STORE && ONELINK_HERE; }
 
   // ── ASIN map ───────────────────────────────────────────────────────────────────────────────
   // Key: lower-cased "name|brand" exactly as in perfumes.js / celebs.js / blog .frag-name + .frag-brand.
@@ -262,6 +286,10 @@
     var store = (opts.store && STORES[opts.store]) || STORE;
     var tag = tagFor(store, opts.surface);
     var asin = asinFor(name, brand, store);
+    if (!asin && store.code !== 'us' && inOneLinkCountry(store)) {
+      var usAsin = asinFor(name, brand, STORES.us);
+      if (usAsin) { store = STORES.us; tag = tagFor(store, opts.surface); asin = usAsin; }
+    }
     var url;
     if (asin) {
       url = 'https://www.' + store.domain + '/dp/' + encodeURIComponent(asin) + '?th=1&psc=1';
@@ -284,7 +312,7 @@
     var m = /^https:\/\/www\.(amazon\.[a-z.]+)\/(dp\/([A-Z0-9]{10})|s\?)/.exec(href);
     if (!m) return;
     var surface = (/#sw-([a-z0-9_-]+)$/i.exec(href) || [])[1] || a.getAttribute('data-surface') || (document.body.classList.contains('blog') || location.pathname.indexOf('/blog/') === 0 ? 'blog' : 'app');
-    var params = { store: m[1], surface: surface, link_type: m[3] ? 'product' : 'search', asin: m[3] || '', page: location.pathname };
+    var params = { store: (m[1] === 'amazon.com' && STORE.code !== 'us') ? STORE.domain + ' (onelink)' : m[1], surface: surface, link_type: m[3] ? 'product' : 'search', asin: m[3] || '', page: location.pathname };
     try { if (typeof window.gtag === 'function') window.gtag('event', 'affiliate_click', params); } catch (err) { /* noop */ }
     try { if (typeof window.plausible === 'function') window.plausible('Affiliate Click', { props: params }); } catch (err) { /* noop */ }
   }

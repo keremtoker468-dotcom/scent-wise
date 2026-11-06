@@ -145,7 +145,12 @@ build Amazon URLs anywhere else.
   a store map to the one locals use (AT/CH/PL/CZ/HU/Nordics/Balkans → DE, PT → ES, IE → UK, NL → BE).
   Everything else, including the Americas, falls back to amazon.com.
 - **OneLink**: configured on the US account for automatic redirection across 10 countries (US, FR, DE,
-  IT, ES, UK, CA, NL, PL, SE). No client-side script needed.
+  IT, ES, UK, CA, NL, PL, SE) — Associates Central now calls it "Global earning preferences".
+  No client-side script needed. `amazon.js` relies on it: a visitor whose own country is covered
+  (`ONELINK_HERE`, decided by timezone/language, not by the store they map to) gets the
+  `amazon.com/dp/{US ASIN}?tag=scentwise20-20` link when their local store has no ASIN, and Amazon
+  redirects them to the same product in their store. No ASIN at all → local Beauty search as before.
+  BE, TR, AT, CH, IE and the Nordics (except SE) are not covered and keep their local links.
 - **Affiliate tags**: US `scentwise20-20`, DE `scentwisede20-21`, FR `scentwisede0e-21`,
   ES `scentwised09f-21`, IT `scentwisede09-21`, UK `scentwiseuk-21`, BE `scentwisebe-21`. The `-21`
   tags report in the EU (amazon.de) Associates account, `scentwiseuk-21` in the UK account — earnings
