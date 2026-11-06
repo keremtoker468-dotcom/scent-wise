@@ -84,7 +84,42 @@
   // and between sizes; pick the standard 100ml EDP/EDT listing sold by Amazon or a real retailer).
   // Maintained via `node scripts/asin-map.js` (CSV in content-briefs/asin-map.csv). Do not edit the
   // block between the markers by hand — the script regenerates it.
-  var ASINS = /* sw:asins */ {} /* /sw:asins */;
+  var ASINS = /* sw:asins */ {
+    "9pm|afnan": {"us":"B07RTQ4VM7"},
+    "amber oud gold edition|al haramain perfumes": {"us":"B0CY8Y5G8X"},
+    "ameer al oudh|lattafa perfumes": {"us":"B08LS9QXZC"},
+    "angel|mugler": {"us":"B08S5PFDGV"},
+    "ani|nishane": {"us":"B07TS81MVH"},
+    "asad|lattafa perfumes": {"us":"B0B8TQ7YRW"},
+    "baccarat rouge 540|maison francis kurkdjian": {"us":"B01B7AP3RQ"},
+    "bade'e al oud oud for glory|lattafa perfumes": {"us":"B08HVXDLXK"},
+    "bade'e al oud sublime|lattafa perfumes": {"us":"B0C5N4J94J"},
+    "black opium|yves saint laurent": {"us":"B00NBK5JHK"},
+    "club de nuit intense man|armaf": {"us":"B07XFSH553"},
+    "coco mademoiselle|chanel": {"us":"B000WZL0XO"},
+    "english pear & freesia|jo malone london": {"us":"B004EHNWB4"},
+    "erba pura|xerjoff": {"us":"B0CZTZLQG6"},
+    "eros|versace": {"us":"B00B4TR45A"},
+    "fan your flames|nishane": {"us":"B013UBTG32"},
+    "flora gorgeous gardenia|gucci": {"us":"B09L5HB2LC"},
+    "hacivat|nishane": {"us":"B0CTD4NRC4"},
+    "hawas for him|rasasi": {"us":"B01LDT51ZU"},
+    "j'adore|dior": {"us":"B009S3UP3W"},
+    "jean lowe immortal|maison alhambra": {"us":"B0C4CQVX9W"},
+    "khamrah|lattafa perfumes": {"us":"B0B92Y18GT"},
+    "l'aventure|al haramain perfumes": {"us":"B01F9OUNYE"},
+    "la vie est belle lancôme|lancome": {"us":"B0GHPL26MK"},
+    "libre|yves saint laurent": {"us":"B07X1YGWSX"},
+    "miss dior|dior": {"us":"B003SWQGGY"},
+    "odyssey mandarin sky|armaf": {"us":"B0C3G9J5Q8"},
+    "oud maracujá|maison crivelli": {"us":"B0FLWHLH2M"},
+    "portrait of a lady|frederic malle": {"us":"B077XH7KR3"},
+    "raghba|lattafa perfumes": {"us":"B09QH8TQ2C"},
+    "sauvage|dior": {"us":"B000RO0NOW"},
+    "torino21|xerjoff": {"us":"B0DV9SXTB6"},
+    "xj 1861 naxos|xerjoff": {"us":"B07D384KQG"},
+    "yara|lattafa perfumes": {"us":"B09C8VNWBP"}
+  } /* /sw:asins */;
 
   function norm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
   function asinFor(name, brand, store) {
