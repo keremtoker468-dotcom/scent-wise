@@ -149,7 +149,9 @@ build Amazon URLs anywhere else.
   No client-side script needed. `amazon.js` relies on it: a visitor whose own country is covered
   (`ONELINK_HERE`, decided by timezone/language, not by the store they map to) gets the
   `amazon.com/dp/{US ASIN}?tag=scentwise20-20` link when their local store has no ASIN, and Amazon
-  redirects them to the same product in their store. No ASIN at all → local Beauty search as before.
+  redirects them to the same product in their store. No ASIN at all → `amazon.com/s?k=…` search
+  (keyword still in their language) with the US tag, because Associates Central reports
+  `scentwisede20-21` as an inactive store ID (Nov 2026) — local-store tags may not be credited.
   BE, TR, AT, CH, IE and the Nordics (except SE) are not covered and keep their local links.
 - **Affiliate tags**: US `scentwise20-20`, DE `scentwisede20-21`, FR `scentwisede0e-21`,
   ES `scentwised09f-21`, IT `scentwisede09-21`, UK `scentwiseuk-21`, BE `scentwisebe-21`. The `-21`
