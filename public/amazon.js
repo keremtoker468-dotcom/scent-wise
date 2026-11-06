@@ -85,22 +85,32 @@
   // ASIN, an amazon.com product link beats a local search link. BE and TR are not covered.
   // Decided on the visitor's own country, not on the store we map them to: Austria, Switzerland,
   // Ireland or the Nordics share a store with a OneLink country but are not covered themselves.
+  // Values are the store OneLink sends that visitor to (used for click analytics, since the href
+  // itself says amazon.com). NL/PL/SE visitors land on amazon.nl/.pl/.se, not on the BE/DE store
+  // we would otherwise map them to.
   var ONELINK_TZ = {
-    'europe/london': 1, 'europe/belfast': 1, 'europe/berlin': 1, 'europe/busingen': 1, 'europe/paris': 1,
-    'europe/madrid': 1, 'atlantic/canary': 1, 'africa/ceuta': 1, 'europe/rome': 1,
-    'europe/amsterdam': 1, 'europe/warsaw': 1, 'europe/stockholm': 1
+    'europe/london': 'amazon.co.uk', 'europe/belfast': 'amazon.co.uk',
+    'europe/berlin': 'amazon.de', 'europe/busingen': 'amazon.de', 'europe/paris': 'amazon.fr',
+    'europe/madrid': 'amazon.es', 'atlantic/canary': 'amazon.es', 'africa/ceuta': 'amazon.es', 'europe/rome': 'amazon.it',
+    'europe/amsterdam': 'amazon.nl', 'europe/warsaw': 'amazon.pl', 'europe/stockholm': 'amazon.se'
   };
-  var ONELINK_LANG = /^(en-gb|de|de-de|fr|fr-fr|es|es-es|it|it-it|nl|nl-nl|pl|pl-pl|sv|sv-se)$/;
-  var ONELINK_HERE = (function () {
+  var ONELINK_LANG = {
+    'en-gb': 'amazon.co.uk', 'de': 'amazon.de', 'de-de': 'amazon.de', 'fr': 'amazon.fr', 'fr-fr': 'amazon.fr',
+    'es': 'amazon.es', 'es-es': 'amazon.es', 'it': 'amazon.it', 'it-it': 'amazon.it', 'nl': 'amazon.nl', 'nl-nl': 'amazon.nl',
+    'pl': 'amazon.pl', 'pl-pl': 'amazon.pl', 'sv': 'amazon.se', 'sv-se': 'amazon.se'
+  };
+  var ONELINK_DOMAIN = (function () { // '' = visitor's country is not covered by OneLink
     var tz = '';
     try { tz = String(Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase(); } catch (e) { /* noop */ }
-    if (ONELINK_TZ[tz]) return true;
-    if (TZ_MAP[tz]) return false; // a European country OneLink does not cover (BE, TR, AT, IE, …)
+    if (ONELINK_TZ[tz]) return ONELINK_TZ[tz];
+    // Canada already gets amazon.com links (STORE = us); only the analytics label changes.
+    if (/^canada\/|^america\/(toronto|vancouver|montreal|halifax|winnipeg|edmonton|regina|st_johns|moncton|glace_bay|goose_bay|whitehorse|dawson|dawson_creek|yellowknife|iqaluit|swift_current|thunder_bay|nipigon|rainy_river|rankin_inlet|resolute|cambridge_bay|inuvik|atikokan|blanc-sablon|creston|fort_nelson)$/.test(tz)) return 'amazon.ca';
+    if (TZ_MAP[tz]) return ''; // a European country OneLink does not cover (BE, TR, AT, IE, …)
     var lang = '';
     try { lang = String((navigator.languages && navigator.languages[0]) || navigator.language || '').toLowerCase(); } catch (e) { /* noop */ }
-    return ONELINK_LANG.test(lang);
+    return ONELINK_LANG[lang] || '';
   })();
-  function inOneLinkCountry(store) { return store === STORE && ONELINK_HERE; }
+  function inOneLinkCountry(store) { return store === STORE && !!ONELINK_DOMAIN; }
 
   // ── ASIN map ───────────────────────────────────────────────────────────────────────────────
   // Key: lower-cased "name|brand" exactly as in perfumes.js / celebs.js / blog .frag-name + .frag-brand.
@@ -312,7 +322,8 @@
     var m = /^https:\/\/www\.(amazon\.[a-z.]+)\/(dp\/([A-Z0-9]{10})|s\?)/.exec(href);
     if (!m) return;
     var surface = (/#sw-([a-z0-9_-]+)$/i.exec(href) || [])[1] || a.getAttribute('data-surface') || (document.body.classList.contains('blog') || location.pathname.indexOf('/blog/') === 0 ? 'blog' : 'app');
-    var params = { store: (m[1] === 'amazon.com' && STORE.code !== 'us') ? STORE.domain + ' (onelink)' : m[1], surface: surface, link_type: m[3] ? 'product' : 'search', asin: m[3] || '', page: location.pathname };
+    var viaOneLink = m[1] === 'amazon.com' && !!ONELINK_DOMAIN;
+    var params = { store: viaOneLink ? ONELINK_DOMAIN : m[1], via_onelink: viaOneLink ? 'yes' : 'no', surface: surface, link_type: m[3] ? 'product' : 'search', asin: m[3] || '', page: location.pathname };
     try { if (typeof window.gtag === 'function') window.gtag('event', 'affiliate_click', params); } catch (err) { /* noop */ }
     try { if (typeof window.plausible === 'function') window.plausible('Affiliate Click', { props: params }); } catch (err) { /* noop */ }
   }
