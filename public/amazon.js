@@ -296,16 +296,20 @@
     var store = (opts.store && STORES[opts.store]) || STORE;
     var tag = tagFor(store, opts.surface);
     var asin = asinFor(name, brand, store);
+    var kwStore = store; // search keyword stays in the visitor's language
     if (!asin && store.code !== 'us' && inOneLinkCountry(store)) {
-      var usAsin = asinFor(name, brand, STORES.us);
-      if (usAsin) { store = STORES.us; tag = tagFor(store, opts.surface); asin = usAsin; }
+      // Everything for a OneLink country goes through amazon.com + the US tag, search links too:
+      // Associates Central reports scentwisede20-21 as an inactive store ID, so local-store links
+      // risk earning nothing, while OneLink credits the US tag in the visitor's own store.
+      asin = asinFor(name, brand, STORES.us);
+      store = STORES.us; tag = tagFor(store, opts.surface);
     }
     var url;
     if (asin) {
       url = 'https://www.' + store.domain + '/dp/' + encodeURIComponent(asin) + '?th=1&psc=1';
       if (tag) url += '&tag=' + encodeURIComponent(tag);
     } else {
-      url = 'https://www.' + store.domain + '/s?k=' + encodeURIComponent(searchQuery(name, brand, store)) + '&i=beauty';
+      url = 'https://www.' + store.domain + '/s?k=' + encodeURIComponent(searchQuery(name, brand, kwStore)) + '&i=beauty';
       if (tag) url += '&tag=' + encodeURIComponent(tag);
     }
     if (opts.surface) url += '#sw-' + encodeURIComponent(opts.surface); // never reaches Amazon; read back by the click tracker
