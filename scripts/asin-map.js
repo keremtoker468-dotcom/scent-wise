@@ -30,6 +30,17 @@ function loadWindowGlobal(file, key) {
 }
 const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
 const key = (n, b) => norm(n) + '|' + norm(b);
+// The browser hands frag-images.js decoded text ("J’adore", "Dior — $150"), so every entity in the
+// blog HTML must be decoded here too, or the generated key never matches at runtime.
+const ENTITIES = { amp: '&', quot: '"', apos: "'", nbsp: ' ', mdash: '—', ndash: '–', rsquo: '’', lsquo: '‘',
+  rdquo: '”', ldquo: '“', hellip: '…', middot: '·', trade: '™', reg: '®', eacute: 'é', egrave: 'è',
+  ecirc: 'ê', euml: 'ë', aacute: 'á', agrave: 'à', acirc: 'â', auml: 'ä', iacute: 'í', iuml: 'ï', icirc: 'î', oacute: 'ó', ocirc: 'ô',
+  ouml: 'ö', uacute: 'ú', uuml: 'ü', ucirc: 'û', ccedil: 'ç', ntilde: 'ñ', szlig: 'ß', Eacute: 'É' };
+const decode = (s) => String(s || '')
+  .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+  .replace(/&([a-z]+);/gi, (m, n) => (n in ENTITIES ? ENTITIES[n] : m));
+const cleanBrand = (s) => s.replace(/[—\-].*$/, '').replace(/~?\$[\d.]+.*$/, '').trim(); // same rule as frag-images.js
 
 // ── candidates ────────────────────────────────────────────────────────────────────────────────
 function candidates() {
@@ -43,8 +54,7 @@ function candidates() {
   };
   loadWindowGlobal(path.join(PUB, 'popular.js'), 'SW_POPULAR').slice(0, POPULAR_LIMIT).forEach((s) => { const [n, b] = String(s).split('|'); add(n, b, 'popular'); });
   loadWindowGlobal(path.join(PUB, 'celebs.js'), 'SW_CELEBS').forEach((c) => (c.frags || []).forEach((s) => { const [n, b] = String(s).split('|'); add(n, b, 'celebs'); }));
-  const cleanBrand = (s) => s.replace(/[—\-].*$/, '').replace(/~?\$[\d.]+.*$/, '').trim(); // same rule as frag-images.js
-  const strip = (h) => h.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').trim();
+  const strip = (h) => decode(h.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
   for (const f of fs.readdirSync(path.join(PUB, 'blog')).filter((f) => f.endsWith('.html'))) {
     const html = fs.readFileSync(path.join(PUB, 'blog', f), 'utf8');
     if (!html.includes('frag-images.js')) continue;
@@ -78,9 +88,16 @@ function readExisting() {
   const idx = (h) => head.indexOf(h);
   const out = new Map();
   for (const r of rows) {
-    const rec = { name: r[idx('name')] || '', brand: r[idx('brand')] || '', source: r[idx('source')] || '', asins: {} };
+    // Older rows were written with raw entities ("Dior &mdash;"): decode them so they collapse onto
+    // the key the site actually looks up, keeping any ASINs already filled on either copy.
+    const rawBrand = r[idx('brand')] || '';
+    const brand = decode(rawBrand) === rawBrand ? rawBrand : cleanBrand(decode(rawBrand));
+    const rec = { name: decode(r[idx('name')] || ''), brand, source: r[idx('source')] || '', asins: {} };
     for (const s of STORES) { const v = (r[idx(s)] || '').trim().toUpperCase(); if (v) rec.asins[s] = v; }
-    out.set(key(rec.name, rec.brand), rec);
+    const k = key(rec.name, rec.brand);
+    const prev = out.get(k);
+    if (prev) { prev.asins = Object.assign({}, rec.asins, prev.asins); continue; }
+    out.set(k, rec);
   }
   return out;
 }
