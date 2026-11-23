@@ -2,6 +2,36 @@
 
 _Hazırlanma: 23 Kasım 2026 · Son tarih: 31 Mart 2027 (Lemon Squeezy ödeme almayı bırakıyor, uzatma yok)_
 
+## 0. Durum ve kararlar
+
+> Yeni bir oturumda kaldığın yerden devam etmek için `/paddle` yaz (ya da "paddle geçişine devam et" de).
+
+**Durum**
+
+| Faz | Durum | Not |
+|---|---|---|
+| 0. Hesap ve uygunluk | ⏳ Kullanıcıda | Paddle (ve yedek olarak Polar) kaydı, mali müşavir |
+| 1. Sipariş kaydı + LS yedeği | ⬜ Başlanmadı | **Sıradaki iş.** Paddle hesabı olmadan yapılabilir |
+| 2. Paddle entegrasyonu (sandbox) | ⬜ | Paddle sandbox anahtarları ve `pri_…` ID'si gerekiyor |
+| 3. Yasal metinler | ⬜ | Paddle sözleşmesindeki unvan gerekiyor |
+| 4. Canlıya geçiş | ⬜ | Hedef: 15–31 Ocak 2027 |
+| 5. LS temizliği | ⬜ | 1–15 Nisan 2027 |
+
+**Alınmış kararlar (yeniden tartışılmaz)**
+1. Sağlayıcı **Paddle** (Paddle Billing, tek seferlik 10 USD fiyat). Paddle 10 gün içinde onaylamazsa → **Polar**.
+2. Stripe Managed Payments **yok**: Türkiye desteklenmiyor. Yurt dışında şirket kurulmayacak.
+3. Whop / WhopDFY (`sparkintro.info`) teklifi reddedildi. Kimseyle ürün listesi ya da API anahtarı paylaşılmayacak.
+4. Yerli sağlayıcı (iyzico/PayTR) **yok**: vergi ve fatura yükü bize düşer.
+5. **Sağlayıcıdan bağımsız sipariş kaydı** Redis'te (`sw_order:*`). Premium doğrulaması bu kayıttan yapılır, sağlayıcı API'sinden değil.
+6. Yeni `api/*.js` dosyası **eklenmez** (Hobby planı 12/12). Sağlayıcı seçimi `PAYMENT_PROVIDER` env değişkeniyle, mevcut function'larda dallanarak.
+7. LS webhook'u **31 Mart 2027'ye kadar** açık kalır (geç gelen iadeler için). LS'de yeni satış 31 Ocak'ta kapanır.
+8. `purchase` olayı yine **sadece sunucudan** (webhook) gider. Google Ads dönüşüm aksiyonu değişmez.
+9. LS sipariş yedeği (CSV) kişisel veri içerir, **repoya commit edilmez**.
+10. `sw_sub` cookie'sinin 365 günlük ömrü sorunu Faz 1'de çözülür.
+
+**Değişiklik günlüğü**
+- 2026-11-23: Plan yazıldı, kararlar alındı. Sıradaki: kullanıcı Paddle'a kaydolur, kod tarafında Faz 1 başlar.
+
 ## 1. Özet
 
 | | |
