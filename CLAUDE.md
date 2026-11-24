@@ -197,7 +197,7 @@ The flow:
    offline-conversion CSV; add `&format=json` to see the raw records. Refunded orders drop
    out of that list.
 
-**Funnel (record before/after any redesign):** home → first pick = `hero_search` ÷ home
+**Funnel (record before/after any redesign; baseline in `reports/funnel-baseline-2026-11-24.md`):** home → first pick = `hero_search` ÷ home
 visitors, then `ai_recommendation`; pick → Shop = `affiliate_click` (surface `advisor`) ÷
 `ai_recommendation`; Shop → order = Amazon Associates report per store; email capture =
 `email_captured` ÷ free users; paid conversion = `purchase` ÷ `paywall_shown`.
