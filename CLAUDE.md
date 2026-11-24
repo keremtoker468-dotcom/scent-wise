@@ -244,6 +244,14 @@ unless the buyer accepted ads cookies.
 - Legal pages: `privacy.html` (EN), `kvkk.html` (TR), `terms.html`, `refund.html`, `contact.html`
   (operator/künye). Keep them in sync when adding a processor, cookie or tracker.
 
+## Payment Migration (in progress — Lemon Squeezy shuts down 31 March 2027)
+
+Lemon Squeezy stops taking payments on 31 March 2027, and Stripe Managed Payments does not
+accept Turkey-based sellers, so ScentWise is moving to **Paddle** (fallback: Polar). The plan,
+the decisions already taken and the current phase live in **`PAYMENT-MIGRATION-PLAN.md`**. Read
+it before touching checkout, webhook, verify-subscription or check-tier code, and update its
+status table when a phase moves. `/paddle` (or "paddle geçişine devam et") resumes the work.
+
 ## Conventions
 
 - All server code uses **CommonJS** (`require`/`module.exports`), not ESM.
