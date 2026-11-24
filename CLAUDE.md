@@ -40,6 +40,7 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   └── webhook.js              # Lemon Squeezy webhook handler (signature-verified)
 ├── public/                     # Static frontend files (served by Vercel)
 │   ├── index.html              # Main SPA (~61KB, contains all UI)
+│   ├── explore.html, advisor.html, celebrities.html  # Generated from index.html by `npm run views` — never hand-edit
 │   ├── consent.js              # Cookie consent for static pages (Consent Mode defaults + banner); load before any Google tag
 │   ├── fonts/                  # Self-hosted Google Fonts (fonts.css + woff2, OFL) — never link fonts.googleapis.com
 │   ├── kvkk.html               # Turkish KVKK Aydınlatma Metni + Çerez Politikası
@@ -63,11 +64,13 @@ ScentWise is an AI-powered fragrance advisor web application with a database of 
 │   ├── llms.txt                # LLM-friendly site description
 │   └── llms-full.txt           # Extended LLM site description
 ├── scripts/
+│   ├── build-views.js          # `npm run views` — index.html → explore/advisor/celebrities.html (own title, canonical, h1, JSON-LD)
 │   ├── asin-map.js             # `npm run asins` — asin-map.csv → ASIN block in public/amazon.js
 │   ├── build-content.js        # `npm run content` — bylines, read time, JSON-LD, disclosure/author partials
 │   ├── partials/               # affiliate-disclosure.html, author-box.html (single source, injected by build)
 │   ├── content-audit.py        # `npm run audit` — word counts, duplicate overlap, missing disclosures
 │   └── check-links.py          # internal-link checker (files + vercel.json rewrites/redirects)
+├── tests/                      # Playwright (`npm test`): home, route pages, explore, dupe cards, paywall, checkout, network
 ├── content-briefs/             # Phase-2 writing briefs for Kerem (not site content) + asin-map.csv
 ├── reports/                    # audit-before / audit-after snapshots
 ├── ADSENSE-FIX-REPORT.md       # What changed for the AdSense resubmission and what is still manual
@@ -115,10 +118,12 @@ Required in Vercel dashboard:
 - **No framework, no build**: The frontend is a single `index.html` + `app.js` with no transpilation or bundling. Edit and deploy directly.
 - **Client-side search**: The 65K perfume database is embedded in `perfumes.js` and `perfumes-rich.js`, loaded client-side for instant search with zero API cost.
 - **AI features are server-side only**: All Gemini API calls go through `api/recommend.js`. The API key is never exposed to the client. The prompt goes in `systemInstruction`, the thread in role-tagged `contents`; the client sends `mode: 'dupe'` for the dupe finder so the server swaps the brand-balance rules for similarity-only rules. Dupe requests carry `dupeGrounding()` and every other mode carries `chatGrounding()` (real notes for fragrances the user names, accord-ranked candidates, thumbs up/down history) from `app.js`; both depend on `perfumes-core.js` for the bestsellers. Follow-ups send the last 10 thread turns as role-tagged history.
+- **Dupe answer format**: `ORIGINAL PRICE: ~$X for size` first, then per pick `**Name by Brand** — notes; ~$price`, `SAME:`, `YOU GIVE UP:`, `BLIND BUY RISK:`, `SCORES:` (prompt in `buildPayload`, rules in `recommend.js`). The AI never writes a match percentage: `recHTML()` draws the match bar from `simScore()` (0–1: position-weighted accord cover in both directions, kindred accords via `ACCORD_KIN` count 0.4, plus 20% shared note words; random library pairs sit around 0.35, Aventus vs Club de Nuit Intense 0.97) against the original from `dupeOriginal()`, labels it with `matchWord()` (below 0.45 it says "Different notes on paper"), shows price/saving and `Shop · ~$price`, and drops a "Low-risk" badge on any pick that is not in the library. `parsePick` still reads the old `WHY IT MATCHES YOU` format for saved threads.
+- **Free-allowance wording** lives in `FREE_LINE` / `FREE_DONE` / `PAID_LINE` at the top of `app.js`; reuse them instead of writing a new sentence. The free-limit paywall (`paywallHTML`, `reason: 'limit'`) shows blurred stand-ins under the unlock card; the checkout sheet keeps the withdrawal-waiver checkbox.
 - **Auth model**: Three tiers — `owner` (HMAC token rotating weekly), `premium` (one-time purchase; access cookie signed with HMAC), `free` (up to 3 trial queries tracked by device ID + IP via Redis + in-memory + cookie). Query 1 is a full response; queries 2-3 require email capture (stored in Redis + `sw_email` HMAC cookie) — otherwise the client only shows the first two picks and blurs the rest.
 - **Security**: CSRF via Origin/Referer validation, rate limiting per IP, timing-safe comparisons for all token verification, input validation on all endpoints.
 - **Usage limits**: Premium users get 500 queries/month, counted in Redis (`sw_usage:{custId}:{month}`, seeded once from the `sw_usage` cookie, which is now only the Redis-down fallback). Free users get up to 3 trial queries (device + IP-tracked via Redis to prevent incognito bypass; IPv6 is counted per /64 via `ipBucket`). Every counter is **reserved before** the Gemini call (`redisReserve`) and released on failure (`redisRelease` in the handler's `finally`), so parallel requests cannot slip past the cap. Pre-email queries after #1 return `teaser`: the server cuts picks 3+ out of `result`, parks them in Redis (`sw_teaser:{id}`, 24h, bound to the device) and returns `teaserId` + `hiddenPicks`; the client shows blurred stand-ins and, after the email gate, fetches them with `POST /api/recommend {action:'reveal', teaserIds}`. Free scent profiles are keyed `dev:{deviceId}`, not by IP.
-- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v28`; bump it when a precached shell/DB file changes.
+- **Service Worker**: Network-first for HTML, stale-while-revalidate for assets, network-only for API calls. Cache version is `sw-v29`; bump it when a precached shell/DB file changes.
 
 ## Amazon Affiliate Integration
 
@@ -192,6 +197,11 @@ The flow:
    offline-conversion CSV; add `&format=json` to see the raw records. Refunded orders drop
    out of that list.
 
+**Funnel (record before/after any redesign; baseline in `reports/funnel-baseline-2026-11-24.md`):** home → first pick = `hero_search` ÷ home
+visitors, then `ai_recommendation`; pick → Shop = `affiliate_click` (surface `advisor`) ÷
+`ai_recommendation`; Shop → order = Amazon Associates report per store; email capture =
+`email_captured` ÷ free users; paid conversion = `purchase` ÷ `paywall_shown`.
+
 **Verifying the wiring:** `GET /api/owner-auth?ga4ping=1` (owner cookie required) makes the
 deployment send a throwaway `server_ping` to GA4 with its own `GA4_MEASUREMENT_ID` /
 `GA4_API_SECRET`, and returns Google's validation response verbatim. Use it after changing
@@ -264,6 +274,8 @@ status table when a phase moves. `/paddle` (or "paddle geçişine devam et") res
 - Cookie names: `sw_sub` (subscription), `sw_usage` (premium usage), `sw_free` (free trial usage), `sw_device` (device-bound free trial ID), `sw_email` (email-gate unlock flag), `sw_owner` (owner auth).
 - `localStorage` keys: `sw_cookie_consent` (banner choice), `sw_click_id` (first-touch Google Ads click ID).
 - `/brands/:slug` pages are one noindexed file; do not add them back to the sitemap.
+- **After editing `index.html` or `celebs.js` run `npm run views`** and commit the regenerated `explore.html` / `advisor.html` / `celebrities.html`. `vercel.json` rewrites `/explore`, `/advisor`, `/celebrities` to them (and 301s the `.html` URLs), so a stale copy ships old markup on those routes. The script fails loudly if `index.html` no longer has the head tags or headings it replaces.
+- AI text goes through `fixArticles()` in `formatInline()` ("a impressive" → "an impressive").
 - Bump the `?v=` query on `/app.js` in `index.html` whenever `app.js` changes, and on `/amazon.js` whenever `amazon.js` changes — that string is the cache key.
 - Security headers are configured in `vercel.json` (CSP, HSTS, X-Frame-Options, etc.).
 - Blog content is static HTML in `public/blog/` — no CMS or markdown pipeline. All blog pages share `frag-images.js` for perfume card rendering and Amazon links.

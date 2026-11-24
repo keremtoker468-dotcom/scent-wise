@@ -129,6 +129,21 @@
       "source": "/blog/libra-fragrance-guide-2026-ScentWise",
       "destination": "/blog/zodiac-fragrance-guide.html#libra",
       "permanent": true
+    },
+    {
+      "source": "/explore.html",
+      "destination": "/explore",
+      "permanent": true
+    },
+    {
+      "source": "/advisor.html",
+      "destination": "/advisor",
+      "permanent": true
+    },
+    {
+      "source": "/celebrities.html",
+      "destination": "/celebrities",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -142,15 +157,15 @@
     },
     {
       "source": "/celebrities",
-      "destination": "/"
+      "destination": "/celebrities.html"
     },
     {
       "source": "/advisor",
-      "destination": "/"
+      "destination": "/advisor.html"
     },
     {
       "source": "/explore",
-      "destination": "/"
+      "destination": "/explore.html"
     },
     {
       "source": "/pricing",
