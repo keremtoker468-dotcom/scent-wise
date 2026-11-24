@@ -204,13 +204,15 @@ main { padding-top: var(--nav-h); }
 .pcard { display: flex; flex-direction: column; gap: 12px; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); text-align: left; transition: transform .2s ease, border-color .2s ease; }
 .pcard:hover { transform: translateY(-2px); border-color: var(--line2); }
 .pcard .art { position: relative; display: flex; align-items: center; justify-content: center; height: 200px; border-radius: 14px; overflow: hidden; }
-.pcard .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.pcard .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8%; mix-blend-mode: multiply; }
 .pcard .meta { display: flex; flex-direction: column; gap: 4px; padding: 0 6px; min-width: 0; }
 .pcard .name { font-size: 17px; font-weight: 600; line-height: 1.3; }
 .pcard .brand { font-size: 14px; color: var(--fg2); }
 .pcard .notes { font-size: 13px; color: var(--fg3); line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pcard .foot { display: flex; align-items: center; justify-content: space-between; padding: 0 6px 6px; }
 .pcard .fam { font-size: 12px; font-weight: 600; }
+.pcard .foot { flex-wrap: wrap; row-gap: 8px; }
+.pcard .foot .row { flex-wrap: wrap; justify-content: flex-end; }
 .pcard .heart { position: absolute; z-index: 1; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 999px; background: rgba(255,255,255,.72); color: #1d1b18; display: flex; align-items: center; justify-content: center; }
 .pcard .heart.is-on { color: var(--danger); }
 
@@ -248,6 +250,8 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .band .pcard { background: #3a2f22; border-color: rgba(255,255,255,.12); color: var(--band-fg); }
 .band .pcard .brand { color: var(--band-fg2); }
 .band .pcard .notes { color: #b3a892; }
+/* Family inks are tuned for light cards (1.4–1.9:1 on #3a2f22); use the band's own muted ink (≈7:1). */
+.band .pcard .fam { color: var(--band-fg2); }
 .band .pcard .btn-quiet { color: var(--band-fg); border-color: rgba(255,255,255,.22); }
 .stat { display: flex; flex-direction: column; gap: 6px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,.12); }
 .stat b { font-family: var(--font-display); font-size: clamp(40px, 4vw, 56px); line-height: 1.05; letter-spacing: -.025em; font-weight: 700; }
@@ -264,6 +268,22 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .price.featured li svg { color: currentColor; }
 .price.featured ul { opacity: .88; }
 .price .btn { margin-top: auto; }
+.price.founder { background: var(--bg2); border-color: transparent; justify-content: space-between; }
+.price.founder p { font-size: 17px; line-height: 1.5; }
+
+/* unlock card (paywall at the moment of value) and checkout sheet */
+.ticks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.4; }
+.ticks li { display: flex; gap: 8px; align-items: flex-start; }
+.ticks svg { color: var(--ok); flex: none; margin-top: 2px; }
+.paywall { position: relative; display: grid; }
+.paywall > .recs { grid-area: 1 / 1; }
+.paywall > .unlock { grid-area: 1 / 1; z-index: 1; align-self: center; justify-self: center; width: min(100%, 440px); margin: 16px 0; box-shadow: var(--shadow); background: var(--surface); }
+
+/* hero search-type switch */
+.seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--bg2); margin-bottom: 20px; }
+.seg-btn { appearance: none; border: 0; background: transparent; color: var(--fg2); font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 999px; cursor: pointer; min-height: 36px; }
+.seg-btn.is-on { background: var(--btn); color: var(--btn-fg); }
+.seg-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ---------- explore ---------- */
 .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
@@ -274,7 +294,7 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .sheet-backdrop { position: fixed; inset: 0; z-index: 60; background: rgba(14, 13, 11, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px; }
 .sheet { position: relative; width: 100%; max-width: 900px; max-height: min(88vh, 900px); display: grid; grid-template-columns: 360px minmax(0, 1fr); background: var(--surface); border-radius: var(--r-lg); overflow: hidden; box-shadow: var(--shadow); }
 .sheet .hero-art { position: relative; display: flex; align-items: center; justify-content: center; min-height: 360px; overflow: hidden; }
-.sheet .hero-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sheet .hero-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 6%; mix-blend-mode: multiply; }
 .sheet .body { display: flex; flex-direction: column; gap: 24px; padding: 32px; overflow-y: auto; }
 .sheet .close { position: absolute; top: 12px; right: 12px; z-index: 2; }
 .sheet .heart { position: absolute; top: 12px; left: 12px; z-index: 2; }
@@ -310,12 +330,22 @@ html[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transp
 .recs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .rec { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); }
 .rec .art { position: relative; display: flex; align-items: center; justify-content: center; height: 130px; border-radius: 14px; overflow: hidden; }
-.rec .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.rec .art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8%; mix-blend-mode: multiply; }
 .rec .head { display: flex; flex-direction: column; gap: 2px; padding: 0 6px; min-width: 0; }
 .rec .meta { display: flex; flex-direction: column; gap: 6px; padding: 0 6px; }
 .rec .why { font-size: 14px; line-height: 1.45; color: var(--fg2); }
 .rec .notes { font-size: 13px; color: var(--fg3); }
 .rec .scores { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: var(--fg3); font-weight: 500; }
+.rec .lib { font-size: 12px; font-weight: 600; color: var(--fg3); margin-top: 4px; }
+.rec .lib.ok { color: var(--ok); }
+.rec .match { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: var(--fg2); margin-top: 6px; }
+.rec .mbar { width: 72px; height: 5px; border-radius: 99px; background: var(--bg2); overflow: hidden; flex: none; }
+.rec .mbar i { display: block; height: 100%; background: var(--fg); border-radius: inherit; }
+.rec .cost { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rec .cost b { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.rec .cost .save { font-size: 12px; font-weight: 700; color: var(--ok); }
+.rec .trade { display: flex; flex-direction: column; gap: 4px; font-size: 14px; line-height: 1.45; color: var(--fg2); }
+.rec .trade b { color: var(--fg); font-weight: 600; }
 .rec .foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 0 6px 6px; margin-top: auto; }
 .rec.is-locked { position: relative; }
 .rec.is-locked > * { filter: blur(6px); pointer-events: none; user-select: none; }
@@ -381,7 +411,8 @@ body.has-tray main { padding-bottom: 96px; }
 
 /* ---------- reveal ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  .reveal { opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s ease; }
+  /* Start readable: fast scrollers must never see washed-out pricing or FAQ. */
+  .reveal { opacity: .6; transform: translateY(8px); transition: opacity .4s ease, transform .4s ease; }
   .reveal.in { opacity: 1; transform: none; }
 }
 
@@ -457,7 +488,7 @@ body.has-tray main { padding-bottom: 96px; }
 }
 @media (max-width: 480px) {
   .grid-4, .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .grid-3, #faq-list, .grid-2.pricing { grid-template-columns: 1fr; }
+  .grid-3, #faq-list, .grid-2.pricing, .grid-2.explain { grid-template-columns: 1fr; }
   .pcard .art { height: 150px; }
   .pcard .name { font-size: 15px; }
   .chip { height: 44px; }

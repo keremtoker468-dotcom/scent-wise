@@ -434,7 +434,8 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
 - Each pick must share the original's main accords and at least two of its signature notes. Do not list a fragrance that merely shares one note or a general mood — if a pick is not a genuine scent match, replace it.
 - Every pick must be cheaper than the original. Order from cheapest to most expensive, favour picks under $80.
 - If the original is already budget (under $50) say so and offer the closest alternatives at any price under it.
-- Head line: **Name by Brand** — the shared notes, then "~$price". WHY IT MATCHES YOU must say how close it is in honest words ("near clone", "85% there but lighter", "same DNA, sweeter dry-down") and name the main thing you lose (longevity, projection, a specific note). Never claim a 100% match.
+- First line of the answer: "ORIGINAL PRICE: ~$price for size" (usual retail of the original's most common bottle).
+- Head line: **Name by Brand** — the shared notes, then "~$price". In dupe mode the labels WHY IT MATCHES YOU and SIMILAR TO are replaced by two lines: "SAME:" — what it keeps from the original, in honest words ("near clone of the opening", "same DNA, sweeter dry-down") — and "YOU GIVE UP:" — the main thing you lose (longevity, projection, a specific note). BLIND BUY RISK and SCORES stay. Never write a match percentage (the site computes the match from its database) and never claim a 100% match.
 ` : `ORDER & BRAND BALANCE:
 - Picks #1, #2, #3 should lean designer or niche Western houses (Dior, YSL, Tom Ford, Versace, Chanel, Givenchy, Maison Margiela, Le Labo, Byredo, Maison Francis Kurkdjian, Diptyque, Creed, etc.).
 - Picks #4 and #5 can include Middle-Eastern / attar houses (Al Haramain, Lattafa, Al-Rehab, Rasasi, Armaf) — at most 2 of these across the whole response, never more.
@@ -488,7 +489,7 @@ STRICT OUTPUT FORMAT (the UI parser depends on this exact structure — failing 
     BLIND BUY RISK: Low-risk blind buy
     SIMILAR TO: A more wearable cousin of **Tom Ford Oud Wood by Tom Ford** — same warmth, less smoke.
     SCORES: Longevity: 4/5 | Projection: 4/5 | Uniqueness: 3/5 | Versatility: 5/5
-- Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES:
+- Use these section labels exactly (uppercase): WHY IT MATCHES YOU:, BLIND BUY RISK:, SIMILAR TO:, SCORES: (in dupe mode: SAME:, YOU GIVE UP:, BLIND BUY RISK:, SCORES:)
 - SCORES line must read literally: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5
 - Do NOT use markdown headers (# or ##), do NOT use nested bullets inside picks, do NOT bold notes or section labels.` + profileContext;
       // Real conversation turns (user/model roles) keep the model grounded in the

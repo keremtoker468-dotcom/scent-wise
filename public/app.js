@@ -8,6 +8,10 @@
   // ───────────────────────── config ─────────────────────────
   const FREE_LIMIT = 3;          // must match server FREE_TRIAL_QUERIES
   const MAX_PAID = 500;          // must match server MAX_MONTHLY_QUERIES
+  // The free allowance in one sentence, used everywhere it is described.
+  const FREE_LINE = '3 free searches. The first needs no sign-up, the next two your email.';
+  const FREE_DONE = 'You have used your 3 free searches. Lifetime access is $10 once.';
+  const PAID_LINE = '$10 once for lifetime access: 500 searches every month, all seven modes, no subscription.';
   const HEADERS = { 'Content-Type': 'application/json', 'X-Requested-With': 'ScentWise' };
   const PAGE_SIZE = 24;
 
@@ -212,20 +216,60 @@
     if (parts.length === 2) return { top: parts[0], base: parts[1] };
     return { all: parts[0] };
   }
-  // Nearest neighbours by accord overlap (Jaccard) with a small note bonus.
+  // Accord overlap (Jaccard) with a small note bonus. 0 when either side has no accords.
+  // Accords that read alike on skin. A pick that swaps "vanilla" for "amber" is closer than one
+  // that swaps it for "aquatic", which a plain shared-accord count cannot tell apart.
+  const ACCORD_KIN = (() => {
+    const groups = [
+      ['sweet', 'vanilla', 'caramel', 'honey', 'gourmand', 'lactonic', 'coconut', 'almond', 'nutty', 'cacao', 'chocolate', 'coffee', 'cherry', 'tropical', 'fruity'],
+      ['amber', 'warm spicy', 'balsamic', 'vanilla', 'soft spicy', 'cinnamon', 'tobacco', 'rum', 'whiskey', 'honey', 'beeswax', 'animalic', 'oud', 'mineral', 'metallic', 'salty'],
+      ['woody', 'mossy', 'earthy', 'patchouli', 'smoky', 'leather', 'oud', 'conifer', 'tobacco', 'mineral'],
+      ['citrus', 'fresh', 'fresh spicy', 'aromatic', 'green', 'herbal', 'lavender', 'aquatic', 'marine', 'ozonic', 'conifer', 'anis', 'camphor', 'metallic', 'salty', 'mineral'],
+      ['floral', 'white floral', 'rose', 'iris', 'violet', 'tuberose', 'yellow floral', 'powdery', 'aldehydic', 'soapy', 'musky'],
+      ['musky', 'powdery', 'soapy', 'aldehydic', 'lactonic', 'animalic', 'fresh'],
+    ];
+    const m = new Map();
+    groups.forEach((g, gi) => g.forEach((a) => { if (!m.has(a)) m.set(a, new Set()); m.get(a).add(gi); }));
+    return m;
+  })();
+  function accordsKin(x, y) {
+    const gx = ACCORD_KIN.get(x), gy = ACCORD_KIN.get(y);
+    if (!gx || !gy) return false;
+    for (const g of gx) if (gy.has(g)) return true;
+    return false;
+  }
+  // How much of a's accord list b covers. Accords come strongest first, so earlier ones weigh more;
+  // the same accord scores 1 (less if it sits much lower in b), a kindred accord 0.4.
+  const ACCORD_W = [1, 0.9, 0.8, 0.7, 0.6, 0.5];
+  function accordCover(a, b) {
+    let s = 0, t = 0;
+    a.forEach((x, i) => {
+      const w = ACCORD_W[i] || 0.5; t += w;
+      const j = b.indexOf(x);
+      if (j !== -1) s += w * (1 - Math.abs(i - j) * 0.05);
+      else if (b.some((y) => accordsKin(x, y))) s += w * 0.4;
+    });
+    return t ? s / t : 0;
+  }
+  // Similarity between two perfumes, 0–1: 80% accords (both directions), 20% shared note words.
+  // Calibration on the library: random pairs median ~0.35, Aventus vs Club de Nuit Intense 0.97,
+  // Baccarat Rouge 540 vs Zara Red Temptation 0.89.
+  function simScore(rec, p) {
+    if (!rec || !p || !rec.a || !p.a || !rec.a.length || !p.a.length) return 0;
+    const acc = (accordCover(rec.a, p.a) + accordCover(p.a, rec.a)) / 2;
+    const tw = rec.words || noteWords(rec.t), pw = p.words || noteWords(p.t);
+    let notes = 0;
+    if (tw.size && pw.size) { let ni = 0; for (const w of tw) if (pw.has(w)) ni++; notes = ni / Math.min(tw.size, pw.size); }
+    return Math.min(1, acc * 0.8 + notes * 0.2);
+  }
+  // Nearest neighbours by simScore.
   function similarTo(rec, limit) {
     if (!rec || !rec.a || !rec.a.length) return [];
-    const ta = new Set(rec.a), tw = rec.words || noteWords(rec.t);
     const scored = [];
     for (const p of DB.richList) {
       if (p === rec || !p.a.length) continue;
-      let inter = 0; for (const a of ta) if (p.a.indexOf(a) !== -1) inter++;
-      if (!inter) continue;
-      const jac = inter / (ta.size + p.a.length - inter);
-      let bonus = 0;
-      if (tw.size && p.words.size) { let ni = 0; for (const w of tw) if (p.words.has(w)) ni++; bonus = (ni / (tw.size + p.words.size - ni)) * 0.15; }
-      const score = jac + bonus;
-      if (score > 0.3) scored.push([score, p]);
+      const score = simScore(rec, p);
+      if (score > 0.5) scored.push([score, p]);
     }
     scored.sort((a, b) => b[0] - a[0]);
     return scored.slice(0, limit || 6).map((s) => ({ rec: s[1], score: s[0] }));
@@ -368,7 +412,7 @@
     if (!name || art.querySelector('img')) return;
     imageFor(name, brand).then((url) => {
       if (!url || art.querySelector('img')) return;
-      const img = new Image(); img.alt = ''; img.decoding = 'async';
+      const img = new Image(); img.alt = (brand && name.toLowerCase().indexOf(brand.toLowerCase()) === -1 ? brand + ' ' : '') + name + ' bottle'; img.decoding = 'async';
       img.onload = () => { art.appendChild(img); };
       img.src = url;
     });
@@ -427,7 +471,7 @@
   }
 
   // ───────────────────────── router ─────────────────────────
-  const VIEWS = { home: 'ScentWise — AI Fragrance Advisor | Find Your Perfect Perfume', explore: 'Explore 65,000+ Fragrances — ScentWise', advisor: 'AI Fragrance Advisor — ScentWise', celebs: 'Celebrity Fragrances — ScentWise', account: 'Your Account — ScentWise' };
+  const VIEWS = { home: 'ScentWise — Perfume Dupes, Matched Note by Note | AI Fragrance Advisor', explore: 'Explore 65,000+ Fragrances — ScentWise', advisor: 'AI Fragrance Advisor — ScentWise', celebs: 'Celebrity Fragrances — ScentWise', account: 'Your Account — ScentWise' };
   const PATHS = { '/': 'home', '/index.html': 'home', '/explore': 'explore', '/advisor': 'advisor', '/celebrities': 'celebs', '/account': 'account', '/pricing': 'home', '/how-it-works': 'home', '/profile': 'account', '/profile.html': 'account' };
   const VIEW_PATH = { home: '/', explore: '/explore', advisor: '/advisor', celebs: '/celebrities', account: '/account' };
   const MODE_IDS = ['chat', 'dupe', 'photo', 'zodiac', 'music', 'style', 'celeb'];
@@ -461,6 +505,9 @@
     $$('.view').forEach((v) => v.classList.toggle('is-active', v.getAttribute('data-view') === view));
     $$('[data-nav]').forEach((a) => { if (a.getAttribute('data-nav') === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
     document.title = VIEWS[view] || VIEWS.home;
+    // Each indexable view is its own page for search engines; the account view points back home.
+    const canon = document.querySelector('link[rel="canonical"]');
+    if (canon) canon.href = 'https://scent-wise.com' + (view === 'account' ? '/' : (VIEW_PATH[view] || '/'));
     if (!location.hash) window.scrollTo({ top: 0 });
     if (view === 'explore') initExplore();
     else if (view === 'advisor') initAdvisor();
@@ -514,9 +561,23 @@
     const box = $('#home-featured');
     if (box && !box.children.length) { box.innerHTML = FEATURED.map((f) => pcardHTML(f)).join(''); watchImages(box); }
     const form = $('#hero-form');
-    if (form) form.addEventListener('submit', (e) => { e.preventDefault(); const q = $('#hero-q').value.trim(); openAdvisor('chat', q); });
-    if (innerWidth < 520 && $('#hero-q')) $('#hero-q').placeholder = 'A mood, a memory, an occasion…';
-    $$('#hero-chips .chip').forEach((c) => c.addEventListener('click', () => openAdvisor(c.getAttribute('data-mode') || 'chat', c.getAttribute('data-prompt') || c.textContent.trim())));
+    // Hero leads with dupes (what most visitors arrive for); "Describe a mood" is the second tab.
+    let heroMode = 'dupe';
+    const HERO = {
+      dupe: { ph: 'Baccarat Rouge 540, Aventus, Lost Cherry…', label: 'A perfume you love', go: 'Find dupes', chips: [['Baccarat Rouge 540', 'Baccarat Rouge 540 by Maison Francis Kurkdjian'], ['Creed Aventus', 'Aventus by Creed'], ['Le Labo Santal 33', 'Santal 33 by Le Labo'], ['Tom Ford Lost Cherry', 'Lost Cherry by Tom Ford']] },
+      chat: { ph: innerWidth < 520 ? 'A mood, a memory, an occasion…' : 'A warm evening in Lisbon, something I can wear to work…', label: 'Describe what you want', go: 'Find my scent', chips: [['Fresh and clean for the office', 'Fresh and clean for the office, nothing loud'], ['Something my partner will notice', 'Something my partner will notice on a date night'], ['Warm and cosy for winter', 'Warm and cosy for winter evenings']] }
+    };
+    const setHeroMode = (mode) => {
+      heroMode = mode; const h = HERO[mode], q = $('#hero-q'), go = $('#hero-go'), chips = $('#hero-chips');
+      $$('#hero-tabs .seg-btn').forEach((b) => { const on = b.getAttribute('data-hero-mode') === mode; b.classList.toggle('is-on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+      if (q) { q.placeholder = h.ph; q.setAttribute('aria-label', h.label); }
+      if (go && go.firstChild) go.firstChild.nodeValue = h.go;
+      if (chips) chips.innerHTML = h.chips.map(([label, prompt]) => `<button class="chip" type="button" data-prompt="${esc(prompt)}" data-mode="${mode}">${esc(label)}</button>`).join('');
+    };
+    $$('#hero-tabs .seg-btn').forEach((b) => b.addEventListener('click', () => setHeroMode(b.getAttribute('data-hero-mode'))));
+    if (form) form.addEventListener('submit', (e) => { e.preventDefault(); const q = $('#hero-q').value.trim(); track('hero_search', { mode: heroMode, source: 'form' }); openAdvisor(heroMode, q); });
+    const chipBox = $('#hero-chips');
+    if (chipBox) chipBox.addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (!c) return; const mode = c.getAttribute('data-mode') || 'chat'; track('hero_search', { mode, source: 'chip' }); openAdvisor(mode, c.getAttribute('data-prompt') || c.textContent.trim()); });
     $$('.section, .band, #pricing, #guides, #faq').forEach((el) => el.classList.add('reveal'));
     if ('IntersectionObserver' in window) {
       const io = new IntersectionObserver((en) => en.forEach((x) => { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }), { rootMargin: '-40px' });
@@ -528,8 +589,8 @@
     const el = $('#hero-trust'); if (!el) return;
     if (S.isOwner) el.textContent = 'Owner access. Unlimited queries.';
     else if (S.isPaid) el.textContent = `Lifetime access active. ${Math.max(0, MAX_PAID - S.usage)} of ${MAX_PAID} queries left this month.`;
-    else if (S.freeUsed >= FREE_LIMIT) el.textContent = 'Free picks used. Lifetime access is $10, once.';
-    else el.textContent = S.freeUsed ? `${FREE_LIMIT - S.freeUsed} free pick${FREE_LIMIT - S.freeUsed === 1 ? '' : 's'} left. Then $10 once for lifetime access.` : 'One free pick, no sign-up. Then $10 once for lifetime access.';
+    else if (S.freeUsed >= FREE_LIMIT) el.textContent = FREE_DONE;
+    else el.textContent = S.freeUsed ? `${FREE_LIMIT - S.freeUsed} of ${FREE_LIMIT} free searches left. Then $10 once.` : FREE_LINE;
     const cta = $('#nav-cta');
     if (cta) { if (S.isPaid) { cta.textContent = 'Account'; cta.setAttribute('href', '/account'); cta.setAttribute('data-nav', 'account'); } else { cta.textContent = 'Try free'; cta.setAttribute('href', '/advisor'); cta.setAttribute('data-nav', 'advisor'); } }
   }
@@ -662,7 +723,8 @@
       setupPhoto();
     }
     setMode(S.mode, true);
-    loadDB();
+    // Library labels and match bars need the database; redraw once it arrives.
+    if (DB.loaded) loadDB(); else loadDB().then(() => { if (S.view === 'advisor' && !S.busy) renderThread(); });
   }
   const PLACEHOLDER_SHORT = { chat: 'Describe what you want…', dupe: 'Which fragrance to dupe?', photo: 'Optional: add a hint', zodiac: 'Your sign or birthday', music: 'Artists or genres', style: 'Describe your style', celeb: 'A celebrity name' };
   function autosize(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(160, ta.scrollHeight) + 'px'; }
@@ -717,7 +779,7 @@
     return `<div class="msg-user">${img}${esc(m.text || (m.hasImage ? 'Analyse this style' : ''))}</div>`;
   }
   function aiHTML(m, idx) {
-    if (m.kind === 'paywall') return paywallHTML(m);
+    if (m.kind === 'paywall') return paywallHTML(m, idx);
     if (m.kind === 'error') return `<div class="msg-ai"><div class="alert error">${esc(m.text)}</div>${m.retry ? `<div><button class="btn btn-quiet btn-md" type="button" data-retry="${idx}">${icon('refresh', 16)}Try again</button></div>` : ''}</div>`;
     if (m.kind === 'celeb') return celebAnswerHTML(m);
     if (m.kind === 'note') return `<div class="msg-ai"><div class="intro">${formatInline(m.text)}</div></div>`;
@@ -735,30 +797,66 @@
       } else html += `<div class="intro">${formatInline(m.text)}</div>`;
     } else {
       if (parsed.intro) html += `<div class="intro">${formatInline(parsed.intro)}</div>`;
-      html += `<div class="recs">${parsed.picks.map((p, i) => recHTML(p, locked && i >= 2)).join('')}${held}</div>`;
+      const ctx = { orig: S.mode === 'dupe' ? dupeOriginal(idx) : null, origPrice: parsed.origPrice };
+      if (parsed.origPrice) html += `<div class="t-call muted">Original${ctx.orig ? ': ' + esc(ctx.orig.n + ' by ' + ctx.orig.b) : ''}, about $${parsed.origPrice}${parsed.origSize ? ' for ' + esc(parsed.origSize) : ''}.</div>`;
+      html += `<div class="recs">${parsed.picks.map((p, i) => recHTML(p, locked && i >= 2, ctx)).join('')}${held}</div>`;
+      if (ctx.orig && parsed.picks.length) html += `<div class="t-cap muted-2">Match = how many accords and notes a pick shares with ${esc(ctx.orig.n)} in our database. Prices are typical retail and change; check the store.</div>`;
       if (held || (locked && parsed.picks.length > 2)) html += gateHTML();
       if (parsed.outro) html += `<div class="intro t-call muted">${formatInline(parsed.outro)}</div>`;
     }
     html += feedbackHTML(idx, m) + '</div>';
     return html;
   }
+  // The perfume a dupe thread is about: the latest user message that names a fragrance we hold.
+  const dupeOrigCache = new Map();
+  function dupeOriginal(idx) {
+    if (!DB.loaded) return null;
+    const t = getThread('dupe');
+    for (let i = Math.min(idx, t.length) - 1; i >= 0; i--) {
+      const m = t[i]; if (m.role !== 'user' || !m.text) continue;
+      if (!dupeOrigCache.has(m.text)) {
+        const r = bestMatch(m.text);
+        const said = String(m.text).toLowerCase();
+        dupeOrigCache.set(m.text, r && said.indexOf(r.n.toLowerCase()) !== -1 ? r : null);
+      }
+      const hit = dupeOrigCache.get(m.text); if (hit) return hit;
+    }
+    return null;
+  }
+  // Bands from the library's own distribution (random pairs: median 0.35, top 10% above 0.53).
+  function matchWord(score) { return score >= 0.8 ? 'Very close match' : score >= 0.62 ? 'Close match' : score >= 0.45 ? 'Shares the main accords' : 'Different notes on paper'; }
   function lockedStubHTML() {
     return `<article class="rec is-locked" aria-hidden="true"><div class="art fam-other">${bottle(40, 60)}</div><div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">Another pick for you</div><div class="brand" style="font-size:14px;color:var(--fg2)">Unlock to see it</div></div><div class="meta"><div class="why">Why it suits you, how it wears and what it smells close to.</div></div></article>`;
   }
-  function recHTML(p, locked) {
+  function recHTML(p, locked, ctx) {
+    ctx = ctx || {};
     const rec = DB.loaded ? find(p.name, p.brand) : null;
-    const it = rec || (DB.loaded ? itemFor(p.name, p.brand) : null) || { n: p.name, b: p.brand, c: '' };
+    const known = rec || (DB.loaded ? itemFor(p.name, p.brand) : null);
+    const it = known || { n: p.name, b: p.brand, c: '' };
     const notes = p.notes || (rec && rec.t ? rec.t.replace(/;/g, ' ·') : '');
-    const unverified = DB.loaded && !rec && !itemFor(p.name, p.brand) ? `<span class="badge" style="align-self:flex-start;color:var(--danger)" title="This name is not in our 65,000-perfume database. Double-check it exists before buying.">Not in our database — verify the name</span>` : '';
-    const risk = p.risk ? `<span class="badge" style="align-self:flex-start;color:${/low/i.test(p.risk) ? 'var(--ok)' : (/test|polar/i.test(p.risk) ? 'var(--danger)' : 'var(--fg2)')}">${esc(p.risk.replace(/\.$/, ''))}</span>` : '';
+    // Library label: green "In our library" for names we hold, a neutral (not alarming) note otherwise.
+    const lib = !DB.loaded ? '' : (known ? `<span class="lib ok">In our library</span>` : `<span class="lib" title="This name is not in our 65,000-perfume database. Double-check it exists before buying.">Not in our library · check the name before buying</span>`);
+    // Never call an unverified pick a low-risk blind buy.
+    const showRisk = p.risk && !(DB.loaded && !known && /low/i.test(p.risk));
+    const risk = showRisk ? `<span class="badge" style="align-self:flex-start;color:${/low/i.test(p.risk) ? 'var(--ok)' : (/test|polar/i.test(p.risk) ? 'var(--danger)' : 'var(--fg2)')}">${esc(p.risk.replace(/\.$/, ''))}</span>` : '';
     const scores = p.scores ? `<div class="scores">${Object.keys(p.scores).map((k) => `<span>${esc(k)} ${p.scores[k]}/5</span>`).join('')}</div>` : '';
     const similar = p.similar ? `<div class="notes">Similar to ${formatInline(p.similar)}</div>` : '';
-    const extra = !p.why && p.extra ? `<div class="why">${formatInline(p.extra)}</div>` : '';
+    const extra = !p.why && !p.same && p.extra ? `<div class="why">${formatInline(p.extra)}</div>` : '';
+    const inl = (x) => formatInline(x).replace(/^<p>|<\/p>$/g, '');
+    const trade = (p.same || p.lose) ? `<div class="trade">${p.same ? `<div><b>Same.</b> ${inl(p.same)}</div>` : ''}${p.lose ? `<div><b>You give up.</b> ${inl(p.lose)}</div>` : ''}</div>` : '';
+    // Real match score from our database (accord + note overlap), only when both sides are known.
+    const score = ctx.orig && rec ? simScore(ctx.orig, richOf(rec) || rec) : 0;
+    // Shown for every pick we can compare. A low score is said plainly ("different notes on
+    // paper"): some famous dupes copy the overall effect rather than the listed notes.
+    const match = score > 0 ? `<div class="match" title="Accord and note overlap with ${esc(ctx.orig.n)}: ${Math.min(99, Math.round(score * 100))}%"><span class="mbar" aria-hidden="true"><i style="width:${Math.min(100, Math.round(score * 100))}%"></i></span><span>${matchWord(score)}</span></div>` : '';
+    const save = p.price && ctx.origPrice > p.price ? Math.round((1 - p.price / ctx.origPrice) * 100) : 0;
+    const priceRow = p.price ? `<div class="cost"><b>~$${p.price}</b>${save >= 5 ? `<span class="save">Save ~${save}%</span>` : ''}</div>` : '';
+    const shopLabel = p.price ? `Shop · ~$${p.price}` : 'Shop';
     // art, head, meta and foot are direct children so the phone layout can place art and head side by side
     const inner = `<div class="art ${famClass(it)}" ${locked ? '' : `data-img-name="${esc(p.name)}" data-img-brand="${esc(p.brand)}"`}>${bottle(40, 60)}</div>
-      <div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div></div>
-      <div class="meta">${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${unverified}${risk}${scores}</div>
-      <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-quiet btn-sm" href="${amazonLink(p.name, p.brand, 'advisor')}" target="_blank" rel="noopener sponsored" data-stop>Shop</a></span></div>`;
+      <div class="head"><div class="name" style="font-size:17px;font-weight:600;line-height:1.3">${esc(p.name)}</div><div class="brand" style="font-size:14px;color:var(--fg2)">${esc(p.brand)}</div>${match}${lib}</div>
+      <div class="meta">${priceRow}${trade}${p.why ? `<div class="why">${formatInline(p.why)}</div>` : ''}${extra}${notes ? `<div class="notes">${esc(notes)}</div>` : ''}${similar}${risk}${scores}</div>
+      <div class="foot"><button class="btn btn-text btn-sm" type="button" data-action="ask-dupes" data-name="${esc(p.name + (p.brand ? ' by ' + p.brand : ''))}" data-stop>Similar for less</button><span class="row" style="gap:6px">${heartHTML(p.name, p.brand, 'icon-btn sm')}<button class="icon-btn sm cmp${inCompare(p.name, p.brand) ? ' is-on' : ''}" type="button" data-cmp-name="${esc(p.name)}" data-cmp-brand="${esc(p.brand)}" aria-label="Add to compare" title="Compare" data-stop>${icon('layers', 16)}</button><a class="btn btn-primary btn-sm" href="${amazonLink(p.name, p.brand, 'advisor')}" target="_blank" rel="noopener sponsored" data-stop aria-label="Shop ${esc(p.name)} on Amazon">${shopLabel}</a></span></div>`;
     return `<article class="rec${locked ? ' is-locked' : ''}" ${locked ? 'aria-hidden="true"' : `data-open-name="${esc(p.name)}" data-open-brand="${esc(p.brand)}"`}>${inner}</article>`;
   }
   function feedbackHTML(idx, m) {
@@ -767,13 +865,31 @@
   }
   function gateHTML() {
     return `<div class="gate" id="gate">
-      <div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">Unlock the rest of these picks</span><span class="t-call muted">Add your email for the two remaining free picks. Or skip the limit entirely with lifetime access, $10 once.</span></div>
-      <form class="stack" style="gap:10px" id="gate-form"><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" type="email" name="email" placeholder="you@example.com" required autocomplete="email" style="flex:1;min-width:200px"><button class="btn btn-primary" type="submit">Unlock picks</button><button class="btn btn-text" type="button" data-action="checkout">Lifetime access</button></div>
+      <div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">Unlock the rest of these picks</span><span class="t-call muted">Your next two free searches need your email. Or skip the limit: ${esc(PAID_LINE)}</span></div>
+      <form class="stack" style="gap:10px" id="gate-form"><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" type="email" name="email" aria-label="Email address" placeholder="you@example.com" required autocomplete="email" style="flex:1;min-width:200px"><button class="btn btn-primary" type="submit">Unlock picks</button><button class="btn btn-text" type="button" data-action="checkout">Lifetime access</button></div>
       <label class="row t-cap muted" style="gap:8px;align-items:flex-start"><input type="checkbox" name="marketing" style="margin-top:2px">Optional: send me occasional fragrance guides and offers by email. Unsubscribe any time. Not needed to unlock the picks.</label></form>
       <span class="t-cap muted-2">How we use your email: <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="/kvkk.html" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a></span></div>`;
   }
-  function paywallHTML(m) {
-    return `<div class="msg-ai"><div class="gate"><div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">${esc(m.title || 'You have used your free picks.')}</span><span class="t-call muted">${esc(m.text || 'Lifetime access is $10, once: all seven modes and 500 queries a month.')}</span></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Get lifetime access · $10</button><a class="btn btn-quiet" href="/account" data-nav="account">I already paid</a></div></div></div>`;
+  function paywallHTML(m, idx) {
+    const limit = m.reason === 'limit' || /used your free/i.test(m.title || '');
+    if (!limit) return `<div class="msg-ai"><div class="gate"><div class="stack" style="gap:4px"><span class="t-head" style="font-size:17px">${esc(m.title || FREE_DONE)}</span><span class="t-call muted">${esc(m.text || PAID_LINE)}</span></div><div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Get lifetime access · $10</button><a class="btn btn-quiet" href="/account" data-nav="account">I already paid</a></div></div></div>`;
+    // In the dupe finder we can say truthfully how many close matches the library holds for that perfume.
+    let head = 'Your next picks are one step away.';
+    if (S.mode === 'dupe' && DB.loaded) {
+      const orig = dupeOriginal(idx);
+      const n = orig ? similarTo(orig, 24).filter((x) => x.score >= 0.65).length : 0;
+      if (n >= 2) head = `${n >= 24 ? '20+' : n} close matches for ${orig.n} are waiting in our library.`;
+    }
+    const check = icon('check', 16, 2);
+    return `<div class="msg-ai"><div class="paywall"><div class="recs" aria-hidden="true">${lockedStubHTML()}${lockedStubHTML()}</div>
+      <div class="gate unlock" role="group" aria-labelledby="pw-${idx}">
+        <span class="t-head" id="pw-${idx}" style="font-size:19px">${esc(head)}</span>
+        <span class="t-call muted">You have used your 3 free searches. Unlock the rest, plus every way to search.</span>
+        <ul class="ticks"><li>${check}500 searches every month, no renewal</li><li>${check}All seven ways to search, photo and music included</li><li>${check}A scent profile that learns what you like</li></ul>
+        <div class="row" style="gap:8px;align-items:baseline"><span class="t-2" style="font-size:32px">$10</span><span class="t-call muted">once, not a subscription</span></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-action="checkout">Unlock for $10</button><a class="btn btn-quiet" href="/account" data-nav="account">I already paid</a></div>
+        <span class="t-cap muted-2">Secure checkout by Lemon Squeezy, which shows any tax for your country before you pay.</span>
+      </div></div></div>`;
   }
   // Fetch the picks the server held back from teaser answers and splice them in.
   async function revealTeasers() {
@@ -825,14 +941,19 @@
   });
 
   // ---- text formatting (fallback + inline) ----
+  // The model now and then writes "a impressive" / "a oud". Fix the article before a vowel sound,
+  // leaving "a unique", "a unisex", "a one-off", "a European" alone.
+  function fixArticles(t) {
+    return t.replace(/\b([Aa]) (?=(?:[ai]|e(?!u)|o(?!n[ce])|u(?=n)(?!ni))[a-z])/g, '$1n ');
+  }
   function formatInline(text) {
-    let s = esc(text || '');
+    let s = esc(fixArticles(text || ''));
     s = s.replace(/\*\*(.+?)\*\*/g, (m, name) => {
       const by = name.match(/^(.+?)\s+by\s+(.+)$/i);
       if (!by) return `<strong>${name}</strong>`;
       return `<button class="frag" type="button" data-open-name="${esc(by[1].trim())}" data-open-brand="${esc(by[2].trim())}" style="font-weight:600;color:var(--accent);text-decoration:underline;text-underline-offset:3px">${name}</button>`;
     });
-    s = s.replace(/^(WHY IT MATCHES YOU|BLIND BUY RISK|SIMILAR TO|SCORES):/gim, '<span class="t-foot muted-2">$1:</span>');
+    s = s.replace(/^(WHY IT MATCHES YOU|BLIND BUY RISK|SIMILAR TO|SAME|YOU GIVE UP|SCORES):/gim, '<span class="t-foot muted-2">$1:</span>');
     return s.split(/\n{2,}/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   }
   function splitTeaser(text) {
@@ -857,8 +978,14 @@
     if (!picks.length) return null;
     const last = picks[picks.length - 1]; let outro = [];
     let bi = -1; for (let i = last.body.length - 1; i >= 0; i--) { if (!last.body[i].trim()) { bi = i; break; } }
-    if (bi > 0) { const tail = last.body.slice(bi + 1); if (tail.length && !tail.some((l) => /^(WHY|BLIND|SIMILAR|SCORES|\d+[.)])/i.test(l.trim()))) { outro = tail; last.body = last.body.slice(0, bi); } }
-    return { intro: intro.join('\n').trim(), outro: outro.join('\n').trim(), picks: picks.map(parsePick) };
+    if (bi > 0) { const tail = last.body.slice(bi + 1); if (tail.length && !tail.some((l) => /^(WHY|BLIND|SIMILAR|SAME|YOU GIVE|SCORES|\d+[.)])/i.test(l.trim()))) { outro = tail; last.body = last.body.slice(0, bi); } }
+    let origPrice = 0, origSize = '';
+    const introLines = intro.filter((l) => {
+      const om = l.match(/^\s*\**ORIGINAL PRICE\**\s*:\s*~?\s*\$\s?(\d{1,4})(?:\s*[-–]\s*\$?\d{1,4})?\s*(.*)$/i);
+      if (!om) return true;
+      origPrice = +om[1]; origSize = om[2].replace(/^for\s+/i, '').replace(/[.\s]+$/, '').slice(0, 30); return false;
+    });
+    return { intro: introLines.join('\n').trim(), outro: outro.join('\n').trim(), origPrice, origSize, picks: picks.map(parsePick) };
   }
   function parsePick(p) {
     const bm = p.head.match(/\*\*(.+?)\*\*/);
@@ -867,8 +994,8 @@
     const name = (by ? by[1] : full).trim(), brand = by ? by[2].trim() : '';
     let notes = bm ? p.head.slice(p.head.indexOf(bm[0]) + bm[0].length) : '';
     notes = notes.replace(/^[\s—–:-]+/, '').replace(/\*\*/g, '').trim();
-    const f = { why: '', risk: '', similar: '', scores: null }; const other = []; let current = null;
-    const labelRe = /^(WHY IT MATCHES YOU|WHY THIS MATCHES|MATCHES YOUR PROFILE|WHY IT MATCHES|BLIND BUY RISK|SIMILAR TO|SCORES)\s*:\s*(.*)$/i;
+    const f = { why: '', risk: '', similar: '', same: '', lose: '', scores: null }; const other = []; let current = null;
+    const labelRe = /^(WHY IT MATCHES YOU|WHY THIS MATCHES|MATCHES YOUR PROFILE|WHY IT MATCHES|BLIND BUY RISK|SIMILAR TO|SAME|YOU GIVE UP|YOU LOSE|SCORES)\s*:\s*(.*)$/i;
     for (const raw of p.body) {
       const line = raw.replace(/^\s*[-•]\s*/, '').trim(); if (!line) { current = null; continue; }
       const lm = line.match(labelRe);
@@ -876,13 +1003,19 @@
         if (key.indexOf('WHY') === 0 || key.indexOf('MATCHES') === 0) { f.why = lm[2]; current = 'why'; }
         else if (key.indexOf('BLIND') === 0) { f.risk = lm[2]; current = null; }
         else if (key.indexOf('SIMILAR') === 0) { f.similar = lm[2]; current = 'similar'; }
+        else if (key === 'SAME') { f.same = lm[2]; current = 'same'; }
+        else if (key.indexOf('YOU') === 0) { f.lose = lm[2]; current = 'lose'; }
         else { f.scores = parseScores(lm[2]); current = null; }
         continue; }
       if (/^\d+[.)]\s/.test(line)) { other.push(line.replace(/^\d+[.)]\s*/, '')); current = null; continue; }
       if (current) { f[current] += ' ' + line; continue; }
       other.push(line);
     }
-    return { name, brand, notes: notes.slice(0, 160), why: f.why.trim(), risk: f.risk.trim(), similar: f.similar.trim(), scores: f.scores, extra: other.join('\n').trim() };
+    // "— saffron, amber; ~$45" → price 45, shown on the Shop button instead of buried in the notes.
+    let price = 0;
+    const pm = notes.match(/[;,·|—–-]?\s*~?\s*\$\s?(\d{1,4}(?:[.,]\d{1,2})?)(?:\s*[-–]\s*\$?\d{1,4})?\s*$/);
+    if (pm) { price = Math.round(parseFloat(pm[1].replace(',', '.'))); notes = notes.slice(0, pm.index).replace(/[\s;,·|—–-]+$/, ''); }
+    return { name, brand, notes: notes.slice(0, 160), price, why: f.why.trim(), risk: f.risk.trim(), similar: f.similar.trim(), same: f.same.trim(), lose: f.lose.trim(), scores: f.scores, extra: other.join('\n').trim() };
   }
 
   // ---- sending ----
@@ -914,7 +1047,7 @@
     if (mode === 'dupe') {
       if (prevAi && !opts.preset) return followUp(true);
       const dupeCtx = DB.loaded ? dupeGrounding(text) : '';
-      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name and no database match is listed, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: open with one precise sentence describing what the original actually smells like on skin (not just a note list). Then deliver exactly 5 dupes, cheapest first, prioritising picks under $80 — every one must be a genuine scent match (same main accords, at least two shared signature notes). For each pick use exactly this layout:\n1. **Name by Brand** — shared notes; ~$price\nWHY IT MATCHES YOU: how close it is in honest words ("near clone", "85% there but lighter", "same DNA, sweeter dry-down") and the main thing you lose (longevity, projection, a specific note). No fake 100% matches.\nBLIND BUY RISK: Low-risk blind buy / Medium risk — only if you like [note] / Test first — polarizing\nSCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5\n\nEnd with one honest line — which dupe you'd personally pick, and why.${dupeCtx}`;
+      const body = `The user wants affordable dupes for **${text}**. If you don't recognize this name and no database match is listed, say so kindly — suggest 2-3 likely fragrances they might've meant and ask which one. Otherwise: start with one line in exactly this form: ORIGINAL PRICE: ~$price for size (the usual retail price of the original's most common bottle). Then one precise sentence describing what the original actually smells like on skin (not just a note list). Then deliver exactly 5 dupes, cheapest first, prioritising picks under $80 — every one must be a genuine scent match (same main accords, at least two shared signature notes). For each pick use exactly this layout:\n1. **Name by Brand** — shared notes; ~$price\nSAME: what it keeps from the original, in honest words ("near clone of the opening", "same DNA, sweeter dry-down").\nYOU GIVE UP: the main thing you lose (longevity, projection, a specific note, smoothness). Never write a match percentage; never claim it is identical.\nBLIND BUY RISK: Low-risk blind buy / Medium risk — only if you like [note] / Test first — polarizing\nSCORES: Longevity: X/5 | Projection: X/5 | Uniqueness: X/5 | Versatility: X/5\n\nEnd with one honest line — which dupe you'd personally pick, and why.${dupeCtx}`;
       return { mode: 'dupe', messages: [{ role: 'user', content: body }] };
     }
     if (mode === 'zodiac') {
@@ -952,7 +1085,7 @@
     if (mode === 'celeb') return celebAnswer(text);
     if (mode === 'photo' && !S.photo && !lastAiText(t)) { toast('Add a photo first.'); $('#dropzone').focus(); return; }
     if (mode === 'dupe' && text.length < 3) { toast('Type a fragrance name, at least 3 characters.'); return; }
-    if (!canUseAI()) { t.push({ role: 'ai', kind: 'paywall', title: 'You have used your free picks.', text: 'Lifetime access is $10, once: all seven modes and 500 queries a month.' }); saveThread(mode); renderThread(); track('paywall_shown', { mode }); return; }
+    if (!canUseAI()) { t.push({ role: 'ai', kind: 'paywall', reason: 'limit', title: FREE_DONE, text: PAID_LINE }); saveThread(mode); renderThread(); track('paywall_shown', { mode }); return; }
     if (navigator.onLine === false) { toast('You are offline. Reconnect and try again.'); return; }
     const hasImage = mode === 'photo' && !!S.photo;
     t.push({ role: 'user', text, preset: !!opts.preset, hasImage, preview: hasImage ? S.photo.preview : undefined });
@@ -966,7 +1099,7 @@
     S.busy = false; $('#send-btn').disabled = false;
     if (result.error) {
       const e = result.error;
-      if (e.status === 403 && typeof e.data.freeUsed === 'number') { S.freeUsed = e.data.freeUsed; t.push({ role: 'ai', kind: 'paywall', title: 'You have used your free picks.', text: 'Lifetime access is $10, once: all seven modes and 500 queries a month.' }); track('paywall_shown', { mode, source: 'server_403' }); }
+      if (e.status === 403 && typeof e.data.freeUsed === 'number') { S.freeUsed = e.data.freeUsed; t.push({ role: 'ai', kind: 'paywall', reason: 'limit', title: FREE_DONE, text: PAID_LINE }); track('paywall_shown', { mode, source: 'server_403' }); }
       else if (e.status === 403) { S.isPaid = false; S.tier = 'free'; t.push({ role: 'ai', kind: 'paywall', title: 'Your session has expired.', text: 'Sign in again from your account page, or get lifetime access.' }); }
       else if (e.status === 429 && e.data.reason === 'ip_daily_cap') t.push({ role: 'ai', kind: 'paywall', title: 'This network has been busy today.', text: 'Free picks are shared per network. Try again later, or get lifetime access to skip the limit.' });
       else if (e.status === 429 && typeof e.data.usage === 'number') { S.usage = e.data.usage; t.push({ role: 'ai', kind: 'error', text: e.data.error || 'Monthly limit reached. It resets next month.' }); }
@@ -1054,7 +1187,7 @@
     if (S.isOwner) { el.innerHTML = `<div class="row" style="justify-content:space-between"><span class="t-call" style="font-weight:600">Owner</span><span class="t-foot muted">Unlimited</span></div>`; return; }
     if (S.isPaid) { const left = Math.max(0, MAX_PAID - S.usage); el.innerHTML = `<div class="row" style="justify-content:space-between"><span class="t-call" style="font-weight:600">Lifetime access</span><span class="t-foot muted">${left} of ${MAX_PAID} left</span></div><div class="progress"><i style="width:${Math.min(100, (S.usage / MAX_PAID) * 100)}%"></i></div><span class="t-foot muted">Resets monthly. Thank you for supporting ScentWise.</span>`; return; }
     const used = Math.min(FREE_LIMIT, S.freeUsed);
-    el.innerHTML = `<div class="row" style="justify-content:space-between"><span class="t-call" style="font-weight:600">Free picks</span><span class="t-foot muted">${used} of ${FREE_LIMIT} used</span></div><div class="progress"><i style="width:${(used / FREE_LIMIT) * 100}%"></i></div><span class="t-foot muted">Lifetime access is $10 once: all modes, ${MAX_PAID} queries a month.</span><button class="btn btn-text btn-sm" type="button" data-action="checkout" style="align-self:flex-start;padding:0">Unlock lifetime</button>`;
+    el.innerHTML = `<div class="row" style="justify-content:space-between"><span class="t-call" style="font-weight:600">Free searches</span><span class="t-foot muted">${used} of ${FREE_LIMIT} used</span></div><div class="progress"><i style="width:${(used / FREE_LIMIT) * 100}%"></i></div><span class="t-foot muted">${esc(PAID_LINE)}</span><button class="btn btn-text btn-sm" type="button" data-action="checkout" style="align-self:flex-start;padding:0">Unlock lifetime</button>`;
   }
 
   // ───────────────────────── compare tray ─────────────────────────
@@ -1183,13 +1316,13 @@
   }
   async function loadProfileInto(n, b, box) {
     box = box || $('#sheet-profile'); if (!box) return;
-    if (!profileCached(n, b) && !canUseAI()) { box.innerHTML = `<div class="gate"><span class="t-call">You have used your free picks. Lifetime access is $10, once.</span><div class="row" style="gap:8px"><button class="btn btn-primary btn-md" type="button" data-action="checkout">Get lifetime access</button><a class="btn btn-quiet btn-md" href="/account" data-nav="account">I already paid</a></div></div>`; return; }
+    if (!profileCached(n, b) && !canUseAI()) { box.innerHTML = `<div class="gate"><span class="t-call">${esc(FREE_DONE)}</span><div class="row" style="gap:8px"><button class="btn btn-primary btn-md" type="button" data-action="checkout">Get lifetime access</button><a class="btn btn-quiet btn-md" href="/account" data-nav="account">I already paid</a></div></div>`; return; }
     box.innerHTML = `<div class="row" style="gap:10px"><span class="typing"><i></i><i></i><i></i></span><span class="t-call muted">Reading the community consensus…</span></div>`;
     try {
       const p = await fetchProfile(n, b);
       if (box.id === 'sheet-profile') box.innerHTML = profileSectionHTML(n, b); else box.innerHTML = profileScoresHTML(p);
     } catch (e) {
-      const msg = e.status === 403 ? 'Free picks used. Lifetime access is $10, once.' : (e.status === 429 ? 'Too many requests right now. Try again in a minute.' : (e.message || 'Could not build the profile.'));
+      const msg = e.status === 403 ? FREE_DONE : (e.status === 429 ? 'Too many requests right now. Try again in a minute.' : (e.message || 'Could not build the profile.'));
       box.innerHTML = `<span class="t-call" style="color:var(--danger)">${esc(msg)}</span><button class="btn btn-quiet btn-sm" type="button" data-profile-generate style="align-self:flex-start">Try again</button>`;
     }
   }
@@ -1249,7 +1382,7 @@
         <form class="form" id="order-form"><label class="t-foot muted" for="order-email">Email</label><input class="input" id="order-email" type="email" autocomplete="email" placeholder="you@example.com" required><label class="t-foot muted" for="order-id">Order number</label><div class="row" style="gap:8px;flex-wrap:wrap"><input class="input" id="order-id" type="text" inputmode="numeric" placeholder="e.g. 2944561" required style="flex:1;min-width:220px"><button class="btn btn-primary btn-md" type="submit">Activate</button></div></form>
         <div class="alert" id="account-msg" hidden></div></div>`;
     const profileHTML = (S.isPaid || S.isOwner) ? `<div class="card" style="padding:24px;display:flex;flex-direction:column;gap:12px" id="profile-card"><div class="row" style="justify-content:space-between"><span class="t-head">Scent profile</span><button class="btn btn-text btn-sm" type="button" data-action="reset-profile">Reset</button></div><div id="profile-body"><span class="t-call muted">Loading…</span></div></div>` : '';
-    const adminHTML = admin && !S.isOwner ? `<form class="card form" id="owner-form" style="padding:24px"><span class="t-head">Owner access</span><div class="row" style="gap:8px"><input class="input" id="owner-key" type="password" placeholder="Owner key" required style="flex:1"><button class="btn btn-primary btn-md" type="submit">Unlock</button></div></form>` : '';
+    const adminHTML = admin && !S.isOwner ? `<form class="card form" id="owner-form" style="padding:24px"><span class="t-head">Owner access</span><div class="row" style="gap:8px"><input class="input" id="owner-key" type="password" aria-label="Owner key" placeholder="Owner key" required style="flex:1"><button class="btn btn-primary btn-md" type="submit">Unlock</button></div></form>` : '';
     el.innerHTML = `<div class="stack" style="gap:10px"><h1 class="t-1">You</h1><p class="muted">Access, usage and the fragrances you saved.</p></div>${status}${profileHTML}${adminHTML}${collectionHTML}`;
     watchImages(el);
     if (S.isPaid || S.isOwner) loadProfile();
@@ -1329,16 +1462,11 @@
     sheet.hidden = false; document.body.style.overflow = 'hidden';
     sheet.innerHTML = `<div class="sheet" role="dialog" aria-modal="true" aria-labelledby="co-title" style="grid-template-columns:1fr;max-width:560px">
       <div class="body">
-        <div class="row" style="justify-content:space-between;align-items:flex-start"><h2 class="t-3" id="co-title">Before you pay</h2><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
-        <div class="stack" style="gap:6px">
-          <div class="kv"><span class="muted">What you get</span><b>ScentWise Lifetime: all AI modes, 500 AI queries a month</b></div>
-          <div class="kv"><span class="muted">Price</span><b>$10 once, no renewal</b></div>
-          <div class="kv"><span class="muted">Seller</span><b>Lemon Squeezy (reseller of record)</b></div>
-        </div>
-        <p class="t-call muted">Lemon Squeezy sells and invoices the purchase, shows the final price, including any tax for your country, before you pay, and takes the payment. Access starts as soon as the payment clears.</p>
-        <label class="row t-call" style="gap:10px;align-items:flex-start"><input type="checkbox" id="co-waiver" style="margin-top:3px">I ask for access to start immediately, and I understand that once it starts I lose the 14-day right of withdrawal for this digital service. Refunds for technical problems are still available under the Refund Policy.</label>
-        <span class="t-cap muted-2"><a href="/terms.html" target="_blank" rel="noopener">Terms of Service</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund Policy</a> · <a href="/privacy.html" target="_blank" rel="noopener">Privacy Policy</a> · <a href="/kvkk.html" target="_blank" rel="noopener">KVKK Aydınlatma Metni</a></span>
+        <div class="row" style="justify-content:space-between;align-items:flex-start"><div class="stack" style="gap:4px"><h2 class="t-3" id="co-title">ScentWise Lifetime</h2><span class="row" style="gap:8px;align-items:baseline"><span class="t-2" style="font-size:32px">$10</span><span class="t-call muted">once, not a subscription</span></span></div><button class="icon-btn" type="button" data-action="close-sheet" aria-label="Close">${icon('close', 20, 2)}</button></div>
+        <ul class="ticks"><li>${icon('check', 16, 2)}500 searches every month, no renewal</li><li>${icon('check', 16, 2)}All seven ways to search, photo and music included</li><li>${icon('check', 16, 2)}A scent profile that learns what you like</li></ul>
+        <label class="row t-call" style="gap:10px;align-items:flex-start"><input type="checkbox" id="co-waiver" style="margin-top:3px">Start my access now. I understand this ends the 14-day right of withdrawal for this digital service; refunds for technical problems still apply.</label>
         <button class="btn btn-primary btn-lg" type="button" data-action="checkout-confirm" id="co-go" disabled>Continue to secure checkout</button>
+        <span class="t-cap muted-2">Seller: Lemon Squeezy (reseller of record), which invoices the purchase, shows the final price including any tax for your country before you pay, and takes the payment. Access starts as soon as the payment clears. <a href="/terms.html" target="_blank" rel="noopener">Terms</a> · <a href="/refund.html" target="_blank" rel="noopener">Refund Policy</a> · <a href="/privacy.html" target="_blank" rel="noopener">Privacy</a> · <a href="/kvkk.html" target="_blank" rel="noopener">KVKK</a></span>
       </div></div>`;
     const box = $('#co-waiver'), go = $('#co-go');
     box.addEventListener('change', () => { go.disabled = !box.checked; });

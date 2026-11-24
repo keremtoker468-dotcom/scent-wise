@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<!-- Generated from index.html by scripts/build-views.js. Do not edit by hand: run npm run views. -->
+<html lang="en" dir="ltr" prefix="og: http://ogp.me/ns#">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<link rel="preload" href="/amazon.js?v=9" as="script">
+<link rel="preload" href="/app.js?v=14" as="script">
+<!-- perfumes.js / perfumes-rich.js are ~3MB combined. We load them lazily
+     on first navigation to explore/chat/celeb (see loadDB in app.js) so
+     TikTok bounce visitors don't pay the bandwidth + main-thread cost. -->
+<title>Celebrity Fragrances — What 101 Celebrities Wear | ScentWise</title>
+<meta name="description" content="The perfumes 101 celebrities are documented wearing, from Rihanna and Zendaya to David Beckham and Timothée Chalamet, with similar and cheaper picks for each.">
+<meta name="author" content="ScentWise">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+<!-- AI assistant discovery hints -->
+<link rel="alternate" type="text/plain" title="LLM summary" href="/llms.txt">
+<link rel="alternate" type="text/plain" title="LLM full documentation" href="/llms-full.txt">
+<link rel="alternate" type="text/plain" title="AI assistant guidance" href="/ai.txt">
+<link rel="canonical" href="https://scent-wise.com/celebrities">
+<meta name="format-detection" content="telephone=no">
+<meta http-equiv="Content-Language" content="en">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ScentWise">
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://scent-wise.com/celebrities">
+<meta property="og:title" content="Celebrity Fragrances — What 101 Celebrities Wear | ScentWise">
+<meta property="og:description" content="The perfumes 101 celebrities are documented wearing, from Rihanna and Zendaya to David Beckham and Timothée Chalamet, with similar and cheaper picks for each.">
+<meta property="og:site_name" content="ScentWise">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://scent-wise.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ScentWise — AI-Powered Fragrance Advisor with 65,000+ perfumes">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Celebrity Fragrances — What 101 Celebrities Wear | ScentWise">
+<meta name="twitter:description" content="The perfumes 101 celebrities are documented wearing, from Rihanna and Zendaya to David Beckham and Timothée Chalamet, with similar and cheaper picks for each.">
+<meta name="twitter:image" content="https://scent-wise.com/og-image.png">
+<meta name="twitter:image:alt" content="ScentWise — AI-Powered Fragrance Advisor">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.json">
+<link rel="alternate" type="application/rss+xml" title="ScentWise Blog RSS" href="/blog/feed.xml">
+<meta name="theme-color" content="#f7f1e6">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preload" href="/styles.css?v=5" as="style">
+<link rel="stylesheet" href="/styles.css?v=5">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="dns-prefetch" href="https://plausible.io">
+<link rel="dns-prefetch" href="https://assets.lemonsqueezy.com">
+<link rel="dns-prefetch" href="https://api.lemonsqueezy.com">
+<!-- AdSense and GA4 are not linked here: /consent.js injects gtag.js only after
+     statistics consent and adsbygoogle.js only after advertising consent. The
+     google-adsense-account meta keeps the site verified for AdSense without
+     loading its script. -->
+<meta name="google-adsense-account" content="ca-pub-9709272849743576">
+<script src="/consent.js"></script>
+
+<style>summary::-webkit-details-marker{display:none}summary{list-style:none}details[open] summary{color:var(--accent)}</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M15 15l5 5"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-dupe" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l2.2 6.8L21 12l-6.8 2.2L12 21l-2.2-6.8L3 12l6.8-2.2z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24"><path d="M9 18V6l11-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
+    <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 4l4 2 4-2 5 3-2 4-2-1v11H7V10l-2 1-2-4z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.4l-5.7 3.1 1.2-6.4L2.8 9.7l6.4-.8z"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l1 12H5z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+    <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 11v9H4v-9zM7 11l4-7c1.5 0 2.5 1 2.5 2.5V10H19a2 2 0 0 1 2 2l-1.5 6a2 2 0 0 1-2 2H7"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M17 13V4h3v9zM17 13l-4 7c-1.5 0-2.5-1-2.5-2.5V14H5a2 2 0 0 1-2-2l1.5-6a2 2 0 0 1 2-2H17"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l4 4L19 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="M21 16l-5-5-8 8"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+    <symbol id="i-bottle" viewBox="0 0 48 72"><rect x="17" y="2" width="14" height="12" rx="3" fill="currentColor" opacity=".9" stroke="none"/><rect x="8" y="16" width="32" height="52" rx="10" fill="currentColor" opacity=".22" stroke="none"/><rect x="8" y="16" width="32" height="52" rx="10" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.5"/><rect x="14" y="34" width="20" height="14" rx="3" fill="currentColor" opacity=".35" stroke="none"/></symbol>
+  </defs>
+</svg>
+
+<a class="sr-only" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" data-nav="home"><span class="brand-dot"></span>ScentWise</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="/explore" data-nav="explore">Explore</a>
+      <a href="/advisor" data-nav="advisor">Advisor</a>
+      <a href="/celebrities" data-nav="celebs">Celebrities</a>
+      <a href="/blog/">Guides</a>
+      <a href="/pricing" data-nav="pricing">Pricing</a>
+    </nav>
+    <div class="nav-actions">
+      <a class="icon-btn" href="/explore" data-nav="explore" aria-label="Search perfumes"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-search"/></svg></a>
+      <a class="btn btn-primary btn-md" id="nav-cta" href="/advisor" data-nav="advisor">Try free</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- HOME -->
+  <section class="view" id="view-home" data-view="home">
+    <div class="wrap">
+      <div class="hero">
+        <div class="seg" role="tablist" aria-label="Search type" id="hero-tabs">
+          <button class="seg-btn is-on" type="button" role="tab" aria-selected="true" data-hero-mode="dupe">Find it for less</button>
+          <button class="seg-btn" type="button" role="tab" aria-selected="false" data-hero-mode="chat">Describe a mood</button>
+        </div>
+        <h2 class="t-display">Smell like a $300 perfume. Pay $45.</h2>
+        <p class="lead" id="hero-lead">Name the fragrance you love. ScentWise compares it note by note against 65,000+ perfumes and tells you what you keep and what you give up.</p>
+        <form class="field lg" id="hero-form" autocomplete="off">
+          <input id="hero-q" type="text" name="q" placeholder="Baccarat Rouge 540, Aventus, Lost Cherry…" aria-label="A perfume you love" maxlength="500">
+          <button class="btn btn-primary" type="submit" id="hero-go">Find dupes<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-arrow"/></svg></button>
+        </form>
+        <div class="chips" id="hero-chips">
+          <button class="chip" type="button" data-prompt="Baccarat Rouge 540 by Maison Francis Kurkdjian" data-mode="dupe">Baccarat Rouge 540</button>
+          <button class="chip" type="button" data-prompt="Aventus by Creed" data-mode="dupe">Creed Aventus</button>
+          <button class="chip" type="button" data-prompt="Santal 33 by Le Labo" data-mode="dupe">Le Labo Santal 33</button>
+          <button class="chip" type="button" data-prompt="Lost Cherry by Tom Ford" data-mode="dupe">Tom Ford Lost Cherry</button>
+        </div>
+        <p class="t-foot muted-2" id="hero-trust">3 free searches. The first needs no sign-up, the next two your email.</p>
+      </div>
+    </div>
+
+    <div class="wrap section-b">
+      <div class="stack" style="gap:12px;max-width:720px;margin-bottom:40px">
+        <h2 class="t-2">Seven ways to find it.</h2>
+        <p class="muted">Start from whatever you already know: a memory, a photo, a playlist, a name.</p>
+      </div>
+      <div class="grid grid-4" id="mode-tiles">
+        <button class="tile wide" type="button" data-mode="chat">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chat"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-3">Describe it</span><span class="t-call muted" style="max-width:420px">Tell the advisor what you want in plain words. Every pick comes with the notes that do the work.</span><span class="t-foot muted-2">Words → scent</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="dupe">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-dupe"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Find it for less</span><span class="t-call muted">Name a fragrance you love, get affordable alternatives.</span><span class="t-foot muted-2">Name → dupes</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="photo">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-camera"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Scan a photo</span><span class="t-call muted">Your outfit, your room, a place you love.</span><span class="t-foot muted-2">Photo → scent</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="zodiac">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkle"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Zodiac match</span><span class="t-call muted">Your birthday, read as a scent profile.</span><span class="t-foot muted-2">Birthday → scent</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="music">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-music"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Music match</span><span class="t-call muted">The genres you play, translated into notes.</span><span class="t-foot muted-2">Playlist → scent</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="style">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-shirt"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Style match</span><span class="t-call muted">Fashion and aesthetic, turned into fragrance.</span><span class="t-foot muted-2">Wardrobe → scent</span></span>
+        </button>
+        <button class="tile" type="button" data-mode="celeb">
+          <span class="ico"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-star"/></svg></span>
+          <span class="stack" style="gap:8px"><span class="t-4">Celebrity picks</span><span class="t-call muted">What 101 celebrities actually wear.</span><span class="t-foot muted-2">Name → their scent</span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="band">
+      <div class="row" style="justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap">
+        <div class="stack" style="gap:12px;max-width:640px">
+          <h2 class="t-2">Built on a library of 65,000+ fragrances.</h2>
+          <p class="muted">Browsing is free. The advisor reasons over the same data you can search yourself.</p>
+        </div>
+        <a class="btn btn-quiet" href="/explore" data-nav="explore">Explore the library<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="grid grid-2" style="gap:24px">
+        <div class="stat"><b>65,000+</b><span class="t-call muted">fragrances, searchable by name, brand and note</span></div>
+        <div class="stat"><b>101</b><span class="t-call muted">celebrity fragrance lists</span></div>
+      </div>
+      <div class="grid grid-4" id="home-featured"></div>
+    </div>
+
+    <div class="wrap section">
+      <div class="grid grid-2 explain" style="gap:40px;align-items:start;margin-bottom:40px">
+        <div class="stack" style="gap:12px">
+          <h2 class="t-2">A match you can check.</h2>
+          <p class="muted">Every dupe comes with the price, the saving, and a straight note on what it does differently. A dupe is never the same perfume, so a cheaper bottle should be a choice, not a gamble.</p>
+        </div>
+        <div class="stack" style="gap:20px">
+          <div class="step"><span class="t-4">Shared notes and accords</span><span class="t-call muted">The match bar is worked out from our database: how many accords and notes the two perfumes have in common.</span></div>
+          <div class="step"><span class="t-4">Same, and what you give up</span><span class="t-call muted">Each pick says what stays the same and what you lose: longevity, projection, a note, smoothness.</span></div>
+          <div class="step"><span class="t-4">How it wears</span><span class="t-call muted">Longevity and projection next to the original, each out of 5.</span></div>
+          <div class="step"><span class="t-4">Checked against the library</span><span class="t-call muted">A pick is only called a low-risk blind buy when it is in our library. Anything else is labelled unverified.</span></div>
+        </div>
+      </div>
+      <div class="notice">
+        <span class="ico"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkle"/></svg></span>
+        <p class="t-call muted">Picks are generated by AI from the ScentWise library and can be wrong about how a scent sits on you. Prices are typical retail and change. Shop links are affiliate links: ScentWise earns a small commission, you pay the same.</p>
+      </div>
+    </div>
+
+    <div class="wrap section-b" id="pricing">
+      <div class="stack" style="align-items:center;text-align:center;gap:12px;max-width:640px;margin:0 auto 40px">
+        <h2 class="t-2">Three searches free. Then $10, once.</h2>
+        <p class="muted">No subscription and no renewal. Browsing the library stays free for everyone.</p>
+      </div>
+      <div class="grid grid-3 pricing" style="max-width:1080px;margin:0 auto">
+        <div class="price">
+          <div class="stack" style="gap:8px"><span class="t-head">Free</span><span class="amount">$0</span></div>
+          <ul>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>3 searches: the first needs no sign-up, the next two your email</span></li>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>Browse all 65,000+ fragrances</span></li>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>101 celebrity lists and every guide</span></li>
+          </ul>
+          <a class="btn btn-quiet" href="/advisor" data-nav="advisor">Start free</a>
+        </div>
+        <div class="price featured">
+          <div class="stack" style="gap:8px"><span class="t-head">Lifetime</span><span class="row" style="gap:8px;align-items:baseline"><span class="amount">$10</span><span class="t-call" style="opacity:.7">once</span></span></div>
+          <ul>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>500 searches every month, for good</span></li>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>All seven ways to search, photo and music included</span></li>
+            <li><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg><span>A scent profile that learns your taste</span></li>
+          </ul>
+          <button class="btn btn-inverse" type="button" data-action="checkout">Get lifetime access</button>
+        </div>
+        <div class="price founder">
+          <p class="t-call">ScentWise is a one-person project. I build the app, maintain the database, write and update the guides, and answer the email.</p>
+          <a class="t-foot muted" href="/author/kerem-toker.html">Kerem Toker, founder</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap section-b" id="guides">
+      <div class="row" style="justify-content:space-between;align-items:baseline;gap:16px;margin-bottom:24px">
+        <h2 class="t-3">Guides</h2>
+        <a class="btn btn-text" href="/blog/">All guides</a>
+      </div>
+      <div class="grid grid-3" style="gap:16px">
+        <a class="card" href="/blog/zodiac-fragrance-guide.html" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">Zodiac</span><span class="t-head">The best perfume for every star sign</span></a>
+        <a class="card" href="/blog/baccarat-rouge-540-dupes.html" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">Dupes</span><span class="t-head">Baccarat Rouge 540 alternatives</span></a>
+        <a class="card" href="/blog/music-fragrance-guide.html" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">Music</span><span class="t-head">Your genre, translated into scent</span></a>
+        <a class="card" href="/blog/how-to-make-perfume-last-longer.html#long-lasting-perfumes" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">Lists</span><span class="t-head">Perfumes that last all day</span></a>
+        <a class="card" href="/blog/celebrity-fragrances-guide.html" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">Celebrities</span><span class="t-head">What the famous actually wear</span></a>
+        <a class="card" href="/blog/fragrance-layering-guide.html" style="padding:24px;display:flex;flex-direction:column;gap:8px;color:inherit"><span class="t-foot muted-2">How to</span><span class="t-head">Layering, done properly</span></a>
+      </div>
+    </div>
+
+    <div class="wrap section-b" id="faq">
+      <h2 class="t-3" style="margin-bottom:24px">Questions</h2>
+      <div class="grid grid-2" id="faq-list" style="gap:8px 24px;align-items:start"><details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">Is ScentWise free?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">Browsing all 65,000+ fragrances is free. You get 3 AI searches free: the first needs no sign-up, the next two your email. After that, lifetime access is $10 once: 500 searches every month, with no subscription and no renewal.</div></details>
+<details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">How is the match worked out?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">The match bar compares the two perfumes in our database: how many accords and notes they share. The AI then writes what stays the same and what you give up. A dupe is never identical, so try a sample before buying a full bottle.</div></details>
+<details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">Where do the Shop links go, and how does ScentWise make money?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">Shop links go to Amazon in your country, to the exact product where we know it. ScentWise earns a small commission on qualifying purchases; you pay the same price. Lifetime access is the other source of income.</div></details>
+<details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">Can the AI be wrong?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">Yes. Picks are generated by AI from the ScentWise library, and a perfume can wear differently on your skin. Picks that are not in our library are labelled, and prices are typical retail that changes, so check the store before you buy.</div></details>
+<details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">Is lifetime access a subscription?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">No. You pay $10 once through Lemon Squeezy, which shows any tax for your country before you pay. Access starts straight away and does not renew. See the Refund Policy for technical problems.</div></details>
+<details class="card" style="padding:0"><summary style="padding:18px 20px;cursor:pointer;font-weight:600;font-size:15px;line-height:1.4">What fragrance does my favourite celebrity wear?</summary><div style="padding:0 20px 18px;font-size:15px;line-height:1.5;color:var(--fg2)">The Celebrities page lists what 101 celebrities are documented wearing, from Rihanna and Zendaya to David Beckham and Timothée Chalamet, with a Shop link and similar picks for each.</div></details></div>
+    </div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section class="view" id="view-explore" data-view="explore">
+    <div class="wrap" style="padding-top:72px;padding-bottom:80px">
+      <div class="stack" style="gap:28px;margin-bottom:24px">
+        <div class="stack" style="gap:10px">
+          <h2 class="t-1">Explore</h2>
+          <p class="muted">Search 65,000+ fragrances by name, brand or note. Free, no account.</p>
+        </div>
+        <form class="field" id="explore-form" style="max-width:720px" autocomplete="off">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="muted-2"><use href="#i-search"/></svg>
+          <input id="explore-q" type="search" placeholder="Perfumes, brands and notes" aria-label="Search perfumes, brands and notes" maxlength="80">
+          <button class="icon-btn sm" type="button" id="explore-clear" aria-label="Clear search" hidden><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-close"/></svg></button>
+        </form>
+        <div class="toolbar">
+          <div class="chips" id="family-chips" role="group" aria-label="Scent family">
+            <button class="chip" type="button" data-fam="" aria-pressed="true">All</button>
+            <button class="chip" type="button" data-fam="fresh"><span class="dot" style="background:var(--f-fresh-ink)"></span>Fresh</button>
+            <button class="chip" type="button" data-fam="citrus"><span class="dot" style="background:var(--f-citrus-ink)"></span>Fruity</button>
+            <button class="chip" type="button" data-fam="floral"><span class="dot" style="background:var(--f-floral-ink)"></span>Floral</button>
+            <button class="chip" type="button" data-fam="woody"><span class="dot" style="background:var(--f-woody-ink)"></span>Woody</button>
+            <button class="chip" type="button" data-fam="amber"><span class="dot" style="background:var(--f-amber-ink)"></span>Amber</button>
+            <button class="chip" type="button" data-fam="green"><span class="dot" style="background:var(--f-green-ink)"></span>Aromatic</button>
+            <button class="chip" type="button" data-fam="gourmand"><span class="dot" style="background:var(--f-gourmand-ink)"></span>Sweet</button>
+            <button class="chip" type="button" data-fam="other"><span class="dot" style="background:var(--f-other-ink)"></span>Musky</button>
+          </div>
+          <div class="chips" id="gender-chips" role="group" aria-label="For whom">
+            <button class="chip ghost" type="button" data-gender="" aria-pressed="true">Everyone</button>
+            <button class="chip ghost" type="button" data-gender="F">Women</button>
+            <button class="chip ghost" type="button" data-gender="M">Men</button>
+            <button class="chip ghost" type="button" data-gender="U">Unisex</button>
+          </div>
+        </div>
+      </div>
+      <div class="results-head" style="margin-bottom:16px"><span class="t-foot muted-2" id="explore-status">Loading the library…</span></div>
+      <div class="grid grid-4" id="explore-results"></div>
+      <div class="row" style="justify-content:center;padding:32px 0"><button class="btn btn-quiet" type="button" id="explore-more" hidden>Show more</button></div>
+    </div>
+  </section>
+
+  <!-- ADVISOR -->
+  <section class="view" id="view-advisor" data-view="advisor">
+    <div class="wrap">
+      <div class="advisor">
+        <aside class="modes">
+          <div class="mode-list" id="mode-list">
+            <div class="eyebrow" style="padding:0 12px 10px">Discovery modes</div>
+            <button class="mode" type="button" data-mode="chat"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-chat"/></svg>Describe it</button>
+            <button class="mode" type="button" data-mode="dupe"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-dupe"/></svg>Find it for less</button>
+            <button class="mode" type="button" data-mode="photo"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-camera"/></svg>Scan a photo</button>
+            <button class="mode" type="button" data-mode="zodiac"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkle"/></svg>Zodiac match</button>
+            <button class="mode" type="button" data-mode="music"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-music"/></svg>Music match</button>
+            <button class="mode" type="button" data-mode="style"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-shirt"/></svg>Style match</button>
+            <button class="mode" type="button" data-mode="celeb"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-star"/></svg>Celebrity picks</button>
+          </div>
+          <div class="meter" id="meter"></div>
+        </aside>
+        <div class="chat">
+          <div class="chips scroll" id="mode-chips" style="margin-bottom:16px"></div>
+          <div class="chat-head">
+            <div class="stack" style="gap:4px"><h2 class="t-3" id="mode-title">Describe it</h2><p class="t-call muted" id="mode-hint">Tell the advisor what you want in plain words.</p></div>
+            <span class="badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkle"/></svg>AI-generated</span>
+          </div>
+          <div class="thread" id="thread"></div>
+          <form class="composer" id="composer" autocomplete="off">
+            <div class="dropzone" id="dropzone" hidden>
+              <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-image"/></svg>
+              <span id="dropzone-label">Drop a photo here or tap to choose</span>
+              <input type="file" id="photo-input" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+            </div>
+            <div class="field">
+              <textarea id="composer-input" rows="1" placeholder="A mood, an occasion, a fragrance you love…" aria-label="Your message" maxlength="1500"></textarea>
+              <button class="send" type="submit" id="send-btn" aria-label="Send"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-send"/></svg></button>
+            </div>
+            <p class="t-foot muted-2" style="padding-left:22px" id="composer-note">Answers can be wrong. Check the notes and try a sample before you buy.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CELEBRITIES -->
+  <section class="view is-active" id="view-celebs" data-view="celebs">
+    <div class="wrap" style="padding-top:72px;padding-bottom:80px">
+      <div class="stack" style="gap:28px;margin-bottom:32px">
+        <div class="stack" style="gap:10px">
+          <h1 class="t-1">Celebrities</h1>
+          <p class="muted">What 101 celebrities actually wear, and the affordable twins for each.</p>
+        </div>
+        <form class="field" id="celeb-form" style="max-width:520px" autocomplete="off" onsubmit="return false">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="muted-2"><use href="#i-search"/></svg>
+          <input id="celeb-q" type="search" placeholder="Search a name" aria-label="Search celebrities" maxlength="60">
+        </form>
+      </div>
+      <div class="celeb-grid" id="celeb-grid"><button class="celeb" type="button" data-celeb="Rihanna"><span class="avatar">R</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Rihanna</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Love, Don't Be Shy · Oud Silk Mood · Tobacco Vanille</span></button><button class="celeb" type="button" data-celeb="David Beckham"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">David Beckham</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Dior Homme Intense · Silver Mountain Water · Bleu de Chanel</span></button><button class="celeb" type="button" data-celeb="Zendaya"><span class="avatar">Z</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Zendaya</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Idôle · Black Opium · Flowerbomb</span></button><button class="celeb" type="button" data-celeb="Johnny Depp"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Johnny Depp</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Sauvage · Sauvage Elixir</span></button><button class="celeb" type="button" data-celeb="Ariana Grande"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Ariana Grande</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Cloud · R.E.M. · God Is A Woman</span></button><button class="celeb" type="button" data-celeb="Brad Pitt"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Brad Pitt</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel No. 5 · Le Labo Santal 33</span></button><button class="celeb" type="button" data-celeb="Beyoncé"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Beyoncé</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Love, Don't Be Shy · Soleil Blanc · Coco Mademoiselle</span></button><button class="celeb" type="button" data-celeb="Harry Styles"><span class="avatar">H</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Harry Styles</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Tobacco Vanille · Mémoire d'une Odeur</span></button><button class="celeb" type="button" data-celeb="Jennifer Aniston"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jennifer Aniston</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel No. 5 · Neroli Portofino</span></button><button class="celeb" type="button" data-celeb="Travis Scott"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Travis Scott</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Sauvage · Aventus · Oud Wood</span></button><button class="celeb" type="button" data-celeb="Billie Eilish"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Billie Eilish</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Eilish · Glossier You · Another 13</span></button><button class="celeb" type="button" data-celeb="Ryan Reynolds"><span class="avatar">R</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Ryan Reynolds</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Armani Code · Bleu de Chanel</span></button><button class="celeb" type="button" data-celeb="Dua Lipa"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Dua Lipa</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Libre · Crystal Noir · Alien</span></button><button class="celeb" type="button" data-celeb="The Weeknd"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">The Weeknd</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Tuscan Leather · Fahrenheit · Angels' Share</span></button><button class="celeb" type="button" data-celeb="Taylor Swift"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Taylor Swift</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Flowerbomb · Santal Blush · Santal 33</span></button><button class="celeb" type="button" data-celeb="Drake"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Drake</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Tobacco Vanille · Baccarat Rouge 540</span></button><button class="celeb" type="button" data-celeb="Margot Robbie"><span class="avatar">M</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Margot Robbie</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Gabrielle · Mon Guerlain</span></button><button class="celeb" type="button" data-celeb="LeBron James"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">LeBron James</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Oud Wood</span></button><button class="celeb" type="button" data-celeb="Gigi Hadid"><span class="avatar">G</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Gigi Hadid</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bal d'Afrique · Daisy · Soleil Blanc</span></button><button class="celeb" type="button" data-celeb="Cristiano Ronaldo"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Cristiano Ronaldo</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">CR7 · Acqua di Gio · Invictus</span></button><button class="celeb" type="button" data-celeb="Kendall Jenner"><span class="avatar">K</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Kendall Jenner</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Santal 33 · Gypsy Water</span></button><button class="celeb" type="button" data-celeb="Jay-Z"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jay-Z</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Tom Ford Noir · Green Irish Tweed · Scent of Peace</span></button><button class="celeb" type="button" data-celeb="Hailey Bieber"><span class="avatar">H</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Hailey Bieber</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Mixed Emotions · Dedcool 01 · Lust in Paradise</span></button><button class="celeb" type="button" data-celeb="Justin Bieber"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Justin Bieber</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Sauvage · Grey Vetiver</span></button><button class="celeb" type="button" data-celeb="Selena Gomez"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Selena Gomez</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Daisy · Cloud</span></button><button class="celeb" type="button" data-celeb="Kanye West"><span class="avatar">K</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Kanye West</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Santal 33 · Jazz Club</span></button><button class="celeb" type="button" data-celeb="Timothée Chalamet"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Timothée Chalamet</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Thé Noir 29</span></button><button class="celeb" type="button" data-celeb="Scarlett Johansson"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Scarlett Johansson</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">The One · Black Orchid</span></button><button class="celeb" type="button" data-celeb="Post Malone"><span class="avatar">P</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Post Malone</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Tobacco Vanille</span></button><button class="celeb" type="button" data-celeb="Emma Watson"><span class="avatar">E</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Emma Watson</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Trésor Midnight Rose · Coco Mademoiselle</span></button><button class="celeb" type="button" data-celeb="Bad Bunny"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Bad Bunny</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Sauvage · Le Male · 1 Million</span></button><button class="celeb" type="button" data-celeb="Chris Hemsworth"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Chris Hemsworth</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Man Wood Essence · Boss Bottled</span></button><button class="celeb" type="button" data-celeb="Lady Gaga"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lady Gaga</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Black Orchid · Flowerbomb</span></button><button class="celeb" type="button" data-celeb="ASAP Rocky"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">ASAP Rocky</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bal d'Afrique · Tobacco Vanille · Jazz Club</span></button><button class="celeb" type="button" data-celeb="Jennie Kim"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jennie Kim</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel No. 5 L'Eau · Gypsy Water · Coco Mademoiselle</span></button><button class="celeb" type="button" data-celeb="David Harbour"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">David Harbour</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Viking</span></button><button class="celeb" type="button" data-celeb="Rosé"><span class="avatar">R</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Rosé</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Tiffany &amp; Co EDP · Mon Paris</span></button><button class="celeb" type="button" data-celeb="Jacob Elordi"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jacob Elordi</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Noir Extreme</span></button><button class="celeb" type="button" data-celeb="Sydney Sweeney"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Sydney Sweeney</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">My Way · La Vie Est Belle</span></button><button class="celeb" type="button" data-celeb="Michael B. Jordan"><span class="avatar">M</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Michael B. Jordan</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Coach for Men</span></button><button class="celeb" type="button" data-celeb="Bella Hadid"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Bella Hadid</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Côte d'Azur · Mojave Ghost · Dedcool 01</span></button><button class="celeb" type="button" data-celeb="Tom Holland"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Tom Holland</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Acqua di Gio</span></button><button class="celeb" type="button" data-celeb="Olivia Rodrigo"><span class="avatar">O</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Olivia Rodrigo</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Glossier You · Cloud</span></button><button class="celeb" type="button" data-celeb="Idris Elba"><span class="avatar">I</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Idris Elba</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Aventus</span></button><button class="celeb" type="button" data-celeb="Megan Fox"><span class="avatar">M</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Megan Fox</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Armani Privé · Alien · Black Orchid</span></button><button class="celeb" type="button" data-celeb="Jason Momoa"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jason Momoa</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Acqua di Gio Profumo · Layton</span></button><button class="celeb" type="button" data-celeb="Cardi B"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Cardi B</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Good Girl</span></button><button class="celeb" type="button" data-celeb="Chris Evans"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Chris Evans</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Aventus</span></button><button class="celeb" type="button" data-celeb="Kim Kardashian"><span class="avatar">K</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Kim Kardashian</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Crystal Gardenia · Santal 33</span></button><button class="celeb" type="button" data-celeb="Tom Cruise"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Tom Cruise</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Green Irish Tweed · Black Afgano</span></button><button class="celeb" type="button" data-celeb="Natalie Portman"><span class="avatar">N</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Natalie Portman</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Miss Dior · Chanel No. 5</span></button><button class="celeb" type="button" data-celeb="Leonardo DiCaprio"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Leonardo DiCaprio</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Acqua di Gio · Green Irish Tweed</span></button><button class="celeb" type="button" data-celeb="Angelina Jolie"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Angelina Jolie</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Mon Guerlain · Shalimar</span></button><button class="celeb" type="button" data-celeb="Will Smith"><span class="avatar">W</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Will Smith</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Creed Aventus · Dior Homme</span></button><button class="celeb" type="button" data-celeb="Charlize Theron"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Charlize Theron</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">J'adore · Chanel No. 5</span></button><button class="celeb" type="button" data-celeb="Robert Downey Jr."><span class="avatar">R</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Robert Downey Jr.</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Aventus</span></button><button class="celeb" type="button" data-celeb="Jennifer Lopez"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jennifer Lopez</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Glow · Promise · Still</span></button><button class="celeb" type="button" data-celeb="Zayn Malik"><span class="avatar">Z</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Zayn Malik</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Versace Eros · Bleu de Chanel</span></button><button class="celeb" type="button" data-celeb="Kylie Jenner"><span class="avatar">K</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Kylie Jenner</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Santal 33 · Delina</span></button><button class="celeb" type="button" data-celeb="Keanu Reeves"><span class="avatar">K</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Keanu Reeves</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Acqua di Gio · Oud Wood</span></button><button class="celeb" type="button" data-celeb="Nicole Kidman"><span class="avatar">N</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Nicole Kidman</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel No. 5 · J'adore</span></button><button class="celeb" type="button" data-celeb="George Clooney"><span class="avatar">G</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">George Clooney</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Casamorati 1888 · Green Irish Tweed</span></button><button class="celeb" type="button" data-celeb="Anne Hathaway"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Anne Hathaway</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Lancôme Idôle · Coco Mademoiselle</span></button><button class="celeb" type="button" data-celeb="Pedro Pascal"><span class="avatar">P</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Pedro Pascal</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Terre d'Hermès</span></button><button class="celeb" type="button" data-celeb="Florence Pugh"><span class="avatar">F</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Florence Pugh</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Glossier You · Jo Malone Wood Sage</span></button><button class="celeb" type="button" data-celeb="Oscar Isaac"><span class="avatar">O</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Oscar Isaac</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Tuscan Leather</span></button><button class="celeb" type="button" data-celeb="Ana de Armas"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Ana de Armas</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">J'adore · Estée Lauder Beautiful</span></button><button class="celeb" type="button" data-celeb="Austin Butler"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Austin Butler</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Noir Extreme · Sauvage Elixir</span></button><button class="celeb" type="button" data-celeb="Anya Taylor-Joy"><span class="avatar">A</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Anya Taylor-Joy</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Flowerbomb Nectar · Black Opium</span></button><button class="celeb" type="button" data-celeb="Henry Cavill"><span class="avatar">H</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Henry Cavill</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel Allure Homme Sport · Aventus</span></button><button class="celeb" type="button" data-celeb="Doja Cat"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Doja Cat</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Delina · Baccarat Rouge 540</span></button><button class="celeb" type="button" data-celeb="SZA"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">SZA</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Kayali Vanilla 28 · Another 13</span></button><button class="celeb" type="button" data-celeb="Jenna Ortega"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jenna Ortega</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Cloud · Glossier You</span></button><button class="celeb" type="button" data-celeb="Paul Mescal"><span class="avatar">P</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Paul Mescal</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Santal 33 · Terre d'Hermès</span></button><button class="celeb" type="button" data-celeb="Ice Spice"><span class="avatar">I</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Ice Spice</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Cloud</span></button><button class="celeb" type="button" data-celeb="Jungkook"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jungkook</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Libre · Bleu de Chanel</span></button><button class="celeb" type="button" data-celeb="Blackpink Lisa"><span class="avatar">B</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Blackpink Lisa</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Celine Black Tie · Miss Dior</span></button><button class="celeb" type="button" data-celeb="V (Taehyung)"><span class="avatar">V</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">V (Taehyung)</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Blanche · Bois d'Argent</span></button><button class="celeb" type="button" data-celeb="Jimin"><span class="avatar">J</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Jimin</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Mojave Ghost · Santal 33</span></button><button class="celeb" type="button" data-celeb="Neymar"><span class="avatar">N</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Neymar</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">1 Million · Invictus</span></button><button class="celeb" type="button" data-celeb="Lewis Hamilton"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lewis Hamilton</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Aventus</span></button><button class="celeb" type="button" data-celeb="Mbappe"><span class="avatar">M</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Mbappe</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Sauvage · Y EDP</span></button><button class="celeb" type="button" data-celeb="Elon Musk"><span class="avatar">E</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Elon Musk</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Terre d'Hermès · Creed Aventus</span></button><button class="celeb" type="button" data-celeb="Oprah Winfrey"><span class="avatar">O</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Oprah Winfrey</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Beautiful · Chanel No. 5</span></button><button class="celeb" type="button" data-celeb="Sandra Bullock"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Sandra Bullock</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Kai · Le Labo Rose 31</span></button><button class="celeb" type="button" data-celeb="Matthew McConaughey"><span class="avatar">M</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Matthew McConaughey</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Dolce &amp; Gabbana The One · Sauvage</span></button><button class="celeb" type="button" data-celeb="Victoria Beckham"><span class="avatar">V</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Victoria Beckham</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Santal 33 · Baccarat Rouge 540</span></button><button class="celeb" type="button" data-celeb="Priyanka Chopra"><span class="avatar">P</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Priyanka Chopra</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Trussardi Donna · Bulgari Omnia</span></button><button class="celeb" type="button" data-celeb="Shakira"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Shakira</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">S by Shakira · Dance</span></button><button class="celeb" type="button" data-celeb="Pharrell Williams"><span class="avatar">P</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Pharrell Williams</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Girl · Bleu de Chanel</span></button><button class="celeb" type="button" data-celeb="Lizzo"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lizzo</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Baccarat Rouge 540 · Good Girl</span></button><button class="celeb" type="button" data-celeb="Lana Del Rey"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lana Del Rey</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Chanel No. 5 · Black Opium · Replica By the Fireplace</span></button><button class="celeb" type="button" data-celeb="Tyler, The Creator"><span class="avatar">T</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Tyler, The Creator</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">French Waltz · Santal 33 · Tobacco Vanille</span></button><button class="celeb" type="button" data-celeb="Frank Ocean"><span class="avatar">F</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Frank Ocean</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Comme des Garcons 2 · Terre d'Hermès</span></button><button class="celeb" type="button" data-celeb="Daniel Craig"><span class="avatar">D</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Daniel Craig</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Aventus · Tom Ford Noir</span></button><button class="celeb" type="button" data-celeb="Salma Hayek"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Salma Hayek</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Opium · Black Orchid</span></button><button class="celeb" type="button" data-celeb="Chris Pratt"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Chris Pratt</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Bleu de Chanel · Sauvage</span></button><button class="celeb" type="button" data-celeb="Lupita Nyong'o"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lupita Nyong'o</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Lancôme La Vie Est Belle · J'adore</span></button><button class="celeb" type="button" data-celeb="Lenny Kravitz"><span class="avatar">L</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Lenny Kravitz</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Oud Wood · Jazz Club · Tobacco Vanille</span></button><button class="celeb" type="button" data-celeb="Sabrina Carpenter"><span class="avatar">S</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Sabrina Carpenter</span><span class="t-foot muted">3 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Cloud · Mon Paris · Delina</span></button><button class="celeb" type="button" data-celeb="Chappell Roan"><span class="avatar">C</span><span class="stack" style="gap:2px"><span class="t-head" style="font-size:17px">Chappell Roan</span><span class="t-foot muted">2 fragrances</span></span><span class="t-call muted" style="line-height:1.4">Glossier You · Replica Bubble Bath</span></button></div>
+    </div>
+  </section>
+
+  <!-- ACCOUNT -->
+  <section class="view" id="view-account" data-view="account">
+    <div class="wrap" style="padding-top:72px;padding-bottom:80px">
+      <div class="account" id="account"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap stack" style="gap:24px">
+    <div class="row" style="justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <a class="brand" href="/" data-nav="home" style="font-size:15px"><span class="brand-dot"></span>ScentWise</a>
+      <div class="links">
+        <a href="/discover.html">Discovery modes</a><a href="/collections.html">Collections</a><a href="/about.html">About</a><a href="/blog/">Guides</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/refund.html">Refunds</a><a href="/kvkk.html">KVKK</a><a href="/contact.html">Contact</a>
+      </div>
+    </div>
+    <p class="t-foot muted-2">© 2026 ScentWise · As an Amazon Associate, ScentWise earns from qualifying purchases.</p>
+  </div>
+</footer>
+
+<nav class="tabbar" aria-label="Sections">
+  <a class="tab" href="/" data-nav="home"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-home"/></svg>Home</a>
+  <a class="tab" href="/explore" data-nav="explore"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-compass"/></svg>Explore</a>
+  <a class="tab" href="/advisor" data-nav="advisor"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sparkle"/></svg>Advisor</a>
+  <a class="tab" href="/celebrities" data-nav="celebs"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-star"/></svg>Celebs</a>
+  <a class="tab" href="/account" data-nav="account"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><use href="#i-person"/></svg>You</a>
+</nav>
+
+<div id="sheet" class="sheet-backdrop" hidden role="dialog" aria-modal="true" aria-label="Perfume details"></div>
+<div id="compare-tray" class="tray" hidden aria-label="Compare tray"></div>
+<div id="toast" class="toast-wrap" aria-live="polite"></div>
+
+<div id="cookie-banner" class="cookie" style="display:none" role="dialog" aria-label="Cookie preferences">
+  <strong style="color:var(--fg)">Cookie preferences</strong>
+  <p class="ck-long">We use essential cookies (login and free-trial tracking) plus optional analytics and ad cookies. Choose what you're comfortable with. <a href="/privacy.html">Privacy policy</a> · <a href="/kvkk.html">KVKK</a></p>
+  <div class="actions">
+    <button class="btn btn-primary btn-md" type="button" onclick="acceptAllCookies()">Accept all</button>
+    <button class="btn btn-quiet btn-md" type="button" onclick="acceptEssentialOnly()">Essential only</button>
+    <button class="btn btn-text btn-md" type="button" onclick="toggleCookieSettings()">Customise</button>
+  </div>
+  <div id="cookie-settings" style="display:none" class="stack">
+    <label><input type="checkbox" checked disabled> Essential (always on)</label>
+    <label><input type="checkbox" id="ck-analytics"> Analytics</label>
+    <label><input type="checkbox" id="ck-ads"> Personalised ads</label>
+    <button class="btn btn-primary btn-md" type="button" onclick="saveCustomCookies()" style="align-self:flex-start">Save preferences</button>
+  </div>
+</div>
+
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","@id":"https://scent-wise.com/#organization","name":"ScentWise","url":"https://scent-wise.com","foundingDate":"2025","founder":{"@type":"Person","@id":"https://scent-wise.com/author/kerem-toker.html#person","name":"Kerem Toker","url":"https://scent-wise.com/author/kerem-toker.html"},"logo":{"@type":"ImageObject","url":"https://scent-wise.com/icon-512.png","width":512,"height":512},"image":"https://scent-wise.com/og-image.png","description":"AI-powered fragrance advisor helping you discover your perfect scent from 65,000+ perfumes.","email":"scentwise.com@gmail.com","sameAs":[],"contactPoint":{"@type":"ContactPoint","email":"scentwise.com@gmail.com","contactType":"customer support","availableLanguage":"English"},"knowsAbout":["fragrances","perfumes","AI recommendations","scent matching","fragrance dupes","affordable perfume alternatives","celebrity fragrances","zodiac fragrances"]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","@id":"https://scent-wise.com/#website","name":"ScentWise","url":"https://scent-wise.com","description":"AI-powered fragrance advisor with 65,000+ perfumes","publisher":{"@id":"https://scent-wise.com/#organization"},"inLanguage":"en-US","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://scent-wise.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":["WebApplication","SoftwareApplication"],"@id":"https://scent-wise.com/#app","name":"ScentWise","alternateName":["ScentWise AI","ScentWise Perfume Advisor","ScentWise AI Fragrance Finder"],"description":"AI perfume advisor — 65,000+ fragrances, 7 AI discovery modes (chat, dupe finder, photo style scan, zodiac match, music-to-fragrance, style match, celebrity collections). Free to try.","url":"https://scent-wise.com","image":"https://scent-wise.com/og-image.png","applicationCategory":"LifestyleApplication","applicationSubCategory":"AI Perfume Recommendation App","operatingSystem":"Web, iOS, Android (PWA)","browserRequirements":"Requires JavaScript","provider":{"@id":"https://scent-wise.com/#organization"},"offers":[{"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free Tier","description":"1 free AI recommendation up front, plus 2 more after sharing your email — no account required","availability":"https://schema.org/InStock"},{"@type":"Offer","price":"10.00","priceCurrency":"USD","name":"Premium (One-Time)","description":"One-time purchase for lifetime Premium access with 500 AI queries per month","availability":"https://schema.org/InStock","priceValidUntil":"2026-12-31","url":"https://scent-wise.com/"}],"featureList":["AI Fragrance Advisor Chat","Fragrance Dupe Finder","Style-based Scent Matching","Zodiac Fragrance Matching","Music-to-Fragrance Matching","Photo Style Scan AI","Celebrity Fragrance Database (101 celebrities)","65,000+ Perfume Database with Notes and Ratings"],"keywords":"AI perfume advisor, AI fragrance recommendations, AI perfume app, perfume dupe finder, personalized perfume recommendations, fragrance from photo, zodiac perfume, celebrity fragrances"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"CollectionPage","@id":"https://scent-wise.com/celebrities#webpage","url":"https://scent-wise.com/celebrities","name":"Celebrity Fragrances — What 101 Celebrities Wear | ScentWise","description":"The perfumes 101 celebrities are documented wearing, from Rihanna and Zendaya to David Beckham and Timothée Chalamet, with similar and cheaper picks for each.","isPartOf":{"@id":"https://scent-wise.com/#website"},"inLanguage":"en"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://scent-wise.com/"},{"@type":"ListItem","position":2,"name":"Celebrities","item":"https://scent-wise.com/celebrities"}]}
+</script>
+
+<script defer data-domain="scent-wise.com" src="https://plausible.io/js/script.js"></script>
+<script src="/amazon.js?v=9" defer></script>
+<script src="/app.js?v=14" defer></script>
+<!-- Cookie consent: Google Analytics and AdSense load only after the matching
+     consent (see /consent.js); nothing is sent to Google before a choice. -->
+<script>
+function getCookieConsent(){try{var v=localStorage.getItem('sw_cookie_consent');return v?JSON.parse(v):null}catch(e){return null}}
+function saveCookieConsent(obj){try{localStorage.setItem('sw_cookie_consent',JSON.stringify(obj))}catch(e){}}
+function _gaConsentUpdate(a,d){if(typeof gtag!=='function')return;gtag('consent','update',{ad_storage:d?'granted':'denied',analytics_storage:a?'granted':'denied',ad_user_data:d?'granted':'denied',ad_personalization:d?'granted':'denied'})}
+function _ttqConsentUpdate(a){try{if(a){window._swLoadTikTok&&window._swLoadTikTok()}else if(window.ttq){ttq.revokeConsent&&ttq.revokeConsent()}}catch(e){}}
+function acceptAllCookies(){saveCookieConsent({essential:true,analytics:true,ads:true,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(true,true);_ttqConsentUpdate(true);loadConsentedScripts()}
+function acceptEssentialOnly(){saveCookieConsent({essential:true,analytics:false,ads:false,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(false,false);_ttqConsentUpdate(false)}
+function toggleCookieSettings(){var el=document.getElementById('cookie-settings');el.style.display=el.style.display==='none'?'block':'none'}
+function saveCustomCookies(){var a=document.getElementById('ck-analytics').checked;var d=document.getElementById('ck-ads').checked;saveCookieConsent({essential:true,analytics:a,ads:d,ts:Date.now()});document.getElementById('cookie-banner').style.display='none';_gaConsentUpdate(a,d);_ttqConsentUpdate(d);loadConsentedScripts()}
+function loadConsentedScripts(){var c=getCookieConsent();if(c&&window.swLoadGoogle)window.swLoadGoogle(!!c.analytics,!!c.ads)}
+document.addEventListener('DOMContentLoaded',function(){var c=getCookieConsent();if(!c){document.getElementById('cookie-banner').style.display='block'}else{_gaConsentUpdate(!!c.analytics,!!c.ads);_ttqConsentUpdate(!!c.ads);loadConsentedScripts()}});
+</script>
+
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<!-- Google Analytics 4 config. These calls only queue in dataLayer: gtag.js
+     itself is loaded by /consent.js once the visitor accepts statistics
+     cookies, and then runs them with the consent state already applied. -->
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+// Consent Mode defaults are set by /consent.js in <head>, before any Google tag.
+// URL passthrough keeps TikTok/UTM click IDs across the pre-consent hop;
+// ads_data_redaction strips PII from pre-consent pings.
+gtag('set', 'url_passthrough', true);
+gtag('set', 'ads_data_redaction', true);
+gtag('js', new Date());
+gtag('config', 'G-769WY8EYH6', { anonymize_ip: true });
+</script>
+<!-- TikTok Pixel — consent-gated. Only the ttq stub is defined on page view;
+     the pixel itself loads once the visitor accepts advertising cookies
+     (_swLoadTikTok, called from the cookie banner or for a stored choice). -->
+<script>
+!function (w, d, t) {
+  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
+var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
+;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
+  // The pixel is only downloaded after consent: fetching it sends the visitor's
+  // IP to TikTok, which already needs consent under KVKK/GDPR.
+  var loaded = false;
+  w._swLoadTikTok = function () {
+    if (loaded) return; loaded = true;
+    ttq.load('D7HLCTJC77UFJPI0A7AG');
+    ttq.grantConsent();
+    ttq.page();
+  };
+  try {
+    var _c = (function(){try{return JSON.parse(localStorage.getItem('sw_cookie_consent')||'null')}catch(e){return null}})();
+    if (_c && _c.ads) w._swLoadTikTok();
+  } catch(e) {}
+}(window, document, 'ttq');
+</script>
+
+</body>
+</html>
